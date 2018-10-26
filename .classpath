@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry path="src" kind="src"/>
+	<classpathentry path="org.eclipse.jdt.launching.JRE_CONTAINER" kind="con"/>
+	<classpathentry path="Lib/lucene-1.4.3.jar" kind="lib"/>
+	<classpathentry path="Lib/xerces.jar" kind="lib"/>
+	<classpathentry path="Lib/bsf.jar" kind="lib"/>
+	<classpathentry path="Lib/commons-codec-1.3.jar" kind="lib"/>
+	<classpathentry path="Lib/js.jar" kind="lib"/>
+	<classpathentry path="Lib/jython.jar" kind="lib"/>
+	<classpathentry path="Lib/serializer.jar" kind="lib"/>
+	<classpathentry path="Lib/xalan.jar" kind="lib"/>
+	<classpathentry path="Lib/xercesImpl.jar" kind="lib"/>
+	<classpathentry path="Lib/xml-apis.jar" kind="lib"/>
+	<classpathentry path="Lib/xsltc.jar" kind="lib"/>
+	<classpathentry path="bin" kind="output"/>
+</classpath>

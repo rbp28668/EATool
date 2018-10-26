@@ -1,0 +1,24 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<!--
+
+-->
+</head>
+<body bgcolor="white">
+
+Provides a set of proxy classes to provide a facade for scripting.
+<p>These classes typically wrap items in the repository and provide
+more user-focussed operations than the underlying classes.  The top
+level class is {@link Application} that is put into the context
+of the scripting languages at <code>app</code>.
+</p>
+<p> Note that as the scripts are run in a seperate thread it is necessary
+for methods of these objects to explicitly run in the main UI dispatch thread
+using <code>java.awt.EventQueue.invokeAndWait(Runnable)</code>.
+</p>
+
+<!-- Put @see and @since tags down here. -->
+
+</body>
+</html>
