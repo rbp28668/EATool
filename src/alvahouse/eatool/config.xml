@@ -1,0 +1,1629 @@
+<?xml version="1.0"?>
+<EAToolConfig>
+	<!--=============================================================-->
+	<!-- Command Frame                                               -->
+	<!--=============================================================-->
+	<CommandFrame>
+		<menus>
+			<menu display="File" mnemonic="F">
+				<menuitem 	action="FileNew" 
+							display="New"
+							mnemonic="N"
+							accel="N"
+							accelmod="CTRL"/>
+				<menuitem 	action="FileLoad" 
+							display="Open"
+							mnemonic="O"
+							accel="O"
+							accelmod="CTRL"/>
+				<menuitem 	action="FileSave" 
+							display="Save"
+							mnemonic="S"
+							accel="S"
+							accelmod="CTRL"/>
+				<menuitem 	action="FileSaveAs" 
+							display="Save As"
+							mnemonic="A"/>
+				<menuitem 	action="FileMerge" 
+							display="Merge"
+							mnemonic="M"
+							accel="M"
+							accelmod="CTRL"/>
+				<menuitem 	action="FileImport" 
+							display="Import"
+							mnemonic="I"
+							accel="I"
+							accelmod="CTRL"/>
+				<menuitem 	action="FileExport" 
+							display="Export"
+							mnemonic="E"
+							accel="E"
+							accelmod="CTRL"/>
+				<menuitem 	action="FileProperties" 
+							display="Properties"
+							mnemonic="P"
+							accel="P"
+							accelmod="CTRL"/>
+				<separator/>
+				<menuitem 	action="FileExit" 
+							display="Exit"
+							mnemonic="X"/>
+			</menu>
+
+
+			<menu display="Model" mnemonic="o">
+				<menuitem 	action="ModelExplore" 
+							display="Explore"
+							mnemonic="E"
+							/>
+				<menuitem 	action="ModelBrowse" 
+							display="Browse"
+							mnemonic="B"
+							/>
+				<menuitem 	action="ModelSearch" 
+							display="Search"
+							mnemonic="S"
+							/>
+				<menuitem 	action="ModelView" 
+							display="View"
+							mnemonic="V"
+							/>
+				<menuitem 	action="ModelDiagram" 
+							display="Diagrams"
+							mnemonic="D"
+							/>
+				<menuitem 	action="ModelMatrix" 
+							display="Matrix"
+							mnemonic="M"
+							/>
+				<menuitem 	action="ModelImages" 
+							display="Images"
+							mnemonic="I"
+							/>
+				<menuitem 	action="ModelTime" 
+							display="Time"
+							mnemonic="T"
+							/>
+
+			</menu>
+
+			<menu display="MetaModel" mnemonic="M">
+				<menuitem 	action="MetaModelExplore" 
+							display="Explore"
+							mnemonic="E"
+							/>
+				<menuitem 	action="MetaModelView" 
+							display="View"
+							mnemonic="V"
+							/>
+				<menuitem 	action="MetaModelDiagram" 
+							display="Diagrams"
+							mnemonic="D"
+							/>
+				<menuitem 	action="MetaModelTypes" 
+							display="Types"
+							mnemonic="T"
+							/>
+							
+			</menu>
+
+			<menu display="Tools" mnemonic="T">
+				<menuitem 	action="ToolsPages" 
+							display="Framework Pages"
+							mnemonic="F"
+							/>
+				<menuitem 	action="ToolsScripts" 
+							display="Scripts"
+							mnemonic="S"
+							/>
+				<menuitem 	action="ToolsEventMappings" 
+							display="Event Mappings"
+							mnemonic="V"
+							/>
+				<menuitem 	action="ToolsImportMappings" 
+							display="Import Mappings"
+							mnemonic="I"
+							/>
+				<menuitem 	action="ToolsExportMappings" 
+							display="Export Mappings"
+							mnemonic="E"
+							/>
+				<menuitem 	action="ToolsExportWebSite" 
+							display="Export Web Site"
+							mnemonic="W"
+							/>
+				<menuitem 	action="ToolsSettings" 
+							display="Settings"
+							mnemonic="T"
+							/>
+				<menuitem 	action="ToolsConfig" 
+							display="Configuration"
+							mnemonic="C"
+							/>
+			</menu>
+
+			<menu display="Window" mnemonic="W">
+				<menuitem 	action="WindowPLAFMetal" 
+							display="Metal Look and Feel"
+							mnemonic="M"
+							/>
+				<menuitem 	action="WindowPLAFMotif" 
+							display="Motif Look and Feel"
+							mnemonic="O"
+							/>
+				<menuitem 	action="WindowPLAFWindows" 
+							display="Windows Look and Feel"
+							mnemonic="W"
+							/>
+			</menu>
+			
+			<!--
+			<menu display="Test" mnemonic="T">
+				<menuitem 	action="TestException" 
+							display="Exception"
+							mnemonic="E"
+							/>
+				<menuitem 	action="IndexRepository" 
+							display="Index Repository"
+							mnemonic="I"
+							/>
+				<menuitem 	action="Search" 
+							display="Search"
+							mnemonic="S"
+							/>
+				<menuitem 	action="Test" 
+							display="Test HTML Editor"
+							mnemonic="H"
+							/>
+			</menu>
+			-->
+			
+			
+			<menu display="Help" mnemonic="H">
+				<menuitem 	action="HelpContents" 
+							display="Contents"
+							mnemonic="C"
+							/>
+				<menuitem 	action="HelpAbout" 
+							display="About"
+							mnemonic="A"
+							/>
+			</menu>
+		</menus>	
+		<!--
+		<toolbar>
+			<button display="Import" action="FileImport"/>
+			<button display="Export" action="FileExport"/>
+		</toolbar>
+		-->
+	</CommandFrame>
+
+	<!--=============================================================-->
+	<!-- Model Viewer                                                -->
+	<!--=============================================================-->
+
+	<ModelViewer>
+		<menus>
+			<menu display="File" mnemonic="F">
+				<menuitem 	action="FileExportJPG" 
+							display="Export as JPEG"
+							mnemonic="J"
+							/>
+				<menuitem 	action="FileExportPNG" 
+							display="Export as PNG"
+							mnemonic="P"
+							/>
+			
+			</menu>
+		
+			<menu display="Edit" mnemonic="E">
+
+				<menuitem 	action="AddNewItem" 
+							display="New Entity"
+							mnemonic="N"
+							/>
+							
+				<menuitem 	action="AddSymbols" 
+							display="Add Entities from model"
+							mnemonic="A"
+							/>
+			
+				<menuitem 	action="SearchAndAdd" 
+							display="Add From Search"
+							mnemonic="S"
+							/>
+							
+				<menuitem 	action="AddSelectedConnectors" 
+							display="Add Selected Connectors"
+							mnemonic="E"
+							/>
+
+				<menuitem 	action="AddConnectors" 
+							display="Add Connectors"
+							mnemonic="C"
+							/>
+
+				<menuitem 	action="AddTextBox" 
+							display="Add Text Box"
+							mnemonic="T"
+							/>
+
+				<menuitem 	action="AddImage" 
+							display="Add Image"
+							mnemonic="I"
+							/>
+
+				<separator/>
+
+				<menuitem 	action="EditBackground" 
+							display="Edit Background Colour"
+							mnemonic="B"
+							/>
+
+				<separator/>
+
+				<menuitem 	action="EditInformation" 
+							display="Edit Diagram Information"
+							mnemonic="I"
+							/>
+
+				<menuitem 	action="EditEventMappings" 
+							display="Edit Event Mappings"
+							mnemonic="V"
+							/>
+			
+			</menu>
+		
+			<menu display="Zoom" mnemonic="Z">
+				<menuitem 	action="WindowZoomIn" 
+							display="Zoom In"
+							mnemonic="I"
+							/>
+				<menuitem 	action="WindowZoomOut" 
+							display="Zoom Out"
+							mnemonic="O"
+							/>
+				<menuitem 	action="WindowZoom10" 
+							display="Zoom 10%"
+							mnemonic="M" 
+							/> <!-- minute -->
+				<menuitem 	action="WindowZoom25" 
+							display="Zoom 25%"
+							mnemonic="T" 
+							/> <!-- tiny -->
+				<menuitem 	action="WindowZoom50" 
+							display="Zoom 50%"
+							mnemonic="S"
+							/>  <!-- small -->
+				<menuitem 	action="WindowZoom100" 
+							display="Zoom 100%"
+							mnemonic="N" 
+							/> <!-- normal -->
+				<menuitem 	action="WindowZoom200" 
+							display="Zoom 200%"
+							mnemonic="L" 
+							/> <!-- large -->
+				<menuitem 	action="WindowZoom400" 
+							display="Zoom 400%"
+							mnemonic="E" 
+							/> <!-- enormous -->
+				<menuitem 	action="WindowFit" 
+							display="Fit To Window"
+							mnemonic="F"
+							/>
+			</menu>
+			
+			<menu display="Layout" mnemonic="L">
+				<menuitem 	action="GridLayout" 
+							display="Grid Layout"
+							mnemonic="G"
+							/>
+				<menuitem 	action="GridConnectLayout" 
+							display="GridConnectLayout"
+							mnemonic="C"
+							/>
+			
+				<menuitem 	action="HierarchyLayout" 
+							display="Hierarchy Layout"
+							mnemonic="H"
+							/>
+
+				<menuitem 	action="CircularHierarchyLayout" 
+							display="Circular Hierarchy Layout"
+							mnemonic="I"
+							/>
+
+				<!-- -->
+				<menuitem 	action="SpringLayout" 
+							display="Spring Layout"
+							mnemonic="S"
+							/>
+				<!-- -->
+							<menuitem 	action="GridAnnealLayout" 
+							display="Grid Anneal Layout"
+							mnemonic="A"
+							/>
+							<menuitem 	action="FlexAnnealLayout" 
+							display="Flex Anneal Layout"
+							mnemonic="F"
+							/>
+				
+			</menu>
+			
+		</menus>
+		
+		<popups>
+			<popup name="Background">
+				<menuitem 	action="AddNewItem" 
+							display="New Entity"
+							mnemonic="N"
+							/>
+
+				<menuitem 	action="AddSymbols" 
+							display="Add Entities from model"
+							mnemonic="A"
+							/>
+
+				<menuitem 	action="AddConnectors" 
+							display="Add Connectors"
+							mnemonic="C"
+							/>
+
+				<menuitem 	action="AddTextBox" 
+							display="Add Text Box"
+							mnemonic="T"
+							/>
+
+				<menuitem 	action="AddImage" 
+							display="Add Image"
+							mnemonic="I"
+							/>
+
+				<separator/>
+
+				<menuitem 	action="EditBackground" 
+							display="Edit Background Colour"
+							mnemonic="B"
+							/>
+
+			</popup>
+
+			<popup name="Entity">
+				<menuitem 	action="EntityBrowse" 
+							display="Browse Entity"
+							mnemonic="B"
+							/>
+				<menuitem 	action="EntityEdit" 
+							display="Edit Entity"
+							mnemonic="E"
+							/>
+				<menuitem 	action="EntityRemove" 
+							display="Remove Entity from Diagram"
+							mnemonic="R"
+							/>
+				<menuitem 	action="EntityDelete" 
+							display="Delete Entity from Model"
+							mnemonic="D"
+							/>
+				<separator/>
+				<menuitem 	action="SymbolEdit" 
+							display="Edit Symbol"
+							mnemonic="S"
+							/>
+				<menuitem 	action="SymbolResize" 
+							display="Resize Symbol"
+							mnemonic="I"
+							/>
+							
+
+			</popup>
+			
+			<popup name="Relationship">
+				<menuitem 	action="RelationshipRemove" 
+							display="Remove Relationship from Diagram"
+							mnemonic="R"
+							/>
+				<menuitem 	action="RelationshipDelete" 
+							display="Delete Relationship from Model"
+							mnemonic="D"
+							/>
+			</popup>
+
+			<popup name="TextBox">
+				<menuitem 	action="TextBoxEdit" 
+							display="Edit Text"
+							mnemonic="T"
+							/>
+				<menuitem 	action="TextBoxSettings" 
+							display="Edit Text Box Settings"
+							mnemonic="S"
+							/>
+				<menuitem 	action="TextBoxDelete" 
+							display="Delete Text Box"
+							mnemonic="D"
+							/>
+			</popup>
+
+			<popup name="ImageDisplay">
+				<menuitem   action="ImageDelete"
+							display="Delete Image"
+							mnemonic="D"
+							/>
+			</popup>
+						
+		</popups>
+
+	</ModelViewer>
+
+	<!--=============================================================-->
+	<!-- Meta Model Viewer                                           -->
+	<!--=============================================================-->
+
+	<MetaModelViewer>
+		<menus>
+			<menu display="File" mnemonic="F">
+				<menuitem 	action="FileExportJPG" 
+							display="Export as JPEG"
+							mnemonic="J"
+							/>
+				<menuitem 	action="FileExportPNG" 
+							display="Export as PNG"
+							mnemonic="P"
+							/>
+			
+			</menu>
+		
+			<menu display="Edit" mnemonic="E">
+
+				<menuitem 	action="AddNewItem" 
+							display="New Meta-Entity"
+							mnemonic="N"
+							/>
+
+				<menuitem 	action="AddSymbols" 
+							display="Add Meta-Entities"
+							mnemonic="A"
+							/>
+			
+				<menuitem 	action="AddConnectors" 
+							display="Add Meta-Relationships"
+							mnemonic="C"
+							/>
+
+				<separator/>
+
+				<menuitem 	action="ResizeAllSymbols" 
+							display="Resize all symbols"
+							mnemonic="R"
+							/>
+
+				<menuitem 	action="EditBackground" 
+							display="Edit Background Colour"
+							mnemonic="B"
+							/>
+
+				<separator/>
+
+				<menuitem 	action="EditInformation" 
+							display="Edit Diagram Informatin"
+							mnemonic="I"
+							/>
+
+				<menuitem 	action="EditEventMappings" 
+							display="Edit Event Mappings"
+							mnemonic="V"
+							/>
+			
+			</menu>
+		
+			<menu display="Zoom" mnemonic="Z">
+				<menuitem 	action="WindowZoomIn" 
+							display="Zoom In"
+							mnemonic="I"
+							/>
+				<menuitem 	action="WindowZoomOut" 
+							display="Zoom Out"
+							mnemonic="O"
+							/>
+				<menuitem 	action="WindowZoom10" 
+							display="Zoom 10%"
+							mnemonic="M" 
+							/> <!-- minute -->
+				<menuitem 	action="WindowZoom25" 
+							display="Zoom 25%"
+							mnemonic="T" 
+							/> <!-- tiny -->
+				<menuitem 	action="WindowZoom50" 
+							display="Zoom 50%"
+							mnemonic="S"
+							/>  <!-- small -->
+				<menuitem 	action="WindowZoom100" 
+							display="Zoom 100%"
+							mnemonic="N" 
+							/> <!-- normal -->
+				<menuitem 	action="WindowZoom200" 
+							display="Zoom 200%"
+							mnemonic="L" 
+							/> <!-- large -->
+				<menuitem 	action="WindowZoom400" 
+							display="Zoom 400%"
+							mnemonic="E" 
+							/> <!-- enormous -->
+				<menuitem 	action="WindowFit" 
+							display="Fit To Window"
+							mnemonic="F"
+							/>
+			</menu>
+			
+			<menu display="Layout" mnemonic="L">
+				<menuitem 	action="GridLayout" 
+							display="Grid Layout"
+							mnemonic="G"
+							/>
+				<menuitem 	action="GridConnectLayout" 
+							display="GridConnectLayout"
+							mnemonic="C"
+							/>
+			
+				<menuitem 	action="HierarchyLayout" 
+							display="Hierarchy Layout"
+							mnemonic="H"
+							/>
+
+				<menuitem 	action="CircularHierarchyLayout" 
+							display="Circular Hierarchy Layout"
+							mnemonic="I"
+							/>
+
+				<!--
+				<menuitem 	action="SpringLayout" 
+							display="Spring Layout"
+							mnemonic="S"
+							/>
+				-->
+			</menu>
+			
+		</menus>
+		
+		<popups>
+			<popup name="Background">
+				<menuitem 	action="AddNewItem" 
+							display="New Meta-Entity"
+							mnemonic="N"
+							/>
+							
+				<menuitem 	action="AddSymbols" 
+							display="Add Meta-Entities"
+							mnemonic="A"
+							/>
+
+				<menuitem 	action="AddConnectors" 
+							display="Add Connectors"
+							mnemonic="C"
+							/>
+
+				<separator/>
+
+				<menuitem 	action="EditBackground" 
+							display="Edit Background Colour"
+							mnemonic="B"
+							/>
+
+			</popup>
+
+			<popup name="MetaEntity">
+				<menuitem 	action="MetaEntityEdit" 
+							display="Edit Meta-Entity"
+							mnemonic="E"
+							/>
+				<menuitem 	action="MetaEntityRemove" 
+							display="Remove Meta-Entity from Diagram"
+							mnemonic="R"
+							/>
+				<menuitem 	action="MetaEntityDelete" 
+							display="Delete Meta-Entity from Model"
+							mnemonic="D"
+							/>
+				<separator/>
+				<menuitem 	action="SymbolEdit" 
+							display="Edit Symbol"
+							mnemonic="S"
+							/>
+				<menuitem 	action="SymbolResize" 
+							display="Resize Symbol"
+							mnemonic="I"
+							/>
+
+			</popup>
+			
+			<popup name="MetaRelationship">
+				<menuitem 	action="MetaRelationshipRemove" 
+							display="Remove Meta-Relationship from Diagram"
+							mnemonic="R"
+							/>
+				<menuitem 	action="MetaRelationshipDelete" 
+							display="Delete Meta-Relationship from Model"
+							mnemonic="D"
+							/>
+			</popup>
+			
+			</popups>
+
+	</MetaModelViewer>
+	
+	<!--=============================================================-->
+	<!-- Time Diagram Viewer										 -->
+	<!--=============================================================-->
+	<TimeDiagramViewer>
+		<menus>
+			<menu display="File" mnemonic="F">
+				<menuitem 	action="FileExportJPG" 
+							display="Export as JPEG"
+							mnemonic="J"
+							/>
+				<menuitem 	action="FileExportPNG" 
+							display="Export as PNG"
+							mnemonic="P"
+							/>
+			
+			</menu>
+		
+			<menu display="Edit" mnemonic="E">
+
+				
+				<menuitem 	action="AddNewItem" 
+							display="New Entity"
+							mnemonic="N"
+							/>
+							
+				<menuitem 	action="AddSymbols" 
+							display="Add Entities from model"
+							mnemonic="A"
+							/>
+			
+				<menuitem 	action="SearchAndAdd" 
+							display="Add From Search"
+							mnemonic="S"
+							/>
+							
+				<separator/>
+				
+
+				<menuitem 	action="EditBackground" 
+							display="Edit Background Colour"
+							mnemonic="B"
+							/>
+
+				<separator/>
+
+				<menuitem 	action="EditInformation" 
+							display="Edit Diagram Informatin"
+							mnemonic="I"
+							/>
+
+				<menuitem 	action="EditEventMappings" 
+							display="Edit Event Mappings"
+							mnemonic="V"
+							/>
+			
+			</menu>
+		
+			<menu display="Zoom" mnemonic="Z">
+				<menuitem 	action="WindowZoomIn" 
+							display="Zoom In"
+							mnemonic="I"
+							/>
+				<menuitem 	action="WindowZoomOut" 
+							display="Zoom Out"
+							mnemonic="O"
+							/>
+				<menuitem 	action="WindowZoom10" 
+							display="Zoom 10%"
+							mnemonic="M" 
+							/> <!-- minute -->
+				<menuitem 	action="WindowZoom25" 
+							display="Zoom 25%"
+							mnemonic="T" 
+							/> <!-- tiny -->
+				<menuitem 	action="WindowZoom50" 
+							display="Zoom 50%"
+							mnemonic="S"
+							/>  <!-- small -->
+				<menuitem 	action="WindowZoom100" 
+							display="Zoom 100%"
+							mnemonic="N" 
+							/> <!-- normal -->
+				<menuitem 	action="WindowZoom200" 
+							display="Zoom 200%"
+							mnemonic="L" 
+							/> <!-- large -->
+				<menuitem 	action="WindowZoom400" 
+							display="Zoom 400%"
+							mnemonic="E" 
+							/> <!-- enormous -->
+				<menuitem 	action="WindowFit" 
+							display="Fit To Window"
+							mnemonic="F"
+							/>
+			</menu>
+			
+			<menu display="Display" mnemonic="D">
+				<menuitem 	action="SortDefault" 
+							display="Default Order"
+							mnemonic="O"
+							/>
+				<menuitem 	action="SortAlphabetical" 
+							display="Sort Alphabetically"
+							mnemonic="A"
+							/>
+			
+				<menuitem 	action="SortTime" 
+							display="Sort Time"
+							mnemonic="T"
+							/>
+
+				<menuitem 	action="ScaleDays" 
+							display="Scale Days"
+							mnemonic="D"
+							/>
+
+				<menuitem 	action="ScaleWeeks" 
+							display="Scale Weeks"
+							mnemonic="W"
+							/>
+
+				<menuitem 	action="ScaleMonths" 
+							display="Scale Months"
+							mnemonic="M"
+							/>
+
+				<menuitem 	action="ScaleYears" 
+							display="Scale Years"
+							mnemonic="Y"
+							/>
+
+			</menu>
+		
+		</menus>
+		
+		<popups>
+			<popup name="Background">
+				<menuitem 	action="AddNewItem" 
+							display="New Entity"
+							mnemonic="N"
+							/>
+
+				<menuitem 	action="AddSymbols" 
+							display="Add Entities from model"
+							mnemonic="A"
+							/>
+
+				<separator/>
+
+				<menuitem 	action="EditBackground" 
+							display="Edit Background Colour"
+							mnemonic="B"
+							/>
+
+			</popup>
+
+			<popup name="Entity">
+				<menuitem 	action="EntityBrowse" 
+							display="Browse Entity"
+							mnemonic="B"
+							/>
+				<menuitem 	action="EntityEdit" 
+							display="Edit Entity"
+							mnemonic="E"
+							/>
+				<menuitem 	action="EntityRemove" 
+							display="Remove Entity from Diagram"
+							mnemonic="R"
+							/>
+				<menuitem 	action="EntityDelete" 
+							display="Delete Entity from Model"
+							mnemonic="D"
+							/>
+							
+
+			</popup>
+			
+			
+		</popups>
+		
+	</TimeDiagramViewer>
+
+	<!--=============================================================-->
+	<!-- Meta Model Explorer                                         -->
+	<!--=============================================================-->
+	<MetaModelExplorer>
+		<popups>
+			<popup name="MetaEntities">
+				<menuitem 	action="MetaEntityNew" 
+							display="New"
+							mnemonic="N"
+							/>
+			</popup>
+			
+			<popup name="MetaRelationships">
+				<menuitem 	action="MetaRelationshipNew" 
+							display="New"
+							mnemonic="N"
+							/>
+			</popup>
+			
+			<popup name="MetaEntityImpl">
+				<menuitem 	action="MetaEntityEdit" 
+							display="Edit"
+							mnemonic="E"
+							/>
+				<menuitem 	action="MetaEntityDelete" 
+							display="Delete"
+							mnemonic="D"
+							/>
+				<menuitem 	action="MetaEntityRename" 
+							display="Rename"
+							mnemonic="R"
+							/>
+				<menuitem 	action="MetaEntityAddProperty" 
+							display="Add Property"
+							mnemonic="P"
+							/>
+				<menuitem 	action="MetaEntityDisplayHintEdit" 
+							display="Edit Display Hint"
+							mnemonic="H"
+							/>
+				<menuitem 	action="MetaEntityAddRelationship" 
+							display="Add Relationship"
+							mnemonic="A"
+							/>
+				<menuitem 	action="CopyKey" 
+							display="Copy Key to Clipboard"
+							mnemonic="K"
+							/>
+			</popup>
+			<popup name="MetaPropertyImpl">
+				<menuitem 	action="MetaPropertyEdit" 
+							display="Edit"
+							mnemonic="E"
+							/>
+				<menuitem 	action="CopyKey" 
+							display="Copy Key to Clipboard"
+							mnemonic="K"
+							/>
+						</popup>
+			<popup name="MetaRelationshipImpl">
+				<menuitem 	action="MetaRelationshipEdit" 
+							display="Edit"
+							mnemonic="E"
+							/>
+				<menuitem 	action="MetaRelationshipDelete" 
+							display="Delete"
+							mnemonic="D"
+							/>
+				<menuitem 	action="CopyKey" 
+							display="Copy Key to Clipboard"
+							mnemonic="K"
+							/>
+			</popup>
+			<popup name="MetaRole">
+				<menuitem 	action="MetaRoleEdit" 
+							display="Edit"
+							mnemonic="E"
+							/>
+				<menuitem 	action="CopyKey" 
+							display="Copy Key to Clipboard"
+							mnemonic="K"
+							/>
+			</popup>
+		</popups>
+	</MetaModelExplorer>
+
+	<!--=============================================================-->
+	<!-- Model Explorer                                              -->
+	<!--=============================================================-->
+	<ModelExplorer>
+		<popups>
+			<popup name="Entities">
+				<menuitem 	action="EntityNew" 
+							display="New"
+							mnemonic="N"
+							/>
+				</popup>
+			<popup name="MetaEntity">
+				<menuitem 	action="MetaEntityBrowse" 
+							display="Browse"
+							mnemonic="B"
+							/>
+				<menuitem 	action="EntityNewFromMeta" 
+							display="New"
+							mnemonic="N"
+							/>
+				<menuitem 	action="MetaEntityTable" 
+							display="Edit Entity table"
+							mnemonic="E"
+							/>
+				<menuitem 	action="CopyKey" 
+							display="Copy Key to Clipboard"
+							mnemonic="K"
+							/>
+							
+			</popup>
+			<popup name="Entity">
+				<menuitem 	action="EntityBrowse" 
+							display="Browse"
+							mnemonic="B"
+							/>
+				<menuitem 	action="EntityEdit" 
+							display="Edit"
+							mnemonic="E"
+							/>
+				<menuitem 	action="EntityDelete" 
+							display="Delete"
+							mnemonic="D"
+							/>
+				<menuitem 	action="CopyKey" 
+							display="Copy Key to Clipboard"
+							mnemonic="K"
+							/>
+			</popup>
+			<popup name="Relationships">
+				<menuitem 	action="RelationshipNew" 
+							display="New"
+							mnemonic="N"
+							/>
+			</popup>
+			<popup name="MetaRelationship">
+				<menuitem 	action="RelationshipNewFromMeta" 
+							display="New"
+							mnemonic="N"
+							/>
+				<menuitem 	action="CopyKey" 
+							display="Copy Key to Clipboard"
+							mnemonic="K"
+							/>
+			</popup>
+			<popup name="Relationship">
+				<menuitem 	action="RelationshipEdit" 
+							display="Edit"
+							mnemonic="E"
+							/>
+				<menuitem 	action="RelationshipDelete" 
+							display="Delete"
+							mnemonic="D"
+							/>
+				<menuitem 	action="CopyKey" 
+							display="Copy Key to Clipboard"
+							mnemonic="K"
+							/>
+			</popup>
+			<popup name="Role">
+							<menuitem 	action="CopyKey" 
+							display="Copy Key to Clipboard"
+							mnemonic="K"
+							/>
+			</popup>
+			
+		</popups>
+	</ModelExplorer>
+
+	<!--=============================================================-->
+	<!-- TabularEntityEditor                                                                                            -->
+	<!--=============================================================-->
+	<TabularEntityEditor>
+		<menus>
+			<menu display="File" mnemonic="F">
+				<menuitem 	action="SaveTable" 
+							display="Save and Close"
+							mnemonic="S"
+							/>
+				<menuitem 	action="CloseTable" 
+							display="Close"
+							mnemonic="C"
+							/>
+			</menu>
+			<menu display = "Edit" mnemonic = "E">
+				<menuitem 	action="AddRow" 
+							display="Add new row"
+							mnemonic="N"
+							/>
+				<menuitem 	action="InsertBefore" 
+							display="Insert Rows Before"
+							mnemonic="B"
+							/>
+				<menuitem 	action="InsertAfter" 
+							display="Insert Rows After"
+							mnemonic="A"
+							/>
+				<menuitem 	action="DeleteSelected" 
+							display="Delete Selected"
+							mnemonic="D"
+							/>
+			</menu>
+			
+		
+		</menus>
+	</TabularEntityEditor>
+	<!--=============================================================-->
+	<!-- Diagram Explorer                                                                                              -->
+	<!--=============================================================-->
+	<DiagramExplorer>
+		<popups>
+			<!-- DiagramTypesRoot no longer has actions now type families introduced -->
+			<popup name="DiagramTypeFamily">
+				<menuitem 	action="DiagramTypeNew" 
+							display="New"
+							mnemonic="N"
+							/>
+			</popup>
+			<popup name="DiagramType">
+				<menuitem 	action="DiagramNew" 
+							display="New Diagram"
+							mnemonic="N"
+							/>
+			
+				<menuitem 	action="DiagramTypeEdit" 
+							display="Edit Diagram Type"
+							mnemonic="E"
+							/>
+				<menuitem 	action="DiagramTypeDelete" 
+							display="Delete Diagram Type"
+							mnemonic="D"
+							/>
+
+				<menuitem 	action="DiagramTypeEventMappings" 
+							display="Edit Event Mappings"
+							mnemonic="V"
+							/>
+				<menuitem 	action="CopyKey" 
+							display="Copy Key to Clipboard"
+							mnemonic="K"
+							/>
+			</popup>
+			<popup name="Diagram">
+				<menuitem 	action="DiagramEdit" 
+							display="Edit"
+							mnemonic="E"
+							/>
+				<menuitem 	action="DiagramInformation" 
+							display="Information"
+							mnemonic="I"
+							/>
+				<menuitem 	action="DiagramDelete" 
+							display="Delete"
+							mnemonic="D"
+							/>
+				<menuitem 	action="DiagramEventMappings" 
+							display="Edit Event Mappings"
+							mnemonic="V"
+							/>
+				<menuitem 	action="CopyKey" 
+							display="Copy Key to Clipboard"
+							mnemonic="K"
+							/>
+			</popup>
+		</popups>
+	</DiagramExplorer>
+
+	<!--=============================================================-->
+	<!-- MetaDiagram Explorer                                                                                      -->
+	<!--=============================================================-->
+	<MetaDiagramExplorer>
+		<popups>
+			<popup name="MetaModelDiagramType">
+				<menuitem 	action="MetaModelDiagramNew" 
+							display="New Diagram"
+							mnemonic="N"
+							/>
+				<menuitem 	action="CopyKey" 
+							display="Copy Key to Clipboard"
+							mnemonic="K"
+							/>
+			</popup>
+			<popup name="Diagram">
+				<menuitem 	action="MetaModelDiagramEdit" 
+							display="Edit"
+							mnemonic="E"
+							/>
+				<menuitem 	action="DiagramDelete" 
+							display="Delete"
+							mnemonic="D"
+							/>
+				<menuitem 	action="DiagramEventMappings" 
+							display="Edit Event Mappings"
+							mnemonic="V"
+							/>
+				<menuitem 	action="CopyKey" 
+							display="Copy Key to Clipboard"
+							mnemonic="K"
+							/>
+			</popup>
+		</popups>
+	</MetaDiagramExplorer>
+
+	<!--=============================================================-->
+	<!-- DiagramClasses used for setting up diagram types.           -->
+	<!--=============================================================-->
+	<DiagramClasses>
+		<Symbols>
+			<GraphicalElement name="Rectangle" class="alvahouse.eatool.repository.graphical.symbols.RectangularSymbol"/>
+			<GraphicalElement name="Diamond" class="alvahouse.eatool.repository.graphical.symbols.DiamondSymbol"/>
+			<GraphicalElement name="Circle" class="alvahouse.eatool.repository.graphical.symbols.CircularSymbol"/>
+			<GraphicalElement name="Rounded Rectangle" class="alvahouse.eatool.repository.graphical.symbols.RoundedSymbol"/>
+		</Symbols>
+		<Connectors>
+			<GraphicalElement name="Basic Connector" class="alvahouse.eatool.repository.graphical.standard.BasicConnector"/>
+			<GraphicalElement name="Arrow Connector" class="alvahouse.eatool.repository.graphical.standard.ConnectorArrow"/>
+		</Connectors>
+		<ConnectorEnds>
+			<GraphicalElement name="NullEnd" class="alvahouse.eatool.repository.graphical.standard.NullConnectorEnd"/>
+		</ConnectorEnds>
+	</DiagramClasses>
+
+	<!--=============================================================-->
+	<!-- Diagram Families                                            -->
+	<!-- Describes different types or families of DiagramType        -->
+	<!--=============================================================-->
+	<DiagramFamilies>
+		<DiagramFamily name="Standard" class="alvahouse.eatool.repository.graphical.standard.StandardDiagramTypeFamily" />
+		<DiagramFamily name="Time"     class="alvahouse.eatool.gui.graphical.time.TimeDiagramTypeFamily" />
+	</DiagramFamilies>
+	
+
+	<!--=============================================================-->
+	<!-- Matrix Viewer                                               -->
+	<!--=============================================================-->
+	<MatrixViewer>
+		<menus>
+			<menu display="Matrix" mnemonic="M">
+			<menuitem 	action="MatrixSave" 
+							display="Save and Close"
+							mnemonic="S"
+							/>
+				<menuitem 	action="MatrixClose" 
+							display="Close"
+							mnemonic="C"
+							/>
+				<separator/>
+				<menuitem 	action="MatrixAlphabetical" 
+							display="Sort Alphabetically"
+							mnemonic="A"
+							/>
+				<menuitem 	action="MatrixDensity" 
+							display="Sort by Density"
+							mnemonic="D"
+							/>
+				<menuitem 	action="MatrixSimilarity" 
+							display="Sort by Similarity"
+							mnemonic="I"
+							/>
+			</menu>
+
+			<menu display="Row" mnemonic="R">
+				<menuitem 	action="RowAlphabetical" 
+							display="Sort Alphabetically"
+							mnemonic="A"
+							/>
+				<menuitem 	action="RowDensity" 
+							display="Sort by Density"
+							mnemonic="D"
+							/>
+				<menuitem 	action="RowSimilarity" 
+							display="Sort by Similarity"
+							mnemonic="S"
+							/>
+			</menu>
+
+			<menu display="Column" mnemonic="C">
+				<menuitem 	action="ColumnAlphabetical" 
+							display="Sort Alphabetically"
+							mnemonic="A"
+							/>
+				<menuitem 	action="ColumnDensity" 
+							display="Sort by Density"
+							mnemonic="D"
+							/>
+				<menuitem 	action="ColumnSimilarity" 
+							display="Sort by Similarity"
+							mnemonic="S"
+							/>
+			</menu>
+			
+		</menus>
+	</MatrixViewer>
+
+	<!--=============================================================-->
+	<!-- Types Explorer                                              -->
+	<!--=============================================================-->
+	<TypesExplorer>
+		<popups>
+			<popup name="ExtensibleTypeList">
+				<menuitem 	action="NewType" 
+							display="New"
+							mnemonic="N"
+							/>
+			</popup>
+			<popup name="ExtensibleMetaPropertyType">
+				<menuitem 	action="EditType" 
+							display="Edit"
+							mnemonic="E"
+							/>
+				<menuitem 	action="DeleteType" 
+							display="Delete"
+							mnemonic="D"
+							/>
+			</popup>
+		</popups>
+	</TypesExplorer>
+
+	<!--=============================================================-->
+	<!-- ImportParsers for importing different types of files.          -->
+	<!--=============================================================-->
+	<ImportParsers>
+			<Parser name="XML" class="org.apache.xerces.parsers.SAXParser" suffix=".xml" filetype="XML Files"/>
+			<Parser name="CSV" class="alvahouse.eatool.repository.mapping.CSVXMLReader" suffix=".csv" filetype="CSV Files"/>
+			<Parser name="CSV Hierarchy" class="alvahouse.eatool.repository.mapping.CSVHierarchyXMLReader" suffix=".csv" filetype="CSV Files"/>
+			<Parser name="CSV Transform" class="alvahouse.eatool.util.CSVBasicXMLReader" suffix=".csv" filetype="CSV Files"/>
+	</ImportParsers>
+
+	<!--=============================================================-->
+	<!--Input Mapping Explorer                                              -->
+	<!--=============================================================-->
+	<ImportMappingExplorer>
+		<popups>
+			<popup name="ImportMappings">
+				<menuitem 	action="ImportMappingNew" 
+							display="New"
+							mnemonic="N"
+							/>
+				</popup>
+
+			<popup name="ImportMapping">
+				<menuitem 	action="ImportMappingEdit" 
+							display="Edit"
+							mnemonic="E"
+							/>
+				<menuitem 	action="ImportMappingDelete" 
+							display="Delete"
+							mnemonic="D"
+							/>
+				</popup>
+
+			<popup name="EntityTranslations">
+				<menuitem 	action="EntityTranslationNew" 
+							display="New"
+							mnemonic="N"
+							/>
+				</popup>
+
+			<popup name="RelationshipTranslations">
+				<menuitem 	action="RelationshipTranslationNew" 
+							display="New"
+							mnemonic="N"
+							/>
+				</popup>
+
+			<popup name="EntityTranslation">
+				<menuitem 	action="EntityTranslationEdit" 
+							display="Edit"
+							mnemonic="E"
+							/>
+				<menuitem 	action="EntityTranslationDelete" 
+							display="Delete"
+							mnemonic="D"
+							/>
+				<menuitem 	action="PropertyTranslationNew" 
+							display="New Property Translation"
+							mnemonic="N"
+							/>
+				</popup>
+
+			<popup name="RelationshipTranslation">
+				<menuitem 	action="RelationshipTranslationEdit" 
+							display="Edit"
+							mnemonic="E"
+							/>
+				<menuitem 	action="RelationshipTranslationDelete" 
+							display="Delete"
+							mnemonic="D"
+							/>
+				</popup>
+
+			<popup name="PropertyTranslation">
+				<menuitem 	action="PropertyTranslationEdit" 
+							display="Edit"
+							mnemonic="E"
+							/>
+				<menuitem 	action="PropertyTranslationDelete" 
+							display="Delete"
+							mnemonic="D"
+							/>
+				</popup>
+				
+			<popup name="RoleTranslation">
+				<menuitem 	action="RoleTranslationEdit" 
+							display="Edit"
+							mnemonic="E"
+							/>
+				<menuitem 	action="PropertyTranslationNew" 
+							display="New Property Translation"
+							mnemonic="N"
+							/>
+				</popup>
+				
+
+		</popups>
+	</ImportMappingExplorer>
+
+	<!--=============================================================-->
+	<!--Export Mapping Explorer                                              -->
+	<!--=============================================================-->
+	<ExportMappingExplorer>
+		<popups>
+			<popup name="ExportMappings">
+				<menuitem 	action="ExportMappingNew" 
+							display="New"
+							mnemonic="N"
+							/>
+				</popup>
+
+			<popup name="ExportMapping">
+				<menuitem 	action="ExportMappingEdit" 
+							display="Edit"
+							mnemonic="E"
+							/>
+				<menuitem 	action="ExportMappingDelete" 
+							display="Delete"
+							mnemonic="D"
+							/>
+				</popup>
+			</popups>
+		</ExportMappingExplorer>
+
+	<!--=============================================================-->
+	<!-- Script Explorer                                              -->
+	<!--=============================================================-->
+	<ScriptExplorer>
+			
+		<popups>
+			<popup name="Scripts">
+				<menuitem 	action="ScriptNew" 
+							display="New"
+							mnemonic="N"
+							/>
+				</popup>
+
+			<popup name="Script">
+				<menuitem 	action="ScriptEdit" 
+							display="Edit"
+							mnemonic="E"
+							/>
+				<menuitem 	action="ScriptProperties" 
+							display="Properties"
+							mnemonic="P"
+							/>
+				<menuitem 	action="ScriptDelete" 
+							display="Delete"
+							mnemonic="D"
+							/>
+				<menuitem 	action="ScriptRun" 
+							display="Run"
+							mnemonic="R"
+							/>
+				<menuitem 	action="CopyKey" 
+							display="Copy Key to Clipboard"
+							mnemonic="K"
+							/>
+				</popup>
+			</popups>
+		</ScriptExplorer>
+
+	<!--=============================================================-->
+	<!-- Script Editor                                              -->
+	<!--=============================================================-->
+	<ScriptEditor>
+		<menus>
+			<menu display="Script" mnemonic="S">
+				<menuitem 	action="ScriptUpdate" 
+							display="Save and Close"
+							mnemonic="S"
+							/>
+				<menuitem 	action="ScriptProperties" 
+							display="Edit Properties"
+							mnemonic="P"
+							/>
+				<menuitem 	action="ScriptClose" 
+							display="Close"
+							mnemonic="C"
+							/>
+				<separator/>
+				<menuitem 	action="ScriptRun" 
+							display="Run"
+							mnemonic="R"
+							/>
+				<separator/>
+				<menuitem 	action="ScriptObjectBrowser" 
+							display="Object Browser"
+							mnemonic="B"
+							/>
+			</menu>
+			<menu display="Edit" mnemonic="E">
+				<menuitem 	action="cut-to-clipboard" 
+							display="Cut"
+							mnemonic="X"
+							accelmod="CTRL"
+							/>
+				<menuitem 	action="copy-to-clipboard" 
+							display="Copy"
+							mnemonic="C"
+							accelmod="CTRL"
+							/>
+				<menuitem 	action="paste-from-clipboard" 
+							display="Paste"
+							mnemonic="V"
+							accelmod="CTRL"
+							/>
+				<separator/>
+							<menuitem 	action="select-all" 
+							display="Select All"
+							mnemonic="A"
+							accelmod="CTRL"
+							/>
+							<menuitem 	action="select-paragraph" 
+							display="Select Paragraph"
+							mnemonic="P"
+							/>
+							<menuitem 	action="select-line" 
+							display="Select Line"
+							mnemonic="L"
+							/>
+				<separator/>
+							<menuitem 	action="ScriptGotoLine" 
+							display="Goto Line"
+							mnemonic="L"
+							accelmod="CTRL"
+							/>
+			</menu>
+							
+				
+			
+		</menus>
+	</ScriptEditor>
+		
+	<!--=============================================================-->
+	<!-- Define allowable scripting languages                        -->
+	<!--=============================================================-->
+	<Scripting>
+		<Language name="javascript" class="org.apache.bsf.engines.javascript.JavaScriptEngine" ext="js"/>
+		<Language name="jython" class="org.apache.bsf.engines.jython.JythonEngine" ext="py"/>
+	</Scripting>
+	
+	<!--=============================================================-->
+	<!-- Page Explorer                                              -->
+	<!--=============================================================-->
+	<PageExplorer>
+			
+		<popups>
+			<popup name="HTMLPages">
+				<menuitem 	action="PageNew" 
+							display="New"
+							mnemonic="N"
+							/>
+				</popup>
+
+			<popup name="HTMLPage">
+				<menuitem 	action="PageEdit" 
+							display="Edit"
+							mnemonic="E"
+							/>
+				<menuitem 	action="PageProperties" 
+							display="Properties"
+							mnemonic="P"
+							/>
+				<menuitem 	action="PageDelete" 
+							display="Delete"
+							mnemonic="D"
+							/>
+				<menuitem 	action="PageShow" 
+							display="Show"
+							mnemonic="S"
+							/>
+				<menuitem 	action="CopyKey" 
+							display="Copy Key to Clipboard"
+							mnemonic="K"
+							/>
+				</popup>
+			</popups>
+		</PageExplorer>
+	
+		
+	<!--=============================================================-->
+	<!-- HTML Editor                                                 -->
+	<!--=============================================================-->
+	<HTMLEditor>
+		<menus>
+			<menu display="HTML" mnemonic="E">
+				<menuitem 	action="HTMLUpdate" 
+							display="Save and Close"
+							mnemonic="S"
+							/>
+				<menuitem 	action="HTMLProperties" 
+							display="Edit Properties"
+							mnemonic="P"
+							/>
+				<menuitem 	action="HTMLClose" 
+							display="Close"
+							mnemonic="C"
+							/>
+			</menu>
+
+			<menu display="Edit" mnemonic="E">
+				<menuitem 	action="cut-to-clipboard" 
+							display="Cut"
+							mnemonic="X"
+							accelmod="CTRL"
+							/>
+				<menuitem 	action="copy-to-clipboard" 
+							display="Copy"
+							mnemonic="C"
+							accelmod="CTRL"
+							/>
+				<menuitem 	action="paste-from-clipboard" 
+							display="Paste"
+							mnemonic="V"
+							accelmod="CTRL"
+							/>
+				<separator/>
+							<menuitem 	action="select-all" 
+							display="Select All"
+							mnemonic="A"
+							accelmod="CTRL"
+							/>
+							<menuitem 	action="select-paragraph" 
+							display="Select Paragraph"
+							mnemonic="P"
+							/>
+							<menuitem 	action="select-line" 
+							display="Select Line"
+							mnemonic="L"
+							/>
+			</menu>
+		
+		</menus>
+	</HTMLEditor>
+	
+	<!--=============================================================-->
+	<!-- Image Explorer                                              -->
+	<!--=============================================================-->
+	<ImageExplorer>
+			
+		<popups>
+			<popup name="Images">
+				<menuitem 	action="ImageImport" 
+							display="Import"
+							mnemonic="I"
+							/>
+				</popup>
+
+			<popup name="Image">
+				<menuitem 	action="ImageProperties" 
+							display="Properties"
+							mnemonic="P"
+							/>
+				<menuitem 	action="ImageDelete" 
+							display="Delete"
+							mnemonic="D"
+							/>
+				<menuitem 	action="ImagePreview" 
+							display="Preview"
+							mnemonic="V"
+							/>
+				<menuitem 	action="CopyKey" 
+							display="Copy Key to Clipboard"
+							mnemonic="K"
+							/>
+			</popup>
+		</popups>
+	</ImageExplorer>
+	
+</EAToolConfig>  

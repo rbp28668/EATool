@@ -1,0 +1,9 @@
+
+# old subversion folders
+**/.svn/
+
+# contents of build/deployment folders.
+bin/**
+deploy/**
+build/**
+

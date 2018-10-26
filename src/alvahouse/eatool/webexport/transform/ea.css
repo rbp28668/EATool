@@ -1,0 +1,57 @@
+body {
+	margin: 4px;
+	background: #ccf;  /* or url("back.png"); */
+	color: black;
+	font: 100% Helvetica, Verdana,  Arial, sans-serif;
+}
+
+h1 {
+	font: bold 200% Bookman, Garamond, Palatino, serif;
+}
+
+h2 {
+	font: bold 150% Bookman, Garamond, Palatino, serif;
+}
+
+h3 {
+	font: bold 120% Bookman, Garamond, Palatino, serif;
+}
+
+/* Main title bar */
+#repTitle{
+    margin-top:0;
+    border-top:0;
+    padding-top:0.5em;
+    font-size: 250%;
+    color: #007;
+    margin-left: 10px;
+    white-space: nowrap;
+}
+
+/* Links in top line navigation bar */
+a.mainNav {
+	font-size: 110%;
+	padding-left:2em;
+	padding-right: 2em;
+}
+
+/* Table of all entities of one type */
+.metaEntityTable {
+}
+
+/* even and odd rows in entity table */	
+.evenER {
+	background: #d0d0ff;
+}
+
+.oddER {
+	background: #d8d8ff;
+}
+
+/* Table displaying properties of a single entity */
+.entityTable {
+}
+
+/* Relationship type */
+.relType{
+}

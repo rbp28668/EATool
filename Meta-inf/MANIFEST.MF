@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Main-Class: alvahouse.eatool.Main
+Class-Path: xercesImpl.jar lucene-1.4.3.jar js.jar xalan.jar serializer.jar xml-apis.jar xsltc.jar bsf.jar js.jar jython.jar commons-codec-1.3.jar
+
+
