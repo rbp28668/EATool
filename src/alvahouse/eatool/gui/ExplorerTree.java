@@ -31,6 +31,8 @@ public class ExplorerTree extends JTree{
     /** sets up right-click menus for the tree.  The menus are keyed by
      * the class name of the objects in the tree model.  The popup definitions 
      * are defined by the GUIBuilder.buildPopup method.
+     * If the direct inheritance hierarchy doesn't provide a match then we also look for
+     * interfaces.
      * @param cfg is the configuration element holding the popup menu 
      * definitions.
      */
@@ -48,12 +50,23 @@ public class ExplorerTree extends JTree{
                         Object node = ((DefaultMutableTreeNode)tp.getLastPathComponent()).getUserObject();
                         if(node != null) {
                             //System.out.println("Clicked on node " + strClass);
-                            Class nodeClass = node.getClass();
+                            Class<?> nodeClass = node.getClass();
                             JPopupMenu popup = null;
-                            // work up the inheritance level looking for a match
-                            while(popup == null && nodeClass != null) {
-                                popup = GUIBuilder.buildPopup(actions, cfgPopups, nodeClass);
-                                nodeClass = nodeClass.getSuperclass();
+                            // work up the inheritance level looking for a matching popup
+                            Class<?> currentClass = nodeClass;
+                            while(popup == null && currentClass != null) {
+                                popup = GUIBuilder.buildPopup(actions, cfgPopups, currentClass);
+                                currentClass = currentClass.getSuperclass();
+                            }
+                            // If not found, look for interfaces
+                            if(popup == null) {
+                            	Class<?> interfaces[] = nodeClass.getInterfaces();
+                            	for(Class<?> iface : interfaces) {
+                            		popup = GUIBuilder.buildPopup(actions, cfgPopups, iface);
+                            		if(popup != null) {
+                            			break;
+                            		}
+                            	}
                             }
                             if(popup != null) {
                             	//System.out.println("Popup for " + strClass);
