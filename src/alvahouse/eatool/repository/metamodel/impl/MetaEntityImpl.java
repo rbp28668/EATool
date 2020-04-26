@@ -198,24 +198,13 @@ public class MetaEntityImpl extends MetaPropertyContainerImpl implements  Versio
      * @return a collection of meta-properties.
      */
     public Collection<MetaProperty> getMetaProperties() {
-        Collection<MetaProperty> props = getDeclaredMetaProperties();
+        LinkedList<MetaProperty> props = new LinkedList<MetaProperty>(getDeclaredMetaProperties());
         if(m_base != null){
-            Collection<MetaProperty> declared = props;
-            props = new LinkedList<MetaProperty>(m_base.getMetaProperties());
-            props.addAll(declared);
+            props.addAll(m_base.getMetaProperties());
         }
         return props;
     }
 
-    
-    /* (non-Javadoc)
-     * @see alvahouse.eatool.repository.metamodel.MetaEntity#getDeclaredMetaProperties()
-     */
-    public Collection<MetaProperty> getDeclaredMetaProperties() {
-        return super.getMetaProperties();
-    }
-
-    
     /**
      * Compare allows comparison of meta-entities for sorting.
      * 
@@ -226,6 +215,7 @@ public class MetaEntityImpl extends MetaPropertyContainerImpl implements  Versio
         /* (non-Javadoc)
          * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
          */
+        @Override
         public int compare(MetaEntity arg0, MetaEntity arg1) {
              return arg0.getName().compareTo(arg1.getName());
         }
@@ -236,6 +226,7 @@ public class MetaEntityImpl extends MetaPropertyContainerImpl implements  Versio
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.version.Version#getVersion()
      */
+    @Override
     public Version getVersion() {
         return version;
     }

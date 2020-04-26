@@ -28,6 +28,25 @@ public class EntityProxy {
         this.entity = entity;
     }
 
+    
+    /**
+     * Gets the key as a string.
+     * @return
+     */
+    public String getKey() {
+    	return entity.getKey().toString();
+    }
+    
+    
+    /**
+     * Determines if this object has the given key.
+     * @param key
+     * @return
+     */
+    public boolean is(String key) {
+    	return entity.getKey().equals(new UUID(key));
+    }
+    
     /**
      * Gets the name of the entity (as defined by the type's display hint).
      * @return the entity name.

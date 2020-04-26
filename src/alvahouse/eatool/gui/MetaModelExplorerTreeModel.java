@@ -16,12 +16,11 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
 
 import alvahouse.eatool.repository.metamodel.MetaEntity;
-import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.metamodel.MetaModelChangeEvent;
 import alvahouse.eatool.repository.metamodel.MetaModelChangeListener;
 import alvahouse.eatool.repository.metamodel.MetaProperty;
-import alvahouse.eatool.repository.metamodel.MetaRelationship;
+import alvahouse.eatool.repository.metamodel.MetaPropertyContainer;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.repository.metamodel.MetaRole;
 import alvahouse.eatool.repository.metamodel.impl.MetaEntityImpl;
@@ -35,7 +34,11 @@ import alvahouse.eatool.repository.metamodel.impl.MetaRelationshipImpl;
 public class MetaModelExplorerTreeModel extends ExplorerTreeModel
     implements MetaModelChangeListener{
 
-    /** Creates new ExplorerTreeModel */
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	/** Creates new ExplorerTreeModel */
     public MetaModelExplorerTreeModel(String rootTitle) {
         super(rootTitle);
     }
@@ -91,20 +94,18 @@ public class MetaModelExplorerTreeModel extends ExplorerTreeModel
         insertNodeInto(mrtn, (DefaultMutableTreeNode)getRoot(),1);
         
         int idx = 0;
-        List metaEntities = new LinkedList();
+        List<MetaEntity> metaEntities = new LinkedList<>();
         metaEntities.addAll(metaModel.getMetaEntities()); 
         Collections.sort(metaEntities,new MetaEntityImpl.Compare());
-        for(Iterator iter = metaEntities.iterator();iter.hasNext();) {
-            MetaEntity me = (MetaEntity)iter.next();
+        for(MetaEntity me : metaEntities) {
             addMetaEntityNode(metn,me,idx++);
         }
         
         idx=0;
-        List metaRelationships = new LinkedList();
+        List<MetaRelationship> metaRelationships = new LinkedList<>();
         metaRelationships.addAll(metaModel.getMetaRelationships());
         Collections.sort(metaRelationships, new MetaRelationshipImpl.Compare());
-        for(Iterator iter = metaRelationships.iterator();iter.hasNext();) {
-            MetaRelationship mr = (MetaRelationship)iter.next();
+        for(MetaRelationship mr : metaRelationships) {
             addMetaRelationshipNode(mrtn,mr,idx++);
         }
     }
@@ -213,19 +214,29 @@ public class MetaModelExplorerTreeModel extends ExplorerTreeModel
             insertNodeInto(tn, tnEntity, idx++);
         }
 
-        int idxProperty=0;
-        Iterator iter = me.getDeclaredMetaProperties().iterator();
-        DefaultMutableTreeNode tnProperties = null;
-        while(iter.hasNext()) {
-            if(tnProperties == null) {
-                tnProperties = new DefaultMutableTreeNode("Properties");
-                insertNodeInto(tnProperties, tnEntity, idx++);
-            }
-
-            MetaProperty mp = (MetaProperty)iter.next();
-            addMetaPropertyNode(tnProperties, mp, idxProperty++);
-        }
+        idx = addPropertiesNode(tnEntity, me, idx);
     }
+
+	/**
+	 * Inserts a Property collection node at the given position index and populates it with the declared
+	 * properties of the given meta property container.
+	 * @param parent is the parent node that the properties node should be attached to.
+	 * @param mpc is the container for the meta properties to be shown
+	 * @param positionIndex is where in the parent to insert the properties node.
+	 */
+	private int addPropertiesNode(MutableTreeNode parent, MetaPropertyContainer mpc, int positionIndex) {
+		int idxProperty=0;
+        Iterator<MetaProperty> iter = mpc.getDeclaredMetaProperties().iterator();
+        if(iter.hasNext()) {
+        	DefaultMutableTreeNode tnProperties = new DefaultMutableTreeNode("Properties");
+            insertNodeInto(tnProperties, parent, positionIndex++);
+	        while(iter.hasNext()) {
+	            MetaProperty mp = (MetaProperty)iter.next();
+	            addMetaPropertyNode(tnProperties, mp, idxProperty++);
+	        }
+        }
+        return positionIndex;
+	}
     
     /** Adds a new tree node for a meta-property and adds it to the parent node
      * @param parent is the parent node to which the meta-property's node should be added
@@ -280,6 +291,7 @@ public class MetaModelExplorerTreeModel extends ExplorerTreeModel
             insertNodeInto(new DefaultMutableTreeNode("description: " + mr.getDescription()), tnRelationship, idx++);
         addMetaRoleNode(tnRelationship, mr.start(), idx++);
         addMetaRoleNode(tnRelationship, mr.finish(), idx++);
+        idx = addPropertiesNode(tnRelationship, mr, idx);
     }
 
     /** Adds a new tree node for a meta-role and adds it to the parent node
@@ -305,6 +317,7 @@ public class MetaModelExplorerTreeModel extends ExplorerTreeModel
             insertNodeInto(new DefaultMutableTreeNode("description: " + mr.getDescription()), tnRole, idx++);
         insertNodeInto(new DefaultMutableTreeNode("multiplicity: " + mr.getMultiplicity().toString()), tnRole, idx++);
         insertNodeInto(new DefaultMutableTreeNode("connects to: " + mr.connectsTo().getName()), tnRole, idx++);
+        idx = addPropertiesNode(tnRole, mr, idx);
     }
     
     /*-----------------------------------------------------------------

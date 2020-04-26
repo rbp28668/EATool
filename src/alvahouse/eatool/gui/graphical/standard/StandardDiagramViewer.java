@@ -26,6 +26,7 @@ import alvahouse.eatool.gui.ActionSet;
 import alvahouse.eatool.gui.ExceptionDisplay;
 import alvahouse.eatool.gui.GUIBuilder;
 import alvahouse.eatool.gui.graphical.DiagramViewer;
+import alvahouse.eatool.gui.graphical.EventErrorHandler;
 import alvahouse.eatool.gui.graphical.layout.IGraphicalLayoutStrategy;
 import alvahouse.eatool.gui.graphical.layout.LayoutManager;
 import alvahouse.eatool.repository.Repository;
@@ -35,6 +36,9 @@ import alvahouse.eatool.repository.graphical.GraphicalObject;
 import alvahouse.eatool.repository.graphical.standard.Connector;
 import alvahouse.eatool.repository.graphical.standard.StandardDiagram;
 import alvahouse.eatool.repository.graphical.standard.Symbol;
+import alvahouse.eatool.repository.scripting.ScriptContext;
+import alvahouse.eatool.repository.scripting.ScriptManager;
+import alvahouse.eatool.scripting.proxy.ScriptWrapper;
 import alvahouse.eatool.util.SettingsManager;
 
 /**
@@ -44,6 +48,10 @@ import alvahouse.eatool.util.SettingsManager;
  */
 public abstract class StandardDiagramViewer extends DiagramViewer {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private JScrollPane scrollView;
 	private ViewerPane viewPane;
 	private PalettePane palettePane;
@@ -51,6 +59,7 @@ public abstract class StandardDiagramViewer extends DiagramViewer {
 	private JMenuBar menuBar;
 	private ItemHandler itemHandler;
 	private Application app;
+	private Repository repository;
 	private static final String WINDOW_SETTINGS = "Windows/StandardDiagramViewer";
 	
 	/**
@@ -60,10 +69,11 @@ public abstract class StandardDiagramViewer extends DiagramViewer {
 	public StandardDiagramViewer(StandardDiagram diagram, ItemHandler itemHandler, Application app, Repository repository)  {
 		super(getViewerTitle(diagram),diagram);
 		this.app = app;
+		this.repository = repository;
 
 		actions = new StandardDiagramViewerActionSet(this, app, repository);
 		try {
-            diagram.getEventMap().fireEvent(Diagram.ON_DISPLAY_EVENT);
+            fireEvent(diagram, repository, StandardDiagram.ON_DISPLAY_EVENT);
         } catch (BSFException e) {
             new ExceptionDisplay(app.getCommandFrame(),e);
         }
@@ -89,6 +99,27 @@ public abstract class StandardDiagramViewer extends DiagramViewer {
         setVisible(true);
     }
 
+	/**
+	 * @param diagram
+	 * @param repository
+	 * @param context
+	 * @throws BSFException
+	 */
+	private void fireEvent(StandardDiagram diagram, Repository repository, String event) throws BSFException {
+		ScriptContext context = diagram.getEventMap().getContextFor(event);
+		if(context != null) {
+			Object proxy = ScriptWrapper.wrap(diagram, repository);
+		    context.addObject("diagram", proxy, proxy.getClass());
+		    
+		    proxy = ScriptWrapper.wrap(this, diagram, app, repository);
+		    context.addObject("viewer", proxy, proxy.getClass());
+		    
+		    EventErrorHandler errHandler = new EventErrorHandler(this);
+		    context.setErrorHandler(errHandler);
+		    ScriptManager.getInstance().runScript(context);
+		}
+	}
+
     /**
      * Sets the menu bar from the configuration.
      * @param cfg is the configuration of the menus.
@@ -113,7 +144,8 @@ public abstract class StandardDiagramViewer extends DiagramViewer {
 	public void dispose() {
 	    
 		try {
-            getViewPane().diagram.getEventMap().fireEvent(StandardDiagram.ON_CLOSE_EVENT);
+              StandardDiagram diagram = getViewPane().diagram;
+              fireEvent(diagram, repository, StandardDiagram.ON_CLOSE_EVENT);
         } catch (BSFException e) {
             new ExceptionDisplay(app.getCommandFrame(),e);
         }
@@ -237,11 +269,19 @@ public abstract class StandardDiagramViewer extends DiagramViewer {
 	}
 	
     /**
+	 * @return the palettePane
+	 */
+	public PalettePane getPalettePane() {
+		return palettePane;
+	}
+
+	/**
 	 * PalettePane is intended for diagram tools.
 	 * @author Bruce.Porteous
 	 *
 	 */
 	private class PalettePane extends JPanel {
+		private static final long serialVersionUID = 1L;
 		private StandardDiagramViewer viewer;
 		private StandardDiagram diagram;
 		
@@ -265,11 +305,12 @@ public abstract class StandardDiagramViewer extends DiagramViewer {
 			box.add(btnName);
 			
 			String[] zoomOptions = {"10%","25%","50%","100%","200%","400%","fit"};
-			JComboBox zoom = new JComboBox(zoomOptions);
+			JComboBox<String> zoom = new JComboBox<String>(zoomOptions);
 			zoom.addActionListener(new ActionListener() {
 
 				public void actionPerformed(ActionEvent e) {
-					JComboBox cbx = (JComboBox)e.getSource();
+					@SuppressWarnings("unchecked")
+					JComboBox<String> cbx = (JComboBox<String>)e.getSource();
 					String cmd = (String)cbx.getSelectedItem();
 					if(cmd.equals("fit")){
 						viewer.fitDiagramToWindow();
@@ -304,6 +345,7 @@ public abstract class StandardDiagramViewer extends DiagramViewer {
      */
     public class ViewerPane extends JPanel {
         
+		private static final long serialVersionUID = 1L;
 		private float zoom = 1.0f;
 		private StandardDiagramViewer viewer;
 		private StandardDiagram diagram;

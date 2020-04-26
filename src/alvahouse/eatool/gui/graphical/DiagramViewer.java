@@ -35,10 +35,12 @@ import alvahouse.eatool.repository.graphical.standard.StandardDiagramType;
  */
 public abstract class DiagramViewer extends JInternalFrame {
 
-    private Diagram diagram;
+	private static final long serialVersionUID = 1L;
 
-    private static Map editorClasses = new HashMap();
-    private static Map windowFactoryClasses = new HashMap();
+	private Diagram diagram;
+
+    private static final Map<Class<? extends DiagramType>, Class<? extends DiagramTypeEditor>> editorClasses = new HashMap<>();
+    private static final Map<Class<? extends DiagramType>, Class<? extends DiagramViewerWindowFactory>> windowFactoryClasses = new HashMap<>();
 
     static {
 		//TODO make extensible - currently all diagram types have to be hard wired here.
@@ -91,8 +93,8 @@ public abstract class DiagramViewer extends JInternalFrame {
 	 * @throws IllegalAccessException
 	 */
 	public static DiagramViewerWindowFactory getWindowFactory(DiagramType diagramType) throws InstantiationException, IllegalAccessException{
-		Class diagramViewerWindowFactoryClass = (Class)windowFactoryClasses.get(diagramType.getClass());
-		DiagramViewerWindowFactory windowFactory = (DiagramViewerWindowFactory) diagramViewerWindowFactoryClass.newInstance();
+		Class<? extends DiagramViewerWindowFactory> diagramViewerWindowFactoryClass = windowFactoryClasses.get(diagramType.getClass());
+		DiagramViewerWindowFactory windowFactory =  diagramViewerWindowFactoryClass.newInstance();
 		return windowFactory;
 	}
 	
@@ -109,11 +111,11 @@ public abstract class DiagramViewer extends JInternalFrame {
 	 * @throws InvocationTargetException
 	 */
 	public static DiagramTypeEditor getTypeEditor(DiagramType diagramType, Component explorer) throws SecurityException, NoSuchMethodException, IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException{
-        Class editorClass = (Class)editorClasses.get(diagramType.getClass());
-        Class[] signature = {Component.class}; 
-        Constructor cons = editorClass.getConstructor(signature);
+        Class<? extends DiagramTypeEditor> editorClass = editorClasses.get(diagramType.getClass());
+        Class<?>[] signature = {Component.class}; 
+        Constructor<? extends DiagramTypeEditor> cons = editorClass.getConstructor(signature);
         Object[] args = {explorer};
-        DiagramTypeEditor editor = (DiagramTypeEditor)cons.newInstance(args);
+        DiagramTypeEditor editor = cons.newInstance(args);
         return editor;
 	}
 }

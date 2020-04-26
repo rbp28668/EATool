@@ -182,7 +182,7 @@ public class ScriptEditorActionSet extends ActionSet {
 			public void actionPerformed(ActionEvent e) {
 				try {
 				    FunctionHelpBrowser browser = (FunctionHelpBrowser)app.getWindowCoordinator().getFrame("FunctionHelpBrowser");
-				    browser.browse(alvahouse.eatool.gui.scripting.proxy.Application.class);
+				    browser.browse(alvahouse.eatool.gui.scripting.proxy.ApplicationProxy.class);
 				    browser.setVisible(true);
 				} catch(Throwable t) {
 					new ExceptionDisplay(editor,t);

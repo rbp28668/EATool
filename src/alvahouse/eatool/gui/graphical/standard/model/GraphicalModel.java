@@ -7,6 +7,7 @@
 package alvahouse.eatool.gui.graphical.standard.model;
 
 import alvahouse.eatool.gui.graphical.layout.Arc;
+import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.base.KeyedItem;
 import alvahouse.eatool.repository.graphical.GraphicalProxy;
 import alvahouse.eatool.repository.graphical.standard.StandardDiagram;
@@ -20,15 +21,22 @@ import alvahouse.eatool.repository.model.Relationship;
 import alvahouse.eatool.util.UUID;
 /**
  * GraphicalModel povides a basic graphical display of a model including all the
- * entities and relationships in that model.
+ * entities and relationships in that model.  Note that aim of this is to display
+ * ALL the entities in the model.
  * @author  rbp28668
  */
 public class GraphicalModel extends StandardDiagram {
 
+    private final Model model;
+    private final Repository repository;
+    
     /** Creates new GraphicalModel */
-    public GraphicalModel(Model m, StandardDiagramType diagramType, UUID key) {
+    public GraphicalModel(Repository rep, Model m, StandardDiagramType diagramType, UUID key) {
     	super(diagramType,key);
         model = m;
+        repository = rep;
+        
+        setDynamic(true);
         update();
         model.addChangeListener(changeListener);
     }
@@ -52,6 +60,14 @@ public class GraphicalModel extends StandardDiagram {
         }
     }
 
+    /* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.graphical.Diagram#scriptsUpdated()
+	 */
+	@Override
+	public void scriptsUpdated() {
+		getEventMap().cloneTo(repository.getModelViewerEvents()); // as now changed
+	}
+    
     private GraphicalProxy addEntity(Entity e)  {
        	return addNodeForObject(e);
     }
@@ -98,6 +114,5 @@ public class GraphicalModel extends StandardDiagram {
         
     };
     
-    private Model model;
     
 }

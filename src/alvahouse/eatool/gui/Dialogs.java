@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedList;
+import java.util.Set;
 
 import javax.swing.JInternalFrame;
 import javax.swing.JOptionPane;
@@ -57,7 +58,8 @@ public abstract class Dialogs {
      * @return the selected MetaRelationship or null if none selected.
      */
     public static MetaRelationship selectMetaRelationshipFor(MetaEntity me, Component parent,Repository repository){
-        MetaRelationship[] options = (MetaRelationship[])repository.getMetaModel().getMetaRelationshipsFor(me).toArray();
+    	Set<MetaRelationship> related = repository.getMetaModel().getMetaRelationshipsFor(me);
+        MetaRelationship[] options = related.toArray(new MetaRelationship[related.size()]);
         MetaRelationship meta = null;
         if(options.length == 1) {
             meta = (MetaRelationship)options[0];

@@ -24,7 +24,7 @@ public class DiagramsProxy {
     /**
      * Creates a new proxy object tied to an underlying diagrams collection.
      */
-    DiagramsProxy(
+    public DiagramsProxy(
             alvahouse.eatool.repository.graphical.Diagrams diagrams,
             Repository repository) {
         super();

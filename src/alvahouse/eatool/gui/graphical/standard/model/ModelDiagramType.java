@@ -60,8 +60,7 @@ public class ModelDiagramType extends StandardDiagramType {
         
         float dh = 1.0f / (1.0f + metaModel.getMetaEntityCount());
         
-        for(Iterator iter = metaModel.getMetaEntities().iterator(); iter.hasNext();){
-            MetaEntity me = (MetaEntity)iter.next();
+        for(MetaEntity me : metaModel.getMetaEntities()){
             SymbolType st = new SymbolType(new UUID(),me,RectangularSymbol.class, me.getName());
             st.setBackColour(Color.getHSBColor(h, s, b));
             h += dh;
@@ -69,19 +68,21 @@ public class ModelDiagramType extends StandardDiagramType {
             add(st);
         }
         
-        for(Iterator iter = metaModel.getMetaRelationships().iterator(); iter.hasNext();){
-            MetaRelationship mr = (MetaRelationship) iter.next();
+        for(MetaRelationship mr : metaModel.getMetaRelationships()){
             ConnectorType ct = new ConnectorType(new UUID(), mr, BasicConnector.class, mr.getName());
             add(ct);
         }
         
-        EventMap eventMap = getEventMap();
+        defineEventMap(getEventMap());
+        
+    }
+    
+    public static void defineEventMap(EventMap eventMap) {
         eventMap.clear();
 	    eventMap.addEvent(StandardDiagram.ON_DISPLAY_EVENT);
 	    eventMap.addEvent(StandardDiagram.ON_CLOSE_EVENT);
 	    eventMap.addEvent("Entity");
 	    eventMap.addEvent("Relationship");
-        
     }
 
 }

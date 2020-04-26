@@ -32,7 +32,7 @@ public class ModelProxy {
      * Creates a new proxy object tied to the given model.
      * @param model is the underlying Model. 
      */
-    ModelProxy(Repository repository) {
+    public ModelProxy(Repository repository) {
         super();
         this.repository = repository;
     }

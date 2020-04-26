@@ -6,10 +6,9 @@
 
 package alvahouse.eatool.gui.graphical.standard.metamodel;
 
-import java.util.Iterator;
-
 import alvahouse.eatool.gui.graphical.layout.Arc;
 import alvahouse.eatool.gui.graphical.layout.Node;
+import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.graphical.GraphicalProxy;
 import alvahouse.eatool.repository.graphical.standard.Connector;
 import alvahouse.eatool.repository.graphical.standard.StandardDiagram;
@@ -28,11 +27,15 @@ import alvahouse.eatool.util.UUID;
  */
 public class GraphicalMetaModel extends StandardDiagram {
 
+    private final MetaModel metaModel;
+    private final Repository repository;
+
     /** Creates new GraphicalMetaModel */
-    public GraphicalMetaModel(MetaModel mm, StandardDiagramType diagramType, UUID key) {
+    public GraphicalMetaModel(Repository rep, MetaModel mm, StandardDiagramType diagramType, UUID key) {
     	super(diagramType, key);
-        
+        repository = rep;
         metaModel = mm;
+        setDynamic(true);
         update();
         metaModel.addChangeListener(changeListener);
     }
@@ -43,21 +46,25 @@ public class GraphicalMetaModel extends StandardDiagram {
     
     public void update() {
         reset();
-        Iterator iter = metaModel.getMetaEntities().iterator();
-        while(iter.hasNext()) {
-            MetaEntity me = (MetaEntity)iter.next(); 
+        for(MetaEntity me : metaModel.getMetaEntities()) {
             addMetaEntity(me);
         }
-        
-        iter = metaModel.getMetaRelationships().iterator();
-        while(iter.hasNext()) {
-            MetaRelationship mr = (MetaRelationship)iter.next();
+
+        for(MetaRelationship mr : metaModel.getMetaRelationships()) {
             addMetaRelationship(mr);
         }
     }
 
     
-    private GraphicalProxy addMetaEntity(MetaEntity me) {
+    /* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.graphical.Diagram#scriptsUpdated()
+	 */
+	@Override
+	public void scriptsUpdated() {
+		getEventMap().cloneTo(repository.getMetaModelViewerEvents());
+	}
+
+	private GraphicalProxy addMetaEntity(MetaEntity me) {
         return addNodeForObject(me);
     }
     
@@ -103,5 +110,4 @@ public class GraphicalMetaModel extends StandardDiagram {
 
     };
 
-    private MetaModel metaModel;
 }

@@ -22,7 +22,12 @@ import alvahouse.eatool.repository.scripting.Scripts;
  */
 public class EventMapDialog extends BasicDialog {
 
-    private EventMapPanel panel;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	private EventMapPanel panel;
     /**
      * @param parent
      * @param title

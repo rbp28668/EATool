@@ -7,7 +7,6 @@
 package alvahouse.eatool.repository.metamodel;
 
 import java.io.IOException;
-import java.util.Collection;
 
 import alvahouse.eatool.util.XMLWriter;
 
@@ -64,11 +63,5 @@ public interface MetaEntity extends MetaPropertyContainer{
      */
     public void setModel(MetaModel m);
     
-    /**
-     * gets a collection of MetaProperties declared in this MetaEntity
-     * only ignoring any parent meta-entities.
-     * @return a collection of MetaProperty.
-     */
-    public abstract Collection<MetaProperty> getDeclaredMetaProperties();
-
+ 
 }

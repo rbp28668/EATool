@@ -71,6 +71,13 @@ public abstract class PropertyContainer extends RepositoryItem{
     }
     
     /**
+     * Determines whether this has any properties.
+     * @return true if this container has any properties, false if not.
+     */
+    public boolean hasProperties() {
+    	return !propertyList.isEmpty();
+    }
+    /**
      * Adds a property - should only be called in response
      * to a change in the meta-model.
      * @param p is the property to add.

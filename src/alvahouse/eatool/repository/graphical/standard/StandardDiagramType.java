@@ -13,8 +13,6 @@ import alvahouse.eatool.repository.graphical.DiagramDetailFactory;
 import alvahouse.eatool.repository.graphical.DiagramType;
 import alvahouse.eatool.repository.graphical.DiagramTypeDetailFactory;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
-import alvahouse.eatool.repository.metamodel.MetaEntity;
-import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;

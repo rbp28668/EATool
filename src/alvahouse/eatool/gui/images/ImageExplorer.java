@@ -63,7 +63,11 @@ public class ImageExplorer extends JInternalFrame implements Explorer{
      * 
      */
     private void init(Application app, Repository repository){
-		thisFrame = this;
+    	assert(app != null);
+    	assert(repository != null);
+    	
+		this.app = app;
+    	thisFrame = this;
         
         setResizable(true);
         setMaximizable(true);

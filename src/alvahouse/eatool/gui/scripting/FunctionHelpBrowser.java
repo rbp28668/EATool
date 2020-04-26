@@ -9,6 +9,8 @@ package alvahouse.eatool.gui.scripting;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URL;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.JEditorPane;
 import javax.swing.JInternalFrame;
@@ -19,6 +21,7 @@ import javax.swing.event.HyperlinkListener;
 import alvahouse.eatool.Application;
 import alvahouse.eatool.gui.ExceptionDisplay;
 import alvahouse.eatool.gui.GUIBuilder;
+import sun.net.ApplicationProxy;
 
 /**
  * ModelBrowser is a HTML based browser for simple browsing of the model or
@@ -112,7 +115,13 @@ public class FunctionHelpBrowser extends JInternalFrame {
 
     public static class ToHTML {
         private StringBuffer buff = new StringBuffer(512);
-        private final Package proxyPackage = alvahouse.eatool.gui.scripting.proxy.Application.class.getPackage();
+        
+        private final static Set<String> allowedPackages = new HashSet<String>();
+        
+        static {
+        	allowedPackages.add(alvahouse.eatool.gui.scripting.proxy.ApplicationProxy.class.getPackage().getName());
+        	allowedPackages.add(alvahouse.eatool.scripting.proxy.RepositoryProxy.class.getPackage().getName());
+        }
 
         /**
          * Creates HTML that describes the Meta-Entities in the meta model.
@@ -122,9 +131,9 @@ public class FunctionHelpBrowser extends JInternalFrame {
             header();
             
             h1(simpleName(objClass));
-            if(objClass != Application.class){
+            if(objClass != alvahouse.eatool.gui.scripting.proxy.ApplicationProxy.class){
 	            buff.append("<p>Up to ");
-	            buff.append(convert(Application.class));
+	            buff.append(convert(alvahouse.eatool.gui.scripting.proxy.ApplicationProxy.class));
 	            buff.append("</p>");
 	            hr();
             }
@@ -159,10 +168,14 @@ public class FunctionHelpBrowser extends JInternalFrame {
 
         private String convert(Class<?> type){
             String name;
-            if(type.isArray()){
+            if(type == Void.TYPE) {  // void?
+            	name = "void";
+            } else if(type.getPackage() == null) { // primitive ?
+            	name = simpleName(type);
+            } else if(type.isArray()){  // array?
                 name = convert(type.getComponentType()) + "[]";
             } else {
-                if(proxyPackage.equals(type.getPackage())){
+                if(allowedPackages.contains(type.getPackage().getName())){
                     name = "<a href=\"http://localhost/" + type.getCanonicalName() + "\">" + simpleName(type)+"</a>";
                 } else {
                     name = simpleName(type);

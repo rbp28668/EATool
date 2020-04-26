@@ -25,6 +25,10 @@ import alvahouse.eatool.repository.images.ImagesChangeListener;
  */
 public class ImageTreeModel extends ExplorerTreeModel implements ImagesChangeListener{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private DefaultMutableTreeNode root = null;
     private Images images;
 
@@ -59,8 +63,7 @@ public class ImageTreeModel extends ExplorerTreeModel implements ImagesChangeLis
 	 */
     private void initModel() {
         int idx = 0;
-        for(Iterator iter = images.getImages().iterator();iter.hasNext();){
-            Image image = (Image)iter.next();
+        for(Image image : images.getImages()){
             addImageNode((MutableTreeNode)getRoot(),image,idx++);
         }
     }
@@ -87,7 +90,9 @@ public class ImageTreeModel extends ExplorerTreeModel implements ImagesChangeLis
      */
     private int addImageChildren(MutableTreeNode parent, Image image) {
         int idx = 0;
-        
+
+        insertNodeInto(new DefaultMutableTreeNode("uuid: " + image.getKey()),parent,idx++);
+
         insertNodeInto(new DefaultMutableTreeNode("format: " + image.getFormat()),parent,idx++);
         
         if(image.getDescription() != null){

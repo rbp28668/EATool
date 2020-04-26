@@ -6,9 +6,9 @@
 
 package alvahouse.eatool.gui;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -27,6 +27,7 @@ import alvahouse.eatool.repository.model.Model;
 import alvahouse.eatool.repository.model.ModelChangeEvent;
 import alvahouse.eatool.repository.model.ModelChangeListener;
 import alvahouse.eatool.repository.model.Property;
+import alvahouse.eatool.repository.model.PropertyContainer;
 import alvahouse.eatool.repository.model.Relationship;
 import alvahouse.eatool.repository.model.Role;
 
@@ -86,30 +87,29 @@ public class ModelExplorerTreeModel extends ExplorerTreeModel
         insertNodeInto(mrtn, (DefaultMutableTreeNode)getRoot(),1);
         
         int idx = 0;
-        List metaEntities = new LinkedList();
+        List<MetaEntity> metaEntities = new LinkedList<>();
         metaEntities.addAll(metaModel.getMetaEntities());
         Collections.sort(metaEntities, new MetaEntityImpl.Compare());
-        for(Iterator iter = metaEntities.iterator(); iter.hasNext();) {
-            MetaEntity me = (MetaEntity)iter.next();
+        for(MetaEntity me : metaEntities) {
             idx = addMetaEntityNode(metn,me,idx);
         }
         
         idx=0;
-        List metaRelationships = new LinkedList();
+        List<MetaRelationship> metaRelationships = new LinkedList<>();
         metaRelationships.addAll(metaModel.getMetaRelationships());
         Collections.sort(metaRelationships,new MetaRelationshipImpl.Compare());
-        for(Iterator iter = metaRelationships.iterator(); iter.hasNext();) {
-            MetaRelationship mr = (MetaRelationship)iter.next();
+        for(MetaRelationship mr : metaRelationships) {
             idx = addMetaRelationshipNode(mrtn,mr,idx);
         }
     }
 
-    private void showTree(int depth, DefaultMutableTreeNode node){
+    @SuppressWarnings("unused") // debug method
+	private void showTree(int depth, DefaultMutableTreeNode node){
         for(int i=0;i<depth;++i){
             System.out.print(" ");
         }
         System.out.println(node.getUserObject().toString());
-        Enumeration children = node.children();
+        Enumeration<?> children = node.children();
         while(children.hasMoreElements()){
             DefaultMutableTreeNode child = (DefaultMutableTreeNode)children.nextElement();
             showTree(depth+2,child);
@@ -142,7 +142,7 @@ public class ModelExplorerTreeModel extends ExplorerTreeModel
      */
     private void refreshNode(DefaultMutableTreeNode node, MetaEntity me) {
         node.removeAllChildren();
-        List listEntities = model.getEntitiesOfType(me);
+        List<Entity> listEntities = model.getEntitiesOfType(me);
         if(!listEntities.isEmpty()) {
             Collections.sort(listEntities,new Entity.Compare());
             setMetaEntityNodeChildren(node, listEntities);
@@ -190,7 +190,7 @@ public class ModelExplorerTreeModel extends ExplorerTreeModel
      * @returns the index for the next entity to be added to
      */
     private int addMetaEntityNode(MutableTreeNode parent, MetaEntity me, int idxEntity) {
-        List listEntities = model.getEntitiesOfType(me);
+        List<Entity> listEntities = model.getEntitiesOfType(me);
         if(!listEntities.isEmpty()) {
             //System.out.println("Inserting meta-entity " + me.getName());
             DefaultMutableTreeNode tnEntity = new DefaultMutableTreeNode(me);
@@ -207,11 +207,9 @@ public class ModelExplorerTreeModel extends ExplorerTreeModel
      * @param tnEntity is the tree node for the meta-entity
      * @param listEntities is a list of entities of the the meta-entity
      */
-    public void setMetaEntityNodeChildren(MutableTreeNode tnMetaEntity, List listEntities) {
-        Iterator iter = listEntities.iterator();
+    public void setMetaEntityNodeChildren(MutableTreeNode tnMetaEntity, List<Entity> listEntities) {
         int idx = 0;
-        while(iter.hasNext()) {
-            Entity e = (Entity)iter.next();
+        for(Entity e : listEntities) {
             addEntityNode(tnMetaEntity, e, idx++);
         }
     }
@@ -226,19 +224,28 @@ public class ModelExplorerTreeModel extends ExplorerTreeModel
         DefaultMutableTreeNode tnEntity = new DefaultMutableTreeNode(e);
         insertNodeInto(tnEntity,parent,idxEntity);
         registerNode(tnEntity,e);
-        setEntityNodeChildren(tnEntity, e);
+        setPropertyContainerNodeChildren(tnEntity, e);
     }
         
-    /** Sets the child nodes for an entity
-     * @param tnEntity is the tree node for the entity
+    /** Sets the child nodes for an property container
+     * @param tnEntity is the tree node for the properties to be added to.
      * @param e is the entity
      */
-    private void setEntityNodeChildren(MutableTreeNode tnEntity, Entity e) {
+    private void setPropertyContainerNodeChildren(MutableTreeNode tnParent, PropertyContainer pc) {
+        setPropertyCollectionNodeChildren(tnParent, pc.getProperties());
+    }
+    
+    
+    /**
+     * Adds a collection of properties as children of a given node.
+     * @param tnParent is the parent node to add to.
+     * @param properties is the collection of properties.
+     */
+    private void setPropertyCollectionNodeChildren(MutableTreeNode tnParent, Collection<Property> properties) {
         int idx = 0;
-        for(Iterator iter = e.getProperties().iterator(); iter.hasNext(); ) {
-            Property p = (Property)iter.next();
+        for(Property p : properties) {
             DefaultMutableTreeNode tnProperty = new DefaultMutableTreeNode(p);
-            insertNodeInto(tnProperty, tnEntity, idx++);
+            insertNodeInto(tnProperty, tnParent, idx++);
             registerNode(tnProperty, p);
         }
     }
@@ -250,7 +257,7 @@ public class ModelExplorerTreeModel extends ExplorerTreeModel
      * @returns the index for the next relationship to be added to
      */
     private int addMetaRelationshipNode(MutableTreeNode parent, MetaRelationship mr, int idxRelationship) {
-        List listRelationships = model.getRelationshipsOfType(mr);
+        List<Relationship> listRelationships = model.getRelationshipsOfType(mr);
         if(!listRelationships.isEmpty()) {
             DefaultMutableTreeNode tnRelationship = new DefaultMutableTreeNode(mr);
             insertNodeInto(tnRelationship, parent, idxRelationship++);
@@ -264,10 +271,9 @@ public class ModelExplorerTreeModel extends ExplorerTreeModel
      * @param tnMetaRelationship is the tree node for the meta-relationship
      * @param listRelationships is a list of relationships of the the meta-relaitonship
      */
-    public void setMetaRelationshipNodeChildren(MutableTreeNode tnMetaRelationship, List listRelationships) {
+    public void setMetaRelationshipNodeChildren(MutableTreeNode tnMetaRelationship, List<Relationship> listRelationships) {
         int idx = 0;
-        for(Iterator iter = listRelationships.iterator(); iter.hasNext();) {
-            Relationship  r = (Relationship)iter.next();
+        for(Relationship  r : listRelationships) {
             addRelationshipNode(tnMetaRelationship, r, idx++);
         }
     }
@@ -291,6 +297,13 @@ public class ModelExplorerTreeModel extends ExplorerTreeModel
         addRoleDetail(startRole,r.start());
         addRoleDetail(finishRole,r.finish());
         
+        
+        Collection<Property> properties = r.getProperties();
+        if(!properties.isEmpty()) {
+        	MutableTreeNode propertyNode = new DefaultMutableTreeNode("Properties");
+        	insertNodeInto(propertyNode,tnRelationship,idx++);
+        	setPropertyCollectionNodeChildren(propertyNode, properties);
+        }
     }
     
     /**
@@ -301,6 +314,12 @@ public class ModelExplorerTreeModel extends ExplorerTreeModel
     private void addRoleDetail(MutableTreeNode roleNode, Role r){
         int idx = 0;
         insertNodeInto(new DefaultMutableTreeNode("connects to " + r.connectsTo().toString()),roleNode,idx++);
+        Collection<Property> properties = r.getProperties();
+        if(!properties.isEmpty()) {
+        	MutableTreeNode propertyNode = new DefaultMutableTreeNode("Properties");
+        	insertNodeInto(propertyNode,roleNode,idx++);
+        	setPropertyCollectionNodeChildren(propertyNode, properties);
+        }
     }
     
     /*-----------------------------------------------------------------
@@ -426,9 +445,9 @@ public class ModelExplorerTreeModel extends ExplorerTreeModel
         Relationship r = (Relationship)e.getSource();
         
         DefaultMutableTreeNode tn = lookupNodeOf(r);
-        DefaultMutableTreeNode parent = null;
+        // DefaultMutableTreeNode parent = null;
         if(tn != null) {
-            parent = (DefaultMutableTreeNode)tn.getParent();
+            //parent = (DefaultMutableTreeNode)tn.getParent();
             //System.out.println("Removing node for " + r);
             removeNodeFromParent(tn);
             removeNodeOf(r);
@@ -450,7 +469,7 @@ public class ModelExplorerTreeModel extends ExplorerTreeModel
         Entity e = (Entity)evt.getSource();
         
         DefaultMutableTreeNode tn = lookupNodeOf(e);
-        MutableTreeNode parent = (MutableTreeNode)tn.getParent();
+        //MutableTreeNode parent = (MutableTreeNode)tn.getParent();
         if(tn != null) {
             removeNodeFromParent(tn);
             removeNodeOf(e);
@@ -502,8 +521,7 @@ public class ModelExplorerTreeModel extends ExplorerTreeModel
         Entity e = (Entity)evt.getSource();
         DefaultMutableTreeNode tn = lookupNodeOf(e);
         nodeChanged(tn);
-        for(Iterator iter = e.getProperties().iterator(); iter.hasNext();){
-            Property p = (Property)iter.next();
+        for(Property p : e.getProperties()){
             tn = lookupNodeOf(p);
             if(tn != null){
                 tn.setUserObject(p);

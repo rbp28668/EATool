@@ -66,15 +66,17 @@ public class MetaModelDiagramType extends StandardDiagramType {
 
         connectorType = new ConnectorType(BasicConnector.class, "Meta Relationship");
         
-        EventMap eventMap = getEventMap();
-        eventMap.clear();
+        defineEventMap(getEventMap());
+    }
+
+    public static void defineEventMap(EventMap eventMap) {
+    	eventMap.clear();
 	    eventMap.addEvent(StandardDiagram.ON_DISPLAY_EVENT);
 	    eventMap.addEvent(StandardDiagram.ON_CLOSE_EVENT);
 	    eventMap.addEvent("MetaEntity");
 	    eventMap.addEvent("MetaRelationship");
-        
     }
-
+    
     /**
      * @return Returns the connectorType.
      */

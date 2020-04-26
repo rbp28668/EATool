@@ -30,6 +30,8 @@ import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.metamodel.MetaProperty;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.repository.metamodel.impl.MetaEntityImpl;
+import alvahouse.eatool.repository.metamodel.types.Keys;
+import alvahouse.eatool.repository.metamodel.types.MetaPropertyType;
 import alvahouse.eatool.repository.model.Entity;
 import alvahouse.eatool.repository.model.Model;
 import alvahouse.eatool.repository.model.Property;
@@ -387,11 +389,25 @@ public class ModelBrowser extends JInternalFrame {
                     a("http://localhost/entity/" + other.getKey().toString(), other.toString());
 //                    a("local://localhost/entity/" + role.connectsTo().getKey().toString(), role.connectsTo().toString());
                     buff.append("</td>");
+                    
+                    // Display any summary properties of the linked entity
                     for(Property p : other.getProperties()){
                     	if(p.getMeta().isSummary()){
                             td(p.getValue());
                     	}
                     }
+                    
+                    // and add any properties of the relationship itself
+                    // boolean gets specially treatment as instead of Preferred:true we just have Preferred or blank.
+                    for(Property p : r.getProperties()) {
+                    	if(p.getMeta().getMetaPropertyType().getKey().equals(Keys.TYPE_BOOLEAN)) {
+                        	td( (p.getValue().equals("true")) ? p.getMeta().getName() : "&nbsp;" );
+                    	} else {
+                    		td(p.getMeta().getName() + ": " + p.getValue());
+                    	}
+                    }
+                    
+                    
                     
                     buff.append("</tr>");
                 }

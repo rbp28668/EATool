@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import alvahouse.eatool.repository.base.DeleteDependenciesList;
+import alvahouse.eatool.repository.scripting.EventMap;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 

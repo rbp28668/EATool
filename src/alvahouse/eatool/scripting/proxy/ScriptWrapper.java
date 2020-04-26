@@ -6,7 +6,11 @@
  */
 package alvahouse.eatool.scripting.proxy;
 
+import alvahouse.eatool.Application;
+import alvahouse.eatool.gui.graphical.standard.StandardDiagramViewer;
+import alvahouse.eatool.gui.scripting.proxy.StandardDiagramViewerProxy;
 import alvahouse.eatool.repository.Repository;
+import alvahouse.eatool.repository.graphical.standard.StandardDiagram;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.repository.model.Entity;
@@ -27,11 +31,19 @@ public class ScriptWrapper {
     }
 
     public static Object wrap(
-            alvahouse.eatool.repository.graphical.standard.StandardDiagram diagram,
+            StandardDiagram diagram,
             Repository repository){
-        return new StandardDiagramProxy(diagram,repository);
+        return new StandardDiagramProxy(diagram, repository);
     }
-    
+ 
+    public static Object wrap(
+    		StandardDiagramViewer viewer, 
+    		StandardDiagram diagram, 
+    		Application app, 
+    		Repository repository) {
+    	return new StandardDiagramViewerProxy(viewer, diagram, app, repository);
+    }
+
     public static Object wrap(Object target){
         if(target instanceof Entity){
             EntitySet set = new EntitySet();

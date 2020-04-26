@@ -17,7 +17,6 @@ import javax.swing.JPanel;
 import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
-import alvahouse.eatool.repository.metamodel.MetaRelationship;
 
 /**
  * Editor for a MetaRelationship.
@@ -28,6 +27,7 @@ public class MetaRelationshipEditor extends BasicDialog {
     private MetaRelationship mrOriginal; // and the original to be updated if ok
     private NamedRepositoryItemPanel nriPanel;
     private RolesPanel rolesPanel;
+    private MetaPropertiesPanel propertiesPanel;
 
     private static final long serialVersionUID = 1L;
     private class AutoName implements ItemListener {
@@ -49,34 +49,36 @@ public class MetaRelationshipEditor extends BasicDialog {
 
         mrOriginal = mr;
 
-        nriPanel = new NamedRepositoryItemPanel(mr);
-        getContentPane().add(nriPanel,BorderLayout.NORTH);
-
         getContentPane().add(getOKCancelPanel(),BorderLayout.EAST);
 
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        getContentPane().add(mainPanel, BorderLayout.CENTER);
+        
+        nriPanel = new NamedRepositoryItemPanel(mr);
+        mainPanel.add(nriPanel,BorderLayout.NORTH);
+
+
         rolesPanel = new RolesPanel(mr, repository);
-        getContentPane().add(rolesPanel,BorderLayout.CENTER);
+        mainPanel.add(rolesPanel,BorderLayout.CENTER);
         rolesPanel.addConnectionChangeListener(new AutoName());
         
+        propertiesPanel = new MetaPropertiesPanel(mr, repository, this);
+        mainPanel.add(propertiesPanel,BorderLayout.SOUTH);
+        
         pack();
-    }
-
-    private MetaRelationshipEditor getDialog() {
-        return this;
     }
 
     protected void onOK() {
         mrOriginal.setName(nriPanel.getName());
         mrOriginal.setDescription(nriPanel.getDescription());
         rolesPanel.updateRoles();
+        mrOriginal.setDeclaredMetaProperties(propertiesPanel.getMetaProperties());
     }
     
     protected boolean validateInput() {
-        if(!nriPanel.validateInput())
-            return false;
-        if(!rolesPanel.validateInput())
-            return false;
-        return true;
+        return nriPanel.validateInput()
+        	&& rolesPanel.validateInput()
+        	&& propertiesPanel.validateInput();
     }
     
     /*=================================================================*/

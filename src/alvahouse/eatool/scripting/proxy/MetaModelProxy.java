@@ -27,7 +27,7 @@ public class MetaModelProxy {
      * Creates a new proxy object tied to the underlying meta model.
      * @param meta is the underlying meta-model.
      */
-    MetaModelProxy(
+    public MetaModelProxy(
             MetaModel meta) {
         super();
         this.meta = meta;

@@ -69,6 +69,7 @@ public class MetaRoleImpl extends MetaPropertyContainerImpl implements MetaRole 
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.metamodel.MetaRole#getMultiplicity()
      */
+    @Override
     public Multiplicity getMultiplicity() {
         return multiplicity;
     }
@@ -76,6 +77,7 @@ public class MetaRoleImpl extends MetaPropertyContainerImpl implements MetaRole 
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.metamodel.MetaRole#setMultiplicity(alvahouse.eatool.repository.metamodel.Multiplicity)
      */
+    @Override
     public void setMultiplicity(Multiplicity m) {
         if(m == null) {
             throw new NullPointerException("Cannot set null multiplicity on MetaRole");
@@ -86,6 +88,7 @@ public class MetaRoleImpl extends MetaPropertyContainerImpl implements MetaRole 
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.metamodel.MetaRole#setConnection(alvahouse.eatool.repository.metamodel.MetaEntity)
      */
+    @Override
     public void setConnection(MetaEntity connection) {
         if(connection == null) {
             throw new NullPointerException("Cannot set null connection to MetaEntity on MetaRole");
@@ -96,12 +99,15 @@ public class MetaRoleImpl extends MetaPropertyContainerImpl implements MetaRole 
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.metamodel.MetaRole#connectsTo()
      */
+    @Override
     public MetaEntity connectsTo() {
         return connection;
     }
+    
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.metamodel.MetaRole#writeXML(alvahouse.eatool.util.XMLWriter)
      */
+    @Override
     public void writeXML(XMLWriter out) throws IOException {
         out.startEntity("MetaRole");
         super.writeAttributesXML(out);
@@ -125,6 +131,7 @@ public class MetaRoleImpl extends MetaPropertyContainerImpl implements MetaRole 
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.metamodel.MetaRole#getMetaRelationship()
      */
+    @Override
     public MetaRelationship getMetaRelationship() {
         return metaRelationship;
     }
@@ -133,6 +140,7 @@ public class MetaRoleImpl extends MetaPropertyContainerImpl implements MetaRole 
      * Sets the parent MetaRelationhip.
      * @param mr is the parent to set.
      */
+    @Override
     public void setMetaRelationship(MetaRelationship mr) {
         if(mr == null) {
             throw new NullPointerException("Cannot set null MetaRelationship on MetaRole");
