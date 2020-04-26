@@ -226,6 +226,9 @@ public class DiagramViewerActionSet extends ActionSet {
 			    Scripts scripts = repository.getScripts();
                 EventMapDialog dialog = new EventMapDialog(viewer, "Edit Diagram Event Mapping", diagram.getEventMap(), scripts);
                 dialog.setVisible(true);
+                if(dialog.wasEdited()) {
+                	diagram.scriptsUpdated();
+                }
 			} catch(Throwable t) {
 				new ExceptionDisplay(viewer,t);
 			}

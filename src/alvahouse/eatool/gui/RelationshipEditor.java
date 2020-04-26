@@ -49,7 +49,7 @@ public class RelationshipEditor extends BasicDialog {
         label.setBorder(new javax.swing.border.EmptyBorder(new java.awt.Insets(1, 1, 1, 1)));
         getContentPane().add(label, BorderLayout.NORTH);
         
-        relationshipPanel = new RelationshipPanel(originalRelationship);
+        relationshipPanel = new RelationshipPanel(originalRelationship, model);
         
         getContentPane().add(relationshipPanel, BorderLayout.CENTER);
         getContentPane().add(getOKCancelPanel(), BorderLayout.EAST);
@@ -80,50 +80,53 @@ public class RelationshipEditor extends BasicDialog {
         private static final long serialVersionUID = 1L;
 
         /** For selecting which entity the start of the relationship connects to.*/
-		JComboBox cmbStart;
+		private final JComboBox<Entity> cmbStart;
 
 		/** For selecting which entity the finish of the relationship connects to.*/
-		JComboBox cmbFinish;
+		private final JComboBox<Entity> cmbFinish;
 		
 		/** The relationship being edited */
-		Relationship relationship;
+		private final Relationship relationship;
+		
+		private PropertiesPanel propertiesPanel;
 		
 		/**
 		 * Method RelationshipsPanel.
 		 * @param e
 		 */
-        RelationshipPanel(Relationship r) {
+        RelationshipPanel(Relationship r, Model model) {
 
 			relationship = r;
 			
-			Model model = originalRelationship.getModel();
+			setLayout(new BorderLayout());
 			
             MetaEntity startEntityType = r.start().getMeta().connectsTo();
             MetaEntity finishEntityType = r.finish().getMeta().connectsTo();
         	
-            cmbStart = new JComboBox();
+            cmbStart = new JComboBox<Entity>();
             cmbStart.setBorder(new TitledBorder("Start Connects to"));
-            
             for(Entity e : model.getEntitiesOfType(startEntityType)){
                 cmbStart.addItem(e);
             }
-            
             cmbStart.setSelectedItem(r.start().connectsTo());
 
-            cmbFinish = new JComboBox();
+            cmbFinish = new JComboBox<Entity>();
             cmbFinish.setBorder(new TitledBorder("Finish Connects to"));
-            
             for(Entity e : model.getEntitiesOfType(finishEntityType)){
                 cmbFinish.addItem(e);
             }
-            
             cmbFinish.setSelectedItem(r.finish().connectsTo());
         	
             Box box = Box.createVerticalBox();
             box.add(cmbStart);
             box.add(cmbFinish);
             box.add(Box.createVerticalGlue());
-            add(box, BorderLayout.EAST);
+            add(box, BorderLayout.CENTER);
+            
+            if(r.hasProperties()) {
+            	propertiesPanel = new PropertiesPanel(r, r.getMeta());
+            	add(propertiesPanel, BorderLayout.SOUTH);
+            }
         }
         
 		/**
@@ -132,6 +135,10 @@ public class RelationshipEditor extends BasicDialog {
         void onOK() {
         	relationship.start().setConnection((Entity)cmbStart.getSelectedItem());
         	relationship.finish().setConnection((Entity)cmbFinish.getSelectedItem());
+        	if(propertiesPanel != null) {
+        		propertiesPanel.onOK();
+        	}
+        	model.fireRelationshipChanged(relationship);
         }
         
 		/**
@@ -141,9 +148,14 @@ public class RelationshipEditor extends BasicDialog {
 		 * @return boolean
 		 */
        	boolean validateInput() {
-
+       		boolean propertiesValid = true;
+       		if(propertiesPanel != null) {
+       			propertiesValid = propertiesPanel.validateInput();
+       		}
+       		
 			return cmbStart.getSelectedItem() != null 
-			&& cmbFinish.getSelectedItem() != null;
+			&& cmbFinish.getSelectedItem() != null
+			&& propertiesValid;
        	}
 
     }

@@ -108,6 +108,7 @@ public class StandardDiagramTypeEditor extends BasicDialog implements DiagramTyp
 	/* (non-Javadoc)
 	 * @see alvahouse.eatool.gui.BasicDialog#onOK()
 	 */
+	@Override
 	protected void onOK() {
 		// Need to end up with 2 lists:
 		// SymbolType & ConnectorType for StandardDiagramType.
@@ -164,7 +165,6 @@ public class StandardDiagramTypeEditor extends BasicDialog implements DiagramTyp
 		// argue that only 1 class is needed).
 		// Also there must be a valid name.
 		return symbolsModel.getSelectedMetaEntities().size() > 0
-		&& connectorsModel.getSelectedItemMap().size() > 0
 		&& nameField.getText().length() > 0;
 	}
 	

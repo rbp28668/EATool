@@ -36,6 +36,7 @@ public abstract class MetaPropertyContainerImpl extends NamedRepositoryItem impl
      * property with the same UUID already exists then it is replaced.
      * @param mp is the meta-property to be added.
      */
+    @Override
     public MetaProperty addMetaProperty(MetaProperty mp)
     {
         if(m_properties.containsKey(mp.getKey())) { // need to replace existing one
@@ -52,6 +53,7 @@ public abstract class MetaPropertyContainerImpl extends NamedRepositoryItem impl
      * @param uuid is the key for the meta-property
      * @return the meta-property corresponding to the key
      */
+    @Override
     public MetaProperty getMetaProperty(UUID uuid) {
        return m_properties.get(uuid);
     }
@@ -60,6 +62,7 @@ public abstract class MetaPropertyContainerImpl extends NamedRepositoryItem impl
      * @param name is the name of the property to delete
      * @returns the delete MetaProperty or null if no match for the name
      */
+    @Override
     public MetaProperty deleteMetaProperty(UUID uuid) {
         MetaProperty mp = m_properties.remove(uuid);
         propertyList.remove(mp);
@@ -68,18 +71,29 @@ public abstract class MetaPropertyContainerImpl extends NamedRepositoryItem impl
 
 
     /** gets a collection of all the meta-properties 
-     * for this container.
+     * for this container. Note that default is that this is
+     * the same as declared meta properties. Any sub-class
+     * that implements inheritance in the meta-model must
+     * over-ride this and recurse up the inheritance tree to get
+     * a full list of meta properties 
      * @return a collection of meta-properties.
      */
+    @Override
     public Collection<MetaProperty> getMetaProperties() {
         return propertyList;
     }
-    
+
+    @Override
+    public Collection<MetaProperty> getDeclaredMetaProperties() {
+        return propertyList;
+    }
+
     /**
      * Sets the list of declared MetaProperties.
      * @param metaProperties
      */
-    public void setMetaProperties(MetaProperty[] metaProperties) {
+    @Override
+    public void setDeclaredMetaProperties(MetaProperty[] metaProperties) {
         propertyList.clear();
         for(MetaProperty mp : metaProperties){
             propertyList.addLast(mp);
@@ -116,6 +130,7 @@ public abstract class MetaPropertyContainerImpl extends NamedRepositoryItem impl
      * Writes the MetaEntity out as XML
      * @param out is the XMLWriterDirect to write the XML to
      */
+    @Override
     public void writeXML(XMLWriter out) throws IOException {
         for(MetaProperty mp : propertyList){
             mp.writeXML(out);

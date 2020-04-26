@@ -105,6 +105,7 @@ public class EventMap {
     /**
      * Fires an event - if the event has a handler that handler script is run
      * by the scripting engine.
+     * Note - use this when event has no extra parameters appart from app.
      * @param event is the event to fire.
      * @throws BSFException if there is an error in the script.
      * @throws IllegalStateException if the event map does not contain the given event.
@@ -118,13 +119,24 @@ public class EventMap {
             ScriptManager.getInstance().runScript(handler);
         }
     }
-    
+
+  
+   
     /**
      * Writes the EventMap out as XML
      * @param out is the XMLWriterDirect to write the XML to
      */
     public void writeXML(XMLWriter out) throws IOException {
-        out.startEntity("EventMap");
+        writeXML(out,"EventMap");
+    }
+
+    /**
+     * Writes the EventMap out as XML using the given tag
+     * @param out is the XMLWriterDirect to write the XML to
+     * @param tag is the element name to use.
+     */
+    public void writeXML(XMLWriter out, String tag) throws IOException {
+        out.startEntity(tag);
         
         for(Map.Entry<String,Script> entry : handlers.entrySet()){
             Script handler = (Script)entry.getValue();

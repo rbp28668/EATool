@@ -10,8 +10,12 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.lang.reflect.InvocationTargetException;
 
+import alvahouse.eatool.gui.graphical.layout.Arc;
 import alvahouse.eatool.repository.Repository;
+import alvahouse.eatool.repository.graphical.standard.Connector;
+import alvahouse.eatool.repository.graphical.standard.Symbol;
 import alvahouse.eatool.repository.model.Entity;
+import alvahouse.eatool.repository.model.Relationship;
 import alvahouse.eatool.util.UUID;
 
 
@@ -23,17 +27,17 @@ import alvahouse.eatool.util.UUID;
  */
 public class StandardDiagramProxy {
 
-    private alvahouse.eatool.repository.graphical.standard.StandardDiagram diagram;
-    private Repository repository;
+    private final alvahouse.eatool.repository.graphical.standard.StandardDiagram diagram;
+    private final Repository repository;
     
     
     /**
      * Creates a StandardDiagram attached to the given underlying diagram.
      * @param diagram is the underlying diagram.
      */
-    StandardDiagramProxy(
+    public StandardDiagramProxy(
             alvahouse.eatool.repository.graphical.standard.StandardDiagram diagram,
-            Repository repository) {
+             Repository repository) {
         super();
         this.diagram = diagram;
         this.repository = repository;
@@ -42,7 +46,8 @@ public class StandardDiagramProxy {
     public alvahouse.eatool.repository.graphical.standard.StandardDiagram getDiagram(){
         return diagram;
     }
-    
+
+ 
     /**
      * Deletes the contents of the diagram.
      * @throws InvocationTargetException
@@ -138,7 +143,7 @@ public class StandardDiagramProxy {
      * @throws InvocationTargetException
      * @throws InterruptedException
      */
-    public void colour(EntitySet entities, int red, int blue, int green) throws InterruptedException, InvocationTargetException{
+    public void colour(EntitySet entities, int red, int green, int blue) throws InterruptedException, InvocationTargetException{
         Color colour = new Color(red,green,blue);
         EventQueue.invokeAndWait( new ColourEntitiesRunner(entities,colour));
     }
@@ -170,7 +175,7 @@ public class StandardDiagramProxy {
      * @throws InvocationTargetException
      * @throws InterruptedException
      */
-    public void colourEntity(Entity entity, int red, int blue, int green) throws InterruptedException, InvocationTargetException{
+    public void colourEntity(Entity entity, int red, int green, int blue) throws InterruptedException, InvocationTargetException{
         Color colour = new Color(red,green,blue);
         EventQueue.invokeAndWait( new ColourEntityRunner(entity,colour));
     }
@@ -260,4 +265,29 @@ public class StandardDiagramProxy {
         return new ImageDisplayProxy(display);
         
     }
+    
+    /**
+     * Gets the set of all the entities that appear on the diagram
+     * @return an EntitySet with all the entities.
+     */
+    public EntitySet entities() {
+    	EntitySet set = new EntitySet();
+    	for(Symbol symbol : diagram.getSymbols()) {
+    		set.add((Entity)symbol.getItem());
+    	}
+    	return set;
+    }
+    
+    /**
+     * Gets the set of all the relationships that appear on the diagram
+     * @return a RelationshipSet with all the relationships.
+     */
+    public RelationshipSet relationships() {
+    	RelationshipSet set = new RelationshipSet();
+    	for(Connector connector : diagram.getConnectors()) {
+    		set.add((Relationship)connector.getItem());
+    	}
+    	return set;
+    }
+
 }

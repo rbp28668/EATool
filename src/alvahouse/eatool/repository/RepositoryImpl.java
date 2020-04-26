@@ -25,6 +25,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 import alvahouse.eatool.gui.graphical.standard.AllowableElements;
+import alvahouse.eatool.gui.graphical.standard.metamodel.MetaModelDiagramType;
+import alvahouse.eatool.gui.graphical.standard.model.ModelDiagramType;
 import alvahouse.eatool.repository.base.DeleteDependenciesList;
 import alvahouse.eatool.repository.exception.InputException;
 import alvahouse.eatool.repository.exception.OutputException;
@@ -100,7 +102,8 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     private final ExtensibleTypes extensibleTypes = new ExtensibleTypes();
     private final HTMLPages pages = new HTMLPages();
     private final Images images = new Images();
-    
+    private final EventMap modelEvents = new EventMap();
+    private final EventMap metaModelEvents = new EventMap();
     // Events 
     private final String POST_LOAD_EVENT = "PostLoadEvent";
     private final String PRE_SAVE_EVENT = "PreSaveEvent";
@@ -135,13 +138,19 @@ public class RepositoryImpl implements TypeEventListener, Repository{
         // the master types list.
         extensibleTypes.addListener(this);
         
+        // Event maps need to be initialised with the allowable events
+        // even if no handlers defined.
         events.addEvent(POST_LOAD_EVENT);
         events.addEvent(PRE_SAVE_EVENT);
+        
+        ModelDiagramType.defineEventMap(modelEvents);
+        MetaModelDiagramType.defineEventMap(metaModelEvents);
         
         // Set up search engine
         search = new SearchEngine();
         model.addChangeListener(search);
 
+        // Set up scripting
         try {
             ScriptManager.initInstance(config);
             ScriptManager.getInstance().declareObject("repository", 
@@ -176,7 +185,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
         EventMapFactory eventsmf = new EventMapFactory(counter,events,scripts);
 		loader.registerContent(NAMESPACE,"EventMap",eventsmf);
 		loader.registerContent(OLD_NAMESPACE,"EventMap",eventsmf);
-		
+
 		ScriptFactory sf = new ScriptFactory(counter,scripts);
 		loader.registerContent(NAMESPACE,"Script",sf);
 		loader.registerContent(OLD_NAMESPACE,"Script",sf);
@@ -226,12 +235,18 @@ public class RepositoryImpl implements TypeEventListener, Repository{
 		loader.registerContent(NAMESPACE,"Types",tf);
 		loader.registerContent(OLD_NAMESPACE,"Types",tf);
 		
-		HTMLPageFactory hpf = new HTMLPageFactory(counter,pages);
-		loader.registerContent(NAMESPACE,"Pages",hpf);
+		loader.registerContent(NAMESPACE,"Pages",
+				new HTMLPageFactory(counter,pages));
 
-		ImageFactory imgf = new ImageFactory(counter, images);
-		loader.registerContent(NAMESPACE,"Images",imgf);
-		
+		loader.registerContent(NAMESPACE,"Images",
+				new ImageFactory(counter, images));
+
+		loader.registerContent(NAMESPACE,"MetaModelEventMap", 
+				new EventMapFactory(counter,metaModelEvents,scripts));
+
+		loader.registerContent(NAMESPACE,"ModelEventMap",
+				new EventMapFactory(counter,modelEvents,scripts));
+
         try {
             loader.parse(uri);
             //System.out.println("Entity Count " + model.getEntityCount());
@@ -260,7 +275,30 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     }
     
 
-    /* (non-Javadoc)
+    /**
+	 * @return the events
+	 */
+	public EventMap getEvents() {
+		return events;
+	}
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.Repository#getMetaModelViewerEvents()
+	 */
+	@Override
+	public EventMap getMetaModelViewerEvents() {
+		return metaModelEvents;
+	}
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.Repository#getModelViewerEvents()
+	 */
+	@Override
+	public EventMap getModelViewerEvents() {
+		return modelEvents;
+	}
+
+	/* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#saveXML(java.lang.String)
      */
     public void saveXML(String uri) throws OutputException {
@@ -291,6 +329,9 @@ public class RepositoryImpl implements TypeEventListener, Repository{
 	            importMappings.writeXML(writer);
 	            exportMappings.writeXML(writer);
 	            pages.writeXML(writer);
+	    		metaModelEvents.writeXML(writer, "MetaModelEventMap"); 
+	    		modelEvents.writeXML(writer, "ModelEventMap");
+
 	            writer.stopEntity();
 	            writer.stopXML();
             } finally {
@@ -611,7 +652,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
         for(MetaEntity me : metaModel.getMetaEntities()){
             changed.clear();
             for(MetaProperty mp : me.getMetaProperties()){
-                if(mp.equals(changedType)){
+                if(mp.getMetaPropertyType().equals(changedType)){
                     changed.add(mp);
                 }
             }
@@ -648,9 +689,9 @@ public class RepositoryImpl implements TypeEventListener, Repository{
         MetaPropertyType deletedType = event.getType();
         for(MetaEntity me : metaModel.getMetaEntities()){
             Collection<MetaProperty> metaProperties = new LinkedList<MetaProperty>();
-            metaProperties.addAll(me.getMetaProperties());
+            metaProperties.addAll(me.getMetaProperties()); // copy as will delete from original
             for(MetaProperty mp : metaProperties){
-                if(mp.equals(deletedType)){
+                if(mp.getMetaPropertyType().equals(deletedType)){
                     me.deleteMetaProperty(mp.getKey());
                 }
             }
@@ -659,7 +700,8 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     }
 
     
-    private class DebugContentHandler implements ContentHandler {
+    @SuppressWarnings("unused")  // as just for debugging
+	private class DebugContentHandler implements ContentHandler {
 
         /* (non-Javadoc)
          * @see org.xml.sax.ContentHandler#setDocumentLocator(org.xml.sax.Locator)
@@ -770,6 +812,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
             throw new RepositoryException("Unable to search: " + x.getMessage(),x);
         }
     }
+
 
 
     

@@ -21,6 +21,7 @@ import javax.imageio.ImageIO;
 import alvahouse.eatool.repository.base.KeyedItem;
 import alvahouse.eatool.repository.base.NamedRepositoryItem;
 import alvahouse.eatool.repository.scripting.EventMap;
+import alvahouse.eatool.repository.scripting.Scripts;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
@@ -35,8 +36,8 @@ public abstract class Diagram extends NamedRepositoryItem {
 	private DiagramType type;
 	private boolean isDynamic = false;	// True if content script generated so don't save.
 	private Color backColour = Color.lightGray;
-	private List diagramsListeners = new LinkedList();
-	private List diagramListeners = new LinkedList();
+	private List<DiagramsChangeListener> diagramsListeners = new LinkedList<DiagramsChangeListener>();
+	private List<DiagramChangeListener> diagramListeners = new LinkedList<DiagramChangeListener>();
     private EventMap eventMap = new EventMap();
     private boolean mustDoLayout = false;
 
@@ -151,61 +152,61 @@ public abstract class Diagram extends NamedRepositoryItem {
 	 */
 	protected void fireDiagramChanged(){
 		DiagramsChangeEvent event = new DiagramsChangeEvent(this);
-		for(Iterator iter = diagramsListeners.iterator(); iter.hasNext();){
-			DiagramsChangeListener listener = (DiagramsChangeListener)iter.next();
+		for(Iterator<DiagramsChangeListener> iter = diagramsListeners.iterator(); iter.hasNext();){
+			DiagramsChangeListener listener = iter.next();
 			listener.diagramChanged(event);
 		}
 	}
 	
 	protected void fireSymbolAdded(GraphicalProxy s){
 		DiagramChangeEvent e = new DiagramChangeEvent(s);
-		for(Iterator iter = diagramListeners.iterator(); iter.hasNext();){
-			DiagramChangeListener listener = (DiagramChangeListener)iter.next();
+		for(Iterator<DiagramChangeListener> iter = diagramListeners.iterator(); iter.hasNext();){
+			DiagramChangeListener listener = iter.next();
 			listener.symbolAdded(e);
 		}
 	}
 	
 	protected void fireSymbolDeleted(GraphicalProxy s){
 		DiagramChangeEvent e = new DiagramChangeEvent(s);
-		for(Iterator iter = diagramListeners.iterator(); iter.hasNext();){
-			DiagramChangeListener listener = (DiagramChangeListener)iter.next();
+		for(Iterator<DiagramChangeListener> iter = diagramListeners.iterator(); iter.hasNext();){
+			DiagramChangeListener listener = iter.next();
 			listener.symbolDeleted(e);
 		}
 	}
 	protected void fireSymbolMoved(GraphicalProxy s){
 		DiagramChangeEvent e = new DiagramChangeEvent(s);
-		for(Iterator iter = diagramListeners.iterator(); iter.hasNext();){
-			DiagramChangeListener listener = (DiagramChangeListener)iter.next();
+		for(Iterator<DiagramChangeListener> iter = diagramListeners.iterator(); iter.hasNext();){
+			DiagramChangeListener listener = iter.next();
 			listener.symbolMoved(e);
 		}
 	}
 	
 	protected void fireConnectorAdded(GraphicalProxy r){
 		DiagramChangeEvent e = new DiagramChangeEvent(r);
-		for(Iterator iter = diagramListeners.iterator(); iter.hasNext();){
-			DiagramChangeListener listener = (DiagramChangeListener)iter.next();
+		for(Iterator<DiagramChangeListener> iter = diagramListeners.iterator(); iter.hasNext();){
+			DiagramChangeListener listener = iter.next();
 			listener.connectorAdded(e);
 		}
 	}
 	protected void fireConnectorDeleted(GraphicalProxy r){
 		DiagramChangeEvent e = new DiagramChangeEvent(r);
-		for(Iterator iter = diagramListeners.iterator(); iter.hasNext();){
-			DiagramChangeListener listener = (DiagramChangeListener)iter.next();
+		for(Iterator<DiagramChangeListener> iter = diagramListeners.iterator(); iter.hasNext();){
+			DiagramChangeListener listener = iter.next();
 			listener.connectorDeleted(e);
 		}
 	}
 	protected void fireConnectorMoved(GraphicalProxy r){
 		DiagramChangeEvent e = new DiagramChangeEvent(r);
-		for(Iterator iter = diagramListeners.iterator(); iter.hasNext();){
-			DiagramChangeListener listener = (DiagramChangeListener)iter.next();
+		for(Iterator<DiagramChangeListener> iter = diagramListeners.iterator(); iter.hasNext();){
+			DiagramChangeListener listener = iter.next();
 			listener.connectorMoved(e);
 		}
 	}
 
 	protected void fireMajorDiagramChange(){
 		DiagramChangeEvent e = new DiagramChangeEvent(this);
-		for(Iterator iter = diagramListeners.iterator(); iter.hasNext();){
-			DiagramChangeListener listener = (DiagramChangeListener)iter.next();
+		for(Iterator<DiagramChangeListener> iter = diagramListeners.iterator(); iter.hasNext();){
+			DiagramChangeListener listener = iter.next();
 			listener.majorDiagramChange(e);
 		}
 	}
@@ -351,6 +352,14 @@ public abstract class Diagram extends NamedRepositoryItem {
 		out.addAttribute("ofType",getType().getKey().toString());
 		
 		eventMap.writeXML(out);
+	}
+
+	/**
+	 * Called if event mapping scripts have been updated. Children of this may care to
+	 * override this and provide custom behaviour such as saving the mapping.
+	 * @param scripts
+	 */
+	public void scriptsUpdated() {
 	}
 
 }

@@ -11,7 +11,6 @@ import java.util.List;
 
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.repository.metamodel.MetaRelationshipRestriction;
-import alvahouse.eatool.repository.metamodel.MetaRelationshipRestriction.IntermediateState;
 
 //import alvahouse.eatool.repository.model.Entity;
 

@@ -36,12 +36,12 @@ import alvahouse.eatool.scripting.proxy.ScriptWrapper;
 
 
 /**
- * StandardDiagramViewerMouseHandler is a mouse handler for the StandardDiagramViewer.  It is
+ * StandardDiagramViewerMouseHandler is a mouse handler for the StandardDiagramViewerProxy.  It is
  * generic as the diagram type specific stuff is abstracted into an ItemHandler.
- * In effect, this acts as a controller for the StandardDiagramViewer:
+ * In effect, this acts as a controller for the StandardDiagramViewerProxy:
  * <pre>
  * Model: StandardDiagram
- * View: StandardDiagramViewer
+ * View: StandardDiagramViewerProxy
  * Controller: StandardDiagramViewerMouseHandler
  * </pre>
  * @author Bruce.Porteous
@@ -58,7 +58,7 @@ final class StandardDiagramViewerMouseHandler extends MouseInputAdapter {
 	private Set selectedObjects = new HashSet();
 	
 	/**
-	 * @param StandardDiagramViewer.ViewerPane
+	 * @param StandardDiagramViewerProxy.ViewerPane
 	 */
 	StandardDiagramViewerMouseHandler(StandardDiagramViewer viewer, StandardDiagramViewer.ViewerPane viewPane, ItemHandler itemHandler ) {
 		if(viewer == null){
@@ -322,8 +322,6 @@ final class StandardDiagramViewerMouseHandler extends MouseInputAdapter {
 						    }
 						    Object target = ScriptWrapper.wrap(item);
 						    Object diagram = ScriptWrapper.wrap(viewPane.getDiagram());
-						    
-						    ScriptManager manager = ScriptManager.getInstance();
 						    
 						    ScriptContext context = viewPane.getDiagram().getEventMap().getContextFor(event);
 						    if(context != null){

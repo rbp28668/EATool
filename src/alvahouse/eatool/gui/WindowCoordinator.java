@@ -6,14 +6,14 @@
 
 package alvahouse.eatool.gui;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Iterator;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
-import javax.swing.JInternalFrame;
 import javax.swing.JDesktopPane;
+import javax.swing.JInternalFrame;
 
 /**
  * WindowCoordinator
@@ -54,7 +54,7 @@ public class WindowCoordinator {
     public JInternalFrame getFrame(String internalName) {
         if(internalName == null)
             throw new NullPointerException();
-        JInternalFrame frame = (JInternalFrame)frames.get(internalName);
+        JInternalFrame frame = frames.get(internalName);
         if(frame == null) {
             frame = createFrame(internalName);
         }
@@ -75,7 +75,7 @@ public class WindowCoordinator {
 		if(factory == null)
 			throw new NullPointerException();
 			
-		JInternalFrame frame = (JInternalFrame)frames.get(internalName);
+		JInternalFrame frame = frames.get(internalName);
 		if(frame == null) {
 			frame = factory.createFrame();
 			addFrame(frame,internalName);
@@ -93,7 +93,7 @@ public class WindowCoordinator {
     public JInternalFrame createFrame(String internalName) {
         if(internalName == null)
             throw new NullPointerException();
-        WindowFactory factory = (WindowFactory)factories.get(internalName);
+        WindowFactory factory = factories.get(internalName);
         if(factory == null)
             throw new IllegalArgumentException("Unknown window factory name " + internalName);
         JInternalFrame frame = factory.createFrame();
@@ -107,7 +107,7 @@ public class WindowCoordinator {
     public void removeFrame(String internalName) {
         if(internalName == null)
             throw new NullPointerException();
-        JInternalFrame frame = (JInternalFrame)frames.remove(internalName);
+        JInternalFrame frame = frames.remove(internalName);
 
         if(desktopPane != null){
             desktopPane.remove(frame);
@@ -119,8 +119,8 @@ public class WindowCoordinator {
      * @param is the frame to remove.
      */
     public void removeFrame(JInternalFrame frame) {
-        for(Iterator iter = frames.entrySet().iterator(); iter.hasNext();) {
-            Map.Entry entry = (Map.Entry)iter.next();
+        for(Iterator<Map.Entry<String, JInternalFrame>> iter = frames.entrySet().iterator(); iter.hasNext();) {
+            Map.Entry<String, JInternalFrame> entry = iter.next();
             if(entry.getValue() == frame) {
                 frames.remove((String)entry.getKey());
                 break;
@@ -137,10 +137,10 @@ public class WindowCoordinator {
      * registered windows.
      */
     public void closeAll(){
-        Set allFrames = new HashSet();
+        Set<JInternalFrame> allFrames = new HashSet<JInternalFrame>();
         allFrames.addAll(frames.values());
-        for(Iterator iter = allFrames.iterator(); iter.hasNext();) {
-            JInternalFrame frame = (JInternalFrame)iter.next();
+        for(Iterator<JInternalFrame> iter = allFrames.iterator(); iter.hasNext();) {
+            JInternalFrame frame = iter.next();
             frame.dispose();
         }
     }
@@ -184,7 +184,7 @@ public class WindowCoordinator {
         public JInternalFrame createFrame();
     }
     
-    private Map frames = new HashMap();
-    private Map factories = new HashMap();
+    private Map<String, JInternalFrame> frames = new HashMap<String, JInternalFrame>();
+    private Map<String, WindowFactory> factories = new HashMap<String, WindowFactory>();
     private JDesktopPane desktopPane = null;
 }

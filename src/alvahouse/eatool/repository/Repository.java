@@ -126,6 +126,20 @@ public interface Repository {
     public abstract EventMap getEventMap();
 
     /**
+     * Gets the event map that should be used for any meta-model viewer.
+     * Allows event handlers to be created in the dynamic meta-model viewer.
+     * @return
+     */
+    public abstract EventMap getMetaModelViewerEvents();
+
+    /**
+     * Gets the event map that should be used for any model viewer.
+     * Allows event handlers to be created in the dynamic model viewer.
+     * @return
+     */
+    public abstract EventMap getModelViewerEvents();
+    
+    /**
      * Get the repository properties.
      * @return the properties.
      */

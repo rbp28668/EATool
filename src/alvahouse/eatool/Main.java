@@ -15,6 +15,7 @@ import alvahouse.eatool.gui.CommandFrame;
 import alvahouse.eatool.gui.EAToolWindowCoordinator;
 import alvahouse.eatool.gui.ProgressDisplay;
 import alvahouse.eatool.gui.WindowCoordinator;
+import alvahouse.eatool.gui.scripting.proxy.ApplicationProxy;
 import alvahouse.eatool.repository.LoadProgress;
 import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.RepositoryImpl;
@@ -144,8 +145,8 @@ public class Main implements Application{
 
 			// Make the app known to the script manager.
 			ScriptManager.getInstance().declareObject("app", 
-		                new alvahouse.eatool.gui.scripting.proxy.Application(this,m_repository), 
-		                alvahouse.eatool.gui.scripting.proxy.Application.class);
+		                new ApplicationProxy(this,m_repository), 
+		                ApplicationProxy.class);
 
 
 			// Init the GUI

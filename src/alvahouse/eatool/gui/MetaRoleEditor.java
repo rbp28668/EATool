@@ -32,28 +32,40 @@ public class MetaRoleEditor extends BasicDialog {
 
     private static final long serialVersionUID = 1L;
     
+    private MetaRole mrOriginal;
     private RolePanel rolePanel;
-
+    private MetaPropertiesPanel propertiesPanel;
+    
     /** Creates new form MetaRoleEditor */
     public MetaRoleEditor(Component parent, MetaRole mr, Repository repository) {
         super(parent,"Edit Meta-Role");
+        mrOriginal = mr;
         setLocationRelativeTo(parent);
         init(mr,repository);
     }
   
     private void init(MetaRole mr, Repository repository) {
         getContentPane().add( getOKCancelPanel(), BorderLayout.EAST);
+        
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        getContentPane().add(mainPanel, BorderLayout.CENTER);
+        
         rolePanel = new RolePanel(mr, repository);
-        getContentPane().add(rolePanel, BorderLayout.CENTER);
+        mainPanel.add(rolePanel, BorderLayout.CENTER);
+        propertiesPanel = new MetaPropertiesPanel(mr, repository, this);
+        mainPanel.add(propertiesPanel, BorderLayout.SOUTH);
+        
         pack();
     }
 
     protected void onOK() {
         rolePanel.updateRole();
+        mrOriginal.setDeclaredMetaProperties(propertiesPanel.getMetaProperties());
     }
     
     protected boolean validateInput() {
-        return rolePanel.validateInput();
+        return rolePanel.validateInput()
+        		&& propertiesPanel.validateInput();
     }
     
     /*=================================================================*/
@@ -62,8 +74,8 @@ public class MetaRoleEditor extends BasicDialog {
     public static class RolePanel extends JPanel{
         private static final long serialVersionUID = 1L;
         private MetaRole role;
-        private JComboBox cmbMultiplicity;
-        private JComboBox cmbConnects;
+        private JComboBox<Multiplicity> cmbMultiplicity;
+        private JComboBox<MetaEntity> cmbConnects;
         private NamedRepositoryItemPanel nriPanel;
         
         RolePanel(MetaRole mr, Repository repository) {
@@ -74,14 +86,14 @@ public class MetaRoleEditor extends BasicDialog {
             nriPanel = new NamedRepositoryItemPanel(mr);
             add(nriPanel,BorderLayout.CENTER);
             
-            cmbMultiplicity = new JComboBox();
+            cmbMultiplicity = new JComboBox<Multiplicity>();
             cmbMultiplicity.setBorder(new TitledBorder("Multiplicity"));
             for(Multiplicity multiplicity : MultiplicityImpl.getValues()){
                 cmbMultiplicity.addItem(multiplicity);
             }
             cmbMultiplicity.setSelectedItem(mr.getMultiplicity());
             
-            cmbConnects = new JComboBox();
+            cmbConnects = new JComboBox<MetaEntity>();
             cmbConnects.setBorder(new TitledBorder("Connects to"));
             
             Collection<MetaEntity> metaEntities = repository.getMetaModel().getMetaEntities();

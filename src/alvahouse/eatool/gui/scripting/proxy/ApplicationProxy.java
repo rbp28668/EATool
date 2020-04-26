@@ -1,5 +1,5 @@
 /*
- * Application.java
+ * ApplicationProxy.java
  * Project: EATool
  * Created on 06-Mar-2006
  *
@@ -23,27 +23,30 @@ import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.repository.model.Entity;
+import alvahouse.eatool.scripting.proxy.DiagramsProxy;
 import alvahouse.eatool.scripting.proxy.EntitySet;
 import alvahouse.eatool.scripting.proxy.ImageProxy;
 import alvahouse.eatool.scripting.proxy.ImagesProxy;
 import alvahouse.eatool.scripting.proxy.MetaEntitySet;
+import alvahouse.eatool.scripting.proxy.MetaModelProxy;
 import alvahouse.eatool.scripting.proxy.MetaRelationshipSet;
+import alvahouse.eatool.scripting.proxy.ModelProxy;
 import alvahouse.eatool.scripting.proxy.StandardDiagramProxy;
 
 
 
 /**
- * Application is a proxy object for the main application that
+ * ApplicationProxy is a proxy object for the main application that
  * provides a facade for scripting.
  * 
  * @author rbp28668
  */
-public class Application {
+public class ApplicationProxy {
 
     private alvahouse.eatool.Application app;
     private Repository repository;
     
-    public Application(alvahouse.eatool.Application app,Repository repository){
+    public ApplicationProxy(alvahouse.eatool.Application app,Repository repository){
         this.app = app;
         this.repository = repository;
     }
@@ -520,9 +523,24 @@ public class Application {
         }
     }
 
-    public StandardDiagramViewer getDiagramViewer(StandardDiagramProxy diagram){
-        StandardDiagramViewer viewer = new StandardDiagramViewer(diagram.getDiagram(), app, repository);
+    public StandardDiagramViewerProxy getDiagramViewer(StandardDiagramProxy diagram){
+        StandardDiagramViewerProxy viewer = new StandardDiagramViewerProxy(diagram.getDiagram(), app, repository);
         return viewer;
+    }
+    
+    public ModelProxy model() {
+    	ModelProxy proxy = new ModelProxy(repository);
+    	return proxy;
+    }
+    
+    public MetaModelProxy metaModel() {
+    	MetaModelProxy proxy = new MetaModelProxy(repository.getMetaModel());
+    	return proxy;
+    }
+    
+    public DiagramsProxy diagrams() {
+    	DiagramsProxy proxy = new DiagramsProxy(repository.getDiagrams(), repository);
+    	return proxy;
     }
     
 }

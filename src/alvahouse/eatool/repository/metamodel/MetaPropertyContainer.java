@@ -35,18 +35,28 @@ public interface MetaPropertyContainer extends NamedItem{
 
 
     /** gets a collection of all the meta-properties 
-     * for this container.
+     * for this container.  Note that where the container implements inheritance
+     * (e.g. has a base definition) this should return all the meta properties
+     * in the hierarchy. 
      * @return a collection of meta-properties.
      */
     public Collection<MetaProperty> getMetaProperties();
-    
+
+    /**
+     * gets a collection of MetaProperties declared in this Meta Property Containers
+     * only ignoring any parent containers.
+     * @return a collection of MetaProperty.
+     */
+    public abstract Collection<MetaProperty> getDeclaredMetaProperties();
+
     /**
      * Sets the list of declared MetaProperties.
      * @param metaProperties
      */
-    public abstract void setMetaProperties(MetaProperty[] metaProperties);
+    public abstract void setDeclaredMetaProperties(MetaProperty[] metaProperties);
 
 
+    
     /**
      * Writes the MetaEntity out as XML
      * @param out is the XMLWriterDirect to write the XML to

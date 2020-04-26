@@ -21,6 +21,7 @@ import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.metamodel.MetaModelChangeAdapter;
 import alvahouse.eatool.repository.metamodel.MetaModelChangeEvent;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
+import alvahouse.eatool.repository.scripting.EventMap;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
@@ -214,7 +215,7 @@ public class Model extends MetaModelChangeAdapter{
         return cache;
     }
     
-     /**
+      /**
      * Writes the Model out as XML
      * @param out is the XMLWriterDirect to write the XML to
      */
