@@ -70,6 +70,10 @@ public class MetaModelViewerItemHandler implements ItemHandler {
 		MetaEntityEditor editor = new MetaEntityEditor(parent, me, repository);
 		editor.setVisible(true);
         boolean edited = editor.wasEdited();
+        if(edited) {
+        	repository.getMetaModel().fireMetaEntityChanged(me);
+        }
+
         editor.dispose();
         return edited;
     }

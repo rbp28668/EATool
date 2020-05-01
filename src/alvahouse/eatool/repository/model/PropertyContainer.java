@@ -17,7 +17,6 @@ import java.util.Set;
 import alvahouse.eatool.repository.base.RepositoryItem;
 import alvahouse.eatool.repository.metamodel.MetaProperty;
 import alvahouse.eatool.repository.metamodel.MetaPropertyContainer;
-import alvahouse.eatool.repository.metamodel.MetaPropertyContainer;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
@@ -59,7 +58,7 @@ public abstract class PropertyContainer extends RepositoryItem{
     /** gets all the  properties as an array of objects
      * @return an array of the  properties
      */
-    public Object[] getPropertiesAsArray() {
+    public Property[] getPropertiesAsArray() {
         return propertyList.toArray(new Property[propertyList.size()]);
     }
     

@@ -81,6 +81,11 @@ public class EntityExportProxy implements ExportProxy {
             Set<Relationship> connected = e.getConnectedRelationshipsOf(mr);
             for(Relationship r : connected){
 
+            	out.startEntity("Relationship");
+                for(Property p : r.getProperties()){
+            		property(out, p, "RelationshipProperty");
+                }
+            	
                 Role role;
                 if(r.start().connectsTo() == e){
                     role = r.finish();
@@ -91,21 +96,23 @@ public class EntityExportProxy implements ExportProxy {
                 out.startEntity("Role");
                 out.textEntity("Name",role.getMeta().getName());
                 
+                for(Property p : role.getProperties()){
+               		property(out, p, "RoleProperty");
+                }
+                
                 Entity other = role.connectsTo();
+
                 out.startEntity("ConnectedEntity");
                 out.textEntity("ConnectedUUID", other.getKey().toString());
                 out.textEntity("Name",other.toString());
                 for(Property p : other.getProperties()){
                 	if(p.getMeta().isSummary()){
-                		out.startEntity("SummaryProperty");
-                		out.addAttribute("name", p.getMeta().getName());
-                		out.text(p.getValue());
-                		out.stopEntity();
+                		property(out, p, "SummaryProperty");
                 	}
                 }
                 out.stopEntity(); // ConnectedEntity
-                
                 out.stopEntity(); // Role
+                out.stopEntity(); // Relationship
             }
             out.stopEntity(); // RelationshipType
         }
@@ -114,5 +121,19 @@ public class EntityExportProxy implements ExportProxy {
         out.stopEntity(); // Entity
         
     }
+
+	/**
+	 * @param out
+	 * @param p
+	 * @param name 
+	 * @throws IOException
+	 */
+	private void property(XMLWriter out, Property p, String name) throws IOException {
+		out.startEntity(name);
+		out.addAttribute("name", p.getMeta().getName());
+		out.addAttribute("type", p.getMeta().getMetaPropertyType().getTypeName());
+		out.text(p.getValue());
+		out.stopEntity();
+	}
 
 }

@@ -8,7 +8,7 @@ package alvahouse.eatool.repository.html;
 
 /**
  * PagesChangeListener is a callback interface to receive change events about a 
- * collection of HTML pages.
+ * collection of HTMLProxy pages.
  * 
  * @author rbp28668
  */

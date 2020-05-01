@@ -88,10 +88,10 @@ public class GUIBuilder {
                     throw new IllegalArgumentException("No action to match " + actionName + " in toolbar configuration");
 
                 String display = buttonElement.attribute("display");
-                if(display != null)
-                    a.putValue(Action.NAME,display);
-            
                 JButton jb = new JButton(a);
+                if(display != null) {
+                	jb.setText(display);
+                }
                 toolBar.add(jb);
             }
         }
@@ -195,15 +195,13 @@ public class GUIBuilder {
             throw new IllegalArgumentException("No action to match " + actionName + " in menu configuration");
 
         String display = menuItem.attribute("display");
-        if(display != null)
-            a.putValue(Action.NAME,display);
-        else
-            a.putValue(Action.NAME,actionName);
-
-        //System.out.println("New menu item: "+ display);
+        if(display == null) {
+        	display = actionName;
+        }
 
         JMenuItem jmi = new JMenuItem(a);
-
+        jmi.setText(display);
+        
         String accel = menuItem.attribute("accel");
         if(accel != null) {
             String accelmod = menuItem.attribute("accelmod");

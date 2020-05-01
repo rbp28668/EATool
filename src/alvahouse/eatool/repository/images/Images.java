@@ -137,7 +137,7 @@ public class Images {
 
     
     /**
-     * Writes the HTML pages out as XML
+     * Writes the HTMLProxy pages out as XML
      * @param out is the XMLWriterDirect to write the XML to
      */
     public void writeXML(XMLWriter out) throws IOException {

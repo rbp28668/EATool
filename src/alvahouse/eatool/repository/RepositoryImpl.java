@@ -236,7 +236,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
 		loader.registerContent(OLD_NAMESPACE,"Types",tf);
 		
 		loader.registerContent(NAMESPACE,"Pages",
-				new HTMLPageFactory(counter,pages));
+				new HTMLPageFactory(counter,pages, scripts));
 
 		loader.registerContent(NAMESPACE,"Images",
 				new ImageFactory(counter, images));

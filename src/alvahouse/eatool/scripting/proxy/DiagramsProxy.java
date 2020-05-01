@@ -9,6 +9,7 @@ package alvahouse.eatool.scripting.proxy;
 import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.graphical.DiagramType;
 import alvahouse.eatool.repository.graphical.DiagramTypes;
+import alvahouse.eatool.repository.graphical.standard.StandardDiagram;
 import alvahouse.eatool.util.UUID;
 
 /**
@@ -17,6 +18,7 @@ import alvahouse.eatool.util.UUID;
  * 
  * @author rbp28668
  */
+@Scripted(name = "Diagrams", description = "Collection of diagrams")
 public class DiagramsProxy {
 
     private alvahouse.eatool.repository.graphical.Diagrams diagrams;
@@ -38,10 +40,9 @@ public class DiagramsProxy {
      * the diagram to get.
      * @return the corresponding diagram.
      */
+    @Scripted(description = "Gets a diagram associated with the given key.")
     public StandardDiagramProxy getStandardDiagram(String key){
-        return new StandardDiagramProxy(
-                (alvahouse.eatool.repository.graphical.standard.StandardDiagram)diagrams.lookup(new UUID(key)),
-                repository);
+        return new StandardDiagramProxy( (StandardDiagram)diagrams.lookup(new UUID(key)) );
     }
     
     /**
@@ -53,7 +54,7 @@ public class DiagramsProxy {
     public StandardDiagramProxy newStandardDiagram(String type){
         DiagramTypes types = repository.getDiagramTypes();
         DiagramType dt = types.get(new UUID(type));
-        return new StandardDiagramProxy((alvahouse.eatool.repository.graphical.standard.StandardDiagram)dt.newDiagram(new UUID()),repository);
+        return new StandardDiagramProxy((StandardDiagram)dt.newDiagram(new UUID()));
     }
 
 }

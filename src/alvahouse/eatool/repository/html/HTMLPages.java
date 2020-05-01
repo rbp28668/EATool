@@ -18,7 +18,7 @@ import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
 /**
- * HTMLPages is a collection of HTML pages.
+ * HTMLPages is a collection of HTMLProxy pages.
  * 
  * @author rbp28668
  */
@@ -40,7 +40,7 @@ public class HTMLPages {
      */
     public void add(HTMLPage page){
         if(page == null){
-            throw new NullPointerException("Can't add null HTML page");
+            throw new NullPointerException("Can't add null HTMLProxy page");
         }
         pages.put(page.getKey(),page);
     }
@@ -73,7 +73,7 @@ public class HTMLPages {
     }
 
     /**
-     * Clears all the HTML pages.
+     * Clears all the HTMLProxy pages.
      */
     public void reset(){
         pages.clear();
@@ -140,7 +140,7 @@ public class HTMLPages {
     }
     
     /**
-     * Writes the HTML pages out as XML
+     * Writes the HTMLProxy pages out as XML
      * @param out is the XMLWriterDirect to write the XML to
      */
     public void writeXML(XMLWriter out) throws IOException {

@@ -54,6 +54,7 @@ public class ActionSet {
 	 * @throws IllegalStateException - if there is already an action with the given key.
 	 */
 	public void addAction(String key, Action action) {
+		//System.out.println(key);
 		if(key == null){
 			throw new NullPointerException("Null key to addAction");
 		}

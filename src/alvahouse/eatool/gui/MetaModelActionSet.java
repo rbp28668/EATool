@@ -86,6 +86,9 @@ public class MetaModelActionSet extends ActionSet {
                 MetaEntityImpl me = (MetaEntityImpl)explorer.getSelectedNode().getUserObject();
                 MetaEntityEditor editor;
                 (editor = new MetaEntityEditor(explorer, me, repository)).setVisible(true);
+                if(editor.wasEdited()) {
+                	repository.getMetaModel().fireMetaEntityChanged(me);
+                }
             } catch(Throwable t) {
                 new ExceptionDisplay(explorer,t);
             }

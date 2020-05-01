@@ -1,5 +1,5 @@
 /*
- * HTMLDisplay
+ * HTMLDisplayProxy
  * Project: EATool
  * Created on 24-Feb-2006
  *
@@ -40,12 +40,13 @@ import alvahouse.eatool.Application;
 import alvahouse.eatool.gui.ExceptionDisplay;
 import alvahouse.eatool.gui.ExplorerTreeModel;
 import alvahouse.eatool.gui.GUIBuilder;
+import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.html.HTMLPage;
 import alvahouse.eatool.repository.images.Images;
 import alvahouse.eatool.util.SettingsManager;
 
 /**
- * HTMLDisplay is a HTML editor for setting up custom screens/frameworks.
+ * HTMLDisplayProxy is a HTMLProxy editor for setting up custom screens/frameworks.
  * 
  * @author rbp28668
  */
@@ -55,7 +56,7 @@ public class HTMLEditor extends JInternalFrame {
     private DisplayPane display;
     private EditorPane editor;
     private TreePane tree;
-    private HTMLEditorActionSet actions = new HTMLEditorActionSet(this);
+    private final HTMLEditorActionSet actions;
     private HTMLPage page;
     private Application app;
     private Images images;
@@ -66,9 +67,9 @@ public class HTMLEditor extends JInternalFrame {
     /**
      * Creates a new, empty browser.
      */
-    public HTMLEditor(Application app, Images images){
+    public HTMLEditor(Application app,  Repository repository){
         this.app = app;
-        this.images = images;
+        this.images = repository.getImages();
         
         setResizable(true);
         setMaximizable(true);
@@ -81,17 +82,19 @@ public class HTMLEditor extends JInternalFrame {
         
         display = new DisplayPane();
         JScrollPane scrollPane = new JScrollPane(display);
-        tabs.add("HTML",scrollPane);
+        tabs.add("HTMLProxy",scrollPane);
         
         editor = new EditorPane();
-        actions.addTextActions(editor);
-
+ 
         scrollPane = new JScrollPane(editor);
         tabs.add("Text",scrollPane);
         
         tree = new TreePane();
         scrollPane = new JScrollPane(tree);
         tabs.add("Tree",scrollPane);
+        
+        actions = new HTMLEditorActionSet(this, repository);
+        
         
         JMenuBar menuBar = new JMenuBar();
         SettingsManager config = app.getConfig();
@@ -376,7 +379,7 @@ public class HTMLEditor extends JInternalFrame {
 
 
     /**
-     * Gets the current HTML page - note that this won't be updated
+     * Gets the current HTMLProxy page - note that this won't be updated
      * from the editor per se unless updatePage() is called.
      * @return the current HTMLPage.
      */

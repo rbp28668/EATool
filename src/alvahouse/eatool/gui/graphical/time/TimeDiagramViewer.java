@@ -57,7 +57,7 @@ public class TimeDiagramViewer extends DiagramViewer {
     private float zoom = 1.0f;
     private Application app;
     private Repository repository;
-
+    private final ActionSet actions;
 	private static final String WINDOW_SETTINGS = "Windows/TimeDiagramViewer";
 
 
@@ -111,12 +111,22 @@ public class TimeDiagramViewer extends DiagramViewer {
  
         SettingsManager settings = app.getConfig();
 		Element cfg = settings.getElement("/TimeDiagramViewer/menus");
-		ActionSet actions = new TimeDiagramViewerActionSet(this, app, repository);
+		actions = new TimeDiagramViewerActionSet(this, app, repository);
 		setMenuBar(cfg, actions);
             
         
     }
 
+    
+    /**
+     * Gets the actions for the time diagram viewer - this allows the actions
+     * to be scripted.
+     * @return ActionSet for this viewer.
+     */
+    public ActionSet getActions() {
+    	return actions;
+    }
+    
     /**
      * Creates a window name from a diagram name and its type.
 	 * @param diagram is the diagram to create the name.
@@ -151,7 +161,11 @@ public class TimeDiagramViewer extends DiagramViewer {
         viewPane.refresh();
     }
 
-	/**
+    public TimeDiagram getDiagram(){
+    	return diagram;
+    }
+
+    /**
 	 * Gets the current zoom factor. 1 is normal size, 0.5
 	 * half size, 2.0 double etc.
 	 * @return the current zoom factor.
@@ -209,6 +223,7 @@ public class TimeDiagramViewer extends DiagramViewer {
         public void refresh() {
             repaint();
         }
+        
         
         /* (non-Javadoc)
 		 * @see java.awt.Component#getPreferredSize()

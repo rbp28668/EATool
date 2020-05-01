@@ -63,7 +63,7 @@ public class StandardDiagramExportProxy implements DiagramExportProxy {
                 out.textEntity("TypeName", me.getName());
                 out.textEntity("TypeUUID", me.getKey().toString());
                 
-                // Output symbols bounds in format used by a HTML image map.
+                // Output symbols bounds in format used by a HTMLProxy image map.
                 Rectangle2D.Float bounds = symbol.getBounds();
                 out.startEntity("Bounds");
                 int x1 = Math.round(bounds.x);

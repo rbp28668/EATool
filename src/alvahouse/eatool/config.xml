@@ -1551,6 +1551,10 @@
 							display="Edit Properties"
 							mnemonic="P"
 							/>
+				<menuitem 	action="HTMLEventMappings" 
+							display="Event Mappings"
+							mnemonic="V"
+							/>
 				<menuitem 	action="HTMLClose" 
 							display="Close"
 							mnemonic="C"

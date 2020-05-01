@@ -14,14 +14,16 @@ import alvahouse.eatool.gui.NamedRepositoryItemPanel;
 import alvahouse.eatool.repository.html.HTMLPage;
 
 /**
- * HTMLPagePropertiesEditor allows editing of HTML Page property information. Currently
+ * HTMLPagePropertiesEditor allows editing of HTMLProxy Page property information. Currently
  * just name and description.
  * 
  * @author rbp28668
  */
 public class HTMLPagePropertiesEditor extends BasicDialog {
 
-    /** Panel for common NamedRepositoryItem properties */
+ 	private static final long serialVersionUID = 1L;
+
+	/** Panel for common NamedRepositoryItem properties */
     private NamedRepositoryItemPanel nriPanel;
     
     /** Page being edited. */

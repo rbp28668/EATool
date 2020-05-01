@@ -21,6 +21,7 @@ import alvahouse.eatool.util.UUID;
  * 
  * @author rbp28668
  */
+@Scripted(description="A filter that can be used to filter sets of entities.  See EntitySet.applyFilter().")
 public class Filter {
 
     private static final Term MATCH_ALL_TERM = new MatchAllTerm();
@@ -39,6 +40,8 @@ public class Filter {
      * @param regexp is the regular expression to match that property.
      * @return the updated filter.
      */
+    @Scripted(description="Sets a filter so that the given property has to match a regular expression. "
+    		+"First parameter is the UUID key of the property, the second is the regular expression")
     public Filter setRegexp(String propertyKey, String regexp ){
         term = new RegexpTerm(propertyKey, regexp);
         return this;
@@ -51,6 +54,9 @@ public class Filter {
      * upperis the upper inclusive bound of the range.
      * @return the updated filter.
      */
+    @Scripted(description="Sets a filter so that the given property has to lie within 2 inclusive bounds. "+
+    		"First parameter is the UUID key of the property, the second and third the lower and upper inclusive bounds" +
+    		"of the range")
     public Filter setRange(String propertyKey, String lower, String upper){
         term = new RangeTerm(propertyKey, lower, upper);
         return this;
@@ -62,6 +68,7 @@ public class Filter {
      * @param types are the set of types to check against.
      * @return the updated filter.
      */
+    @Scripted(description="Sets a filter to only match entities of the given type(s).")
     public Filter ofType(MetaEntitySet types){
         term = new TypeTerm(types);
         return this;
@@ -73,6 +80,7 @@ public class Filter {
      * @param other is the other filter to OR with.
      * @return the updated filter.
      */
+    @Scripted(description="Sets the filter to be a logical OR between the original state of this filter and another filter.")
     public Filter or(Filter other){
         term = new OrTerm(term, other.getTerm());
         return this;
@@ -84,6 +92,7 @@ public class Filter {
      * @param other is the other filter to AND with.
      * @return the updated filter.
      */
+    @Scripted(description="Sets the filter to be a logical AND between the original state of this filter and another filter.")
     public Filter and(Filter other){
         term = new AndTerm(term, other.getTerm());
         return this;
@@ -93,6 +102,7 @@ public class Filter {
      * Sets the filter to be a logical NOT of its original state.
      * @return the updated filter.
      */
+    @Scripted(description="Sets the filter to be a logical NOT of its original state.")
     public Filter not(){
         term = new NotTerm(term);
         return this;

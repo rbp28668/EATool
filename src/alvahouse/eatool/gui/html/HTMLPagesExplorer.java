@@ -24,6 +24,7 @@ import alvahouse.eatool.gui.GUIBuilder;
 import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.html.HTMLPage;
 import alvahouse.eatool.repository.html.HTMLPages;
+import alvahouse.eatool.repository.html.PageChangeEvent;
 import alvahouse.eatool.repository.scripting.Scripts;
 import alvahouse.eatool.util.SettingsManager;
 
@@ -127,7 +128,19 @@ public class HTMLPagesExplorer extends JInternalFrame implements Explorer{
    public DefaultMutableTreeNode getSelectedNode() {
        return tree.getSelectedNode();
    }
-    
+   
+   public void pageAdded(PageChangeEvent event) {
+       treeModel.pageAdded(event);
+   }
+
+   public void pageEdited(PageChangeEvent event) {
+       treeModel.pageEdited(event);
+   }
+
+   public void pageRemoved(PageChangeEvent event) {
+	   treeModel.pageRemoved(event);
+   }
+
 
 
 }
