@@ -80,7 +80,6 @@ public class ScriptEditor extends JInternalFrame implements ScriptErrorListener{
         SettingsManager config = app.getConfig();
 
         display = new EditorPane();
-        actions.addTextActions(display);
         
         JMenuBar menuBar = new JMenuBar();
         SettingsManager.Element cfg = config.getElement(MENU_CONFIG);

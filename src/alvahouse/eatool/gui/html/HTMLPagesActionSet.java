@@ -20,6 +20,7 @@ import alvahouse.eatool.gui.ExceptionDisplay;
 import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.html.HTMLPage;
 import alvahouse.eatool.repository.html.HTMLPages;
+import alvahouse.eatool.repository.html.PageChangeEvent;
 import alvahouse.eatool.util.UUID;
 
 
@@ -48,7 +49,6 @@ public class HTMLPagesActionSet extends ActionSet {
 		addAction("PageDelete",actionPageDelete);
 		addAction("PageShow", actionPageShow);
         addAction(CopyKeyAction.NAME, new CopyKeyAction(explorer,explorer));
-        
     }
     
     
@@ -60,15 +60,18 @@ public class HTMLPagesActionSet extends ActionSet {
 
         public void actionPerformed(ActionEvent e) {
 			try {
-				String inputValue = JOptionPane.showInputDialog(explorer, "Page Name");
-				if(inputValue != null) {
-				    HTMLPage page = new HTMLPage(new UUID());
-				    page.setName(inputValue);
+			    HTMLPage page = new HTMLPage(new UUID());
+		        HTMLPagePropertiesEditor propertiesDialog = new HTMLPagePropertiesEditor(explorer,page);
+		        propertiesDialog.setVisible(true);
+		        if(propertiesDialog.wasEdited()) {
 				    pages.add(page);
+				    explorer.pageAdded(new PageChangeEvent(page));
+				    
+				    // and edit it...
 			        HTMLEditor editor = (HTMLEditor)app.getWindowCoordinator().getFrame("HTMLEditor");
 			        editor.setPage(page);
 			        editor.show();
-				}
+       				}
 
 			} catch(Throwable t) {
 				new ExceptionDisplay(explorer,t);
@@ -106,6 +109,9 @@ public class HTMLPagesActionSet extends ActionSet {
 			    if(page != null){
 			        HTMLPagePropertiesEditor editor = new HTMLPagePropertiesEditor(explorer,page);
 			        editor.setVisible(true);
+			        if(editor.wasEdited()) {
+					    explorer.pageEdited(new PageChangeEvent(page));
+			        }
 			    }
 			} catch(Throwable t) {
 				new ExceptionDisplay(explorer,t);
@@ -124,6 +130,7 @@ public class HTMLPagesActionSet extends ActionSet {
 			    if(page != null){
 			        if(Dialogs.question(explorer, "Delete page " + page.getName())){
 			            pages.delete(page);
+					    explorer.pageRemoved(new PageChangeEvent(page));
 			        }
 			    }
 
@@ -142,7 +149,7 @@ public class HTMLPagesActionSet extends ActionSet {
 			try {
 			    HTMLPage page = (HTMLPage)explorer.getSelectedNode().getUserObject();
 			    if(page != null){
-			        HTMLDisplay display = (HTMLDisplay)app.getWindowCoordinator().getFrame("HTMLDisplay");
+			        HTMLDisplay display = (HTMLDisplay)app.getWindowCoordinator().getFrame("HTMLDisplayProxy");
 			        display.showPage(page);
 			    }
 

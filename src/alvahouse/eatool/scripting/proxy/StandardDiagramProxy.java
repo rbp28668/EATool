@@ -10,9 +10,10 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.lang.reflect.InvocationTargetException;
 
-import alvahouse.eatool.gui.graphical.layout.Arc;
 import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.graphical.standard.Connector;
+import alvahouse.eatool.repository.graphical.standard.ImageDisplay;
+import alvahouse.eatool.repository.graphical.standard.StandardDiagram;
 import alvahouse.eatool.repository.graphical.standard.Symbol;
 import alvahouse.eatool.repository.model.Entity;
 import alvahouse.eatool.repository.model.Relationship;
@@ -27,20 +28,15 @@ import alvahouse.eatool.util.UUID;
  */
 public class StandardDiagramProxy {
 
-    private final alvahouse.eatool.repository.graphical.standard.StandardDiagram diagram;
-    private final Repository repository;
-    
+    private final StandardDiagram diagram;
     
     /**
      * Creates a StandardDiagram attached to the given underlying diagram.
      * @param diagram is the underlying diagram.
      */
-    public StandardDiagramProxy(
-            alvahouse.eatool.repository.graphical.standard.StandardDiagram diagram,
-             Repository repository) {
+    public StandardDiagramProxy(StandardDiagram diagram) {
         super();
         this.diagram = diagram;
-        this.repository = repository;
     }
 
     public alvahouse.eatool.repository.graphical.standard.StandardDiagram getDiagram(){
@@ -259,7 +255,7 @@ public class StandardDiagramProxy {
      * @return is the ImageDisplay that captures the image position on the diagram.
      */
     public ImageDisplayProxy addImage(ImageProxy image){
-        alvahouse.eatool.repository.graphical.standard.ImageDisplay display = new alvahouse.eatool.repository.graphical.standard.ImageDisplay(new UUID());
+        ImageDisplay display = new ImageDisplay(new UUID());
         display.setImage(image.getImage());
         diagram.addImage(display);
         return new ImageDisplayProxy(display);

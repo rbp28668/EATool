@@ -809,7 +809,7 @@ public class CommandActionSet extends ActionSet {
         }
     };
 	
-	/** Displays the HTML pages explorer */
+	/** Displays the HTMLProxy pages explorer */
 	private final Action actionToolsPages = new AbstractAction() {
 	    private static final long serialVersionUID = 1L;
         public void actionPerformed(ActionEvent e) {

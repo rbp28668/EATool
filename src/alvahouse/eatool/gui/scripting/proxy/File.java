@@ -125,10 +125,10 @@ public class File {
     }
     
     /**
-     * Convenience method to print a page of HTML.
-     * @param html is the HTML to print.
+     * Convenience method to print a page of HTMLProxy.
+     * @param html is the HTMLProxy to print.
      */
-    public void printHTML(HTML html){
+    public void printHTML(HTMLProxy html){
         writer.println(html.getPage());
     }
     

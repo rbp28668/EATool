@@ -7,6 +7,8 @@
 package alvahouse.eatool.scripting.proxy;
 
 
+import alvahouse.eatool.repository.model.Entity;
+import alvahouse.eatool.repository.model.Property;
 import alvahouse.eatool.util.UUID;
 
 /**
@@ -16,9 +18,15 @@ import alvahouse.eatool.util.UUID;
  * 
  * @author rbp28668
  */
+
+@Scripted(name = "Entity", description =
+"Entity describes a \"thing\" in the model and contain the model's core data as " +
+" a set of Property.  Entities can be related by Relationships and are described" +
+" by MetaEntities.")
+
 public class EntityProxy {
 
-    private alvahouse.eatool.repository.model.Entity entity;
+    private final Entity entity;
     
     /**
      * Creates a new proxy wrapping the given entity.
@@ -69,7 +77,7 @@ public class EntityProxy {
      * @return the Property corresponding to the MetaProperty defined by key.
      */
     public PropertyProxy getProperty(String key){
-        alvahouse.eatool.repository.model.Property p = entity.getPropertyByMeta(new UUID(key));
+        Property p = entity.getPropertyByMeta(new UUID(key));
         return new PropertyProxy(p);
     }
 
