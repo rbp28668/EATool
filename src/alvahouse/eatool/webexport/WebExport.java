@@ -14,24 +14,29 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.bsf.BSFException;
+
+import alvahouse.eatool.gui.graphical.EventErrorHandler;
 import alvahouse.eatool.gui.graphical.time.TimeDiagramType;
 import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.RepositoryProperties;
 import alvahouse.eatool.repository.exception.OutputException;
+import alvahouse.eatool.repository.graphical.Diagram;
 import alvahouse.eatool.repository.graphical.DiagramType;
 import alvahouse.eatool.repository.graphical.DiagramTypeFamily;
-import alvahouse.eatool.repository.graphical.standard.StandardDiagram;
 import alvahouse.eatool.repository.graphical.standard.StandardDiagramType;
 import alvahouse.eatool.repository.html.HTMLPage;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.model.Entity;
 import alvahouse.eatool.repository.model.Model;
+import alvahouse.eatool.repository.scripting.ScriptContext;
+import alvahouse.eatool.repository.scripting.ScriptManager;
+import alvahouse.eatool.scripting.proxy.ScriptWrapper;
 import alvahouse.eatool.util.XMLWriter;
 import alvahouse.eatool.util.XMLWriterSAX;
 import alvahouse.eatool.util.XSLTTransform;
@@ -64,7 +69,7 @@ public class WebExport {
     }
 
     /**
-     * Exports the repository as HTML pages.
+     * Exports the repository as HTMLProxy pages.
      * @param repository is the repository to export
      * @param path is the path to the output folder.
      * @throws OutputException
@@ -202,6 +207,8 @@ public class WebExport {
             proxy.export(writer);
             DiagramListExportProxy diagramProxy = new DiagramListExportProxy(repository);
             diagramProxy.export(writer);
+            PageListExportProxy pagesProxy = new PageListExportProxy(repository.getPages());
+            pagesProxy.export(writer);
             writePostamble(writer);
         } finally {
             writer.close();
@@ -288,16 +295,13 @@ public class WebExport {
         
         File imageDir = new File(outputFolder,"diagrams");
         imageDir.mkdirs();
-        Map proxies = new HashMap();
+        Map<Class<? extends DiagramType>, DiagramExportProxy> proxies = new HashMap<>();
         
         proxies.put(StandardDiagramType.class, new StandardDiagramExportProxy());
         proxies.put(TimeDiagramType.class, new TimeDiagramExportProxy());
         
-        for(Iterator iter = repository.getDiagramTypes().getDiagramTypeFamilies().iterator(); iter.hasNext();){
-            DiagramTypeFamily family = (DiagramTypeFamily)iter.next();
-
-            for(Iterator iterType = family.getDiagramTypes().iterator(); iterType.hasNext();){
-                DiagramType type = (DiagramType)iterType.next();
+        for(DiagramTypeFamily family : repository.getDiagramTypes().getDiagramTypeFamilies()){
+            for(DiagramType type : family.getDiagramTypes()){
                 DiagramExportProxy proxy = (DiagramExportProxy)proxies.get(type.getClass());
                 if(proxy == null){
                     throw new IOException("No diagram proxy for diagram type " + type.getClass().getName());
@@ -315,11 +319,9 @@ public class WebExport {
      * @throws IOException
      */
     private void writeDiagramsOfType(Repository repository, File imageDir, DiagramExportProxy proxy, DiagramType type) throws IOException {
-        Collection diagrams = repository.getDiagrams().getDiagramsOfType(type);
+        Collection<Diagram> diagrams = repository.getDiagrams().getDiagramsOfType(type);
         
-        for(Iterator iterDiagram = diagrams.iterator(); iterDiagram.hasNext();){
-            StandardDiagram diagram = (StandardDiagram)iterDiagram.next();
-            
+        for(Diagram diagram : diagrams){
             File path = new File(imageDir, diagram.getKey().toString() + ".png");
             diagram.export(path,"png");
 
@@ -337,22 +339,42 @@ public class WebExport {
     }
 
     /**
-     * Writes all predefined HTML pages from the repository.
+     * Writes all predefined HTMLProxy pages from the repository.  Slightly tricky if there's a script
+     * that generates the page dynamically.  These are run on their own thread so they don't block
+     * the user. In this case, the PageExportProxy also acts as a script proxy for the viewer and
+     * its refresh method writes the output file. All html page scripts should call this at the end.
      * @param repository
      * @param outputFolder
      */
     private void writePages(Repository repository, File outputFolder) throws IOException {
-        File pageDir = new File(outputFolder,"pages");
-        pageDir.mkdirs();
-             
-        for(HTMLPage page : repository.getPages().getPages()){
-            PageExportProxy proxy = new PageExportProxy(page);
-            String file =  page.getKey().toString() + ".html";
+    	File pageDir = new File(outputFolder,"pages");
+    	pageDir.mkdirs();
 
-            XMLWriter writer = getWriter(pageDir,file, null);
-            proxy.export(writer);
-          }
-        
+    	for(HTMLPage page : repository.getPages().getPages()){
+    		PageExportProxy proxy = new PageExportProxy(page);
+    		String file =  page.getKey().toString() + ".html";
+
+    		ScriptContext context = page.getEventMap().getContextFor(HTMLPage.ON_DISPLAY_EVENT);
+    		if(context != null) {
+    			try {
+    				proxy.setDestination(pageDir, file);
+    				Object wrapped = ScriptWrapper.wrap(page);
+    				context.addObject("page", wrapped, wrapped.getClass());
+
+    				context.addObject("viewer", proxy, proxy.getClass());
+
+    				EventErrorHandler errHandler = new EventErrorHandler(null); // null: no parent
+    				context.setErrorHandler(errHandler);
+    				ScriptManager.getInstance().runScript(context);
+    			} catch (BSFException e) {
+    				throw new IOException("Unable to export page due to script error " + e.getMessage());
+    			}
+    		} else {
+    			// No script to generate output so just write it.
+    			proxy.export(pageDir, file); // custom output as don't want to transform xml as already html
+    		}
+    	}
+
     }
     
 }

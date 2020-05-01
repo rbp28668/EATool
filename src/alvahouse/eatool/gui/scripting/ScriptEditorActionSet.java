@@ -7,7 +7,6 @@
 package alvahouse.eatool.gui.scripting;
 
 import java.awt.event.ActionEvent;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.AbstractAction;
@@ -34,7 +33,6 @@ public class ScriptEditorActionSet extends ActionSet {
     private ScriptEditor editor;
     private Application app;
     
-    private static Map<String,Action> editorActions = new HashMap<String,Action>();
     /**
      * 
      */
@@ -49,84 +47,11 @@ public class ScriptEditorActionSet extends ActionSet {
 		addAction("ScriptRun",actionScriptRun);
 		addAction("ScriptObjectBrowser",actionScriptObjectBrowser);
 		addAction("ScriptGotoLine",actionScriptGotoLine);
-    }
-    
-    /* Note - text actions for JTextComponent are:
-     * insert-content
-		delete-previous
-		delete-next
-		set-read-only
-		set-writable
-		cut-to-clipboard
-		copy-to-clipboard
-		paste-from-clipboard
-		page-up
-		page-down
-		selection-page-up
-		selection-page-down
-		selection-page-left
-		selection-page-right
-		insert-break
-		beep
-		caret-forward
-		caret-backward
-		selection-forward
-		selection-backward
-		caret-up
-		caret-down
-		selection-up
-		selection-down
-		caret-begin-word
-		caret-end-word
-		selection-begin-word
-		selection-end-word
-		caret-previous-word
-		caret-next-word
-		selection-previous-word
-		selection-next-word
-		caret-begin-line
-		caret-end-line
-		selection-begin-line
-		selection-end-line
-		caret-begin-paragraph
-		caret-end-paragraph
-		selection-begin-paragraph
-		selection-end-paragraph
-		caret-begin
-		caret-end
-		selection-begin
-		selection-end
-		default-typed
-		insert-tab
-		select-word
-		select-line
-		select-paragraph
-		select-all
-		unselect
-		toggle-componentOrientation
-		dump-model
-     */
-    public void addTextActions(JTextComponent text){
-        
-        // Cache editor actions first time through.  Then if the name
-        // gets changed we can still refer to them by their original name.
-        synchronized(editorActions) {
-            if(editorActions.isEmpty()){
-                
-                Action[] actions = text.getActions();
-                for(int i=0; i<actions.length; ++i){
-                    String name = (String)actions[i].getValue(Action.NAME);
-                    editorActions.put(name,actions[i]);
-                }
-            }
-            
-            for (Map.Entry<String,Action> entry : editorActions.entrySet()) {
-                addAction(entry.getKey(),entry.getValue());
-            }
-        }
+		TextActions.addActionsTo(this);
     }
 
-	private final Action actionScriptUpdate = new AbstractAction() {
+
+    private final Action actionScriptUpdate = new AbstractAction() {
 		public void actionPerformed(ActionEvent e) {
 			try {
 			    editor.updateScript();

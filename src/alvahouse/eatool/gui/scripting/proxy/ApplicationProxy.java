@@ -324,19 +324,19 @@ public class ApplicationProxy {
     }
     
     /**
-     * Gets a HTML object for writing HTML to file or HTMLDisplay.
-     * @return a new HTML object.
+     * Gets a HTMLProxy object for writing HTMLProxy to file or HTMLDisplayProxy.
+     * @return a new HTMLProxy object.
      */
-    public HTML getHTML(){
-        return new HTML( new alvahouse.eatool.gui.html.HTML());
+    public HTMLProxy getHTML(){
+        return new HTMLProxy( new alvahouse.eatool.gui.html.HTML());
     }
     
     /**
-     * Creates a new HTMLDisplay for reports etc.
-     * @return a new HTMLDisplay.
+     * Creates a new HTMLDisplayProxy for reports etc.
+     * @return a new HTMLDisplayProxy.
      */
-    public HTMLDisplay createDisplay(){
-        return new HTMLDisplay(app,repository);
+    public HTMLPageScriptProxy createDisplay(){
+        return new HTMLDisplayProxy(app,repository);
     }
     
     /**

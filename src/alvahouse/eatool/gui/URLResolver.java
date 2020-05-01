@@ -33,7 +33,7 @@ import alvahouse.eatool.util.UUID;
 
 /**
  * URLResolver resolves system-wide URLs to allow functionality to be 
- * fired by use of hyperlinks in HTML pages.  Note - singleton class.
+ * fired by use of hyperlinks in HTMLProxy pages.  Note - singleton class.
  * 
  * @author rbp28668
  */

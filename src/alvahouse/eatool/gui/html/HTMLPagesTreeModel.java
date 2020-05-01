@@ -25,6 +25,7 @@ import alvahouse.eatool.repository.html.PagesChangeListener;
  */
 public class HTMLPagesTreeModel extends ExplorerTreeModel implements PagesChangeListener {
 
+	private static final long serialVersionUID = 1L;
 	private DefaultMutableTreeNode root = null;
     private HTMLPages pages;
 
@@ -54,8 +55,7 @@ public class HTMLPagesTreeModel extends ExplorerTreeModel implements PagesChange
 	 */
     private void initModel() {
         int idx = 0;
-        for(Iterator iter = pages.getPages().iterator();iter.hasNext();){
-            HTMLPage page = (HTMLPage)iter.next();
+        for(HTMLPage page : pages.getPages()){
             addPageNode((MutableTreeNode)getRoot(),page,idx++);
         }
     }

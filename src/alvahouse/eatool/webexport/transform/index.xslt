@@ -18,6 +18,11 @@
 				<h2>Diagrams</h2>
 				<xsl:apply-templates select="ex:DiagramTypes/ex:DiagramType"/>
 			</xsl:if>
+			<xsl:if test="ex:HTMLPageList/ex:HTMLPage">
+				<hr/>
+				<h2>Report Pages</h2>
+				<xsl:apply-templates select="ex:HTMLPageList/ex:HTMLPage"/>
+			</xsl:if>
 		</body>
 	</html>
 	</xsl:template>
@@ -45,4 +50,10 @@
 	    <dt><a href="diagrams/{ex:UUID}.html"><xsl:value-of select="ex:Name"/></a></dt>
 		<dd><xsl:value-of select="ex:Description"/></dd>
 	</xsl:template>
+
+	<xsl:template match="ex:HTMLPage">
+	    <dt><a href="pages/{ex:UUID}.html"><xsl:value-of select="ex:Name"/></a></dt>
+		<dd><xsl:value-of select="ex:Description"/></dd>
+	</xsl:template>
+
 </xsl:stylesheet>

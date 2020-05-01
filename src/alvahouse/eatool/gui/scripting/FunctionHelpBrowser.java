@@ -8,6 +8,7 @@ package alvahouse.eatool.gui.scripting;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
@@ -21,10 +22,10 @@ import javax.swing.event.HyperlinkListener;
 import alvahouse.eatool.Application;
 import alvahouse.eatool.gui.ExceptionDisplay;
 import alvahouse.eatool.gui.GUIBuilder;
-import sun.net.ApplicationProxy;
+import alvahouse.eatool.scripting.proxy.Scripted;
 
 /**
- * ModelBrowser is a HTML based browser for simple browsing of the model or
+ * ModelBrowser is a HTMLProxy based browser for simple browsing of the model or
  * meta-model.
  * 
  * @author rbp28668
@@ -110,7 +111,7 @@ public class FunctionHelpBrowser extends JInternalFrame {
     }
     
     /**
-     * Inner class to generate HTML for various types of "thing".
+     * Inner class to generate HTMLProxy for various types of "thing".
      */
 
     public static class ToHTML {
@@ -124,13 +125,25 @@ public class FunctionHelpBrowser extends JInternalFrame {
         }
 
         /**
-         * Creates HTML that describes the Meta-Entities in the meta model.
+         * Creates HTMLProxy that describes the Meta-Entities in the meta model.
          * @param m is the meta-model to show.
          */
         public ToHTML(Class<?> objClass){
             header();
             
             h1(simpleName(objClass));
+            
+        	// May be over-ridden by an annotation
+            if(objClass.isAnnotationPresent(Scripted.class)) {
+            	Scripted annotation = objClass.getAnnotation(Scripted.class);
+            	if(!annotation.description().isEmpty()) {
+            		buff.append("<p><i>");
+            		buff.append(annotation.description());
+            		buff.append("</i></p>");
+            	}
+            }
+
+            
             if(objClass != alvahouse.eatool.gui.scripting.proxy.ApplicationProxy.class){
 	            buff.append("<p>Up to ");
 	            buff.append(convert(alvahouse.eatool.gui.scripting.proxy.ApplicationProxy.class));
@@ -139,28 +152,63 @@ public class FunctionHelpBrowser extends JInternalFrame {
             }
             
             buff.append("<p>");
+            buff.append("<table>");
             Method[] methods = objClass.getDeclaredMethods();
             for(int i=0; i<methods.length; ++i){
                 Method method = methods[i];
                 if(Modifier.isPublic(method.getModifiers())){
+
+                	// Default values for this method name and comment
+                	String methodName = method.getName();
+                	String comment = "";
+
+                	// May be over-ridden by an annotation
+                    if(method.isAnnotationPresent(Scripted.class)) {
+                    	Scripted annotation = method.getAnnotation(Scripted.class);
+                    	if(!annotation.name().isEmpty()) {
+                    		methodName = annotation.name();
+                    	}
+                    	comment = annotation.description();
+                    }
+
+                    buff.append("<tr>");
+
+                	buff.append("<td>");
                     buff.append(' ');
                     Class<?> retClass = method.getReturnType();
                     buff.append(convert(retClass));
                     buff.append(' ');
-                    buff.append(method.getName());
+                    buff.append(methodName);
                     buff.append('(');
-                    Class<?>[] params = method.getParameterTypes();
+                    //Class<?>[] params = method.getParameterTypes();
+                    Parameter params[] = method.getParameters();
                     for(int j=0; j<params.length; ++j){
                         if(j > 0){
                             buff.append(',');
                         }
-                        buff.append(convert(params[j]));
+                        buff.append(convert(params[j].getType()));
+                        // parameter names not maintained unless specially compiled
+                        // buff.append(' ');
+                        // buff.append(params[j].getName());
                     }
                     buff.append(')');
-                    br();
+                    buff.append("</td>");
+                    
+                    buff.append("<td>");
+                	if(comment.isEmpty()){
+                		buff.append(" ");
+                	} else {
+                		buff.append("<i>");
+                		buff.append(comment);
+                		buff.append("</i>");
+                	}
+                    buff.append("<td>");
+                    buff.append("</tr>");
+                    //br();
                 }
                 
             }
+            buff.append("<table>");
             buff.append("</p>");
             
             footer();
@@ -190,6 +238,20 @@ public class FunctionHelpBrowser extends JInternalFrame {
             if(idx >= 0){
                 name = name.substring(idx+1);
             }
+
+            // By convention, proxy class names end in Proxy so remove if present  
+            if(name.endsWith("Proxy")) {
+            	name = name.substring(0, name.length() - "Proxy".length());
+            }
+            
+        	// May be over-ridden by an annotation
+            if(type.isAnnotationPresent(Scripted.class)) {
+            	Scripted annotation = type.getAnnotation(Scripted.class);
+            	if(!annotation.name().isEmpty()) {
+            		name = annotation.name();
+            	}
+            }
+
             return name;
         }
         

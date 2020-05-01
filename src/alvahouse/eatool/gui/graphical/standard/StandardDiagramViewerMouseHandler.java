@@ -320,7 +320,7 @@ final class StandardDiagramViewerMouseHandler extends MouseInputAdapter {
 						    if(idx >= 0){
 						        event = event.substring(idx + 1);
 						    }
-						    Object target = ScriptWrapper.wrap(item);
+						    Object target = ScriptWrapper.wrapObject(item);
 						    Object diagram = ScriptWrapper.wrap(viewPane.getDiagram());
 						    
 						    ScriptContext context = viewPane.getDiagram().getEventMap().getContextFor(event);

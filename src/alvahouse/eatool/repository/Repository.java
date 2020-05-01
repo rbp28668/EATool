@@ -158,7 +158,7 @@ public interface Repository {
     public abstract ExtensibleTypes getExtensibleTypes();
 
     /**
-     * Gets the list of HTML pages in the repository.
+     * Gets the list of HTMLProxy pages in the repository.
      * @return the HTMLPages.
      */
     public abstract HTMLPages getPages();

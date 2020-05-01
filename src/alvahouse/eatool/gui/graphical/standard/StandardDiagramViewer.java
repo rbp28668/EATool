@@ -108,7 +108,7 @@ public abstract class StandardDiagramViewer extends DiagramViewer {
 	private void fireEvent(StandardDiagram diagram, Repository repository, String event) throws BSFException {
 		ScriptContext context = diagram.getEventMap().getContextFor(event);
 		if(context != null) {
-			Object proxy = ScriptWrapper.wrap(diagram, repository);
+			Object proxy = ScriptWrapper.wrap(diagram);
 		    context.addObject("diagram", proxy, proxy.getClass());
 		    
 		    proxy = ScriptWrapper.wrap(this, diagram, app, repository);
