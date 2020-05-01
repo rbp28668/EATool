@@ -1,5 +1,5 @@
 /*
- * StandardDiagramViewerProxy.java
+ * TimeDiagramViewerProxy.java
  * Project: EATool
  * Created on 9 Dec 2007
  *
@@ -15,34 +15,33 @@ import javax.swing.Action;
 import alvahouse.eatool.Application;
 import alvahouse.eatool.gui.ActionSet;
 import alvahouse.eatool.gui.WindowCoordinator;
-import alvahouse.eatool.gui.graphical.standard.StandardDiagramViewer;
-import alvahouse.eatool.gui.graphical.standard.model.ModelViewer;
+import alvahouse.eatool.gui.graphical.time.TimeDiagram;
+import alvahouse.eatool.gui.graphical.time.TimeDiagramViewer;
 import alvahouse.eatool.repository.Repository;
-import alvahouse.eatool.repository.graphical.standard.StandardDiagram;
 import alvahouse.eatool.scripting.proxy.ScriptWrapper;
 import alvahouse.eatool.scripting.proxy.Scripted;
-import alvahouse.eatool.scripting.proxy.StandardDiagramProxy;
+import alvahouse.eatool.scripting.proxy.TimeDiagramProxy;
 
-@Scripted(description="Viewer for a standard diagram.")
-public class StandardDiagramViewerProxy {
+@Scripted(description="Viewer for a time diagram.")
+public class TimeDiagramViewerProxy {
 
-    private StandardDiagramViewer viewer = null;
-    private final StandardDiagram diagram;
+    private TimeDiagramViewer viewer = null;
+    private final TimeDiagram diagram;
     private final Application app;
     private final Repository repository;
     
-    StandardDiagramViewerProxy(StandardDiagram diagram, Application app, Repository repository){
+    TimeDiagramViewerProxy(TimeDiagram diagram, Application app, Repository repository){
         this(null, diagram, app, repository);
     }
 
-    public StandardDiagramViewerProxy(StandardDiagramViewer viewer, StandardDiagram diagram, Application app, Repository repository){
+    public TimeDiagramViewerProxy(TimeDiagramViewer viewer, TimeDiagram diagram, Application app, Repository repository){
     	this.viewer = viewer; // may be null if not displayed
     	this.diagram = diagram;
         this.app = app;
         this.repository = repository;
     }
 
-    public StandardDiagramProxy getDiagram() {
+    public TimeDiagramProxy getDiagram() {
     	return ScriptWrapper.wrap(diagram);
     }
     
@@ -56,7 +55,8 @@ public class StandardDiagramViewerProxy {
             EventQueue.invokeAndWait( new Runnable(){
                 public void run(){
                     WindowCoordinator wc = app.getWindowCoordinator();
-                    viewer = (StandardDiagramViewer)wc.getFrame(diagram.getKey().toString(), new ModelViewer.WindowFactory( diagram, app, repository));             
+                    viewer = (TimeDiagramViewer)wc.getFrame(diagram.getKey().toString(), 
+                    		new TimeDiagramViewer.WindowFactory(diagram, app, repository));             
                     viewer.refresh();
                     viewer.show();
                 }

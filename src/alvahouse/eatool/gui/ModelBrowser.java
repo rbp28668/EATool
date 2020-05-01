@@ -39,7 +39,7 @@ import alvahouse.eatool.repository.model.Relationship;
 import alvahouse.eatool.repository.model.Role;
 
 /**
- * ModelBrowser is a HTML based browser for simple browsing of the model or
+ * ModelBrowser is a HTMLProxy based browser for simple browsing of the model or
  * meta-model.
  * 
  * @author rbp28668
@@ -174,14 +174,14 @@ public class ModelBrowser extends JInternalFrame {
     }
     
     /**
-     * Inner class to generate HTML for various types of "thing" or styles of display.
+     * Inner class to generate HTMLProxy for various types of "thing" or styles of display.
      */
 
     public static class ToHTML {
         private StringBuffer buff = new StringBuffer(512);
 
         /**
-         * Creates HTML that describes the Meta-Entities in the meta model.
+         * Creates HTMLProxy that describes the Meta-Entities in the meta model.
          * @param m is the meta-model to show.
          */
         public ToHTML(MetaModel m){
@@ -211,7 +211,7 @@ public class ModelBrowser extends JInternalFrame {
         }
 
         /**
-         * Creates HTML that describes a subset of the Meta-Entities in the meta model.
+         * Creates HTMLProxy that describes a subset of the Meta-Entities in the meta model.
          * @param metaEntities are the meta-entities to show to show.
          */
         public ToHTML(MetaEntity[] metaEntities){
@@ -240,7 +240,7 @@ public class ModelBrowser extends JInternalFrame {
         }
 
         /**
-         * Creates HTML for the list of entities of a given type.
+         * Creates HTMLProxy for the list of entities of a given type.
          * @param me is the MetaEntity that describes the type of Entities
          * to be browsed.
          * @param model is the Model to get the Entities to be browsed.
@@ -250,7 +250,7 @@ public class ModelBrowser extends JInternalFrame {
         }
 
         /**
-         * Creates HTML for the list of entities of a given type.
+         * Creates HTMLProxy for the list of entities of a given type.
          * @param me is the MetaEntity that describes the type of Entities
          * to be browsed.
          * @param model is the Model to get the Entities to be browsed.
@@ -339,8 +339,8 @@ public class ModelBrowser extends JInternalFrame {
         }
         
         /**
-         * Creates the HTML for a single Entity.
-         * @param e is the Entity to create HTML for.
+         * Creates the HTMLProxy for a single Entity.
+         * @param e is the Entity to create HTMLProxy for.
          */
         public ToHTML(Entity e){
             header();
@@ -444,7 +444,7 @@ public class ModelBrowser extends JInternalFrame {
         }
 
         /**
-         * Creates HTML for the list of entities of a given type.
+         * Creates HTMLProxy for the list of entities of a given type.
          * @param me is the MetaEntity that describes the type of Entities
          * to be browsed.
          * @param model is the Model to get the Entities to be browsed.

@@ -148,7 +148,7 @@ public class EAToolWindowCoordinator extends WindowCoordinator {
 
         addFactory( new WindowFactory () {
             public JInternalFrame createFrame() {
-                return new HTMLEditor(app,rep.getImages());
+                return new HTMLEditor(app,rep);
             }
         },"HTMLEditor");
 
@@ -156,7 +156,7 @@ public class EAToolWindowCoordinator extends WindowCoordinator {
             public JInternalFrame createFrame() {
                 return new HTMLDisplay(app,rep);
             }
-        },"HTMLDisplay");
+        },"HTMLDisplayProxy");
 
         
         addFactory( new WindowFactory() {

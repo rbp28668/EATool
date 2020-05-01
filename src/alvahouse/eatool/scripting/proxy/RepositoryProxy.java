@@ -59,7 +59,7 @@ public class RepositoryProxy {
         StandardDiagramType diagramType = new ModelDiagramType(repository.getMetaModel());
         GraphicalModel gm = new GraphicalModel(repository, repository.getModel(),diagramType,new UUID());
 		repository.getModelViewerEvents().cloneTo(gm.getEventMap());
-        return new StandardDiagramProxy(gm,repository);
+        return new StandardDiagramProxy(gm);
     }
     
     /**

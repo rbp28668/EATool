@@ -9,7 +9,7 @@ package alvahouse.eatool.repository.html;
 import java.util.EventObject;
 
 /**
- * PageChangeEvent signals the change (new,edit,delete) of a HTML page.
+ * PageChangeEvent signals the change (new,edit,delete) of a HTMLProxy page.
  * 
  * @author rbp28668
  */

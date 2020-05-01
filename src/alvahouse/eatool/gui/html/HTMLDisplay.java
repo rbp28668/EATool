@@ -1,5 +1,5 @@
 /*
- * HTMLDisplay
+ * HTMLDisplayProxy
  * Project: EATool
  * Created on 24-Feb-2006
  *
@@ -19,15 +19,21 @@ import javax.swing.text.View;
 import javax.swing.text.ViewFactory;
 import javax.swing.text.html.HTMLEditorKit;
 
+import org.apache.bsf.BSFException;
+
 import alvahouse.eatool.Application;
 import alvahouse.eatool.gui.ExceptionDisplay;
 import alvahouse.eatool.gui.GUIBuilder;
 import alvahouse.eatool.gui.URLResolver;
+import alvahouse.eatool.gui.graphical.EventErrorHandler;
 import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.html.HTMLPage;
+import alvahouse.eatool.repository.scripting.ScriptContext;
+import alvahouse.eatool.repository.scripting.ScriptManager;
+import alvahouse.eatool.scripting.proxy.ScriptWrapper;
 
 /**
- * HTMLDisplay is a HTML based browser for reporting etc.
+ * HTMLDisplayProxy is a HTMLProxy based browser for reporting etc.
  * 
  * @author rbp28668
  */
@@ -35,13 +41,22 @@ public class HTMLDisplay extends JInternalFrame {
 
     private static final long serialVersionUID = 1L;
     private DisplayPane display;
-    private final static String WINDOW_SETTINGS = "/Windows/HTMLDisplay";
+    private final static String WINDOW_SETTINGS = "/Windows/HTMLDisplayProxy";
     private Application app; 
     private Repository repository;
+    private HTMLPage page;
+    
+
     /**
      * Creates a new, empty browser.
      */
     public HTMLDisplay(Application app, Repository repository){
+    	this(null, app, repository);
+    }
+
+    
+    public HTMLDisplay(HTMLPage page, Application app, Repository repository){
+    	this.page = page;
         this.app = app;
         this.repository = repository;
         
@@ -55,6 +70,13 @@ public class HTMLDisplay extends JInternalFrame {
         display = new DisplayPane();
         JScrollPane scrollPane = new JScrollPane(display);
         getContentPane().add(scrollPane, java.awt.BorderLayout.CENTER);
+        
+        if(page != null) {
+        	if(!page.getName().isEmpty()) {
+        		setTitle(page.getName());
+        	}
+        	display.setText(page.getHtml());
+        }
     }
     
      
@@ -65,13 +87,54 @@ public class HTMLDisplay extends JInternalFrame {
     }
 
  
-    public void setText(String html) throws IOException{
+    /**
+     * Sets display text directly. Intended for use where this is not 
+     * bound to a HTMLPage.
+     * @param html is the html formatted text to display.
+     */
+    public void setText(String html) {
         display.setText(html);
+        if(isVisible()) {
+        	repaint();
+        }
     }
     
-    public void showPage(HTMLPage page) throws IOException{
+    /**
+     * Binds the display to the given page and displays it.  Useful for scripts
+     * when you wish to display a given page.
+     * @param page
+     * @throws IOException
+     * @throws BSFException
+     */
+    public void showPage(HTMLPage page) throws IOException, BSFException{
+    	this.page = page;
+    	fireDisplayEvent(page);
         display.setText(page.getHtml());
         setVisible(true);
+    }
+    
+    private void  fireDisplayEvent(HTMLPage page) throws BSFException {
+		ScriptContext context = page.getEventMap().getContextFor(HTMLPage.ON_DISPLAY_EVENT);
+		if(context != null) {
+			Object proxy = ScriptWrapper.wrap(page);
+		    context.addObject("page", proxy, proxy.getClass());
+		    
+		    proxy = ScriptWrapper.wrap(this, app, repository);
+		    context.addObject("viewer", proxy, proxy.getClass());
+		    
+		    EventErrorHandler errHandler = new EventErrorHandler(this);
+		    context.setErrorHandler(errHandler);
+		    ScriptManager.getInstance().runScript(context);
+		}
+	}
+
+    /**
+     * Refreshes the display from the given page.
+     */
+    public void refresh() {
+    	if(page != null) {
+    		setText(page.getHtml());
+    	}
     }
     
     private class DisplayPane extends JEditorPane{
@@ -134,7 +197,7 @@ public class HTMLDisplay extends JInternalFrame {
         LocalImageView(Element elem){
             super(elem);
             
-            String src = (String)elem.getAttributes().getAttribute(HTML.Attribute.SRC);
+            String src = (String)elem.getAttributes().getAttribute(HTMLProxy.Attribute.SRC);
             if(src != null){
                 String uuidMask = "image/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})";
                 // "image/00000000-0000-0000-8000-00000000"

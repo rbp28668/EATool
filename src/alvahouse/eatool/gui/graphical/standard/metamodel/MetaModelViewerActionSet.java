@@ -108,6 +108,9 @@ public class MetaModelViewerActionSet extends StandardDiagramViewerActionSet {
                    MetaEntity me = (MetaEntity)symbol.getItem();
                    MetaEntityEditor editor;
 	               (editor = new MetaEntityEditor( getViewer(),me, repository)).setVisible(true);
+	                if(editor.wasEdited()) {
+	                	repository.getMetaModel().fireMetaEntityChanged(me);
+	                }
 	               editor.dispose();
                }
             } catch(Throwable t) {

@@ -6,33 +6,44 @@
  */
 package alvahouse.eatool.repository.html;
 
+import java.io.UnsupportedEncodingException;
+
 import org.apache.commons.codec.binary.Base64;
 import org.xml.sax.Attributes;
 
 import alvahouse.eatool.repository.ProgressCounter;
 import alvahouse.eatool.repository.base.NamedRepositoryItemFactory;
 import alvahouse.eatool.repository.exception.InputException;
+import alvahouse.eatool.repository.scripting.EventMapFactory;
+import alvahouse.eatool.repository.scripting.Scripts;
 import alvahouse.eatool.util.IXMLContentHandler;
 import alvahouse.eatool.util.UUID;
 
 /**
- * HTMLPageFactory de-serialises HTML pages.
+ * HTMLPageFactory de-serialises HTMLProxy pages.
  * 
  * @author rbp28668
  */
 public class HTMLPageFactory extends NamedRepositoryItemFactory implements IXMLContentHandler {
 
-    private ProgressCounter counter;
-    private HTMLPages pages;
+    private final ProgressCounter counter;
+    private final HTMLPages pages;
+    private final Scripts scripts;
     private HTMLPage currentPage = null;
-    private String text = null;
+    private StringBuilder text = new StringBuilder();
+    private EventMapFactory eventMapFactory;
+    
+
     /**
      * 
      */
-    public HTMLPageFactory(ProgressCounter counter, HTMLPages pages) {
+    public HTMLPageFactory(ProgressCounter counter, HTMLPages pages, Scripts scripts) {
         super();
         this.counter = counter;
         this.pages = pages;
+        this.scripts = scripts;
+        
+
     }
     
 
@@ -47,6 +58,13 @@ public class HTMLPageFactory extends NamedRepositoryItemFactory implements IXMLC
             UUID uuid = getUUID(attrs);
             currentPage = new HTMLPage(uuid);
             getCommonFields(currentPage,attrs);
+            text.delete(0, text.length());
+            
+            eventMapFactory = new EventMapFactory(counter, currentPage.getEventMap(), scripts);
+        } else {
+        	if(eventMapFactory != null) {
+        		eventMapFactory.startElement(uri, local, attrs);
+        	}
         }
         
     }
@@ -55,19 +73,28 @@ public class HTMLPageFactory extends NamedRepositoryItemFactory implements IXMLC
      * @see alvahouse.eatool.util.IXMLContentHandler#endElement(java.lang.String, java.lang.String)
      */
     public void endElement(String uri, String local) throws InputException {
-        if(local.equals("Page")){
-            byte[] decoded = Base64.decodeBase64(text.getBytes());
-            currentPage.setHtml(new String(decoded));
-            pages.add(currentPage);
-            currentPage = null;
-        }
+        try {
+			if(local.equals("Page")){
+			    byte[] decoded = Base64.decodeBase64(text.toString().getBytes("UTF-8"));
+			    currentPage.setHtml(new String(decoded));
+			    pages.add(currentPage);
+			    currentPage = null;
+			    eventMapFactory = null;
+			} else {
+				if(eventMapFactory != null) {
+					eventMapFactory.endElement(uri, local);
+				}
+			}
+		} catch (UnsupportedEncodingException e) {
+			throw new InputException("Unable to handle UTF-8 content");
+		}
     }
 
     /* (non-Javadoc)
      * @see alvahouse.eatool.util.IXMLContentHandler#characters(java.lang.String)
      */
     public void characters(String str) throws InputException {
-        text = str;
+        text.append(str);
     }
 
 }

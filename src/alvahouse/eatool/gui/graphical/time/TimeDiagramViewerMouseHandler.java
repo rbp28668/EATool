@@ -74,7 +74,7 @@ public class TimeDiagramViewerMouseHandler extends MouseInputAdapter {
 						    if(idx >= 0){
 						        event = event.substring(idx + 1);
 						    }
-						    Object target = ScriptWrapper.wrap(item);
+						    Object target = ScriptWrapper.wrapObject(item);
 						    Object diagram = ScriptWrapper.wrap(viewer.getDiagram());
 						    
 						    ScriptManager manager = ScriptManager.getInstance();

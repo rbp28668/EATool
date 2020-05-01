@@ -7,8 +7,8 @@
 package alvahouse.eatool.gui;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collection;
@@ -21,6 +21,7 @@ import java.util.Vector;
 
 import javax.swing.AbstractAction;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -29,11 +30,14 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
 import javax.swing.table.AbstractTableModel;
 
 import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
+import alvahouse.eatool.repository.metamodel.MetaModel;
+import alvahouse.eatool.repository.metamodel.MetaProperty;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.repository.metamodel.MetaRole;
 import alvahouse.eatool.repository.metamodel.Multiplicity;
@@ -88,7 +92,7 @@ public class EntityEditor  extends BasicDialog {
         getContentPane().add(label, BorderLayout.NORTH);
         
         propertiesPanel = new PropertiesPanel(e, e.getMeta());
-        relationshipsPanel = new RelationshipsPanel(e, repository.getModel());
+        relationshipsPanel = new RelationshipsPanel(e, repository.getModel(), repository.getMetaModel());
         
         JTabbedPane tabs = new JTabbedPane(SwingConstants.TOP);
         tabs.addTab("Properties",propertiesPanel);
@@ -112,39 +116,91 @@ public class EntityEditor  extends BasicDialog {
     protected boolean validateInput() {
         return propertiesPanel.validateInput() && relationshipsPanel.validateInput();    
     }
-   
+
     /*=================================================================*/
     // RelationshipsPanel is the editing panel for the Entity's 
     // relationships.
     /*=================================================================*/
     private class RelationshipsPanel extends JPanel{
  
+    	private final LinkedList<RelationshipsSubPanel> relationshipPanels = new LinkedList<>();
+    	
         private static final long serialVersionUID = 1L;
-        private JTable table;
-        private List<Relationship> relationshipsToAdd = new LinkedList<Relationship>();
-        private List<Relationship> relationshipsToDelete = new LinkedList<Relationship>();
-        private RelationshipsTableModel tableModel;
+        
+        RelationshipsPanel(final Entity e, final Model model, final MetaModel metaModel) {
+        	setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        	MetaEntity meta = e.getMeta();
+        	Set<MetaRelationship> metaRelationships = metaModel.getMetaRelationshipsFor(meta);
+        	for(MetaRelationship mr : metaRelationships) {
+        		RelationshipsSubPanel sub = new RelationshipsSubPanel(e, model, mr);
+        		relationshipPanels.add(sub);
+        		add(sub);
+        	}
+        	
+        }
+        
+    	/**
+    	 * @see alvahouse.eatool.GUI.BasicDialog#onOK()
+    	 */
+        protected void onOK() {
+        	for(RelationshipsSubPanel sub : relationshipPanels) {
+        		sub.onOK();
+        	}
+        }
+        
+    	/**
+    	 * @see alvahouse.eatool.GUI.BasicDialog#validateInput()
+    	 */
+        protected boolean validateInput() {
+        	for(RelationshipsSubPanel sub : relationshipPanels) {
+        		if(!sub.validateInput()) {
+        			return false;
+        		}
+        	}
+        	return true; 
+        }
+
+
+    }
+    /*=================================================================*/
+    // RelationshipsPanel is the editing panel for the Entity's 
+    // relationships.
+    /*=================================================================*/
+    private class RelationshipsSubPanel extends JPanel{
+ 
+        private static final long serialVersionUID = 1L;
+        private final JTable table;
+        private final List<Relationship> relationshipsToAdd = new LinkedList<Relationship>();
+        private final List<Relationship> relationshipsToDelete = new LinkedList<Relationship>();
+        private final RelationshipsTableModel tableModel;
+        private final MetaRelationship ofType;
 		/**
 		 * Method RelationshipsPanel.
 		 * @param e
 		 * @param model is the containing model or at least, the model the entity will be added to.
 		 */
-        RelationshipsPanel(final Entity e, final Model model) {
-            setLayout(new BorderLayout());
+        RelationshipsSubPanel(final Entity e, final Model model, MetaRelationship ofType) {
+        	this.ofType = ofType;
+        	
+            setBorder(new StandardBorder());
+        	setLayout(new BorderLayout());
 
-            tableModel = new RelationshipsTableModel(e, model, this);
-            table = new JTable(tableModel);
+            add(new JLabel(ofType.getName()), BorderLayout.NORTH);
+            
+            tableModel = new RelationshipsTableModel(e, model, this, ofType);
+            table = new RelationshipsTable(tableModel);
             table.setRowSelectionAllowed(true);
             table.setColumnSelectionAllowed(false);
     		ButtonEditor buttonEditor = new ButtonEditor();
     		table.setDefaultRenderer(JButton.class, buttonEditor);
     		table.setDefaultEditor(JButton.class, buttonEditor);
-           
+            
+    		
             JScrollPane scroll = new JScrollPane(table);
             add(scroll,BorderLayout.CENTER);
             
-            JButton addNewButton = new JButton("Add New");
-            JButton deleteSelectedButton = new JButton("Delete Selected");
+            JButton addNewButton = new JButton("Add New Relationship");
+            JButton deleteSelectedButton = new JButton("Delete Selected Relationship");
             
             Box box = Box.createHorizontalBox();
             box.add(Box.createHorizontalGlue());
@@ -165,6 +221,7 @@ public class EntityEditor  extends BasicDialog {
                     deleteSelectedRelationships();
                 }
             });
+            pack();
          }
 
         /**
@@ -174,58 +231,55 @@ public class EntityEditor  extends BasicDialog {
             // For this type of entity, need to get list of MetaRelationships that
             // describe the relationships that can connect to this.
             MetaEntity me = originalEntity.getMeta();
-            MetaRelationship mr = Dialogs.selectMetaRelationshipFor(me,this, repository);
-            if(mr != null) {
-                // Now we need to pick up the allowable Entities at the "other end" of
-                // the relationship.
-                MetaEntity otherMetaEntity = null;
-                MetaRole thisMetaRole = null;
-                MetaRole otherMetaRole = null;
-                boolean existingIsStart = true;
+            // Now we need to pick up the allowable Entities at the "other end" of
+            // the relationship.
+            MetaEntity otherMetaEntity = null;
+            MetaRole thisMetaRole = null;
+            MetaRole otherMetaRole = null;
+            boolean existingIsStart = true;
 
-                // Order of these 2 if statements - if either end is valid then default to start end.
-                if(mr.finish().connectsTo().equals(me)){
-                    otherMetaEntity = mr.start().connectsTo();
-                    thisMetaRole = mr.finish();
-                    otherMetaRole = mr.start();
-                    existingIsStart = false;
-                }
-                if(mr.start().connectsTo().equals(me)){
-                    otherMetaEntity = mr.finish().connectsTo();
-                    thisMetaRole = mr.start();
-                    otherMetaRole = mr.finish();
-                    existingIsStart = true;
+            // Order of these 2 if statements - if either end is valid then default to start end.
+            if(ofType.finish().connectsTo().equals(me)){
+                otherMetaEntity = ofType.start().connectsTo();
+                thisMetaRole = ofType.finish();
+                otherMetaRole = ofType.start();
+                existingIsStart = false;
+            }
+            if(ofType.start().connectsTo().equals(me)){
+                otherMetaEntity = ofType.finish().connectsTo();
+                thisMetaRole = ofType.start();
+                otherMetaRole = ofType.finish();
+                existingIsStart = true;
+            }
+            
+            if(otherMetaEntity == null){
+                throw new IllegalStateException("Can't find other entity type when adding new relationship");
+            }
+            
+            Entity other = Dialogs.selectEntityOf(otherMetaEntity,this, repository);
+            if(other != null) {
+                Relationship r = new Relationship(ofType);
+                
+                Role thisEnd = new Role(thisMetaRole);
+                thisEnd.setConnection(originalEntity);
+                thisEnd.setRelationship(r);
+                
+                Role otherEnd = new Role(otherMetaRole);
+                otherEnd.setConnection(other);
+                otherEnd.setRelationship(r);
+                
+                if(existingIsStart){
+                    r.setStart(thisEnd);
+                    r.setFinish(otherEnd);
+                } else {
+                    r.setStart(otherEnd);
+                    r.setFinish(thisEnd);
                 }
                 
-                if(otherMetaEntity == null){
-                    throw new IllegalStateException("Can't find other entity type when adding new relationship");
-                }
+                //System.out.println("New Relationship for " + editCopy + " is " + r);
                 
-                Entity other = Dialogs.selectEntityOf(otherMetaEntity,this, repository);
-                if(other != null) {
-                    Relationship r = new Relationship(mr);
-                    
-                    Role thisEnd = new Role(thisMetaRole);
-                    thisEnd.setConnection(originalEntity);
-                    thisEnd.setRelationship(r);
-                    
-                    Role otherEnd = new Role(otherMetaRole);
-                    otherEnd.setConnection(other);
-                    otherEnd.setRelationship(r);
-                    
-                    if(existingIsStart){
-                        r.setStart(thisEnd);
-                        r.setFinish(otherEnd);
-                    } else {
-                        r.setStart(otherEnd);
-                        r.setFinish(thisEnd);
-                    }
-                    
-                    //System.out.println("New Relationship for " + editCopy + " is " + r);
-                    
-                    relationshipsToAdd.add(r);
-                    tableModel.add(r);
-                }
+                relationshipsToAdd.add(r);
+                tableModel.add(r);
             }
         }
         
@@ -363,11 +417,36 @@ public class EntityEditor  extends BasicDialog {
                     tempDelete.add(toDelete);
                 }
             }
-            relationshipsToDelete = tempDelete;
+            relationshipsToDelete.clear();
+            relationshipsToDelete.addAll(tempDelete);
         }
     }
     
-        
+    /*=================================================================*/
+    // RelationshipsTable provides a JTable that asks its viewport
+    // to only display 6 rows.
+    /*=================================================================*/
+    private static class RelationshipsTable extends JTable {
+    	
+ 		private static final long serialVersionUID = 1L;
+ 		private final RelationshipsTableModel tableModel;
+		/**
+		 * @param tableModel
+		 */
+		public RelationshipsTable(RelationshipsTableModel tableModel) {
+			super(tableModel);
+			this.tableModel = tableModel;
+		}
+
+		@Override
+    	public Dimension getPreferredScrollableViewportSize() {
+    		Dimension d = super.getPreferredScrollableViewportSize();
+    		int rows = tableModel.getRowCount();
+    		int maxRows = (rows > 6) ? 6 : rows; // max six rows
+    		d.height = maxRows * getRowHeight();
+    		return d;
+    	}
+    }
      
     /*=================================================================*/
     // RelationshipsTableModel provides a display of the relationships
@@ -380,27 +459,57 @@ public class EntityEditor  extends BasicDialog {
         private final Model model;
         private Vector<Relationship> relationships;
         private Vector<JButton> editButtons;
-        private static String[] headers = {"This Role", "Relationship", "Other Role", "To", "Edit"};
+        private static String[] defaultHeaders = {"This Role", "Relationship", "Other Role", "To"};
+        private final Vector<String> headers;
+        private final Vector<Class<?>> columnTypes;
+        private int editColumn;
+        
 		private final Component parentComponent;
 		/**
 		 * Method RelationshipsTableModel.
-		 * @param e
+		 * @param e is the entity we're editing
+		 * @param model is the model it's going into or belongs into
+		 * @param parentComponent in the UI.
+		 * @toDisplay is either null, in which case all the relationships are used, or to filter the relationships
+		 * to those that correspond to this type.
 		 */
-        RelationshipsTableModel(Entity e, Model model, Component parentComponent) {
+        RelationshipsTableModel(Entity e, Model model, Component parentComponent, MetaRelationship toDisplay) {
             this.entity = e;
             this.model = model;
             this.parentComponent = parentComponent;
-            
-            
+        
+            // Set up the  headers & column types
+            editColumn = 0;
+            Collection<MetaProperty> mpc = toDisplay.getMetaProperties();
+            int columnCount = defaultHeaders.length + mpc.size() + 1;// +1 for edit on the end
+            this.headers = new Vector<String>(columnCount); 
+            this.columnTypes = new Vector<Class<?>>(columnCount);
+            for(String header : defaultHeaders) {
+            	headers.add(header);
+            	columnTypes.add(String.class);
+            	++editColumn;
+            }
+            for(MetaProperty mp : mpc) {
+            	headers.add(mp.getName());
+            	columnTypes.add(String.class);
+            	++editColumn;
+            }
+            headers.add("Edit");
+        	columnTypes.add(JButton.class);
+      
             if(e.getModel() == null) {
                 relationships = new Vector<Relationship>(); // empty
                 editButtons = new Vector<JButton>(); 
             } else {
 	            Set<Relationship> rs = e.getConnectedRelationships();
-	            relationships = new Vector<Relationship>(rs);
+	            relationships = new Vector<Relationship>(rs.size());
                 editButtons = new Vector<JButton>(rs.size()); 
-                for(int i=0; i<rs.size(); ++i) {
-                	editButtons.add(null);
+
+                for(Relationship r : rs) {
+                	if(toDisplay == null || r.getMeta().equals(toDisplay)) {
+                		relationships.add(r);
+                		editButtons.add(null);                	
+                	}
                 }
             }
         }
@@ -416,7 +525,7 @@ public class EntityEditor  extends BasicDialog {
 		 * @see javax.swing.table.TableModel#getColumnCount()
 		 */
         public int getColumnCount() { 
-           return headers.length; 
+           return headers.size(); 
         } 
         
 		/**
@@ -453,26 +562,31 @@ public class EntityEditor  extends BasicDialog {
             	case 3:
             		val = far.connectsTo().toString();
             		break;
-            	case 4:
-            		JButton button = editButtons.get(row);
-            		if(button == null) {
-            			button = new JButton("Edit");
-                		button.setToolTipText("Edit this relationship");
-                		editButtons.setElementAt(button,  row);
-
-	            		button.setAction(new AbstractAction() {
+            	default:
+            		if(col == editColumn) {
+	            		JButton button = editButtons.get(row);
+	            		if(button == null) {
+	            			button = new JButton("Edit");
+	                		button.setToolTipText("Edit this relationship");
+	                		editButtons.setElementAt(button,  row);
 	
-							private static final long serialVersionUID = 1L;
-	
-							@Override
-							public void actionPerformed(ActionEvent e) {
-								RelationshipEditor editor = new RelationshipEditor(parentComponent, r, model);
-								editor.setVisible(true);
-							}
-	            			
-	            		});
+		            		button.setAction(new AbstractAction() {
+		
+								private static final long serialVersionUID = 1L;
+		
+								@Override
+								public void actionPerformed(ActionEvent e) {
+									RelationshipEditor editor = new RelationshipEditor(parentComponent, r, model);
+									editor.setVisible(true);
+								}
+		            			
+		            		});
+	            		}
+	            		val = button;
+            		}  else { // it's a property of the relationship
+            			int idx = col - defaultHeaders.length;  // properties start just after default columns
+            			val = r.getPropertiesAsArray()[idx].getValue();
             		}
-            		val = button;
             		break;
             }
             return val;
@@ -481,27 +595,13 @@ public class EntityEditor  extends BasicDialog {
 		/**
 		 * @see javax.swing.table.TableModel#getColumnName(int)
 		 */
-        public String getColumnName(int c) {
-            return headers[c];
+        public String getColumnName(int columnIndex) {
+             return headers.get(columnIndex);
         }
         
         @Override
         public Class<?>getColumnClass(int columnIndex){
-        	Class<?> val = String.class;
-            switch(columnIndex) {
-        	case 0:            		
-        		break;
-        	case 1:
-        		break;
-        	case 2:
-        		break;
-        	case 3:
-        		break;
-        	case 4:
-        		val = JButton.class;
-        		break;
-            }
-            return val;
+        	return columnTypes.get(columnIndex);
         }
         
 		@Override

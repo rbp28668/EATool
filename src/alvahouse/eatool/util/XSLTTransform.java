@@ -81,7 +81,6 @@ public class XSLTTransform {
             //Templates templates = tf.newTemplates(source);
 
             SAXTransformerFactory saxtf = (SAXTransformerFactory)tf;
-
             if(templatePath != null){
                 // TODO - check file exists.
                 Source source = new StreamSource(templatePath);
@@ -92,10 +91,12 @@ public class XSLTTransform {
             }
             
             Transformer trans = handler.getTransformer();
+            
             trans.setOutputProperty(OutputKeys.INDENT,"yes");
             //trans.setOutputProperty(OutputKeys.METHOD,"xml");
             trans.setOutputProperty(OutputKeys.ENCODING,"UTF-8");
-            
+		} catch (NullPointerException e) {
+			throw new IOException("Problem with stylesheet");
         } catch (TransformerConfigurationException e) {
             throw new IOException("Unable to set transformer configuration " + e.getMessage());
         } catch (IllegalArgumentException e) {

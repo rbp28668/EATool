@@ -53,21 +53,46 @@
 			<h3 class="relType"><xsl:value-of select="ex:Name"/></h3>
 		<table>
 			<tbody>
-			<xsl:apply-templates select="ex:Role"/>
+			<xsl:apply-templates select="ex:Relationship"/>
 			</tbody>
 		</table>
 		</xsl:for-each>
 	</xsl:template>
+
+	<xsl:template match="ex:Relationship">
+		<xsl:apply-templates select="ex:Role"/>
+	</xsl:template>
 	
 	<xsl:template match="ex:Role">
 		<tr>
-			<td>	<xsl:value-of select="ex:Name"/>:</td>
+			<td><xsl:value-of select="ex:Name"/>:</td>
 			<td> <a href="../entity/{ex:ConnectedEntity/ex:ConnectedUUID}.html"><xsl:value-of select="ex:ConnectedEntity/ex:Name"/></a> </td>
 			<xsl:apply-templates select="ex:ConnectedEntity/ex:SummaryProperty"/>
+			<xsl:apply-templates select="../ex:RelationshipProperty"/>
 		</tr>
 	</xsl:template>
 	
 	<xsl:template match="ex:SummaryProperty">
 		<td><xsl:value-of select="."/></td>
 	</xsl:template>
+
+	<xsl:template match="ex:RelationshipProperty">
+	    <!--  Note can use contents of @type attribute to produce type specific output (e.g boolean) -->
+	    <xsl:choose>
+	    	<xsl:when test="@type='boolean'">
+	    		<xsl:choose>
+	    			<xsl:when test="current() = 'true'">
+						<td><xsl:value-of select="@name"/></td>
+	    			</xsl:when> 
+		    		<xsl:otherwise>
+		    			<td> </td>
+		    		</xsl:otherwise>
+	    		</xsl:choose>
+	    	</xsl:when>
+	    	<xsl:otherwise>
+				<td><xsl:value-of select="@name"/>: <xsl:value-of select="."/></td>
+	    	</xsl:otherwise>
+	    </xsl:choose>
+	</xsl:template>
+
 </xsl:stylesheet>
