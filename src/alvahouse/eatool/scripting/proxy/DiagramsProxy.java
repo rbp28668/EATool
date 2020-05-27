@@ -51,6 +51,7 @@ public class DiagramsProxy {
      * the diagram type to use when creating the new diagram.
      * @return the corresponding diagram.
      */
+    @Scripted(description="Creates a new standard diagram of the time given by the type key.")
     public StandardDiagramProxy newStandardDiagram(String type){
         DiagramTypes types = repository.getDiagramTypes();
         DiagramType dt = types.get(new UUID(type));

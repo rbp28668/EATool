@@ -16,6 +16,7 @@ import alvahouse.eatool.repository.scripting.ScriptManager;
 
 /**
  * ScriptAction is a Swing Action that runs a given script when fired.
+ * Used when creating a menu to fire the script when the menu item is selected.
  * 
  * @author rbp28668
  */

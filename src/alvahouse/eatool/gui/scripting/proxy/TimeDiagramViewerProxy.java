@@ -41,6 +41,7 @@ public class TimeDiagramViewerProxy {
         this.repository = repository;
     }
 
+    @Scripted(description="Gets the underlying time diagram.")
     public TimeDiagramProxy getDiagram() {
     	return ScriptWrapper.wrap(diagram);
     }
@@ -50,6 +51,7 @@ public class TimeDiagramViewerProxy {
      * @throws InvocationTargetException
      * @throws InterruptedException
      */
+    @Scripted(description="Shows the diagram in a window if not already displayed.")
     public void show() throws InterruptedException, InvocationTargetException{
         if(viewer == null){
             EventQueue.invokeAndWait( new Runnable(){
@@ -70,6 +72,7 @@ public class TimeDiagramViewerProxy {
      * @throws InvocationTargetException
      * @throws InterruptedException
      */
+    @Scripted(description="Hides/destroys the window displaying the diagram.")
     public void hide() throws InterruptedException, InvocationTargetException{
         if(viewer != null){
             EventQueue.invokeAndWait( new Runnable(){
@@ -85,6 +88,7 @@ public class TimeDiagramViewerProxy {
     /**
      * Repaints the diagram.
      */
+    @Scripted(description="Repaints the diagram.")
     public void repaint() {
         if(viewer != null) {
             viewer.repaint();
@@ -99,6 +103,8 @@ public class TimeDiagramViewerProxy {
      * @throws InvocationTargetException
      * @throws InterruptedException
      */
+    @Scripted(description="Runs the action corresponding to the given action name."
+    		+ " The diagram must be displayed otherwise this has no effect.")
     public void runAction(String actionName) throws InterruptedException, InvocationTargetException{
         if(viewer != null){
             EventQueue.invokeAndWait( new ActionRunner(actionName));

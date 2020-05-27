@@ -13,12 +13,15 @@ import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 
+import alvahouse.eatool.scripting.proxy.Scripted;
+
 
 /**
  * File creates an output file for writing (reports) to disk.
  * 
  * @author rbp28668
  */
+@Scripted(description="An output file for writing (reports) to disk")
 public class File {
 
     private PrintWriter writer = null;
@@ -86,6 +89,7 @@ public class File {
     /**
      * Closes the file.
      */
+     @Scripted(description="Closes the file. This should be called when all the output has been written.")
     public void close() {
         if(writer == null){
             throw new IllegalStateException("File is not open");
@@ -98,6 +102,7 @@ public class File {
      * Determines whether the file is open.
      * @return true if open, false if not.
      */
+     @Scripted(description="Determines whether the file is open.")
     public boolean isOpen(){
         return writer != null;
     }
@@ -106,6 +111,7 @@ public class File {
      * Prints the given text without a terminating linefeed.
      * @param text is the text to be printerd.
      */
+     @Scripted(description="Prints the given text without a terminating linefeed.")
     public void print(String text){
         if(writer == null){
             throw new IllegalStateException("File is not open");
@@ -117,6 +123,7 @@ public class File {
      * Prints the given text with a terminating linefeed.
      * @param text is the text to be printerd.
      */
+     @Scripted(description="Prints the given text with a terminating linefeed.")
     public void println(String text){
         if(writer == null){
             throw new IllegalStateException("File is not open");
@@ -128,6 +135,7 @@ public class File {
      * Convenience method to print a page of HTMLProxy.
      * @param html is the HTMLProxy to print.
      */
+     @Scripted(description="Output the contents of a HTML object")
     public void printHTML(HTMLProxy html){
         writer.println(html.getPage());
     }

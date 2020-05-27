@@ -18,6 +18,7 @@ import alvahouse.eatool.repository.metamodel.MetaProperty;
  * 
  * @author rbp28668
  */
+@Scripted(description="Provides a set of meta-property.")  
 public class MetaPropertySet {
 
     List<MetaProperty> metaProperties = new LinkedList<MetaProperty>();
@@ -36,6 +37,7 @@ public class MetaPropertySet {
      * Determine whether the set is empty or not.
      * @return true if the set is empty, false if not.
      */
+    @Scripted(description="Determines if the set is empty.")  
     public boolean isEmpty(){
         return metaProperties.isEmpty();
     }
@@ -44,6 +46,7 @@ public class MetaPropertySet {
      * Removes the first MetaProperty from the set.
      * @return the first MetaProperty.
      */
+    @Scripted(description="Removes the first MetaProperty from the set.")  
     public MetaPropertyProxy removeFirst(){
         MetaProperty mp = (MetaProperty)metaProperties.remove(0);
         return new MetaPropertyProxy(mp);
@@ -54,6 +57,7 @@ public class MetaPropertySet {
      * the underlying elements of this set.
      * @return a new MetaPropertySet.
      */
+    @Scripted(description="Copies the MetaPropertySet.  The new set contains the same elements as the original.")  
     public MetaPropertySet copy(){
         return new MetaPropertySet(metaProperties);
     }
