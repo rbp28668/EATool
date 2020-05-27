@@ -19,6 +19,7 @@ import alvahouse.eatool.repository.model.Entity;
  * 
  * @author rbp28668
  */
+@Scripted(description="A diagram that displays items on a time-line.")
 public class TimeDiagramProxy {
 
     private final TimeDiagram diagram;
@@ -42,6 +43,7 @@ public class TimeDiagramProxy {
      * @throws InvocationTargetException
      * @throws InterruptedException
      */
+    @Scripted(description="Deletes the contents of the diagram.")
     public void clear() throws InterruptedException, InvocationTargetException{
         EventQueue.invokeAndWait( new Runnable(){
             public void run(){
@@ -50,6 +52,7 @@ public class TimeDiagramProxy {
         });
     }
     
+    @Scripted(description="Sets the default colours on entities as per the diagram type.")
     public void setDefaultColours() throws InterruptedException, InvocationTargetException{
         EventQueue.invokeAndWait( new Runnable(){
             public void run(){
@@ -62,6 +65,7 @@ public class TimeDiagramProxy {
      * Sets the diagram name.
      * @param title is the new name of the diagram.
      */
+    @Scripted(description="Sets the diagram title.")
     public void setTitle(String title){
         diagram.setName(title);
     }
@@ -74,6 +78,8 @@ public class TimeDiagramProxy {
      * @throws InvocationTargetException
      * @throws InterruptedException
      */
+    @Scripted(description="Adds the given set of entities to the diagram. Entities will only"
+    		+ " be added if they're included in the diagram type.")
     public void add(EntitySet entities) throws InterruptedException, InvocationTargetException{
         EventQueue.invokeAndWait( new AddEntitiesRunner(entities));
     }
@@ -103,6 +109,7 @@ public class TimeDiagramProxy {
      * @throws InvocationTargetException
      * @throws InterruptedException
      */
+    @Scripted(description="Removes the entities in the set from the diagram.")
     public void remove(EntitySet entities) throws InterruptedException, InvocationTargetException{
         EventQueue.invokeAndWait( new RemoveEntitiesRunner(entities));
     }
@@ -133,6 +140,10 @@ public class TimeDiagramProxy {
 	 * symbols should not be saved with the diagram.
 	 * @param dynamic is the new dynamic state to set.
 	 */
+    @Scripted(description="Set or clear the dynamic flag for the diagram. "
+    		+ " A dynamic diagram is one where the contents are set by a script"
+    		+ " when it is displayed so any connectors or" 
+    		+ "	symbols should not be saved with the diagram.")
     public void setDynamic(boolean dynamic){
         diagram.setDynamic(dynamic);
     }

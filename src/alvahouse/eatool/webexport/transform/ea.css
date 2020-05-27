@@ -55,3 +55,16 @@ a.mainNav {
 /* Relationship type */
 .relType{
 }
+
+/* Standard tables */
+th {
+  text-align: left;
+  padding-left: 1em;
+  padding-right: 1em;
+}
+
+td {
+  text-align: left;
+  padding-left: 1em;
+  padding-right: 1em;
+}

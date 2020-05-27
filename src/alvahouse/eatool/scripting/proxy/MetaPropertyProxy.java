@@ -13,6 +13,7 @@ import alvahouse.eatool.repository.metamodel.MetaProperty;
  * 
  * @author rbp28668
  */
+@Scripted(description="Describes a meta-property.")    
 public class MetaPropertyProxy {
 
     private MetaProperty metaProperty;
@@ -28,7 +29,8 @@ public class MetaPropertyProxy {
      * Gets the name of this MetaProperty.
      * @return the MetaProperty name.
      */
-    public String getName(){
+    @Scripted(description="Gets the name of this meta-property.")    
+   public String getName(){
         return metaProperty.getName();
     }
     
@@ -36,6 +38,7 @@ public class MetaPropertyProxy {
      * Gets the description of this MetaProperty.
      * @return the MetaProperty description.
      */
+    @Scripted(description="Get the description of this meta-property")    
     public String getDescription(){
         return metaProperty.getDescription();
     }
@@ -44,6 +47,7 @@ public class MetaPropertyProxy {
      * Gets the data type name for this MetaProperty.
      * @return a String containing the type name.
      */
+    @Scripted(description="Gets the data type name for this MetaProperty.")    
     public String getTypeName(){
         return metaProperty.getMetaPropertyType().getName();
     }
@@ -53,6 +57,7 @@ public class MetaPropertyProxy {
      * MetaProperty must have a value.
      * @return true if mandatory, false if not.
      */
+    @Scripted(description="Gets whether corresponding properties are mandatory.")    
     public boolean isMandatory(){
         return metaProperty.isMandatory();
     }
@@ -61,6 +66,7 @@ public class MetaPropertyProxy {
      * Gets the default value for properties corresponding to this MetaProperty.
      * @return the default value.
      */
+    @Scripted(description="Gets the default value that will be used for new properties.")    
     public String getDefaultValue(){
         return metaProperty.getDefaultValue();
     }

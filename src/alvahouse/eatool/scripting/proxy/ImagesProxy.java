@@ -13,6 +13,7 @@ import alvahouse.eatool.util.UUID;
  * 
  * @author rbp28668
  */
+@Scripted(description="The collection of images in the repository")    
 public class ImagesProxy {
 
     private alvahouse.eatool.repository.images.Images images;
@@ -25,6 +26,7 @@ public class ImagesProxy {
         this.images = images;
     }
 
+    @Scripted(description="Look up a given image by key.")    
     public ImageProxy lookupImage(String key){
         UUID uuidKey = new UUID(key);
         alvahouse.eatool.repository.images.Image image = images.lookupImage(uuidKey);
