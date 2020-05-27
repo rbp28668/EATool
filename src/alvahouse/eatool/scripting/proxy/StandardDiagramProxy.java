@@ -26,6 +26,7 @@ import alvahouse.eatool.util.UUID;
  * 
  * @author rbp28668
  */
+@Scripted(description="Standard boxes and line diagram.")
 public class StandardDiagramProxy {
 
     private final StandardDiagram diagram;
@@ -49,6 +50,7 @@ public class StandardDiagramProxy {
      * @throws InvocationTargetException
      * @throws InterruptedException
      */
+    @Scripted(description="Deletes the contents of the diagram.")
     public void clear() throws InterruptedException, InvocationTargetException{
         EventQueue.invokeAndWait( new Runnable(){
             public void run(){
@@ -57,6 +59,7 @@ public class StandardDiagramProxy {
         });
     }
     
+    @Scripted(description="Sets the default colours on all the symbols on the diagram.")
     public void setDefaultColours() throws InterruptedException, InvocationTargetException{
         EventQueue.invokeAndWait( new Runnable(){
             public void run(){
@@ -69,6 +72,7 @@ public class StandardDiagramProxy {
      * Sets the diagram name.
      * @param title is the new name of the diagram.
      */
+    @Scripted(description="Sets the title of the diagram.")
     public void setTitle(String title){
         diagram.setName(title);
     }
@@ -81,6 +85,8 @@ public class StandardDiagramProxy {
      * @throws InvocationTargetException
      * @throws InterruptedException
      */
+    @Scripted(description="Adds all the entities from the given set that are valid"
+    		+ " for this diagram according to the diagram type.")
     public void add(EntitySet entities) throws InterruptedException, InvocationTargetException{
         EventQueue.invokeAndWait( new AddEntitiesRunner(entities));
     }
@@ -110,6 +116,7 @@ public class StandardDiagramProxy {
      * @throws InvocationTargetException
      * @throws InterruptedException
      */
+    @Scripted(description="Removes a given set of entities from the diagram if they are in the diagram.")
     public void remove(EntitySet entities) throws InterruptedException, InvocationTargetException{
         EventQueue.invokeAndWait( new RemoveEntitiesRunner(entities));
     }
@@ -139,6 +146,7 @@ public class StandardDiagramProxy {
      * @throws InvocationTargetException
      * @throws InterruptedException
      */
+    @Scripted(description="Colours the given set of entities the colour determined by the red/green/blue parameters (each 0-255).")
     public void colour(EntitySet entities, int red, int green, int blue) throws InterruptedException, InvocationTargetException{
         Color colour = new Color(red,green,blue);
         EventQueue.invokeAndWait( new ColourEntitiesRunner(entities,colour));
@@ -171,9 +179,10 @@ public class StandardDiagramProxy {
      * @throws InvocationTargetException
      * @throws InterruptedException
      */
-    public void colourEntity(Entity entity, int red, int green, int blue) throws InterruptedException, InvocationTargetException{
+    @Scripted(description="Colours the given entity the colour determined by the red/green/blue parameters (each 0-255).")
+    public void colourEntity(EntityProxy entity, int red, int green, int blue) throws InterruptedException, InvocationTargetException{
         Color colour = new Color(red,green,blue);
-        EventQueue.invokeAndWait( new ColourEntityRunner(entity,colour));
+        EventQueue.invokeAndWait( new ColourEntityRunner(entity.get(),colour));
     }
     
     private class ColourEntityRunner implements Runnable {
@@ -202,6 +211,7 @@ public class StandardDiagramProxy {
      * @throws InvocationTargetException
      * @throws InterruptedException
      */
+    @Scripted(description="Adds all possible connectors between the nodes already on the diagram.")
     public void addConnectors() throws InterruptedException, InvocationTargetException{
         EventQueue.invokeAndWait( new Runnable(){
             public void run(){
@@ -218,6 +228,8 @@ public class StandardDiagramProxy {
      * @throws InvocationTargetException
      * @throws InterruptedException
      */
+    @Scripted(description="Adds all possible connectors between the nodes already on the" + 
+    		" diagram providing their types are given in the set of types.")
     public void addConnectorsOf(MetaRelationshipSet types) throws InterruptedException, InvocationTargetException{
         EventQueue.invokeAndWait( new AddConnectorsRunner(types));
     }
@@ -244,6 +256,10 @@ public class StandardDiagramProxy {
 	 * symbols should not be saved with the diagram.
 	 * @param dynamic is the new dynamic state to set.
 	 */
+    @Scripted(description="Set or clear the dynamic flag for the diagram. "
+    		+ " A dynamic diagram is one where the contents are set by a"
+    		+ " script when it is displayed so any connectors or" 
+    		+ " symbols should not be saved with the diagram.")
     public void setDynamic(boolean dynamic){
         diagram.setDynamic(dynamic);
     }
@@ -254,6 +270,8 @@ public class StandardDiagramProxy {
      * @param image is the image to add.
      * @return is the ImageDisplay that captures the image position on the diagram.
      */
+    @Scripted(description="Adds an image to the diagram and returns an ImageDisplay which can" + 
+    		" subsequently be used to manipulate the image on the diagram.")
     public ImageDisplayProxy addImage(ImageProxy image){
         ImageDisplay display = new ImageDisplay(new UUID());
         display.setImage(image.getImage());
@@ -266,6 +284,7 @@ public class StandardDiagramProxy {
      * Gets the set of all the entities that appear on the diagram
      * @return an EntitySet with all the entities.
      */
+    @Scripted(description="Gets the set of all the entities that appear on the diagram.")
     public EntitySet entities() {
     	EntitySet set = new EntitySet();
     	for(Symbol symbol : diagram.getSymbols()) {
@@ -278,6 +297,7 @@ public class StandardDiagramProxy {
      * Gets the set of all the relationships that appear on the diagram
      * @return a RelationshipSet with all the relationships.
      */
+    @Scripted(description="Gets the set of all the relationships that appear on the diagram.")
     public RelationshipSet relationships() {
     	RelationshipSet set = new RelationshipSet();
     	for(Connector connector : diagram.getConnectors()) {

@@ -11,6 +11,7 @@ package alvahouse.eatool.scripting.proxy;
  * 
  * @author rbp28668
  */
+@Scripted(description="An image.")    
 public class ImageProxy {
 
     private alvahouse.eatool.repository.images.Image image;

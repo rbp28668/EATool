@@ -20,6 +20,8 @@ import alvahouse.eatool.repository.metamodel.MetaEntity;
  * 
  * @author rbp28668
  */
+@Scripted(description="MetaEntitySet is a set of MetaEntity."
+		+ " Manipulating this set does not change the meta model.")    
 public class MetaEntitySet {
 
     private Set<MetaEntity> contents = new HashSet<MetaEntity> ();
@@ -56,6 +58,7 @@ public class MetaEntitySet {
      * Determines whether the set is empty.
      * @return true if the set is empty, false if not.
      */
+    @Scripted(description="Determines whether the set is empty.")    
     public boolean isEmpty(){
         return contents.isEmpty();
     }
@@ -64,6 +67,7 @@ public class MetaEntitySet {
      * Removes and returns the first entry to the set.
      * @return the first MetaEntity of the set.
      */
+    @Scripted(description="Removes and returns the first entry to the set.")    
     public MetaEntityProxy removeFirst(){
         Iterator<MetaEntity> iter = contents.iterator();
         MetaEntity me = iter.next();
@@ -75,6 +79,7 @@ public class MetaEntitySet {
      * Adds any MetaEntities in the other set that do not already exist in this set.
      * @param other contains the MetaEntities to add.
      */
+    @Scripted(description="Set union. Adds any MetaEntities in the other set that do not already exist in this set.")    
     public void union(MetaEntitySet other){
         contents.addAll(other.contents);
     }
@@ -84,6 +89,7 @@ public class MetaEntitySet {
      * @param other contains all the meta entities that should be
      * retained in this set.
      */
+    @Scripted(description="Set intersection. Removes all the MetaEntities from this set that do not exist in the other set.")    
     public void intersection(MetaEntitySet other){
         contents.retainAll(other.contents);
     }
@@ -93,6 +99,7 @@ public class MetaEntitySet {
      * @param other contains all the meta entities that should be
      * removed.
      */
+    @Scripted(description="Set complement. Removes all the MetaEntities from this set that exist in the other set.")    
     public void complement(MetaEntitySet other){
         contents.removeAll(other.contents);
     }

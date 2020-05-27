@@ -16,7 +16,7 @@ import alvahouse.eatool.scripting.proxy.Scripted;
  * 
  * @author rbp28668
  */
-@Scripted(description="Use this to build up HTML for display")
+@Scripted(description="Use this to build up HTML for display or reporting.")
 public class HTMLProxy {
 
     private HTML html;
@@ -29,7 +29,7 @@ public class HTMLProxy {
     }
 
     /**
-     * Geta a complete HTMLProxy page wrapped with appropriate html, head and body.
+     * Get a a complete HTMLProxy page wrapped with appropriate html, head and body.
      * @return a html page.
      */
     String getPage(){
@@ -40,6 +40,7 @@ public class HTMLProxy {
      * Gets the String equivalent of this HTMLProxy.
      * @see java.lang.Object#toString()
      */
+    @Scripted(description="Converts this HTML item to a string.")
     public String toString(){
         return html.toString();
     }
@@ -47,6 +48,7 @@ public class HTMLProxy {
     /**
      * Clears the HTML.
      */
+    @Scripted(description="Clears the HTML page.")
     public void clear() {
     	html.clear();
     }
@@ -55,6 +57,7 @@ public class HTMLProxy {
      * Generates a first level heading.
      * @param h1 is the heading text.
      */
+    @Scripted(description="Creates a first level heading.")
     public HTMLProxy h1(HTMLProxy h1) {
         html.h1(h1.html);
         return this;
@@ -63,6 +66,7 @@ public class HTMLProxy {
      * Generates a second level heading.
      * @param h2 is the heading text.
      */
+    @Scripted(description="Creates a second level heading.")
     public HTMLProxy h2(HTMLProxy h2) {
         html.h2(h2.html);
         return this;
@@ -71,6 +75,7 @@ public class HTMLProxy {
      * Generates a third level heading.
      * @param h3 is the heading text.
      */
+    @Scripted(description="Creates a third level heading.")
     public HTMLProxy h3(HTMLProxy h3) {
         html.h3(h3.html);
         return this;
@@ -79,15 +84,27 @@ public class HTMLProxy {
     /**
      * Adds a horizontal rule. 
      */
+    @Scripted(description="Adds a horizontal rule.")
     public HTMLProxy hr() {
         html.hr();
         return this;
     }
-    
+
+    /**
+     * Creates an un-numbered list.
+     * @param contents is the list contents ( li() items).
+     */
+    @Scripted(description="Creates an unnumbered list. This should contain ul elements.")
+    public HTMLProxy ul(HTMLProxy contents) {
+        html.ul(contents.html);
+        return this;
+    }
+
     /**
      * Creates a list item.
      * @param contents is the contents of the list item.
      */
+    @Scripted(description="Creates a list item.")
     public HTMLProxy li(HTMLProxy contents) {
         html.li(contents.html);
         return this;
@@ -97,6 +114,7 @@ public class HTMLProxy {
      * Creates a new paragraph.
      * @param contents is the paragraph contents.
      */
+    @Scripted(description="Creates a new paragraph.")
     public HTMLProxy p(HTMLProxy contents) {
         html.p(contents.html);
         return this;
@@ -106,8 +124,19 @@ public class HTMLProxy {
      * Creates a new table.
      * @param contents is the table contents.
      */
+    @Scripted(description="Creates a new table. This should contain tr elements.")
     public HTMLProxy table(HTMLProxy contents) {
         html.table(contents.html);
+        return this;
+    }
+
+    /**
+     * Creates a table row. 
+     * @param contents contains the contents of this row.
+     */
+    @Scripted(description="Creates a table row.  This should contain td or th elements.")
+    public HTMLProxy tr(HTMLProxy contents) {
+        html.tr(contents.html);
         return this;
     }
 
@@ -115,15 +144,17 @@ public class HTMLProxy {
      * Creates table header.  
      * @param s
      */
+    @Scripted(description="Creates a table header element.")
     public HTMLProxy th(HTMLProxy s) {
         html.th(s.html);
         return this;
     }
 
-    /**
+     /**
      * Creates table data.  One table row may contain many table data elements.
      * @param s
      */
+    @Scripted(description="Creates a table data element.")
     public HTMLProxy td(HTMLProxy s) {
         html.td(s.html);
         return this;
@@ -132,24 +163,9 @@ public class HTMLProxy {
      * Adds raw text.
      * @param text is the text to add.
      */
+    @Scripted(description="Adds raw text to the HTML.")
     public HTMLProxy text(String text) {
         html.text(text);
-        return this;
-    }
-    /**
-     * Creates a table row. 
-     * @param contents contains the contents of this row.
-     */
-    public HTMLProxy tr(HTMLProxy contents) {
-        html.tr(contents.html);
-        return this;
-    }
-    /**
-     * Creates an un-numbered list.
-     * @param contents is the list contents ( li() items).
-     */
-    public HTMLProxy ul(HTMLProxy contents) {
-        html.ul(contents.html);
         return this;
     }
 }

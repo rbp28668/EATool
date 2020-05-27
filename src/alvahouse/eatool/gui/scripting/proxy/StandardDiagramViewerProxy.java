@@ -42,6 +42,7 @@ public class StandardDiagramViewerProxy {
         this.repository = repository;
     }
 
+    @Scripted(description="Gets the underlying standard diagram.")
     public StandardDiagramProxy getDiagram() {
     	return ScriptWrapper.wrap(diagram);
     }
@@ -51,6 +52,7 @@ public class StandardDiagramViewerProxy {
      * @throws InvocationTargetException
      * @throws InterruptedException
      */
+    @Scripted(description="Displays the diagram in a window if not already displayed.")
     public void show() throws InterruptedException, InvocationTargetException{
         if(viewer == null){
             EventQueue.invokeAndWait( new Runnable(){
@@ -70,6 +72,7 @@ public class StandardDiagramViewerProxy {
      * @throws InvocationTargetException
      * @throws InterruptedException
      */
+    @Scripted(description="Hides the diagram if visible.")
     public void hide() throws InterruptedException, InvocationTargetException{
         if(viewer != null){
             EventQueue.invokeAndWait( new Runnable(){
@@ -85,6 +88,7 @@ public class StandardDiagramViewerProxy {
     /**
      * Repaints the diagram.
      */
+    @Scripted(description="Repaints the diagram.")
     public void repaint() {
         if(viewer != null) {
             viewer.repaint();
@@ -99,6 +103,8 @@ public class StandardDiagramViewerProxy {
      * @throws InvocationTargetException
      * @throws InterruptedException
      */
+    @Scripted(description="Runs the action with the given name."
+    		+ " Note the diagram must be displayed otherwise this will do nothing.")
     public void runAction(String actionName) throws InterruptedException, InvocationTargetException{
         if(viewer != null){
             EventQueue.invokeAndWait( new ActionRunner(actionName));

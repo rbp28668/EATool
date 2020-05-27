@@ -36,11 +36,15 @@ public class EntityProxy {
         this.entity = entity;
     }
 
+    Entity get() {
+    	return entity;
+    }
     
     /**
      * Gets the key as a string.
      * @return
      */
+    @Scripted(description="Gets the entity's key as a string.")
     public String getKey() {
     	return entity.getKey().toString();
     }
@@ -51,6 +55,7 @@ public class EntityProxy {
      * @param key
      * @return
      */
+    @Scripted(description="Determines if this entity is the one identified by the given key.")
     public boolean is(String key) {
     	return entity.getKey().equals(new UUID(key));
     }
@@ -59,6 +64,7 @@ public class EntityProxy {
      * Gets the name of the entity (as defined by the type's display hint).
      * @return the entity name.
      */
+    @Scripted(description="Gets the name of the entity (as defined by the type's display hint).")
     public String getName(){
         return entity.toString();
     }
@@ -67,6 +73,7 @@ public class EntityProxy {
      * Gets the type name for this entity.
      * @return the type name as defined in the metamodel.
      */
+    @Scripted(description="Gets the type name for this entity i.e. what sort of thing is this?")
     public String getTypeName(){
         return entity.getMeta().getName();
     }
@@ -76,6 +83,7 @@ public class EntityProxy {
      * @param key is a string representation of a UUID that identifies which property is wanted.
      * @return the Property corresponding to the MetaProperty defined by key.
      */
+    @Scripted(description="Gets a given Property using the key for its meta-property.")
     public PropertyProxy getProperty(String key){
         Property p = entity.getPropertyByMeta(new UUID(key));
         return new PropertyProxy(p);
@@ -85,6 +93,7 @@ public class EntityProxy {
      * Gets all the properties for this entity.
      * @return a new PropertySet with all this entity's properties.
      */
+    @Scripted(description="Gets all the properties for this entity.")
     public PropertySet getProperties(){
         return new PropertySet(entity.getProperties());
     }
@@ -93,6 +102,7 @@ public class EntityProxy {
      * Converts this entity into an EntitySet containing just this Entity.
      * @return a new EntitySet.
      */
+    @Scripted(description="Converts this entity into an EntitySet containing just this Entity.")
     public EntitySet toSet(){
         EntitySet set = new EntitySet();
         set.add(entity);
@@ -103,6 +113,7 @@ public class EntityProxy {
      * Gets the MetaEntity that describe this Entity.
      * @return the corresponding MetaEntity.
      */
+    @Scripted(description="Gets the MetaEntity that describes this Entity.")
     public MetaEntityProxy getMeta(){
         return new MetaEntityProxy(entity.getMeta());
     }

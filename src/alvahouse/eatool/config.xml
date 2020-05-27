@@ -184,6 +184,10 @@
 							display="Contents"
 							mnemonic="C"
 							/>
+				<menuitem 	action="HelpScripts" 
+							display="Script Objects"
+							mnemonic="S"
+							/>
 				<menuitem 	action="HelpAbout" 
 							display="About"
 							mnemonic="A"
