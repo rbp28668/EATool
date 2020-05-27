@@ -31,6 +31,7 @@ import alvahouse.eatool.gui.mappings.ExportMappingExplorer;
 import alvahouse.eatool.gui.mappings.ImportMappingExplorer;
 import alvahouse.eatool.gui.matrix.MatrixViewer;
 import alvahouse.eatool.gui.scripting.EventMapDialog;
+import alvahouse.eatool.gui.scripting.FunctionHelpBrowser;
 import alvahouse.eatool.gui.scripting.ScriptExplorer;
 import alvahouse.eatool.gui.types.TypesExplorer;
 import alvahouse.eatool.repository.LoadProgress;
@@ -121,6 +122,7 @@ public class CommandActionSet extends ActionSet {
         // -- Help --
         addAction("HelpContents", actionHelpContents);
         addAction("HelpAbout", actionHelpAbout);
+        addAction("HelpScripts", actionScriptHelpBrowser);
         
     }    
     
@@ -1110,6 +1112,20 @@ public class CommandActionSet extends ActionSet {
             try {
                 AboutBox about = new AboutBox();
                 about.setVisible(true);
+           } catch(Throwable t) {
+                new ExceptionDisplay(frame,t);
+            }
+        }
+    };   
+    
+    /** Script help browser action - displays the function help browser */
+    private final Action actionScriptHelpBrowser = new AbstractAction() {
+        private static final long serialVersionUID = 1L;
+        public void actionPerformed(ActionEvent e) {
+            try {
+			    FunctionHelpBrowser browser = (FunctionHelpBrowser)app.getWindowCoordinator().getFrame("FunctionHelpBrowser");
+			    browser.browse(alvahouse.eatool.gui.scripting.proxy.ApplicationProxy.class);
+			    browser.setVisible(true);
            } catch(Throwable t) {
                 new ExceptionDisplay(frame,t);
             }

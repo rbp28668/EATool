@@ -15,6 +15,7 @@ import alvahouse.eatool.gui.WindowCoordinator;
 import alvahouse.eatool.gui.html.HTML;
 import alvahouse.eatool.gui.html.HTMLDisplay;
 import alvahouse.eatool.repository.Repository;
+import alvahouse.eatool.scripting.proxy.Scripted;
 import alvahouse.eatool.util.UUID;
 
 
@@ -24,6 +25,8 @@ import alvahouse.eatool.util.UUID;
  * 
  * @author rbp28668
  */
+@Scripted(description="Provides a display for an HTML object."
+		+ " This allows you to build up a report in HTML and display it in the application.")
 public class HTMLDisplayProxy implements HTMLPageScriptProxy {
 
 
@@ -66,6 +69,7 @@ public class HTMLDisplayProxy implements HTMLPageScriptProxy {
 	 * @see alvahouse.eatool.gui.scripting.proxy.HTMLPageScriptProxy#setTitle(java.lang.String)
 	 */
     @Override
+    @Scripted(description="Sets the window title.")
 	public void setTitle(String title){
         display.setTitle(title);
     }
@@ -74,6 +78,7 @@ public class HTMLDisplayProxy implements HTMLPageScriptProxy {
 	 * @see alvahouse.eatool.gui.scripting.proxy.HTMLPageScriptProxy#getHTML()
 	 */
     @Override
+    @Scripted(description="Gets a blank HTML object to work with.")
 	public HTMLProxy getHTML(){
         return new HTMLProxy(new HTML());
     }
@@ -82,6 +87,7 @@ public class HTMLDisplayProxy implements HTMLPageScriptProxy {
 	 * @see alvahouse.eatool.gui.scripting.proxy.HTMLPageScriptProxy#showPage(alvahouse.eatool.gui.scripting.proxy.HTMLProxy)
 	 */
     @Override
+    @Scripted(description="Displays the given HTML")
 	public void showPage(HTMLProxy html) throws IOException{
         display.setText(html.getPage());
     }
@@ -90,6 +96,7 @@ public class HTMLDisplayProxy implements HTMLPageScriptProxy {
 	 * @see alvahouse.eatool.gui.scripting.proxy.HTMLPageScriptProxy#repaint()
 	 */
     @Override
+    @Scripted(description="Repaints the window")
 	public void repaint() {
         if(display != null) {
              display.repaint();
@@ -100,6 +107,7 @@ public class HTMLDisplayProxy implements HTMLPageScriptProxy {
 	 * @see alvahouse.eatool.gui.scripting.proxy.HTMLPageScriptProxy#show()
 	 */
     @Override
+    @Scripted(description="Shows the window")
 	public void show() throws InterruptedException, InvocationTargetException{
         if(!display.isVisible()){
             EventQueue.invokeAndWait( new Runnable(){
@@ -117,6 +125,7 @@ public class HTMLDisplayProxy implements HTMLPageScriptProxy {
 	 * @see alvahouse.eatool.gui.scripting.proxy.HTMLPageScriptProxy#hide()
 	 */
     @Override
+    @Scripted(description="Hides the window")
 	public void hide() throws InterruptedException, InvocationTargetException{
         if(display.isVisible()){
             EventQueue.invokeAndWait( new Runnable(){
@@ -133,6 +142,7 @@ public class HTMLDisplayProxy implements HTMLPageScriptProxy {
 	 * @see alvahouse.eatool.gui.scripting.proxy.HTMLPageScriptProxy#refresh()
 	 */
     @Override
+    @Scripted(description="Refreshes the display. Should be called once the HTML is set.")
 	public void refresh() throws InterruptedException, InvocationTargetException{
         if(display.isVisible()){
             EventQueue.invokeAndWait( new Runnable(){

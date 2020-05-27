@@ -17,6 +17,7 @@ import alvahouse.eatool.repository.model.Property;
  * 
  * @author rbp28668
  */
+@Scripted(description="")
 public class PropertySet {
 
     private List<Property> properties;
@@ -32,6 +33,7 @@ public class PropertySet {
      * Gets the number of Property in this set.
      * @return property count.
      */
+    @Scripted(description="")
     public int getCount(){
         return properties.size();
     }
@@ -40,6 +42,7 @@ public class PropertySet {
      * Determines whether this set is empty or not.
      * @return true if the set is empty, false if not.
      */
+    @Scripted(description="")
     public boolean isEmpty() {
         return properties.isEmpty();
     }
@@ -50,6 +53,7 @@ public class PropertySet {
      * destroy the set then use copy and work through the copy instead.
      * @return the first property.
      */
+    @Scripted(description="")
     public PropertyProxy removeFirst(){
         return new PropertyProxy(properties.remove(0));
     }
@@ -59,6 +63,7 @@ public class PropertySet {
      * the underlying properties of this property set.
      * @return a new PropertySet.
      */
+    @Scripted(description="")
     public PropertySet copy(){
         return new PropertySet(properties);
     }

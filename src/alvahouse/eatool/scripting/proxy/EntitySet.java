@@ -18,11 +18,13 @@ import alvahouse.eatool.repository.model.Entity;
 
 
 /**
- * EntitySet provides a set of Entities for manipulation by scripting.
+ * EntitySet provides a set of Entities for manipulation by scripting.  Note that
+ * whilst a set this does have implied ordering.
  * 
  * @author rbp28668
  */
-@Scripted()
+@Scripted(description="A set of entities.  The set is lightweight and can be copied easily."
+		+ " Whilst a set, there is ordering of contents so it can be sorted etc.")
 public class EntitySet {
 
 	// Use a linked hash set to allow sorting of entities to the user when used for reporting.
@@ -55,7 +57,7 @@ public class EntitySet {
      * Remove an entity from the set.
      * @param e is the entity to remove.
      */
-    void remove(Entity e){
+     void remove(Entity e){
         contents.remove(e);
     }
     
@@ -83,11 +85,22 @@ public class EntitySet {
     void addAll(List<Entity> entities) {
         contents.addAll(entities);
     }
-    
+
+    /**
+     * Determines if a given entity is contained in the set.
+     * @param e is the entity proxy to check.
+     * @return true if the set contains the given entity, false otherwise.
+     */
+    @Scripted(description="Determines if the entity set contains the given entity.")
+    public boolean contains(EntityProxy e){
+        return contents.contains(e.get());
+    }
+
     
     /**
      * Sorts the list into alphabetical order.
      */
+    @Scripted(description="Sorts the list into alphabetical order.")
     public void sort(){
     	TreeSet<Entity> sorted = new TreeSet<Entity>(new Entity.Compare());
     	sorted.addAll(contents);
@@ -99,15 +112,16 @@ public class EntitySet {
      * Determines if the set is empty.
      * @return true if the set is empty, false otherwise.
      */
+    @Scripted(description="Determines if the set is empty.")
     public boolean isEmpty(){
         return contents.isEmpty();
     }
     
     /**
-     * Removes and returns the first Entity from the set.  Note that
-     * being an unordered set "first" is arbitrary.
+     * Removes and returns the first Entity from the set.  
      * @return an Entity from the set.
      */
+    @Scripted(description="Removes and returns the first Entity from the set.")
     public EntityProxy removeFirst(){
         Iterator<Entity> iter = contents.iterator();
         Entity e = iter.next();
@@ -120,6 +134,8 @@ public class EntitySet {
      * EntitySet by copy and while(!isEmpty) removeFirst().
      * @return
      */
+    @Scripted(description="Copies the EntitySet.  Lightweight operation - iterate through" + 
+    		" EntitySet by copy followed by while(!isEmpty) and removeFirst().")
     public EntitySet copy(){
         return new EntitySet(contents);
     }
@@ -129,6 +145,8 @@ public class EntitySet {
      * other set is unaltered.
      * @param other is the set to union with.
      */
+    @Scripted(description="Unions this set with another. "
+    		+ " This set is changed the other set is unaltered.")
     public void union(EntitySet other){
         contents.addAll(other.contents);
     }
@@ -138,17 +156,24 @@ public class EntitySet {
      * set to the intersection of the 2 sets, the other set is unchanged.
      * @param other is the set to intersect with.
      */
+    @Scripted(description="Performs a set intersection with another set."
+    		+ " This set is set to the intersection of the 2 sets,"
+    		+ " the other set is unchanged.")
     public void intersection(EntitySet other){
         contents.retainAll(other.contents);
     }
     
     /**
-     * Pefroms a set complement with another set.  This set is 
-     * set to the complement of this set with the other in that all
-     * the entities in this set which are also in the other set are
+     * Performs a set complement with another set.  This set is 
+     * set to the complement of this set with the other. 
+     * All the entities in this set which are also in the other set are
      * removed.
      * @param other is the set to complement.
      */
+    @Scripted(description="Performs a set complement with another set."
+    		+ " This set is set to the complement of this set with the other." + 
+    		" All the entities in this set which are also in the other set are" + 
+    		" removed.")
     public void complement(EntitySet other){
         contents.removeAll(other.contents);
     }
@@ -159,6 +184,9 @@ public class EntitySet {
      * only those entities that match the filter will remain in the set.
      * @param filter is the filter to apply.
      */
+    @Scripted(description="Applies the filter to the entity set."
+    		+ " After applying the filter only those entities that match the"
+    		+ " filter will remain in the set.")
     public void applyFilter(Filter filter){
         Set<Entity> remaining = new HashSet<Entity>();
         for(Entity e : contents ){

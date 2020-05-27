@@ -58,6 +58,7 @@ public class WindowCoordinator {
         if(frame == null) {
             frame = createFrame(internalName);
         }
+		frame.moveToFront();
         return frame;
     }
     
@@ -80,6 +81,7 @@ public class WindowCoordinator {
 			frame = factory.createFrame();
 			addFrame(frame,internalName);
 		}
+		frame.moveToFront();
 		return frame;
 	}
     

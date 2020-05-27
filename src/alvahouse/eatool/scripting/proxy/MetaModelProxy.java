@@ -9,8 +9,6 @@ package alvahouse.eatool.scripting.proxy;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
-import alvahouse.eatool.repository.metamodel.impl.MetaEntityImpl;
-import alvahouse.eatool.repository.metamodel.impl.MetaRelationshipImpl;
 import alvahouse.eatool.util.UUID;
 
 /**
@@ -19,6 +17,7 @@ import alvahouse.eatool.util.UUID;
  * 
  * @author rbp28668
  */
+@Scripted(description="The current meta model.")    
 public class MetaModelProxy {
 
     private MetaModel meta;
@@ -37,6 +36,8 @@ public class MetaModelProxy {
      * Gets all the MetaEntities in the meta model.
      * @return a MetaEntitySet containing all the MetaEntities in the meta model.
      */
+    @Scripted(description="Gets all the MetaEntities in the meta model."
+    		+ " This includes abstract meta entities and ones where the display hint isn't set.")    
     public MetaEntitySet getAllMetaEntities(){
         MetaEntitySet set = new MetaEntitySet();
         set.add(meta.getMetaEntities());
@@ -49,6 +50,8 @@ public class MetaModelProxy {
      * @return a MetaEntitySet containing all the MetaEntities apart from those Abstract
      * or without a display hint.
      */
+    @Scripted(description="Gets all the MetaEntities apart from those which are marked as Abstract or" + 
+    		" which do not have a display hint set.")    
     public MetaEntitySet getMetaEntities(){
         MetaEntitySet set = new MetaEntitySet();
         for(MetaEntity me : meta.getMetaEntities()){
@@ -60,19 +63,15 @@ public class MetaModelProxy {
         
     }
     /**
-     * Gets a MetaEntitySet containing a single meta-entity.
+     * Gets a MetaEntity corresponding to a given key.
      * @param key is the string key (UUID) that identifies the
      * MetaEntity.
-     * @return a new MetaEntitySet containing the MetaEntity given by
-     * the key or empty if the key does not match.
+     * @return a new MetaEntity containing or null if the key does not match.
      */
-    public MetaEntitySet getMetaEntity(String key){
+    @Scripted(description="Gets a meta entity identified by the given key or null if the key does not match any meta entities.")    
+    public MetaEntityProxy getMetaEntity(String key){
         MetaEntity me = meta.getMetaEntity(new UUID(key));
-        MetaEntitySet set = new MetaEntitySet();
-        if(me != null){
-            set.add(me);
-        }
-        return set;
+        return (me != null) ? new MetaEntityProxy(me) : null;
     }
     
     /**
@@ -81,6 +80,7 @@ public class MetaModelProxy {
      * MetaEntity to add.
      * @return the updated MetaEntitySet.
      */
+    @Scripted(description="Adds a meta entity identified by the given key to the supplied set.")    
     public MetaEntitySet addMetaEntity(MetaEntitySet start, String key){
         MetaEntity me = meta.getMetaEntity(new UUID(key));
         if(me != null){
@@ -93,6 +93,7 @@ public class MetaModelProxy {
      * Gets all the MetaRelationships.
      * @return a MetaRelationshipSet containing all the MetaRelationships.
      */
+    @Scripted(description="Gets all the MetaRelationships.")    
     public MetaRelationshipSet getMetaRelationships(){
         MetaRelationshipSet set = new MetaRelationshipSet();
         for(MetaRelationship mr : meta.getMetaRelationships()){
@@ -103,19 +104,16 @@ public class MetaModelProxy {
     }
 
     /**
-     * Gets a MetaRelationshipSet containing a single meta-relationship.
+     * Gets a MetaRelationshipProxy corresponding to a given key.
      * @param key is the string key (UUID) that identifies the
      * MetaRelationship.
-     * @return a new MetaRelationshipSet containing the MetaRelationship given by
-     * the key or empty if the key does not match.
+     * @return a new MetaRelationshipProxy containing the MetaRelationship given by
+     * the key or null
      */
-    public MetaRelationshipSet getMetaRelationship(String key){
+    @Scripted(description="Gets a set containing the single meta-relationship identified by the given key or empty if the key does not match.")    
+    public MetaRelationshipProxy getMetaRelationship(String key){
         MetaRelationship mr = meta.getMetaRelationship(new UUID(key));
-        MetaRelationshipSet set = new MetaRelationshipSet();
-        if(mr != null){
-            set.add(mr);
-        }
-        return set;
+        return (mr != null) ? new MetaRelationshipProxy(mr) : null;
     }
 
     /**
@@ -124,6 +122,8 @@ public class MetaModelProxy {
      * MetaRelationship to add.
      * @return the updated MetaRelationshipSet.
      */
+    @Scripted(description="Adds a Meta relationship to an existing MetaRelationshipSet."
+    		+ " The meta relationship identified by the given key is added to the ")    
     public MetaRelationshipSet addMetaRelationship(MetaRelationshipSet start, String key){
         MetaRelationship mr = meta.getMetaRelationship(new UUID(key));
         if(mr != null){

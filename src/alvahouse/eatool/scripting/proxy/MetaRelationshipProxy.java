@@ -15,6 +15,7 @@ import alvahouse.eatool.repository.metamodel.MetaRelationship;
  * 
  * @author rbp28668
  */
+@Scripted(description="Part of the meta model this describes a  possible relationship between 2 enties.")  
 public class MetaRelationshipProxy {
 
     private MetaRelationship meta;
@@ -27,10 +28,15 @@ public class MetaRelationshipProxy {
         this.meta = meta;
     }
 
+    MetaRelationship get() {
+    	return meta;
+    }
+    
     /**
      * Gets the name of the MetaRelationship.
      * @return String containing the name.
      */
+    @Scripted(description="Gets the name of the meta-relationship.")
     public String getName(){
         return meta.getName();
     }
@@ -39,6 +45,7 @@ public class MetaRelationshipProxy {
      * Gets the description of the MetaRelationship.
      * @return the String containing the description.
      */
+    @Scripted(description="Gets the description of the meta-elationship.")
     public String getDescription(){
         return meta.getDescription();
     }
@@ -48,6 +55,7 @@ public class MetaRelationshipProxy {
      * relationship.
      * @return the MetaRole for the start end.
      */
+    @Scripted(description="Gets the meta-role that describes the start end of the relationship.")
     public MetaRoleProxy getStart(){
         return new MetaRoleProxy(meta.start());
     }
@@ -57,6 +65,7 @@ public class MetaRelationshipProxy {
      * relationship.
      * @return the MetaRole for the finish end.
      */
+    @Scripted(description="Gets the meta-role that describes the finish end of the relationship.")
     public MetaRoleProxy getFinish(){
         return new MetaRoleProxy(meta.finish());
     }
@@ -66,9 +75,21 @@ public class MetaRelationshipProxy {
      * just this item.
      * @return a new MetaRelationshipSet.
      */
+    @Scripted(description="Converts this meta relationship into a meta-relationship set containing just this item.")
     public MetaRelationshipSet toSet(){
         MetaRelationshipSet set = new MetaRelationshipSet();
         set.add(meta);
         return set;
     }
+    
+    /**
+     * Gets the set of MetaProperties corresponding to this MetaRelationship.
+     * @return the MetaPropertySet.
+     */
+    @Scripted(description="Gets the set of meta-properties corresponding to this meta-relationship.")    
+    public MetaPropertySet getMetaProperties(){
+        return new MetaPropertySet(meta.getMetaProperties());
+    }
+
+    
 }

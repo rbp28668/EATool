@@ -31,6 +31,7 @@ import alvahouse.eatool.scripting.proxy.MetaEntitySet;
 import alvahouse.eatool.scripting.proxy.MetaModelProxy;
 import alvahouse.eatool.scripting.proxy.MetaRelationshipSet;
 import alvahouse.eatool.scripting.proxy.ModelProxy;
+import alvahouse.eatool.scripting.proxy.Scripted;
 import alvahouse.eatool.scripting.proxy.StandardDiagramProxy;
 
 
@@ -41,6 +42,7 @@ import alvahouse.eatool.scripting.proxy.StandardDiagramProxy;
  * 
  * @author rbp28668
  */
+@Scripted(description = "Main application - provides access to the repository and various user interface elements.")
 public class ApplicationProxy {
 
     private alvahouse.eatool.Application app;
@@ -65,6 +67,7 @@ public class ApplicationProxy {
      * @throws InvocationTargetException
      * @throws InterruptedException
      */
+    @Scripted(description = "Displays an informational message in a popup.")
     public void message(String text) throws InterruptedException, InvocationTargetException{
         EventQueue.invokeAndWait( new MessageRunner(text));
     }
@@ -91,6 +94,7 @@ public class ApplicationProxy {
      * @throws InvocationTargetException
      * @throws InterruptedException
      */
+    @Scripted(description = "Displays a warning message in a popup.")
     public void warning(String text) throws InterruptedException, InvocationTargetException{
         EventQueue.invokeAndWait( new WarningRunner(text));
     }
@@ -118,6 +122,7 @@ public class ApplicationProxy {
      * @throws InvocationTargetException
      * @throws InterruptedException
      */
+    @Scripted(description="Provides the user with a yes/no popup.  Returns true if the user presses Yes, false if No.")
     public boolean question(String text) throws InterruptedException, InvocationTargetException{
         QuestionRunner runner = new QuestionRunner(text);
         EventQueue.invokeAndWait( runner);
@@ -152,6 +157,7 @@ public class ApplicationProxy {
      * @throws InvocationTargetException
      * @throws InterruptedException
      */
+    @Scripted(description = "Allows the user to enter text. Returns the entered text, may be nul")
     public String input(String text) throws InterruptedException, InvocationTargetException{
         InputRunner runner = new InputRunner(text);
         EventQueue.invokeAndWait( runner);
@@ -186,6 +192,8 @@ public class ApplicationProxy {
      * user had selected them from the menu.
      * @param actionName is the name of the action to run.
      */
+    @Scripted(description="Runs a named action of the application."
+    		+ " These will run as if the user had selected them from the menu.")
     public void runAction(String actionName){
         ActionSet actions = app.getCommandFrame().getActions();
         Action action = actions.getAction(actionName);
@@ -199,6 +207,7 @@ public class ApplicationProxy {
      * Provides access to the top level menu bar of the application.
      * @return the top level menu-bar.
      */
+    @Scripted(description="Provides access to the top level menu bar of the application.")
     public MenuBar getMenuBar(){
         return new MenuBar(app.getCommandFrame().getJMenuBar(),app,repository);
     }
@@ -207,6 +216,9 @@ public class ApplicationProxy {
      * Clears out the repository.
      * @throws IOException
      */
+    @Scripted(description="Clears out the repository leaving you with a new empty repository.  Note that you"
+    		+ " should call this if you want to load in a new repository via loadFile and not merge it with "
+    		+ " the exiting one")
     public void fileNew() throws IOException{
         getActions().fileNew();
     }
@@ -219,6 +231,9 @@ public class ApplicationProxy {
      * @param path is the location of the data on disk.
      * @throws IOException
      */
+    @Scripted(description="Loads a file from disk.  Unless fileNew is called first" + 
+    		" to empty the repository this will merge the new data with" + 
+    		" the existing repository.")
     public void loadFile(String path) throws IOException{
         getActions().loadFile(path);
     }
@@ -227,6 +242,7 @@ public class ApplicationProxy {
      * Saves the repository to the given path.
      * @param path is the location on disk to save to.
      */
+    @Scripted(description="Saves the repository to the given path.")
     public void saveFile(String path){
         getActions().saveFile(path);
     }
@@ -234,6 +250,7 @@ public class ApplicationProxy {
     /**
      * Exits the application. This will not ask for confirmation.
      */
+    @Scripted(description="Exits the application. This will not ask for confirmation.")
     public void exit(){
         getActions().fileExit();
     }
@@ -241,6 +258,7 @@ public class ApplicationProxy {
     /**
      * Display the meta-model explorer.
      */
+    @Scripted(description="Display the meta-model explorer.")
     public void showMetaModel(){
         getActions().showMetaModel();
     }
@@ -248,6 +266,7 @@ public class ApplicationProxy {
     /**
      * Display a diagram of the metamodel.
      */
+    @Scripted(description="Display a diagram of the metamodel.")
     public void viewMetaModel(){
         getActions().viewMetaModel();
     }
@@ -256,6 +275,7 @@ public class ApplicationProxy {
      * Show the diagram explorer that contains all the meta-model
      * diagrams.
      */
+    @Scripted(description="Show the diagram explorer that contains all the meta-model diagrams.")
     public void showMetaModelDiagrams(){
         getActions().showMetaModelDiagrams();
     }
@@ -263,6 +283,7 @@ public class ApplicationProxy {
     /**
      * Display the model explorer.
      */
+    @Scripted(description="Display the model explorer.")
     public void showModel(){
         getActions().showModel();
     }
@@ -270,6 +291,7 @@ public class ApplicationProxy {
     /**
      * Display a diagram of the complete model.
      */
+    @Scripted(description="Display a diagram of the complete model.")
     public void viewModel(){
         getActions().viewModel();
     }
@@ -277,6 +299,7 @@ public class ApplicationProxy {
     /**
      * Display the explorer for the model's diagrams.
      */
+    @Scripted(description="Display the explorer for the model's diagrams.")
     public void showModelDiagrams(){
         getActions().showModelDiagrams();
     }
@@ -284,6 +307,7 @@ public class ApplicationProxy {
     /**
      * Display the model browser.
      */
+    @Scripted(description="Display the model browser.")
     public void browseModel(){
         getActions().browseModel();
     }
@@ -292,6 +316,7 @@ public class ApplicationProxy {
     /**
      * Show the scripts explorer.
      */
+    @Scripted(description="Show the scripts explorer.")
     public void showScripts(){
         getActions().showScripts();
     }
@@ -299,6 +324,7 @@ public class ApplicationProxy {
     /**
      * Show the import mappings explorer.
      */
+    @Scripted(description="Show the import mappings explorer.")
     public void showImportMappings(){
         getActions().showImportMappings();
     }
@@ -306,6 +332,7 @@ public class ApplicationProxy {
     /**
      * Show the export mappings explorer.
      */
+    @Scripted(description="Show the export mappings explorer.")
     public void showExportMappings(){
         getActions().showExportMappings();
     }
@@ -314,6 +341,7 @@ public class ApplicationProxy {
      * Pause for a given number of seconds.
      * @param seconds is the number of seconds to pause for.
      */
+    @Scripted(description="Pause for a given number of seconds.")
     public void pause(int seconds){
         try {
             Thread.interrupted();
@@ -327,6 +355,7 @@ public class ApplicationProxy {
      * Gets a HTMLProxy object for writing HTMLProxy to file or HTMLDisplayProxy.
      * @return a new HTMLProxy object.
      */
+    @Scripted(description="Gets a HTML object for writing to file or displaying using HTMLDisplay.")
     public HTMLProxy getHTML(){
         return new HTMLProxy( new alvahouse.eatool.gui.html.HTML());
     }
@@ -335,7 +364,8 @@ public class ApplicationProxy {
      * Creates a new HTMLDisplayProxy for reports etc.
      * @return a new HTMLDisplayProxy.
      */
-    public HTMLPageScriptProxy createDisplay(){
+    @Scripted(description="Creates a new HTMLDisplay for reports etc.")
+    public HTMLDisplayProxy createDisplay(){
         return new HTMLDisplayProxy(app,repository);
     }
     
@@ -345,6 +375,8 @@ public class ApplicationProxy {
      * @return an open file.
      * @throws FileNotFoundException
      */
+    @Scripted(description="Opens an output file for writing."
+    		+ " Takes a path parameter and returns an open file")
     public File openOutputFile(String path) throws FileNotFoundException{
         File file = new File(app);
         file.open(path);
@@ -359,6 +391,9 @@ public class ApplicationProxy {
      * @throws InterruptedException
      * @throws InvocationTargetException
      */
+    @Scripted(description="Allows the user to select an output file and returns the opened file." + 
+    		" Takes a title parameter to use in the file open dialog." + 
+    		" Return a file - test with isOpen().")
     public File chooseOutputFile(String title) throws FileNotFoundException, InterruptedException, InvocationTargetException{
         File file = new File(app);
         file.choose(title);
@@ -369,6 +404,7 @@ public class ApplicationProxy {
      * Gets the set of images known to the system.
      * @return the image collection.
      */
+    @Scripted(description="Gets the set of images known to the system.")
     public ImagesProxy getImages(){
         return new ImagesProxy(repository.getImages());
     }
@@ -380,6 +416,9 @@ public class ApplicationProxy {
      * @param greyed, if true, forces a grey version of the image.  If false, 
      * the image is displayed unmodified.
      */
+    @Scripted(description="Changes the application background image.  The image is tiled across" + 
+    		" the main window.  If the last parameter is true the image is greyed out, otherwise it's "
+    		+ " unmodified with its original colours.")
     public void tileBackground(ImageProxy image, boolean greyed){
         app.getCommandFrame().tileBackgroundImage(image.getImage(), greyed);
     }
@@ -391,6 +430,9 @@ public class ApplicationProxy {
      * @param greyed, if true, forces a grey version of the image.  If false, 
      * the image is displayed unmodified.
      */
+    @Scripted(description="Changes the application background image.  The image is stretched across" + 
+    		" the main window.  If the last parameter is true the image is greyed out, otherwise it's "
+    		+ " unmodified with its original colours.")
     public void stretchBackground(ImageProxy image, boolean greyed){
         app.getCommandFrame().stretchBackgroundImage(image.getImage(), greyed);
     }
@@ -400,6 +442,10 @@ public class ApplicationProxy {
      * @param entities is the set of Entity to browse.  If it contains more than
      * one Entity then each entity will be displayed in a different window.
      */
+    @Scripted(description="Browse a given entity set." + 
+    		" If the set contains more than one Entity then each entity"
+    		+ " will be displayed in a different window.  Normally this would be used"
+    		+ " after the user has selected a single entity.")
     public void browseEntity(EntitySet entities){
         for(Entity e : entities.getContents()){
             getActions().browseEntity(e);
@@ -410,6 +456,7 @@ public class ApplicationProxy {
      * Displays this set of meta-entities in a browser. 
      * @param set
      */
+    @Scripted(description="Displays the given set of meta-entities in a browser.")
     public void browseMetaEntities(MetaEntitySet set){
         ModelBrowser browser = (ModelBrowser) app.getWindowCoordinator().getFrame("ModelBrowser");
         Set<alvahouse.eatool.repository.metamodel.MetaEntity> contents = set.getContents();
@@ -426,6 +473,10 @@ public class ApplicationProxy {
      * @throws InvocationTargetException
      * @throws InterruptedException
      */
+    @Scripted(description=" Select a single entity from the contents of an EntitySet set.  If one" + 
+    		" is selected the contents of this set are replaced by the single" + 
+    		" selected entity. If one is not selected this set will then become" + 
+    		" empty.")
     public void selectEntity(EntitySet set) throws InterruptedException, InvocationTargetException {
         EntitySelectRunner runner = new EntitySelectRunner(set);
         EventQueue.invokeAndWait( runner);
@@ -461,6 +512,10 @@ public class ApplicationProxy {
      * @throws InvocationTargetException
      * @throws InterruptedException
      */
+    @Scripted(description="Select a single meta-entity from the contents of this set.  If one" + 
+    		" is selected the contents of this set are replaced by the single" + 
+    		" selected meta-entity. If one is not selected this set will then become" + 
+    		" empty.")
     public void selectMetaEntity(MetaEntitySet set) throws InterruptedException, InvocationTargetException {
         MetaEntitySelectRunner runner = new MetaEntitySelectRunner(set);
         EventQueue.invokeAndWait( runner);
@@ -498,6 +553,10 @@ public class ApplicationProxy {
      * @throws InvocationTargetException
      * @throws InterruptedException
      */
+    @Scripted(description="Select a single MetaRelationship from the contents of this set.  If one" + 
+    		" is selected the contents of this set are replaced by the single" + 
+    		" selected MetaRelationship. If one is not selected this set will then become" + 
+    		" empty.")
     public void selectMetaRelationship(MetaRelationshipSet set) throws InterruptedException, InvocationTargetException {
         MetaRelationshipSelectRunner runner = new MetaRelationshipSelectRunner(set);
         EventQueue.invokeAndWait( runner);
@@ -523,21 +582,25 @@ public class ApplicationProxy {
         }
     }
 
+    @Scripted(description="Gets a viewer for the given diagram")
     public StandardDiagramViewerProxy getDiagramViewer(StandardDiagramProxy diagram){
         StandardDiagramViewerProxy viewer = new StandardDiagramViewerProxy(diagram.getDiagram(), app, repository);
         return viewer;
     }
     
+    @Scripted(description="Accesses the current model.")
     public ModelProxy model() {
     	ModelProxy proxy = new ModelProxy(repository);
     	return proxy;
     }
     
+    @Scripted(description="Accesses the current meta-model.")
     public MetaModelProxy metaModel() {
     	MetaModelProxy proxy = new MetaModelProxy(repository.getMetaModel());
     	return proxy;
     }
     
+    @Scripted(description="Get a collection of all the diagrams in the repository")
     public DiagramsProxy diagrams() {
     	DiagramsProxy proxy = new DiagramsProxy(repository.getDiagrams(), repository);
     	return proxy;
