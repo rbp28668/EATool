@@ -153,6 +153,13 @@ public class HTMLDisplay extends JInternalFrame {
                    try{
 	                   if(ev.getEventType() == HyperlinkEvent.EventType.ACTIVATED){
 	                       URL url = ev.getURL();
+	                       if(url == null) {  // will be null if relative URL
+	                    	   String link = ev.getDescription();
+	                    	   if(link.startsWith("../")) {
+	                    		   link = "http://localhost/" + link.substring(3);
+	                    		   url = new URL(link);
+	                    	   }
+	                       }
 	                       if(url != null){
 	                           resolver.resolve(url,HTMLDisplay.this);
 	                       }

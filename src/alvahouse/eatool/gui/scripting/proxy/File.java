@@ -130,7 +130,18 @@ public class File {
         }
         writer.println(text);
     }
-    
+ 
+     /**
+      * Outputs a linefeed.  Convenience method, saves having to do println('');
+      */
+      @Scripted(description="Outputs a linefeed.")
+     public void println(){
+         if(writer == null){
+             throw new IllegalStateException("File is not open");
+         }
+         writer.println();
+     }
+  
     /**
      * Convenience method to print a page of HTMLProxy.
      * @param html is the HTMLProxy to print.
