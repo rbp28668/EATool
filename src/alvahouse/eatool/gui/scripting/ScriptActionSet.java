@@ -17,6 +17,8 @@ import alvahouse.eatool.gui.CopyKeyAction;
 import alvahouse.eatool.gui.Dialogs;
 import alvahouse.eatool.gui.ExceptionDisplay;
 import alvahouse.eatool.repository.scripting.Script;
+import alvahouse.eatool.repository.scripting.ScriptContext;
+import alvahouse.eatool.repository.scripting.ScriptErrorListener;
 import alvahouse.eatool.repository.scripting.ScriptManager;
 import alvahouse.eatool.repository.scripting.Scripts;
 import alvahouse.eatool.util.UUID;
@@ -118,7 +120,16 @@ public class ScriptActionSet extends ActionSet {
 			try {
 			    Script script = (Script)explorer.getSelectedNode().getUserObject();
 			    if(script != null){
-			        ScriptManager.getInstance().runScript(script);
+			    	ScriptContext context = new ScriptContext(script);
+			    	context.setErrorHandler( new ScriptErrorListener() {
+						
+						@Override
+						public void scriptError(String err) {
+							Exception e = new Exception(err);
+							new ExceptionDisplay(explorer,e);
+						}
+					});
+			        ScriptManager.getInstance().runScript(context);
 			    }
 			} catch(Throwable t) {
 				new ExceptionDisplay(explorer,t);

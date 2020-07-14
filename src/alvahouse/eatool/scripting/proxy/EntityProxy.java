@@ -36,7 +36,7 @@ public class EntityProxy {
         this.entity = entity;
     }
 
-    Entity get() {
+    public Entity get() {
     	return entity;
     }
     
