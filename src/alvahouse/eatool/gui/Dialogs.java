@@ -154,12 +154,14 @@ public abstract class Dialogs {
 	        	options, null
 	        );
 	        
-	        if(selected == selectAll){
-	            for(Entity e : tempArr){
-	            	results.add(e);
-	            }
-	        } else {
-	        	results.add((Entity) selected);
+	        if(selected != null) {
+		        if(selected == selectAll){
+		            for(Entity e : tempArr){
+		            	results.add(e);
+		            }
+		        } else {
+		        	results.add((Entity) selected);
+		        }
 	        }
         }
         
