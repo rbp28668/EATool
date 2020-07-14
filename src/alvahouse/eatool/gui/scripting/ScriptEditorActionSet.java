@@ -7,13 +7,11 @@
 package alvahouse.eatool.gui.scripting;
 
 import java.awt.event.ActionEvent;
-import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JEditorPane;
 import javax.swing.text.Element;
-import javax.swing.text.JTextComponent;
 import javax.swing.text.PlainDocument;
 
 import alvahouse.eatool.Application;
@@ -21,6 +19,8 @@ import alvahouse.eatool.gui.ActionSet;
 import alvahouse.eatool.gui.Dialogs;
 import alvahouse.eatool.gui.ExceptionDisplay;
 import alvahouse.eatool.repository.scripting.Script;
+import alvahouse.eatool.repository.scripting.ScriptContext;
+import alvahouse.eatool.repository.scripting.ScriptErrorListener;
 import alvahouse.eatool.repository.scripting.ScriptManager;
 
 /**
@@ -94,7 +94,17 @@ public class ScriptEditorActionSet extends ActionSet {
 			try {
 			    editor.updateScript();
 			    editor.showMessage("");
-			    ScriptManager.getInstance().runScript(editor.getScript());
+			    
+			    ScriptContext context = new ScriptContext(editor.getScript());
+			    context.setErrorHandler(new ScriptErrorListener()  {
+
+					@Override
+					public void scriptError(String err) {
+						editor.showMessage(err);
+					}
+			    	
+			    });
+			    ScriptManager.getInstance().runScript(context);
 			} catch(Throwable t) {
 			    editor.showMessage(t.getMessage());
 				//new ExceptionDisplay(editor,t);

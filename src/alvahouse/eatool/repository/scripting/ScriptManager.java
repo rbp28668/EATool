@@ -80,6 +80,8 @@ public class ScriptManager {
         return instance;
     }
     
+    @Deprecated // leads to silent failures as no error display displayed
+    // use runScript(ScriptContext) instead and set up a ScriptErrorListener.
     public void runScript(Script script) throws BSFException{
         runner.queueScript(new ScriptContext(script));
     }
