@@ -101,6 +101,11 @@ public class URLResolver {
         
         if(toks.hasMoreTokens()){
             String key = toks.nextToken();
+            // remove any extension
+            int idx = key.indexOf('.');
+            if(idx != -1) {
+            	key = key.substring(0, idx);
+            }
             uuid = new UUID(key);
         }
         

@@ -7,6 +7,8 @@
 package alvahouse.eatool.gui.scripting.proxy;
 
 import alvahouse.eatool.gui.html.HTML;
+import alvahouse.eatool.repository.model.Entity;
+import alvahouse.eatool.scripting.proxy.EntityProxy;
 import alvahouse.eatool.scripting.proxy.Scripted;
 
 /**
@@ -94,7 +96,7 @@ public class HTMLProxy {
      * Creates an un-numbered list.
      * @param contents is the list contents ( li() items).
      */
-    @Scripted(description="Creates an unnumbered list. This should contain ul elements.")
+    @Scripted(description="Creates an unnumbered list. This should contain li elements.")
     public HTMLProxy ul(HTMLProxy contents) {
         html.ul(contents.html);
         return this;
@@ -167,5 +169,14 @@ public class HTMLProxy {
     public HTMLProxy text(String text) {
         html.text(text);
         return this;
+    }
+    
+    @Scripted(description = "Link to an entity.")
+    public HTMLProxy entityLink(EntityProxy entity) {
+    	HTML link = new HTML();
+    	Entity e = entity.get();
+    	String href = "../entity/" + e.getKey().toString() + ".html";
+    	html.a(href, link.text( e.toString()));
+    	return this;
     }
 }
