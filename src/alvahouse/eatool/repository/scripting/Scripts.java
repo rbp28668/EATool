@@ -39,7 +39,7 @@ public class Scripts {
      * Adds a Script to the list.
      * @param script is the script to be added.
      */
-    public void add(Script script){
+    public void add(Script script) throws Exception {
         scripts.add(script);
         fireScriptAdded(script);
     }
@@ -69,7 +69,7 @@ public class Scripts {
     /**
      * Clears the list of Scripts.
      */
-    public void deleteContents() {
+    public void deleteContents()  throws Exception {
         scripts.clear();
         fireUpdated();
     }
@@ -85,7 +85,7 @@ public class Scripts {
      * Deletes the given script from the list.
      * @param script is the script to delete.
      */
-    public void delete(Script script) {
+    public void delete(Script script)  throws Exception {
         scripts.remove(script);
         fireScriptDeleted(script);
     }
@@ -111,7 +111,7 @@ public class Scripts {
      * Signal to any attached listeners that the list of scripts
      * has fundamentally changed. 
      */
-    public void fireUpdated(){
+    public void fireUpdated() throws Exception {
         ScriptChangeEvent event = new ScriptChangeEvent(this);
         for(ScriptsChangeListener listener : listeners) {
             listener.updated(event);
@@ -122,7 +122,7 @@ public class Scripts {
      * Signals to any attached listeners that a script has been added.
      * @param script is the script that has been added.
      */
-    public void fireScriptAdded(Script script){
+    public void fireScriptAdded(Script script) throws Exception {
         ScriptChangeEvent event = new ScriptChangeEvent(script);
         for(ScriptsChangeListener listener : listeners) {
             listener.scriptAdded(event);
@@ -133,7 +133,7 @@ public class Scripts {
      * Signals to any attached listeners that a script has been modified.
      * @param script is the script that has been modified.
      */
-    public void fireScriptChanged(Script script){
+    public void fireScriptChanged(Script script) throws Exception {
         ScriptChangeEvent event = new ScriptChangeEvent(script);
         for(ScriptsChangeListener listener : listeners) {
             listener.scriptChanged(event);
@@ -144,7 +144,7 @@ public class Scripts {
      * Signals to any attached listeners that a script has been deleted.
      * @param script is the script that has been deleted.
      */
-    public void fireScriptDeleted(Script script){
+    public void fireScriptDeleted(Script script) throws Exception {
         ScriptChangeEvent event = new ScriptChangeEvent(script);
         for(ScriptsChangeListener listener : listeners) {
             listener.scriptDeleted(event);

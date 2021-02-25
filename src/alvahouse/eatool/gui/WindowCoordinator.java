@@ -51,7 +51,7 @@ public class WindowCoordinator {
      * @param internalName is the name of the window to get
      * @return the window with the given name
      */
-    public JInternalFrame getFrame(String internalName) {
+    public JInternalFrame getFrame(String internalName) throws Exception {
         if(internalName == null)
             throw new NullPointerException();
         JInternalFrame frame = frames.get(internalName);
@@ -70,7 +70,7 @@ public class WindowCoordinator {
 	 * window with the given name.
 	 * @return the window with the given name
 	 */
-	public JInternalFrame getFrame(String internalName, WindowFactory factory) {
+	public JInternalFrame getFrame(String internalName, WindowFactory factory)  throws Exception{
 		if(internalName == null)
 			throw new NullPointerException();
 		if(factory == null)
@@ -92,7 +92,7 @@ public class WindowCoordinator {
      * @throw IllegalArgumentException if the internalName does not identify
      * a window factory.
      */
-    public JInternalFrame createFrame(String internalName) {
+    public JInternalFrame createFrame(String internalName)  throws Exception{
         if(internalName == null)
             throw new NullPointerException();
         WindowFactory factory = factories.get(internalName);
@@ -183,7 +183,7 @@ public class WindowCoordinator {
      * application windows in the context of the window manager
      */
     public interface WindowFactory {
-        public JInternalFrame createFrame();
+        public JInternalFrame createFrame() throws Exception;
     }
     
     private Map<String, JInternalFrame> frames = new HashMap<String, JInternalFrame>();

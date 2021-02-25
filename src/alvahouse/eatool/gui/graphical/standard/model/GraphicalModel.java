@@ -31,7 +31,7 @@ public class GraphicalModel extends StandardDiagram {
     private final Repository repository;
     
     /** Creates new GraphicalModel */
-    public GraphicalModel(Repository rep, Model m, StandardDiagramType diagramType, UUID key) {
+    public GraphicalModel(Repository rep, Model m, StandardDiagramType diagramType, UUID key)  throws Exception{
     	super(diagramType,key);
         model = m;
         repository = rep;
@@ -47,8 +47,9 @@ public class GraphicalModel extends StandardDiagram {
      
     /** updates the graphical model from whatever the
      * underlying model is
+     * @throws Exception 
      */
-    public void update() {
+    public void update() throws Exception {
         reset();
         
         for(Entity e : model.getEntities()) {
@@ -72,7 +73,7 @@ public class GraphicalModel extends StandardDiagram {
        	return addNodeForObject(e);
     }
     
-    private Arc addRelationship(Relationship r) {
+    private Arc addRelationship(Relationship r) throws Exception {
         return addArcForObject(r, r.start().connectsTo(),r.finish().connectsTo());
     }
     
@@ -81,9 +82,10 @@ public class GraphicalModel extends StandardDiagram {
      */
     private ModelChangeListener changeListener = new ModelChangeAdapter() {
         /** signals a major update to the  model 
+         * @throws Exception 
          * @ param e is the event that references the object being changed
          */
-        public void modelUpdated(ModelChangeEvent e) {   
+        public void modelUpdated(ModelChangeEvent e) throws Exception {   
             update();
         }
 

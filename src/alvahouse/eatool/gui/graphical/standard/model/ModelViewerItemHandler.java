@@ -88,12 +88,16 @@ public class ModelViewerItemHandler implements ItemHandler {
         
     	MetaModel allowedMeta = new MetaModelImpl();
 		
-		Collection<SymbolType> symbolTypes = diagramType.getSymbolTypes();
-		for(Iterator iter = symbolTypes.iterator(); iter.hasNext();){
-			SymbolType symbolType = (SymbolType)iter.next();
-			MetaEntity me = symbolType.getRepresents();
-			allowedMeta.addMetaEntity(me);
+		try {
+			Collection<SymbolType> symbolTypes = diagramType.getSymbolTypes();
+			for(SymbolType symbolType : symbolTypes){
+				MetaEntity me = symbolType.getRepresents();
+				allowedMeta.addMetaEntity(me);
+			}
+		} catch (Exception e) {
+			throw new LogicException("Unable to add meta entity to diagram",e);
 		}
+
 		
 		EntitySelectionDialog dlg = new EntitySelectionDialog(parent, allowedMeta, repository.getModel());
 		dlg.setVisible(true);
@@ -210,7 +214,11 @@ public class ModelViewerItemHandler implements ItemHandler {
 			
 			selected = new RelationshipProxy(r,ct);
 			
-			repository.getModel().addRelationship(r);
+			try {
+				repository.getModel().addRelationship(r);
+			} catch (Exception e) {
+				throw new LogicException("Unable to add relationship to model",e);
+			}
 		} 
 		
 		assert(selected != null);
@@ -392,7 +400,11 @@ public class ModelViewerItemHandler implements ItemHandler {
 	        if(edited){
 				SymbolType st = diagramType.getSymbolTypeFor(entity.getMeta());
 				symbol = st.newSymbol(entity , x, y);
-				repository.getModel().addEntity(entity);
+				try {
+					repository.getModel().addEntity(entity);
+				} catch (Exception e) {
+					throw new LogicException("Unable to add entity to model",e);
+				}
 	        }
 
 		}

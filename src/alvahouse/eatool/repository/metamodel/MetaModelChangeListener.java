@@ -14,24 +14,24 @@ public interface MetaModelChangeListener {
     /** signals a major update to the meta model 
      * @ param e is the event that references the object being changed
      */
-    public void modelUpdated(MetaModelChangeEvent e);   // major update
+    public void modelUpdated(MetaModelChangeEvent e)  throws Exception;   // major update
 
     /*======= ENTITIES ================================================*/
 
     /** signals that a meta entity has been added
      * @ param e is the event that references the object being changed
      */
-    public void metaEntityAdded(MetaModelChangeEvent e);
+    public void metaEntityAdded(MetaModelChangeEvent e) throws Exception;
 
     /** signals that a meta entity has been changed
      * @ param e is the event that references the object being changed
      */
-    public void metaEntityChanged(MetaModelChangeEvent e);
+    public void metaEntityChanged(MetaModelChangeEvent e) throws Exception;
 
     /** signals that a meta entity has been deleted
      * @ param e is the event that references the object being changed
      */
-    public void metaEntityDeleted(MetaModelChangeEvent e);
+    public void metaEntityDeleted(MetaModelChangeEvent e) throws Exception;
     
     /*======= PROPERTIES ==============================================*/
     // Note - Properties no longer fired individually as they are treated
@@ -43,17 +43,17 @@ public interface MetaModelChangeListener {
     /** signals that a meta relationship has been added
      * @ param e is the event that references the object being changed
      */
-    public void metaRelationshipAdded(MetaModelChangeEvent e);
+    public void metaRelationshipAdded(MetaModelChangeEvent e) throws Exception;
 
     /** signals that a meta relationship has been changed (including one of its roles)
      * @ param e is the event that references the object being changed
      */
-    public void metaRelationshipChanged(MetaModelChangeEvent e);
+    public void metaRelationshipChanged(MetaModelChangeEvent e) throws Exception;
 
     /** signals that a meta relationship has been deleted
      * @ param e is the event that references the object being changed
      */
-    public void metaRelationshipDeleted(MetaModelChangeEvent e);
+    public void metaRelationshipDeleted(MetaModelChangeEvent e) throws Exception;
 
  }
 

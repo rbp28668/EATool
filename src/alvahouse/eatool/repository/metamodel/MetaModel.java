@@ -11,11 +11,11 @@ import java.util.Collection;
 import java.util.Set;
 
 import alvahouse.eatool.repository.base.DeleteDependenciesList;
-import alvahouse.eatool.repository.scripting.EventMap;
+import alvahouse.eatool.repository.base.KeyedItem;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
-public interface MetaModel {
+public interface MetaModel extends KeyedItem {
 
     /**
      * Gets a MetaEntity from the meta model.
@@ -27,8 +27,9 @@ public interface MetaModel {
     /** adds a new meta-entity to the collection
      * @param me is the meta-entity to add
      * @return the added meta-entity (to allow chaining)
+     * @throws Exception 
      */
-    public abstract MetaEntity addMetaEntity(MetaEntity me);
+    public abstract MetaEntity addMetaEntity(MetaEntity me) throws Exception;
 
     /** Gets a Collection of all the MetaEntities in the meta-model.
      * @return Collection of MetaEntity.
@@ -43,8 +44,9 @@ public interface MetaModel {
 
     /** deletes a meta-entity from the meta-model
      * @param uuid is the identifier of the meta-entity to delete
+     * @throws Exception 
      */
-    public abstract void deleteMetaEntity(UUID uuid);
+    public abstract void deleteMetaEntity(UUID uuid) throws Exception;
 
     /**
      * Gets a MetaRelationship from the meta model, creating a new one if there
@@ -57,13 +59,15 @@ public interface MetaModel {
     /** adds a new meta-relationship to the collection
      * @param mr is the meta-relationship to add
      * @return the added meta-relationship (to allow chaining)
+     * @throws Exception 
      */
-    public abstract MetaRelationship addMetaRelationship(MetaRelationship mr);
+    public abstract MetaRelationship addMetaRelationship(MetaRelationship mr) throws Exception;
 
     /** deletes a meta-relationship from the meta-model
      * @param uuid is the key for the meta-relationship to delete
+     * @throws Exception 
      */
-    public abstract void deleteMetaRelationship(UUID uuid);
+    public abstract void deleteMetaRelationship(UUID uuid) throws Exception;
 
     /** Get the collection of MetaRelationships in the meta-model.
      * @return a Collection containing MetaRelationship.
@@ -134,8 +138,9 @@ public interface MetaModel {
 
     /**
      * Deletes the contents of the meta model.
+     * @throws Exception 
      */
-    public abstract void deleteContents();
+    public abstract void deleteContents() throws Exception;
 
     /**
      * Adds a MetaModelChangeListener to the list of listeners that
@@ -152,44 +157,45 @@ public interface MetaModel {
 
     /** Signals a major change in the model to any registered
      * listeners
+     * @throws Exception 
      */
-    public abstract void fireModelUpdated();
+    public abstract void fireModelUpdated() throws Exception;
 
     /**
      * Signals that a MetaEntity has been added to the MetaModel.
      * @param me is the new MetaEntity.
      */
-    public abstract void fireMetaEntityAdded(MetaEntity me);
+    public abstract void fireMetaEntityAdded(MetaEntity me) throws Exception;
 
     /**
      * Signals to any listener that a MetaEntity has been changed.
      * @param me is the changed MetaEntity.
      */
-    public abstract void fireMetaEntityChanged(MetaEntity me);
+    public abstract void fireMetaEntityChanged(MetaEntity me) throws Exception;
 
     /**
      * Signals to any listener that a MetaEntity has been deleted.
      * @param me is the deleted MetaEntity.
      */
-    public abstract void fireMetaEntityDeleted(MetaEntity me);
+    public abstract void fireMetaEntityDeleted(MetaEntity me) throws Exception;
 
     /**
      * Signals to any listener that a MetaRelationship has been added.
      * @param mr is the added MetaRelationship.
      */
-    public abstract void fireMetaRelationshipAdded(MetaRelationship mr);
+    public abstract void fireMetaRelationshipAdded(MetaRelationship mr) throws Exception;
 
     /**
      * Signals to any listener that a MetaRelationship has been changed.
      * @param mr is the changed MetaRelationship.
      */
-    public abstract void fireMetaRelationshipChanged(MetaRelationship mr);
+    public abstract void fireMetaRelationshipChanged(MetaRelationship mr) throws Exception;
 
     /**
      * Signals to any listener that a MetaRelationship has been deleted.
      * @param mr is the deleted MetaRelationship.
      */
-    public abstract void fireMetaRelationshipDeleted(MetaRelationship mr);
+    public abstract void fireMetaRelationshipDeleted(MetaRelationship mr) throws Exception;
 
     /**
      * getDerivedMetaEntites gets a list of MetaEntity that are derived

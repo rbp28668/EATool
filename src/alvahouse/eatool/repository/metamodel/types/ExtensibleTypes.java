@@ -83,14 +83,14 @@ public class ExtensibleTypes {
         listeners.remove(listener);
     }
     
-    public void fireTypeAdded(ExtensibleMetaPropertyType type){
+    public void fireTypeAdded(ExtensibleMetaPropertyType type) throws Exception{
         TypeEvent event = new TypeEvent(type);
         for(TypeEventListener listener : listeners){
             listener.typeAdded(event);
         }
     }
     
-    public void fireTypeChanged(ExtensibleMetaPropertyType type){
+    public void fireTypeChanged(ExtensibleMetaPropertyType type) throws Exception{
         TypeEvent event = new TypeEvent(type);
         for(TypeEventListener listener : listeners){
             listener.typeChanged(event);
@@ -98,7 +98,7 @@ public class ExtensibleTypes {
         
     }
     
-    public void fireTypeDeleted(ExtensibleMetaPropertyType type){
+    public void fireTypeDeleted(ExtensibleMetaPropertyType type) throws Exception{
         TypeEvent event = new TypeEvent(type);
         for(TypeEventListener listener : listeners){
             listener.typeDeleted(event);
@@ -109,7 +109,7 @@ public class ExtensibleTypes {
     /**
      * @param type
      */
-    public void addType(ExtensibleMetaPropertyType type) {
+    public void addType(ExtensibleMetaPropertyType type) throws Exception{
         ExtensibleTypeList list = lookupList(type);
         if(list == null){
             throw new IllegalArgumentException("Type " + type.getClass().getCanonicalName() + " is not known");
@@ -121,7 +121,7 @@ public class ExtensibleTypes {
     /**
      * @param type
      */
-    public void deleteType(ExtensibleMetaPropertyType type) {
+    public void deleteType(ExtensibleMetaPropertyType type) throws Exception{
         ExtensibleTypeList list = lookupList(type);
         if(list == null){
             throw new IllegalArgumentException("Type " + type.getClass().getCanonicalName() + " is not known");

@@ -194,7 +194,7 @@ public class ModelProxy {
      * @return the given entity (as proxy).
      */
     @Scripted(description="Creates a new entity of the given type.")
-    public EntityProxy newEntity(MetaEntityProxy type) {
+    public EntityProxy newEntity(MetaEntityProxy type) throws Exception {
     	Entity e = new Entity(type.get());
     	repository.getModel().addEntity(e);
     	return new EntityProxy(e);
@@ -208,7 +208,7 @@ public class ModelProxy {
      * @return a new relationship of the given type linking the 2 entities.
      */
     @Scripted(description="Creates a relationship of the given type between start and finish entities.")
-    public RelationshipProxy newRelationship(MetaRelationshipProxy type, EntityProxy start, EntityProxy finish) {
+    public RelationshipProxy newRelationship(MetaRelationshipProxy type, EntityProxy start, EntityProxy finish) throws Exception {
     	
     	MetaRelationship mr = type.get();
     	

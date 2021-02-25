@@ -66,7 +66,7 @@ public class TimeDiagramProxy {
      * @param title is the new name of the diagram.
      */
     @Scripted(description="Sets the diagram title.")
-    public void setTitle(String title){
+    public void setTitle(String title)  throws Exception{
         diagram.setName(title);
     }
     

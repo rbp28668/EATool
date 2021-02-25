@@ -13,12 +13,12 @@ package alvahouse.eatool.repository.scripting;
  */
 public interface ScriptsChangeListener {
 
-    public void updated(ScriptChangeEvent e);
+    public void updated(ScriptChangeEvent e) throws Exception;
     
-    public void scriptAdded(ScriptChangeEvent e);
+    public void scriptAdded(ScriptChangeEvent e) throws Exception;
     
-    public void scriptChanged(ScriptChangeEvent e);
+    public void scriptChanged(ScriptChangeEvent e) throws Exception;
     
-    public void scriptDeleted(ScriptChangeEvent e);
+    public void scriptDeleted(ScriptChangeEvent e) throws Exception;
     
 }

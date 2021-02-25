@@ -248,4 +248,22 @@ public class PersistentMetaModel implements MetaModel {
     	return Collections.emptyList();
     }
 
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.base.KeyedItem#getKey()
+	 */
+	@Override
+	public UUID getKey() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.base.KeyedItem#setKey(alvahouse.eatool.util.UUID)
+	 */
+	@Override
+	public void setKey(UUID uuid) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

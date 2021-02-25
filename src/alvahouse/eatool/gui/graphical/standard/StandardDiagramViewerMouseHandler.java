@@ -80,7 +80,7 @@ final class StandardDiagramViewerMouseHandler extends MouseInputAdapter {
 	 * @param e
 	 * @throws LogicException
 	 */
-	private void addSymbol(MouseEvent e) throws LogicException {
+	private void addSymbol(MouseEvent e) throws Exception {
 		Symbol[] symbols = itemHandler.addSymbolsAt(viewPane, e.getX(), e.getY());
 		if(symbols != null){
 		    for(int i=0; i<symbols.length; ++i){
@@ -267,7 +267,7 @@ final class StandardDiagramViewerMouseHandler extends MouseInputAdapter {
 	 * @return LogicException - if the connector can't be created.
 	 */
 	private void joinSymbols(Symbol first, Symbol second) 
-	throws LogicException{
+	throws Exception{
 
 		Connector con = itemHandler.addConnector(viewPane,first,second);
 		if(con != null) {

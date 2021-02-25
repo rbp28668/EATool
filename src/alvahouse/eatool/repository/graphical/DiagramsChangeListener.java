@@ -14,20 +14,20 @@ package alvahouse.eatool.repository.graphical;
  */
 public interface DiagramsChangeListener {
 	
-	public void typesUpdated(DiagramsChangeEvent e);
+	public void typesUpdated(DiagramsChangeEvent e) throws Exception;
 	
-	public void diagramTypeAdded(DiagramsChangeEvent e);
+	public void diagramTypeAdded(DiagramsChangeEvent e) throws Exception;
 	
-	public void diagramTypeChanged(DiagramsChangeEvent e);
+	public void diagramTypeChanged(DiagramsChangeEvent e) throws Exception;
 	
-	public void diagramTypeDeleted(DiagramsChangeEvent e);
+	public void diagramTypeDeleted(DiagramsChangeEvent e) throws Exception;
 
-	public void diagramsUpdated(DiagramsChangeEvent e);
+	public void diagramsUpdated(DiagramsChangeEvent e) throws Exception;
 
-	public void diagramAdded(DiagramsChangeEvent e);
+	public void diagramAdded(DiagramsChangeEvent e) throws Exception;
 	
-	public void diagramChanged(DiagramsChangeEvent e);
+	public void diagramChanged(DiagramsChangeEvent e) throws Exception;
 	
-	public void diagramDeleted(DiagramsChangeEvent e);
+	public void diagramDeleted(DiagramsChangeEvent e) throws Exception;
 
 }

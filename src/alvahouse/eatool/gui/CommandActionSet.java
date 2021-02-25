@@ -192,9 +192,9 @@ public class CommandActionSet extends ActionSet {
 
     /**
      * Clear the repository. 
-     * @throws IOException
+     * @throws Exception
      */
-    public void fileNew() throws IOException {
+    public void fileNew() throws Exception {
         repository.deleteContents();
         app.getWindowCoordinator().closeAll();
         app.setCurrentPath(null);
@@ -229,10 +229,9 @@ public class CommandActionSet extends ActionSet {
      * @param deleteExisting is true if we wish to delete the existing
      * repository first.  Differentiates between a load and a merge.
 	 * @return true if loaded, false otherwise.
-	 * @throws InputException in the event of a read error.
-     * @throws IOException
+	 * @throws Exception in the event of a read error or other issue.
 	 */
-    private boolean fileLoad(boolean deleteExisting) throws InputException, IOException{
+    private boolean fileLoad(boolean deleteExisting) throws Exception{
         SettingsManager.Element cfg = app.getSettings().getOrCreateElement("/Files/XMLLoad");
         String path = cfg.attribute("path");
         
@@ -543,9 +542,13 @@ public class CommandActionSet extends ActionSet {
 	 * Shows the meta model explorer (tree view of meta-model).
 	 */
 	public void showMetaModel() {
-        MetaModelExplorerFrame ef = (MetaModelExplorerFrame) app.getWindowCoordinator().getFrame("MetaModelExplorer");
-        ef.refresh();
-        ef.show();
+        try {
+			MetaModelExplorerFrame ef = (MetaModelExplorerFrame) app.getWindowCoordinator().getFrame("MetaModelExplorer");
+			ef.refresh();
+			ef.show();
+        } catch(Throwable t) {
+            new ExceptionDisplay(frame,t);
+        }
     }
 
     /** MetaModel View action  - shows graphical view of the meta-model.*/
@@ -565,9 +568,13 @@ public class CommandActionSet extends ActionSet {
 	 * Views the meta-model (graphical display).
 	 */
 	public void viewMetaModel() {
-        MetaModelViewer v = (MetaModelViewer) app.getWindowCoordinator().getFrame("MetaModelViewer");
-        v.refresh();
-        v.show();
+        try {
+			MetaModelViewer v = (MetaModelViewer) app.getWindowCoordinator().getFrame("MetaModelViewer");
+			v.refresh();
+			v.show();
+        } catch(Throwable t) {
+            new ExceptionDisplay(frame,t);
+        }
     }
 
 	
@@ -587,10 +594,14 @@ public class CommandActionSet extends ActionSet {
      * Shows the diagram explorer.
      */
     public void showMetaModelDiagrams(){
-        DiagramExplorer dex = (DiagramExplorer) app.getWindowCoordinator().getFrame("MetaDiagramExplorer");
-        dex.setRepository(MetaModelDiagramTypes.getInstance(),repository.getMetaModelDiagrams());
-        dex.refresh();
-        dex.show();
+        try {
+			DiagramExplorer dex = (DiagramExplorer) app.getWindowCoordinator().getFrame("MetaDiagramExplorer");
+			dex.setRepository(MetaModelDiagramTypes.getInstance(),repository.getMetaModelDiagrams());
+			dex.refresh();
+			dex.show();
+        } catch(Throwable t) {
+            new ExceptionDisplay(frame,t);
+        }
     }
 
     /** MetaModel Types action  - shows types.*/
@@ -621,7 +632,7 @@ public class CommandActionSet extends ActionSet {
     /**
      * Browses the model.
      */
-    public void browseModel(){
+    public void browseModel() throws Exception{
         MetaModel metaModel = repository.getMetaModel();
         ModelBrowser browser = (ModelBrowser) app.getWindowCoordinator().getFrame("ModelBrowser");
         browser.browse(metaModel);
@@ -665,7 +676,7 @@ public class CommandActionSet extends ActionSet {
 	 * Browses the given entity.
 	 * @param entity
 	 */
-	public void browseEntity(Entity entity){
+	public void browseEntity(Entity entity) throws Exception{
         ModelBrowser browser = (ModelBrowser) app.getWindowCoordinator().getFrame("ModelBrowser");
         browser.browse(entity);
         browser.setVisible(true);
@@ -674,8 +685,9 @@ public class CommandActionSet extends ActionSet {
 	/**
 	 * Browses the given entity.
 	 * @param entity
+	 * @throws Exception 
 	 */
-	public void browseEntities(Collection<Entity> entities){
+	public void browseEntities(Collection<Entity> entities) throws Exception{
         ModelBrowser browser = (ModelBrowser) app.getWindowCoordinator().getFrame("ModelBrowser");
         browser.browse(entities);
         browser.setVisible(true);
@@ -696,8 +708,9 @@ public class CommandActionSet extends ActionSet {
 
     /**
 	 * Shows the model (tree view). 
+     * @throws Exception 
 	 */
-	public void showModel() {
+	public void showModel() throws Exception {
         ModelExplorer me = (ModelExplorer) app.getWindowCoordinator().getFrame("ModelExplorer");
         me.refresh();
         me.show();
@@ -720,8 +733,9 @@ public class CommandActionSet extends ActionSet {
 
     /**
 	 * Views the model (graphical display).
+     * @throws Exception 
 	 */
-	public void viewModel() {
+	public void viewModel() throws Exception {
         ModelViewer v = (ModelViewer) app.getWindowCoordinator().getFrame("ModelViewer");
         v.refresh();
         v.show();
@@ -743,8 +757,9 @@ public class CommandActionSet extends ActionSet {
 
     /**
      * show the diagram explorer for the model.
+     * @throws Exception 
      */
-    public void showModelDiagrams(){
+    public void showModelDiagrams() throws Exception{
         DiagramExplorer dex = (DiagramExplorer) app.getWindowCoordinator().getFrame("DiagramExplorer");
         dex.setRepository(repository.getDiagramTypes(), repository.getDiagrams());
         dex.refresh();
@@ -837,7 +852,7 @@ public class CommandActionSet extends ActionSet {
         }
     };
 	
-    public void showScripts(){
+    public void showScripts() throws Exception{
         //Scripts scripts = repository.getScripts();
         ScriptExplorer se = (ScriptExplorer) app.getWindowCoordinator().getFrame("ScriptExplorer");
         se.show();
@@ -872,8 +887,9 @@ public class CommandActionSet extends ActionSet {
 
     /**
      * Shows the import mappings explorer. 
+     * @throws Exception 
      */
-    public void showImportMappings(){
+    public void showImportMappings() throws Exception{
         //ImportMappings mappings = repository.getImportMappings();
 
         ImportMappingExplorer ime = (ImportMappingExplorer) app.getWindowCoordinator().getFrame("ImportMappingExplorer");
@@ -894,8 +910,9 @@ public class CommandActionSet extends ActionSet {
     
     /**
      * Shows the export mappings 
+     * @throws Exception 
      */
-    public void showExportMappings(){
+    public void showExportMappings() throws Exception{
         //ExportMappings mappings = repository.getExportMappings();
  	    
         ExportMappingExplorer eme = (ExportMappingExplorer) app.getWindowCoordinator().getFrame("ExportMappingExplorer");

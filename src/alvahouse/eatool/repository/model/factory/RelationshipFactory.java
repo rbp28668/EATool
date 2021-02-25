@@ -9,6 +9,7 @@ package alvahouse.eatool.repository.model.factory;
 import org.xml.sax.Attributes;
 
 import alvahouse.eatool.repository.ProgressCounter;
+import alvahouse.eatool.repository.exception.InputException;
 import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.repository.metamodel.MetaRole;
@@ -117,10 +118,14 @@ public class RelationshipFactory extends PropertyContainerFactory implements IXM
     /* (non-Javadoc)
      * @see alvahouse.eatool.util.IXMLContentHandler#endElement(java.lang.String, java.lang.String)
      */
-    public void endElement(String uri, String local) {
+    public void endElement(String uri, String local) throws InputException{
         if(local.equals("Relationship")) {
             if(isNewRelationship){
-                model.addRelationship(currentRelationship);
+                try {
+					model.addRelationship(currentRelationship);
+				} catch (Exception e) {
+					throw new InputException("Unable to add relationship",e);
+				}
             }
             currentRelationship = null;
             counter.count("Relationship");

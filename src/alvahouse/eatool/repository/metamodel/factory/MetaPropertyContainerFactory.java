@@ -114,7 +114,11 @@ public class MetaPropertyContainerFactory extends NamedRepositoryItemFactory{
         boolean isMetaProperty = false;
 	    if (local.equals("MetaProperty")) {
 	        //System.out.println("  Adding MetaProperty " + currentMetaProperty.getName() + ", " + currentMetaProperty.getKey().toString());
-	        container.addMetaProperty(currentMetaProperty);
+	        try {
+				container.addMetaProperty(currentMetaProperty);
+			} catch (Exception e) {
+				throw new InputException("Unable to add MetaProperty",e);
+			}
 	        currentMetaProperty = null;
 	        isMetaProperty = true;
 	    }

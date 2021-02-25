@@ -16,12 +16,12 @@ import java.util.Map;
 
 import alvahouse.eatool.repository.base.DeleteDependenciesList;
 import alvahouse.eatool.repository.base.IDeleteDependenciesProxy;
+import alvahouse.eatool.repository.base.KeyedItem;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.metamodel.MetaModelChangeAdapter;
 import alvahouse.eatool.repository.metamodel.MetaModelChangeEvent;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
-import alvahouse.eatool.repository.scripting.EventMap;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
@@ -31,8 +31,9 @@ import alvahouse.eatool.util.XMLWriter;
  * to those defined in the corresponding MetaModel.
  * @author  rbp28668
  */
-public class Model extends MetaModelChangeAdapter{
+public class Model extends MetaModelChangeAdapter implements KeyedItem{
 
+	private UUID uuid;
     private MetaModel meta;
     private Map<UUID,Entity> entities = new HashMap<UUID,Entity>();
     private Map<UUID,Relationship> relationships = new HashMap<UUID,Relationship>();
@@ -43,6 +44,7 @@ public class Model extends MetaModelChangeAdapter{
     /** Creates new Model */
     public Model(MetaModel meta) {
         this.meta = meta;
+        uuid = new UUID();
         meta.addChangeListener(this);
     }
     
@@ -75,7 +77,7 @@ public class Model extends MetaModelChangeAdapter{
      * @param uuid is the key of the entity to delete.
      * @throws IllegalStateException if deleting an entity not in the model.
      */
-    public void deleteEntity(UUID uuid) {
+    public void deleteEntity(UUID uuid) throws Exception {
         Entity e = (Entity)entities.remove(uuid);
         if(e == null)
             throw new IllegalStateException("Entity " + uuid + " cannot be deleted - does not exist");
@@ -91,7 +93,7 @@ public class Model extends MetaModelChangeAdapter{
      * @return the added entity (to allow chaining).
      * @throws IllegalStateException if the entity already exists in the model.
      */
-    public Entity addEntity(Entity e) {
+    public Entity addEntity(Entity e) throws Exception {
         if(entities.containsKey(e.getKey()))
             throw new IllegalStateException("Entity " + e.getKey() + " already exists in model");
         
@@ -152,7 +154,7 @@ public class Model extends MetaModelChangeAdapter{
      * @return the added relationship (to allow chaining)
       * @throws IllegalStateException if the relationship is already in the model.
      */
-    public Relationship addRelationship(Relationship r) {
+    public Relationship addRelationship(Relationship r) throws Exception {
         
         if(relationships.containsKey(r.getKey()))
             throw new IllegalStateException("Relationship " + r.getKey() + " already exists in model");
@@ -172,7 +174,7 @@ public class Model extends MetaModelChangeAdapter{
      * @throws IllegalStateException if the key does not correspond to a
      * relationship in the model.
      */
-    public void deleteRelationship(UUID uuid) {
+    public void deleteRelationship(UUID uuid) throws Exception {
         Relationship r = (Relationship)relationships.remove(uuid);
         if(r == null)
             throw new IllegalStateException("Relationship " + uuid + " cannot be deleted - does not exist");
@@ -221,6 +223,8 @@ public class Model extends MetaModelChangeAdapter{
      */
     public void writeXML(XMLWriter out) throws IOException {
         out.startEntity("Model");
+        out.addAttribute("uuid", uuid.toString());
+        
         for(Entity e : getEntities()){
             e.writeXML(out);
         }
@@ -266,7 +270,7 @@ public class Model extends MetaModelChangeAdapter{
     }
 
     /** Deletes the entire contents of the model */
-    public void deleteContents() {
+    public void deleteContents()  throws Exception {
         entities.clear();
         relationships.clear();
         entityCacheByType.clear();
@@ -295,49 +299,49 @@ public class Model extends MetaModelChangeAdapter{
     /** Signals a major change in the model to any registered
      * listeners
      */
-    public void fireModelUpdated() {
+    public void fireModelUpdated() throws Exception{
         ModelChangeEvent evt = new ModelChangeEvent(this);
         for(ModelChangeListener l : listeners){
             l.modelUpdated(evt);
         }
     }
     
-    public void fireEntityAdded(Entity me){
+    public void fireEntityAdded(Entity me) throws Exception{
         ModelChangeEvent evt = new ModelChangeEvent(me);
         for(ModelChangeListener l : listeners){
             l.EntityAdded(evt);
         }
     }
     
-    public void fireEntityChanged(Entity me){
+    public void fireEntityChanged(Entity me) throws Exception{
         ModelChangeEvent evt = new ModelChangeEvent(me);
         for(ModelChangeListener l : listeners){
             l.EntityChanged(evt);
         }
     }
     
-    public void fireEntityDeleted(Entity me){ 
+    public void fireEntityDeleted(Entity me) throws Exception{ 
         ModelChangeEvent evt = new ModelChangeEvent(me);
         for(ModelChangeListener l : listeners){
             l.EntityDeleted(evt);
         }
     }
         
-    public void fireRelationshipAdded(Relationship mr){
+    public void fireRelationshipAdded(Relationship mr) throws Exception{
         ModelChangeEvent evt = new ModelChangeEvent(mr);
         for(ModelChangeListener l : listeners){
             l.RelationshipAdded(evt);
         }
     }
     
-    public void fireRelationshipChanged(Relationship mr){
+    public void fireRelationshipChanged(Relationship mr) throws Exception{
         ModelChangeEvent evt = new ModelChangeEvent(mr);
         for(ModelChangeListener l : listeners){
             l.RelationshipChanged(evt);
         }
     }
     
-    public void fireRelationshipDeleted(Relationship mr){
+    public void fireRelationshipDeleted(Relationship mr) throws Exception{
         ModelChangeEvent evt = new ModelChangeEvent(mr);
         for(ModelChangeListener l : listeners){
             l.RelationshipDeleted(evt);
@@ -364,7 +368,7 @@ public class Model extends MetaModelChangeAdapter{
 
         /** deletes the dependent entity
          */
-        public void delete() {
+        public void delete() throws Exception {
             deleteEntity(entity.getKey());
         }
         
@@ -397,7 +401,7 @@ public class Model extends MetaModelChangeAdapter{
 
         /** deletes the dependent relationship
          */
-        public void delete() {
+        public void delete() throws Exception {
             deleteRelationship(relationship.getKey());
         }
         
@@ -414,7 +418,7 @@ public class Model extends MetaModelChangeAdapter{
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.metamodel.MetaModelChangeListener#modelUpdated(alvahouse.eatool.repository.metamodel.MetaModelChangeEvent)
      */
-    public void modelUpdated(MetaModelChangeEvent e) {
+    public void modelUpdated(MetaModelChangeEvent e) throws Exception {
         // Should only occur in situations where major change 
         // is occuring and that means deletion of everything.
         MetaModel meta = (MetaModel)e.getSource();
@@ -426,7 +430,7 @@ public class Model extends MetaModelChangeAdapter{
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.metamodel.MetaModelChangeListener#metaEntityChanged(alvahouse.eatool.repository.metamodel.MetaModelChangeEvent)
      */
-    public void metaEntityChanged(MetaModelChangeEvent e) {
+    public void metaEntityChanged(MetaModelChangeEvent e)  throws Exception{
         MetaEntity meta = (MetaEntity)e.getSource();
         revalidateEntities(meta);
     }
@@ -438,7 +442,7 @@ public class Model extends MetaModelChangeAdapter{
      * and any entities of derived types.
      * @param meta is the change MetaEntity.
      */
-    private void revalidateEntities(MetaEntity meta) {
+    private void revalidateEntities(MetaEntity meta) throws Exception {
         revalidateSingleLevel(meta);
         
         // Any derived entities will need to be revalidated also as they may
@@ -455,7 +459,7 @@ public class Model extends MetaModelChangeAdapter{
      * hierarchy.
      * @param meta is the affected meta-entity.
      */
-    private void revalidateSingleLevel(MetaEntity meta) {
+    private void revalidateSingleLevel(MetaEntity meta) throws Exception {
         for(Entity entity : getEntitiesOfType(meta)){
             if(entity.revalidate(entity.getMeta())){
                 fireEntityChanged(entity);
@@ -466,7 +470,7 @@ public class Model extends MetaModelChangeAdapter{
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.metamodel.MetaModelChangeListener#metaEntityDeleted(alvahouse.eatool.repository.metamodel.MetaModelChangeEvent)
      */
-    public void metaEntityDeleted(MetaModelChangeEvent e) {
+    public void metaEntityDeleted(MetaModelChangeEvent e) throws Exception {
         MetaEntity meta = (MetaEntity)e.getSource();
          for(Entity entity : getEntitiesOfType(meta)){
             deleteEntity(entity.getKey());
@@ -477,7 +481,7 @@ public class Model extends MetaModelChangeAdapter{
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.metamodel.MetaModelChangeListener#metaRelationshipChanged(alvahouse.eatool.repository.metamodel.MetaModelChangeEvent)
      */
-    public void metaRelationshipChanged(MetaModelChangeEvent e) {
+    public void metaRelationshipChanged(MetaModelChangeEvent e)  throws Exception {
         MetaRelationship meta = (MetaRelationship)e.getSource();
         revalidateRelationships(meta);
     }
@@ -485,7 +489,7 @@ public class Model extends MetaModelChangeAdapter{
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.metamodel.MetaModelChangeListener#metaRelationshipDeleted(alvahouse.eatool.repository.metamodel.MetaModelChangeEvent)
      */
-    public void metaRelationshipDeleted(MetaModelChangeEvent e) {
+    public void metaRelationshipDeleted(MetaModelChangeEvent e) throws Exception {
         MetaRelationship meta = (MetaRelationship)e.getSource();
         for(Relationship r : getRelationshipsOfType(meta)){
             deleteRelationship(r.getKey());
@@ -497,7 +501,7 @@ public class Model extends MetaModelChangeAdapter{
      * don't connect to the correct types then delete them.
      * @param meta is the type of relationships to check.
      */
-    private void revalidateRelationships(MetaRelationship meta){
+    private void revalidateRelationships(MetaRelationship meta) throws Exception{
         MetaEntity start = meta.start().connectsTo();
         MetaEntity finish = meta.finish().connectsTo();
         for(Relationship r : getRelationshipsOfType(meta)){
@@ -516,5 +520,21 @@ public class Model extends MetaModelChangeAdapter{
             }
 	    }
     }
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.base.KeyedItem#getKey()
+	 */
+	@Override
+	public UUID getKey() {
+		return uuid;
+	}
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.base.KeyedItem#setKey(alvahouse.eatool.util.UUID)
+	 */
+	@Override
+	public void setKey(UUID uuid) {
+		this.uuid = uuid;
+	}
  
  }
