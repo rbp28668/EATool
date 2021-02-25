@@ -81,7 +81,11 @@ public class MetaEntityFactory extends MetaPropertyContainerFactory implements I
                 MetaEntity meBase = m_metaModel.getMetaEntity(uuidBase);
                 if(meBase == null){ // not yet read in
                     meBase = new MetaEntityImpl(uuidBase);
-                    m_metaModel.addMetaEntity(meBase);
+                    try {
+						m_metaModel.addMetaEntity(meBase);
+					} catch (Exception e) {
+						throw new InputException("Unable to add meta entity",e);
+					}
                 }
                 m_currentMetaEntity.setBase(meBase);
             } 
@@ -97,7 +101,11 @@ public class MetaEntityFactory extends MetaPropertyContainerFactory implements I
     public void endElement(String uri, String local){
         if(local.equals("MetaEntity")) {
             if(isNewMetaEntity){
-                m_metaModel.addMetaEntity(m_currentMetaEntity);
+                try {
+					m_metaModel.addMetaEntity(m_currentMetaEntity);
+				} catch (Exception e) {
+					throw new InputException("Unable to add meta entity",e);
+				}
                 //System.out.println("Adding meta-entity " + m_currentMetaEntity.getName() + ", " + m_currentMetaEntity.getKey().toString());
                 counter.count("Meta Entity");
             }

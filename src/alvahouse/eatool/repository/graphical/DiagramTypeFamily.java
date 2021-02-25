@@ -118,7 +118,7 @@ public abstract class DiagramTypeFamily {
      * Adds a DiagramType to this family.
      * @param dt is the DiagramType to add.
      */
-    public void add(DiagramType dt){
+    public void add(DiagramType dt) throws Exception{
         diagramTypes.add(dt);
         allTypes.registerType(dt);
     }
@@ -127,7 +127,7 @@ public abstract class DiagramTypeFamily {
      * removes a diagram type from this family.
      * @param dt is the DiagramType to remove.
      */
-    public void remove(DiagramType dt){
+    public void remove(DiagramType dt) throws Exception{
         diagramTypes.remove(dt);
         allTypes.unregisterType(dt);
     }

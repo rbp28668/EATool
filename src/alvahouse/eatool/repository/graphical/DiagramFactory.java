@@ -123,13 +123,17 @@ public class DiagramFactory extends FactoryBase implements IXMLContentHandler {
 	 */
 	public void endElement(String uri, String local) throws InputException {
 		if(local.equals("Diagram")) {
-			diagrams.add(currentDiagram);
-			currentDiagram.deferLayout(false);
-			currentDiagram = null;
-			eventMapFactory.setEventMap(savedEventMap);
-			savedEventMap = null;
-			currentHandler = null;
-			counter.count("Diagram");
+			try {
+				diagrams.add(currentDiagram);
+				currentDiagram.deferLayout(false);
+				currentDiagram = null;
+				eventMapFactory.setEventMap(savedEventMap);
+				savedEventMap = null;
+				currentHandler = null;
+				counter.count("Diagram");
+			} catch (Exception e) {
+				throw new InputException("Unable to add diagram",e);
+			}
 		} else {
 		    if(currentHandler != null) {
 		        currentHandler.endElement(uri,local);

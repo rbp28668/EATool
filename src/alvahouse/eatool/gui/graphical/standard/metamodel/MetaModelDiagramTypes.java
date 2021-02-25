@@ -25,7 +25,7 @@ public class MetaModelDiagramTypes extends DiagramTypes {
     /**
      * private constructor that sets up the single MetaModelDiagramType.
      */
-    private MetaModelDiagramTypes() {
+    private MetaModelDiagramTypes() throws Exception{
         super();
         MetaModelDiagramFamily family = new MetaModelDiagramFamily(this);
         addDiagramFamily(family);
@@ -35,7 +35,7 @@ public class MetaModelDiagramTypes extends DiagramTypes {
      * Singleton accessor.
      * @return singleton instance of MetaModelDiagramTypes.
      */
-    public static MetaModelDiagramTypes getInstance() {
+    public static MetaModelDiagramTypes getInstance() throws Exception {
         if(instance == null){
             instance = new MetaModelDiagramTypes();
         }
@@ -53,7 +53,7 @@ public class MetaModelDiagramTypes extends DiagramTypes {
         /**
          * @param types is the parent DiagramTypes.
          */
-        public MetaModelDiagramFamily(DiagramTypes types) {
+        public MetaModelDiagramFamily(DiagramTypes types) throws Exception{
             super(MetaModelDiagramType.class,FAMILY_KEY);
             setParent(types);
             this.add(MetaModelDiagramType.getInstance());

@@ -12,26 +12,27 @@ package alvahouse.eatool.repository.model;
  */
 public interface ModelChangeListener {
     /** signals a major update to the  model 
+     * @throws Exception 
      * @ param e is the event that references the object being changed
      */
-    public void modelUpdated(ModelChangeEvent e);   // major update
+    public void modelUpdated(ModelChangeEvent e) throws Exception;   // major update
 
     /*======= ENTITIES ================================================*/
 
     /** signals that an entity has been added
      * @ param e is the event that references the object being changed
      */
-    public void EntityAdded(ModelChangeEvent e);
+    public void EntityAdded(ModelChangeEvent e) throws Exception;
 
     /** signals that a  entity has been changed
      * @ param e is the event that references the object being changed
      */
-    public void EntityChanged(ModelChangeEvent e);
+    public void EntityChanged(ModelChangeEvent e) throws Exception;
 
     /** signals that a  entity has been deleted
      * @ param e is the event that references the object being changed
      */
-    public void EntityDeleted(ModelChangeEvent e);
+    public void EntityDeleted(ModelChangeEvent e) throws Exception;
     
     /*======= PROPERTIES ==============================================*/
     // Note that there are no property added or deleted events as
@@ -47,17 +48,17 @@ public interface ModelChangeListener {
     /** signals that a  relationship has been added
      * @ param e is the event that references the object being changed
      */
-    public void RelationshipAdded(ModelChangeEvent e);
+    public void RelationshipAdded(ModelChangeEvent e) throws Exception;
 
     /** signals that a  relationship has been changed
      * @ param e is the event that references the object being changed
      */
-    public void RelationshipChanged(ModelChangeEvent e);
+    public void RelationshipChanged(ModelChangeEvent e) throws Exception;
 
     /** signals that a  relationship has been deleted
      * @ param e is the event that references the object being changed
      */
-    public void RelationshipDeleted(ModelChangeEvent e);
+    public void RelationshipDeleted(ModelChangeEvent e) throws Exception;
 
 
 }

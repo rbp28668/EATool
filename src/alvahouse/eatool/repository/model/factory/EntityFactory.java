@@ -94,10 +94,14 @@ public class EntityFactory extends PropertyContainerFactory implements IXMLConte
     /* (non-Javadoc)
      * @see alvahouse.eatool.util.IXMLContentHandler#endElement(java.lang.String, java.lang.String)
      */
-    public void endElement(String uri, String local) {
+    public void endElement(String uri, String local) throws InputException {
         if(local.equals("Entity")) {
             if(isNewEntity){
-                model.addEntity(currentEntity);
+                try {
+					model.addEntity(currentEntity);
+				} catch (Exception e) {
+					throw new InputException("Unable to add entity");
+				}
             }
             currentEntity = null;
             counter.count("Entity");

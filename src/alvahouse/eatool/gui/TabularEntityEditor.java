@@ -147,7 +147,7 @@ public class TabularEntityEditor extends JInternalFrame {
     /**
      * Updates the underlying model to include the changes made in the UI.
      */
-    public void updateModel(){
+    public void updateModel() throws Exception{
         tableModel.updateModel();
     }
     
@@ -378,7 +378,7 @@ public class TabularEntityEditor extends JInternalFrame {
         /**
          * Updates the underlying model from the stored states.
          */
-        public void updateModel() {
+        public void updateModel() throws Exception {
             for(int i=0; i<rowState.size(); ++i){
                 RowState row = (RowState)rowState.get(i);
                 if(row.isEdited()){

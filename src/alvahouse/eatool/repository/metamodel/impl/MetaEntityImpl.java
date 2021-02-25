@@ -161,8 +161,7 @@ public class MetaEntityImpl extends MetaPropertyContainerImpl implements  Versio
      * property with the same UUID already exists then it is replaced.
      * @param mp is the meta-property to be added.
      */
-    public MetaProperty addMetaProperty(MetaProperty mp)
-    {
+    public MetaProperty addMetaProperty(MetaProperty mp)  throws Exception {
         super.addMetaProperty(mp);
         if(model != null)
             model.fireMetaEntityChanged(this);
@@ -184,9 +183,10 @@ public class MetaEntityImpl extends MetaPropertyContainerImpl implements  Versio
 
     /** This deletes a named MetaProperty from the MetaEntity.
      * @param name is the name of the property to delete
+     * @throws Exception 
      * @returns the delete MetaProperty or null if no match for the name
      */
-    public MetaProperty deleteMetaProperty(UUID uuid) {
+    public MetaProperty deleteMetaProperty(UUID uuid) throws Exception {
         MetaProperty mp = super.deleteMetaProperty(uuid);
         if(model != null && mp != null)
             model.fireMetaEntityChanged(this);

@@ -31,7 +31,7 @@ public class DeleteDependenciesList {
         targets.add(proxy.getTarget());
     }
     
-    public void deleteDependencies() {
+    public void deleteDependencies() throws Exception{
         for(IDeleteDependenciesProxy proxy : dependencies){
             proxy.delete();
         }
