@@ -60,7 +60,11 @@ public class RelationshipEditor extends BasicDialog {
 	 * @see alvahouse.eatool.GUI.BasicDialog#onOK()
 	 */
 	protected void onOK() {
-    	relationshipPanel.onOK();
+		try {
+			relationshipPanel.onOK();
+		} catch (Exception e) {
+			new ExceptionDisplay(this,e);
+		}
  	}
 
 	/**
@@ -132,7 +136,7 @@ public class RelationshipEditor extends BasicDialog {
 		/**
 		 * Method onOK.
 		 */
-        void onOK() {
+        void onOK() throws Exception {
         	relationship.start().setConnection((Entity)cmbStart.getSelectedItem());
         	relationship.finish().setConnection((Entity)cmbFinish.getSelectedItem());
         	if(propertiesPanel != null) {

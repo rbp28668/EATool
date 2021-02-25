@@ -56,11 +56,16 @@ public class TimeDiagramViewerProxy {
         if(viewer == null){
             EventQueue.invokeAndWait( new Runnable(){
                 public void run(){
-                    WindowCoordinator wc = app.getWindowCoordinator();
-                    viewer = (TimeDiagramViewer)wc.getFrame(diagram.getKey().toString(), 
-                    		new TimeDiagramViewer.WindowFactory(diagram, app, repository));             
-                    viewer.refresh();
-                    viewer.show();
+                    try {
+						WindowCoordinator wc = app.getWindowCoordinator();
+						viewer = (TimeDiagramViewer)wc.getFrame(diagram.getKey().toString(), 
+								new TimeDiagramViewer.WindowFactory(diagram, app, repository));             
+						viewer.refresh();
+						viewer.show();
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
                 }
             });
         }

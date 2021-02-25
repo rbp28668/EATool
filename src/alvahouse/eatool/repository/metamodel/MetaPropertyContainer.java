@@ -18,8 +18,9 @@ public interface MetaPropertyContainer extends NamedItem{
     /** This adds a new MetaProperty to the MetaEntity. If an existing meta
      * property with the same UUID already exists then it is replaced.
      * @param mp is the meta-property to be added.
+     * @throws Exception 
      */
-    public abstract MetaProperty addMetaProperty(MetaProperty mp);
+    public abstract MetaProperty addMetaProperty(MetaProperty mp) throws Exception;
     
     /** Gets a child meta-property given its key (UUID)
      * @param uuid is the key for the meta-property
@@ -29,9 +30,10 @@ public interface MetaPropertyContainer extends NamedItem{
     
     /** This deletes a named MetaProperty from the MetaEntity.
      * @param name is the name of the property to delete
+     * @throws Exception 
      * @returns the delete MetaProperty or null if no match for the name
      */
-    public MetaProperty deleteMetaProperty(UUID uuid);
+    public MetaProperty deleteMetaProperty(UUID uuid) throws Exception;
 
 
     /** gets a collection of all the meta-properties 

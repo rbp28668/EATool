@@ -53,6 +53,7 @@ import alvahouse.eatool.repository.metamodel.MetaProperty;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.repository.metamodel.factory.DisplayHintFactory;
 import alvahouse.eatool.repository.metamodel.factory.MetaEntityFactory;
+import alvahouse.eatool.repository.metamodel.factory.MetaModelFactory;
 import alvahouse.eatool.repository.metamodel.factory.MetaRelationshipFactory;
 import alvahouse.eatool.repository.metamodel.impl.MetaModelImpl;
 import alvahouse.eatool.repository.metamodel.types.ExtensibleTypes;
@@ -66,6 +67,7 @@ import alvahouse.eatool.repository.model.Model;
 import alvahouse.eatool.repository.model.Property;
 import alvahouse.eatool.repository.model.Relationship;
 import alvahouse.eatool.repository.model.factory.EntityFactory;
+import alvahouse.eatool.repository.model.factory.ModelFactory;
 import alvahouse.eatool.repository.model.factory.RelationshipFactory;
 import alvahouse.eatool.repository.scripting.EventMap;
 import alvahouse.eatool.repository.scripting.EventMapFactory;
@@ -75,6 +77,7 @@ import alvahouse.eatool.repository.scripting.Scripts;
 import alvahouse.eatool.repository.search.SearchEngine;
 import alvahouse.eatool.scripting.proxy.RepositoryProxy;
 import alvahouse.eatool.util.SettingsManager;
+import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLLoader;
 import alvahouse.eatool.util.XMLWriter;
 import alvahouse.eatool.util.XMLWriterSAX;
@@ -88,6 +91,7 @@ import alvahouse.eatool.util.XSLTTransform;
  */
 public class RepositoryImpl implements TypeEventListener, Repository{
 
+	private UUID key;
     private final MetaModel metaModel = new MetaModelImpl();
     private final Model model = new Model(metaModel);
     private final Diagrams diagrams = new Diagrams();
@@ -117,6 +121,8 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     /** Creates new, empty,  Repository */
     public RepositoryImpl(SettingsManager config) throws RepositoryException {
 
+    	key = new UUID(); // may be over-ridden later by load.
+    	
         try {
             AllowableElements.initInstance(config);
         } catch (ClassNotFoundException e) {
@@ -247,6 +253,15 @@ public class RepositoryImpl implements TypeEventListener, Repository{
 		loader.registerContent(NAMESPACE,"ModelEventMap",
 				new EventMapFactory(counter,modelEvents,scripts));
 
+		loader.registerContent(NAMESPACE,"MetaModel",
+				new MetaModelFactory(metaModel));
+		
+		loader.registerContent(NAMESPACE,"Model",
+				new ModelFactory(model));
+		
+		loader.registerContent(NAMESPACE,"Repository",
+				new RepositoryFactory(this));
+
         try {
             loader.parse(uri);
             //System.out.println("Entity Count " + model.getEntityCount());
@@ -311,6 +326,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
 	            writer.startXML();
 	            writer.setNamespace("ea",NAMESPACE);
 	            writer.startEntity("Repository");
+	            writer.addAttribute("uuid", key.toString());
 	            
 	            properties.writeXML(writer);
 	            
@@ -614,7 +630,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#deleteContents()
      */
-    public void deleteContents() {
+    public void deleteContents() throws Exception{
     	getDiagrams().deleteContents();
     	getDiagramTypes().deleteContents();
         getModel().deleteContents();
@@ -646,7 +662,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#typeChanged(alvahouse.eatool.repository.metamodel.types.TypeEvent)
      */
-    public void typeChanged(TypeEvent event) {
+    public void typeChanged(TypeEvent event) throws Exception{
         MetaPropertyType changedType = event.getType();
         List<MetaProperty> changed = new LinkedList<MetaProperty>();
         for(MetaEntity me : metaModel.getMetaEntities()){
@@ -685,7 +701,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#typeDeleted(alvahouse.eatool.repository.metamodel.types.TypeEvent)
      */
-    public void typeDeleted(TypeEvent event) {
+    public void typeDeleted(TypeEvent event) throws Exception{
         MetaPropertyType deletedType = event.getType();
         for(MetaEntity me : metaModel.getMetaEntities()){
             Collection<MetaProperty> metaProperties = new LinkedList<MetaProperty>();
@@ -812,6 +828,22 @@ public class RepositoryImpl implements TypeEventListener, Repository{
             throw new RepositoryException("Unable to search: " + x.getMessage(),x);
         }
     }
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.base.KeyedItem#getKey()
+	 */
+	@Override
+	public UUID getKey() {
+		return key;
+	}
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.base.KeyedItem#setKey(alvahouse.eatool.util.UUID)
+	 */
+	@Override
+	public void setKey(UUID uuid) {
+		this.key = uuid;
+	}
 
 
 

@@ -6,8 +6,6 @@
  */
 package alvahouse.eatool.repository.images;
 
-import java.io.IOException;
-
 import org.xml.sax.Attributes;
 
 import alvahouse.eatool.repository.ProgressCounter;
@@ -62,7 +60,7 @@ public class ImageFactory extends NamedRepositoryItemFactory implements IXMLCont
             try {
                 currentImage.readDataFrom(text);
                 images.addImage(currentImage);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 throw new InputException("Unable to read image data ",e);
             } finally {
                 currentImage = null;

@@ -40,7 +40,7 @@ public class Images {
      * Adds an image to the collection.
      * @param image is the Image to add.
      */
-    public void addImage(Image image){
+    public void addImage(Image image) throws Exception{
         if(image == null){
             throw new NullPointerException("Can't add null Image");
         }
@@ -54,7 +54,7 @@ public class Images {
      * Removes an image from the collection.
      * @param image is the image to remove.
      */
-    public void removeImage(Image image){
+    public void removeImage(Image image) throws Exception{
         images.remove(image);
         imageLookup.remove(image.getKey());
         fireImageRemoved(image);
@@ -99,7 +99,7 @@ public class Images {
      * Signals that an image has been added to the collection.
      * @param image is the image that has been added.
      */
-    private void fireImageAdded(Image image) {
+    private void fireImageAdded(Image image) throws Exception{
         ImageChangeEvent event = new ImageChangeEvent(image);
         for(ImagesChangeListener listener : listeners){
             listener.imageAdded(event);
@@ -110,7 +110,7 @@ public class Images {
      * Signals that an image has been removed from the collection.
      * @param image is the image that has been removed.
      */
-    private void fireImageRemoved(Image image) {
+    private void fireImageRemoved(Image image) throws Exception{
         ImageChangeEvent event = new ImageChangeEvent(image);
         for(ImagesChangeListener listener : listeners){
             listener.imageRemoved(event);
@@ -121,7 +121,7 @@ public class Images {
      * Signals that an image has been edited.
      * @param image is the image that has been edited.
      */
-    public void fireImageEdited(Image image){
+    public void fireImageEdited(Image image) throws Exception{
         ImageChangeEvent event = new ImageChangeEvent(image);
         for(ImagesChangeListener listener : listeners){
             listener.imageEdited(event);

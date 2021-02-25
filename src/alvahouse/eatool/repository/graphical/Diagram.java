@@ -21,7 +21,6 @@ import javax.imageio.ImageIO;
 import alvahouse.eatool.repository.base.KeyedItem;
 import alvahouse.eatool.repository.base.NamedRepositoryItem;
 import alvahouse.eatool.repository.scripting.EventMap;
-import alvahouse.eatool.repository.scripting.Scripts;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
@@ -81,10 +80,10 @@ public abstract class Diagram extends NamedRepositoryItem {
 	/**
 	 * Sets the name.
 	 * @param name The name to set
+	 * @throws Exception 
 	 */
 	public void setName(String name) {
 		super.setName(name);
-		fireDiagramChanged();
 	}
 	
     /**
@@ -149,8 +148,9 @@ public abstract class Diagram extends NamedRepositoryItem {
 
 	/**
 	 * Notifies any listeners that the diagram has changed.
+	 * @throws Exception 
 	 */
-	protected void fireDiagramChanged(){
+	protected void fireDiagramChanged() throws Exception{
 		DiagramsChangeEvent event = new DiagramsChangeEvent(this);
 		for(Iterator<DiagramsChangeListener> iter = diagramsListeners.iterator(); iter.hasNext();){
 			DiagramsChangeListener listener = iter.next();
@@ -158,7 +158,7 @@ public abstract class Diagram extends NamedRepositoryItem {
 		}
 	}
 	
-	protected void fireSymbolAdded(GraphicalProxy s){
+	protected void fireSymbolAdded(GraphicalProxy s) throws Exception {
 		DiagramChangeEvent e = new DiagramChangeEvent(s);
 		for(Iterator<DiagramChangeListener> iter = diagramListeners.iterator(); iter.hasNext();){
 			DiagramChangeListener listener = iter.next();
@@ -166,14 +166,14 @@ public abstract class Diagram extends NamedRepositoryItem {
 		}
 	}
 	
-	protected void fireSymbolDeleted(GraphicalProxy s){
+	protected void fireSymbolDeleted(GraphicalProxy s) throws Exception {
 		DiagramChangeEvent e = new DiagramChangeEvent(s);
 		for(Iterator<DiagramChangeListener> iter = diagramListeners.iterator(); iter.hasNext();){
 			DiagramChangeListener listener = iter.next();
 			listener.symbolDeleted(e);
 		}
 	}
-	protected void fireSymbolMoved(GraphicalProxy s){
+	protected void fireSymbolMoved(GraphicalProxy s) throws Exception {
 		DiagramChangeEvent e = new DiagramChangeEvent(s);
 		for(Iterator<DiagramChangeListener> iter = diagramListeners.iterator(); iter.hasNext();){
 			DiagramChangeListener listener = iter.next();
@@ -181,21 +181,21 @@ public abstract class Diagram extends NamedRepositoryItem {
 		}
 	}
 	
-	protected void fireConnectorAdded(GraphicalProxy r){
+	protected void fireConnectorAdded(GraphicalProxy r) throws Exception {
 		DiagramChangeEvent e = new DiagramChangeEvent(r);
 		for(Iterator<DiagramChangeListener> iter = diagramListeners.iterator(); iter.hasNext();){
 			DiagramChangeListener listener = iter.next();
 			listener.connectorAdded(e);
 		}
 	}
-	protected void fireConnectorDeleted(GraphicalProxy r){
+	protected void fireConnectorDeleted(GraphicalProxy r) throws Exception {
 		DiagramChangeEvent e = new DiagramChangeEvent(r);
 		for(Iterator<DiagramChangeListener> iter = diagramListeners.iterator(); iter.hasNext();){
 			DiagramChangeListener listener = iter.next();
 			listener.connectorDeleted(e);
 		}
 	}
-	protected void fireConnectorMoved(GraphicalProxy r){
+	protected void fireConnectorMoved(GraphicalProxy r) throws Exception {
 		DiagramChangeEvent e = new DiagramChangeEvent(r);
 		for(Iterator<DiagramChangeListener> iter = diagramListeners.iterator(); iter.hasNext();){
 			DiagramChangeListener listener = iter.next();
@@ -203,7 +203,7 @@ public abstract class Diagram extends NamedRepositoryItem {
 		}
 	}
 
-	protected void fireMajorDiagramChange(){
+	protected void fireMajorDiagramChange()  throws Exception {
 		DiagramChangeEvent e = new DiagramChangeEvent(this);
 		for(Iterator<DiagramChangeListener> iter = diagramListeners.iterator(); iter.hasNext();){
 			DiagramChangeListener listener = iter.next();
@@ -238,8 +238,9 @@ public abstract class Diagram extends NamedRepositoryItem {
 
 	/**
 	 * Removes the content of the diagram and sets any diagram attributes to their defaults. 
+	 * @throws Exception 
 	 */
-	public abstract void reset();
+	public abstract void reset() throws Exception;
 
     /**
      * Sets the colours and any other properties of the diagram to their

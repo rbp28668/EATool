@@ -65,7 +65,7 @@ public class MetaModelViewerItemHandler implements ItemHandler {
     /* (non-Javadoc)
      * @see alvahouse.eatool.gui.graphical.ItemHandler#editSymbolItem(java.lang.Object)
      */
-    public boolean editSymbolItem(Component parent, Object item) {
+    public boolean editSymbolItem(Component parent, Object item) throws Exception {
 		MetaEntity me = (MetaEntity)item;
 		MetaEntityEditor editor = new MetaEntityEditor(parent, me, repository);
 		editor.setVisible(true);
@@ -185,7 +185,11 @@ public class MetaModelViewerItemHandler implements ItemHandler {
 			}
 
 			// Only add the new MetaRelationship to the metamodel once the user has confirmed.
-			repository.getMetaModel().addMetaRelationship(mr);
+			try {
+				repository.getMetaModel().addMetaRelationship(mr);
+			} catch (Exception e) {
+				throw new LogicException("Unable to add meta relationship to diagram",e);
+			}
 
 			selected = mr;
 		} 
@@ -231,7 +235,11 @@ public class MetaModelViewerItemHandler implements ItemHandler {
 			SymbolType st = type.getSymbolType();
 			symbol = st.newSymbol(metaEntity, x, y);
 			
-			repository.getMetaModel().addMetaEntity(metaEntity);
+			try {
+				repository.getMetaModel().addMetaEntity(metaEntity);
+			} catch (Exception e) {
+				throw new LogicException("Unable to add meta entity to drawing",e);
+			}
 			
         }
         return symbol;

@@ -51,14 +51,14 @@ public class Diagrams extends ModelChangeAdapter {
 	}
 	
 	
-	private void fireDiagramsUpdated(){
+	private void fireDiagramsUpdated() throws Exception{
 		DiagramsChangeEvent event = new DiagramsChangeEvent(null);
 		for(DiagramsChangeListener listener : changeListeners){
 			listener.diagramsUpdated(event);
 		}
 	}
 
-	private void fireDiagramAdded(Diagram diag){
+	private void fireDiagramAdded(Diagram diag) throws Exception{
 		DiagramsChangeEvent event = new DiagramsChangeEvent(diag);
 		for(DiagramsChangeListener listener : changeListeners){
 			listener.diagramAdded(event);
@@ -72,7 +72,7 @@ public class Diagrams extends ModelChangeAdapter {
 //		}
 //	}
 	
-	private void fireDiagramDeleted(Diagram diag){
+	private void fireDiagramDeleted(Diagram diag) throws Exception{
 		DiagramsChangeEvent event = new DiagramsChangeEvent(diag);
 		for(DiagramsChangeListener listener : changeListeners){
 			listener.diagramDeleted(event);
@@ -90,7 +90,7 @@ public class Diagrams extends ModelChangeAdapter {
 	 * This adds a diagram to the diagrams collection.
 	 * @param diagram is the diagram to add.
 	 */
-	public void add(Diagram diagram) {
+	public void add(Diagram diagram) throws Exception{
 	    if(diagram == null){
 	        throw new NullPointerException("Can't add null diagram to diagrams");
 	    }
@@ -105,7 +105,7 @@ public class Diagrams extends ModelChangeAdapter {
 	 * @param dt is the type of diagram to create.
 	 * @return a new diagram.
 	 */
-	public Diagram newDiagramOfType(DiagramType dt){
+	public Diagram newDiagramOfType(DiagramType dt) throws Exception{
 		Diagram diagram = dt.newDiagram(new UUID());
 		add(diagram);
 		return diagram;
@@ -115,7 +115,7 @@ public class Diagrams extends ModelChangeAdapter {
 	 * Removes a given diagram.
 	 * @param diagram
 	 */
-	public void removeDiagram(Diagram diagram){
+	public void removeDiagram(Diagram diagram) throws Exception{
 	    boolean removed = allDiagrams.remove(diagram);
 		List<Diagram> diagrams = getDiagramList(diagram.getType());
 		if(diagrams != null){
@@ -145,7 +145,7 @@ public class Diagrams extends ModelChangeAdapter {
 	
 	
 	
-	public void deleteContents() {
+	public void deleteContents() throws Exception{
 		allDiagrams.clear();
 		diagramsByType.clear();
 		fireDiagramsUpdated();
@@ -168,7 +168,7 @@ public class Diagrams extends ModelChangeAdapter {
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.model.ModelChangeListener#modelUpdated(alvahouse.eatool.repository.model.ModelChangeEvent)
      */
-    public void modelUpdated(ModelChangeEvent e) {
+    public void modelUpdated(ModelChangeEvent e) throws Exception{
         // Update all diagrams.
         // Should only occur in situations where major change 
         // is occuring and that means deletion of everything.

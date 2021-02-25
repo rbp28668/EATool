@@ -33,6 +33,7 @@ import alvahouse.eatool.util.XMLWriter;
  */
 public class MetaModelImpl implements MetaModel {
 
+	private UUID uuid; // Uniquely identify this meta model
     
     /** Map of MetaEntity keyed by UUID for fast lookup */
     private Map<UUID,MetaEntity> metaEntities = new HashMap<UUID,MetaEntity>();
@@ -51,6 +52,7 @@ public class MetaModelImpl implements MetaModel {
     
     /** Creates new MetaModel */
     public MetaModelImpl() {
+    	uuid = new UUID();
     }
 
     /* (non-Javadoc)
@@ -64,7 +66,7 @@ public class MetaModelImpl implements MetaModel {
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.metamodel.MetaModel#addMetaEntity(alvahouse.eatool.repository.metamodel.MetaEntity)
      */
-    public MetaEntity addMetaEntity(MetaEntity me) {
+    public MetaEntity addMetaEntity(MetaEntity me) throws Exception {
         if(metaEntities.containsKey(me.getKey()))
             throw new IllegalStateException("Meta Entity already exists in meta-model");
         
@@ -101,7 +103,7 @@ public class MetaModelImpl implements MetaModel {
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.metamodel.MetaModel#deleteMetaEntity(alvahouse.eatool.util.UUID)
      */    
-    public void deleteMetaEntity(UUID uuid) {
+    public void deleteMetaEntity(UUID uuid) throws Exception {
         MetaEntity me = metaEntities.remove(uuid);
         sortedEntities.remove(me);
         fireMetaEntityDeleted(me);
@@ -118,7 +120,7 @@ public class MetaModelImpl implements MetaModel {
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.metamodel.MetaModel#addMetaRelationship(alvahouse.eatool.repository.metamodel.MetaRelationship)
      */
-    public MetaRelationship addMetaRelationship(MetaRelationship mr) {
+    public MetaRelationship addMetaRelationship(MetaRelationship mr) throws Exception {
         mr.setModel(this);
         metaRelationships.put(mr.getKey(),mr);
         sortedRelationships.add(mr);
@@ -129,7 +131,7 @@ public class MetaModelImpl implements MetaModel {
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.metamodel.MetaModel#deleteMetaRelationship(alvahouse.eatool.util.UUID)
      */    
-    public void deleteMetaRelationship(UUID uuid) {
+    public void deleteMetaRelationship(UUID uuid) throws Exception {
         MetaRelationship mr  = (MetaRelationship)metaRelationships.remove(uuid);
         sortedRelationships.remove(mr);
         fireMetaRelationshipDeleted(mr);
@@ -221,6 +223,8 @@ public class MetaModelImpl implements MetaModel {
      */
     public void writeXML(XMLWriter out) throws IOException {
         out.startEntity("MetaModel");
+        out.addAttribute("uuid", uuid.toString());
+
         Set<UUID> written = new HashSet<UUID>();
         for(MetaEntity me : sortedEntities) {
             writeMetaEntity(me,out,written);
@@ -253,7 +257,7 @@ public class MetaModelImpl implements MetaModel {
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.metamodel.MetaModel#deleteContents()
      */
-    public void deleteContents() {
+    public void deleteContents() throws Exception {
         metaEntities.clear();
         metaRelationships.clear();
         sortedEntities.clear();
@@ -279,7 +283,7 @@ public class MetaModelImpl implements MetaModel {
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.metamodel.MetaModel#fireModelUpdated()
      */
-    public void fireModelUpdated() {
+    public void fireModelUpdated()  throws Exception{
         MetaModelChangeEvent evt = new MetaModelChangeEvent(this);
         for(MetaModelChangeListener l : listeners){
             l.modelUpdated(evt);
@@ -289,7 +293,7 @@ public class MetaModelImpl implements MetaModel {
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.metamodel.MetaModel#fireMetaEntityAdded(alvahouse.eatool.repository.metamodel.MetaEntity)
      */
-    public void fireMetaEntityAdded(MetaEntity me){
+    public void fireMetaEntityAdded(MetaEntity me) throws Exception{
         MetaModelChangeEvent evt = new MetaModelChangeEvent(me);
         for(MetaModelChangeListener l : listeners){
             l.metaEntityAdded(evt);
@@ -299,7 +303,7 @@ public class MetaModelImpl implements MetaModel {
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.metamodel.MetaModel#fireMetaEntityChanged(alvahouse.eatool.repository.metamodel.MetaEntity)
      */
-    public void fireMetaEntityChanged(MetaEntity me){
+    public void fireMetaEntityChanged(MetaEntity me) throws Exception{
         MetaModelChangeEvent evt = new MetaModelChangeEvent(me);
         for(MetaModelChangeListener l : listeners){
             l.metaEntityChanged(evt);
@@ -309,7 +313,7 @@ public class MetaModelImpl implements MetaModel {
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.metamodel.MetaModel#fireMetaEntityDeleted(alvahouse.eatool.repository.metamodel.MetaEntity)
      */
-    public void fireMetaEntityDeleted(MetaEntity me){ 
+    public void fireMetaEntityDeleted(MetaEntity me) throws Exception{ 
         MetaModelChangeEvent evt = new MetaModelChangeEvent(me);
         for(MetaModelChangeListener l : listeners){
             l.metaEntityDeleted(evt);
@@ -320,7 +324,7 @@ public class MetaModelImpl implements MetaModel {
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.metamodel.MetaModel#fireMetaRelationshipAdded(alvahouse.eatool.repository.metamodel.MetaRelationship)
      */
-    public void fireMetaRelationshipAdded(MetaRelationship mr){
+    public void fireMetaRelationshipAdded(MetaRelationship mr) throws Exception{
         MetaModelChangeEvent evt = new MetaModelChangeEvent(mr);
         for(MetaModelChangeListener l : listeners){
             l.metaRelationshipAdded(evt);
@@ -330,7 +334,7 @@ public class MetaModelImpl implements MetaModel {
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.metamodel.MetaModel#fireMetaRelationshipChanged(alvahouse.eatool.repository.metamodel.MetaRelationship)
      */
-    public void fireMetaRelationshipChanged(MetaRelationship mr){
+    public void fireMetaRelationshipChanged(MetaRelationship mr) throws Exception{
         MetaModelChangeEvent evt = new MetaModelChangeEvent(mr);
         for(MetaModelChangeListener l : listeners){
             l.metaRelationshipChanged(evt);
@@ -340,7 +344,7 @@ public class MetaModelImpl implements MetaModel {
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.metamodel.MetaModel#fireMetaRelationshipDeleted(alvahouse.eatool.repository.metamodel.MetaRelationship)
      */
-    public void fireMetaRelationshipDeleted(MetaRelationship mr){
+    public void fireMetaRelationshipDeleted(MetaRelationship mr) throws Exception{
         MetaModelChangeEvent evt = new MetaModelChangeEvent(mr);
         for(MetaModelChangeListener l : listeners){
             l.metaRelationshipDeleted(evt);
@@ -393,7 +397,7 @@ public class MetaModelImpl implements MetaModel {
 
         /** deletes the dependent meta-entity
          */
-        public void delete() {
+        public void delete() throws Exception {
             deleteMetaEntity(entity.getKey());
         }
         
@@ -426,7 +430,7 @@ public class MetaModelImpl implements MetaModel {
 
         /** deletes the dependent meta-relationship
          */
-        public void delete() {
+        public void delete() throws Exception {
             deleteMetaRelationship(relationship.getKey());
         }
         
@@ -439,5 +443,22 @@ public class MetaModelImpl implements MetaModel {
         
         private MetaRelationship relationship;
     }
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.base.KeyedItem#getKey()
+	 */
+	@Override
+	public UUID getKey() {
+		return uuid;
+	}
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.base.KeyedItem#setKey(alvahouse.eatool.util.UUID)
+	 */
+	@Override
+	public void setKey(UUID uuid) {
+		assert(uuid != null);
+		this.uuid = uuid;
+	}
     
 }

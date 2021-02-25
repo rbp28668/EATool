@@ -471,7 +471,7 @@ public class MatrixViewer extends JInternalFrame  implements MatrixTableModelLis
      * @param model is the model to be updated.
      * @param metaRelationship is the type of relationship to be updated in the model.
      */
-    public void updateModel(Model model, MetaRelationship metaRelationship){
+    public void updateModel(Model model, MetaRelationship metaRelationship) throws Exception{
         List<Relationship> relationshipsToAdd = new LinkedList<Relationship>();
         List<Relationship> relationshipsToDelete = new LinkedList<Relationship>();
         
@@ -656,7 +656,7 @@ public class MatrixViewer extends JInternalFrame  implements MatrixTableModelLis
     /**
      * Saves the contents of the viewer back into the model.
      */
-    public void save() {
+    public void save() throws Exception {
         updateModel(model,metaRelationship);
     }
 
