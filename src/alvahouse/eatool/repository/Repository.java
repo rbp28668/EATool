@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.Set;
 
 import alvahouse.eatool.repository.base.DeleteDependenciesList;
+import alvahouse.eatool.repository.base.KeyedItem;
 import alvahouse.eatool.repository.exception.InputException;
 import alvahouse.eatool.repository.exception.OutputException;
 import alvahouse.eatool.repository.exception.RepositoryException;
@@ -32,7 +33,7 @@ import alvahouse.eatool.repository.model.Relationship;
 import alvahouse.eatool.repository.scripting.EventMap;
 import alvahouse.eatool.repository.scripting.Scripts;
 
-public interface Repository {
+public interface Repository extends KeyedItem {
 
     // Bitmasks for selecting different parts to export.
     public final static int META_MODEL = 1;
@@ -212,8 +213,9 @@ public interface Repository {
 
     /**
      * Deletes all the contents of the repository.
+     * @throws Exception 
      */
-    public abstract void deleteContents();
+    public abstract void deleteContents() throws Exception;
 
     public abstract void index(LoadProgress progress) throws IOException;
 

@@ -105,8 +105,13 @@ public class RelationshipImportFactory implements IXMLContentHandler, ModelChang
                 }
             }
             // and if it doesn't - add it.
-            if(!duplicate)
-                model.addRelationship(currentRelationship);
+            if(!duplicate) {
+                try {
+					model.addRelationship(currentRelationship);
+				} catch (Exception e) {
+					throw new InputException("Unable to add relationship");
+				}
+            }
             
             currentRelationship = null;
         } else if (local.equals("Role")) {

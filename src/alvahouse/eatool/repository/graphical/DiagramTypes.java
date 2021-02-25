@@ -94,7 +94,7 @@ public class DiagramTypes extends MetaModelChangeAdapter {
 	 * get(UUID).
 	 * @param dt is the DiagramType to register.
 	 */
-	public void registerType(DiagramType dt) {
+	public void registerType(DiagramType dt)  throws Exception {
 		if(dt == null) {
 			throw new NullPointerException("Adding null diagram type");
 		}
@@ -107,7 +107,7 @@ public class DiagramTypes extends MetaModelChangeAdapter {
 	 * it will no longer be able to look it up using get(UUID).
 	 * @param dt is the DiagramType to un-register.
 	 */
-	public void unregisterType(DiagramType dt) {
+	public void unregisterType(DiagramType dt)  throws Exception {
 		if(dt == null) {
 			throw new NullPointerException("Can't remove null diagram type");
 		}
@@ -118,7 +118,7 @@ public class DiagramTypes extends MetaModelChangeAdapter {
    /**
      * @param diagramType
      */
-    public void delete(DiagramType diagramType) {
+    public void delete(DiagramType diagramType) throws Exception {
         DiagramTypeFamily family = diagramType.getFamily();
         family.remove(diagramType); // calls unregisterType(DiagramType);
     }
@@ -157,7 +157,7 @@ public class DiagramTypes extends MetaModelChangeAdapter {
 	 * fire the event to any registered listeners.
 	 * @param dt is the edited DiagramType.
 	 */
-	public void signalEdited(DiagramType dt){
+	public void signalEdited(DiagramType dt) throws Exception{
 		fireDiagramTypeChanged(dt);
 	}
 	
@@ -174,7 +174,7 @@ public class DiagramTypes extends MetaModelChangeAdapter {
 	/**
 	 * deletes all the diagram types.
 	 */
-	public void deleteContents() {
+	public void deleteContents()  throws Exception{
 	    typeLookup.clear();
 	    for(DiagramTypeFamily family : diagramClasses){
 	        family.deleteContents();
@@ -201,7 +201,7 @@ public class DiagramTypes extends MetaModelChangeAdapter {
      * @see alvahouse.eatool.repository.metamodel.MetaModelChangeListener#modelUpdated(alvahouse.eatool.repository.metamodel.MetaModelChangeEvent)
      */
 	@Override
-    public void modelUpdated(MetaModelChangeEvent e) {
+    public void modelUpdated(MetaModelChangeEvent e)  throws Exception {
         // Should only occur in situations where major change 
         // is occuring and that means deletion of everything.
         MetaModel meta = (MetaModel)e.getSource();
@@ -263,28 +263,28 @@ public class DiagramTypes extends MetaModelChangeAdapter {
         
     }
     
-	private void fireDiagramTypeAdded(DiagramType dt){
+	private void fireDiagramTypeAdded(DiagramType dt) throws Exception {
 		DiagramsChangeEvent event = new DiagramsChangeEvent(dt);
 		for(DiagramsChangeListener listener : changeListeners){
 			listener.diagramTypeAdded(event);
 		}
 	}
 	
-	private void fireDiagramTypeChanged(DiagramType dt){
+	private void fireDiagramTypeChanged(DiagramType dt) throws Exception {
 		DiagramsChangeEvent event = new DiagramsChangeEvent(dt);
 		for(DiagramsChangeListener listener : changeListeners){
 			listener.diagramTypeChanged(event);
 		}
 	}
 	
-	private void fireDiagramTypeDeleted(DiagramType dt){
+	private void fireDiagramTypeDeleted(DiagramType dt)  throws Exception {
 		DiagramsChangeEvent event = new DiagramsChangeEvent(dt);
 		for(DiagramsChangeListener listener : changeListeners){
 			listener.diagramTypeDeleted(event);
 		}
 	}
 
-	private void fireTypesUpdated(){
+	private void fireTypesUpdated()  throws Exception {
 		DiagramsChangeEvent event = new DiagramsChangeEvent(null);
 		for(DiagramsChangeListener listener : changeListeners){
 			listener.typesUpdated(event);

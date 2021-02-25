@@ -106,8 +106,12 @@ public class EntityEditor  extends BasicDialog {
 	 * @see alvahouse.eatool.GUI.BasicDialog#onOK()
 	 */
     protected void onOK() {
-    	propertiesPanel.onOK(); // updates original entity.
-    	relationshipsPanel.onOK();
+    	try {
+			propertiesPanel.onOK(); // updates original entity.
+			relationshipsPanel.onOK();
+		} catch (Exception e) {
+			new ExceptionDisplay(this,e);
+		}
     }
     
 	/**
@@ -142,7 +146,7 @@ public class EntityEditor  extends BasicDialog {
     	/**
     	 * @see alvahouse.eatool.GUI.BasicDialog#onOK()
     	 */
-        protected void onOK() {
+        protected void onOK() throws Exception {
         	for(RelationshipsSubPanel sub : relationshipPanels) {
         		sub.onOK();
         	}
@@ -389,7 +393,7 @@ public class EntityEditor  extends BasicDialog {
 		 * Note that this assumes that the optionality/cardinality constraints won't 
 		 * be invalidated.  This should have been checked with validateInput().
 		 */
-        void onOK() {
+        void onOK() throws Exception{
             
             // First make sure any relationships in both add and delete lists
             // are removed from both (i.e. user changed his mind).

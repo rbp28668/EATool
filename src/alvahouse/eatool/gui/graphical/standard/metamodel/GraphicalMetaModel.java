@@ -31,7 +31,7 @@ public class GraphicalMetaModel extends StandardDiagram {
     private final Repository repository;
 
     /** Creates new GraphicalMetaModel */
-    public GraphicalMetaModel(Repository rep, MetaModel mm, StandardDiagramType diagramType, UUID key) {
+    public GraphicalMetaModel(Repository rep, MetaModel mm, StandardDiagramType diagramType, UUID key) throws Exception {
     	super(diagramType, key);
         repository = rep;
         metaModel = mm;
@@ -44,7 +44,7 @@ public class GraphicalMetaModel extends StandardDiagram {
         metaModel.removeChangeListener(changeListener);
     }
     
-    public void update() {
+    public void update()  throws Exception{
         reset();
         for(MetaEntity me : metaModel.getMetaEntities()) {
             addMetaEntity(me);
@@ -68,7 +68,7 @@ public class GraphicalMetaModel extends StandardDiagram {
         return addNodeForObject(me);
     }
     
-    private Arc addMetaRelationship(MetaRelationship mr) {
+    private Arc addMetaRelationship(MetaRelationship mr) throws Exception{
         return addArcForObject(mr, mr.start().connectsTo(), mr.finish().connectsTo());
     }
     
@@ -94,7 +94,7 @@ public class GraphicalMetaModel extends StandardDiagram {
         /** signals that a meta relationship has been added
          * @ param e is the event that references the object being changed
          */
-        public void metaRelationshipAdded(MetaModelChangeEvent e) {
+        public void metaRelationshipAdded(MetaModelChangeEvent e) throws Exception {
             MetaRelationship mr = (MetaRelationship)e.getSource();
             addMetaRelationship(mr);
         }

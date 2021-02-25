@@ -9,6 +9,7 @@ package alvahouse.eatool.repository.metamodel.factory;
 import org.xml.sax.Attributes;
 
 import alvahouse.eatool.repository.ProgressCounter;
+import alvahouse.eatool.repository.exception.InputException;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.metamodel.MetaPropertyContainer;
@@ -117,7 +118,11 @@ public class MetaRelationshipFactory extends MetaPropertyContainerFactory implem
     public void endElement(String uri, String local) {
         if(local.equals("MetaRelationship")) {
             if(isNewMetaRelationship){
-                m_metaModel.addMetaRelationship(m_currentMetaRelationship);
+                try {
+					m_metaModel.addMetaRelationship(m_currentMetaRelationship);
+				} catch (Exception e) {
+					throw new InputException("Unable to add meta relationship",e);
+				}
                 
             }
             m_currentMetaRelationship = null;

@@ -28,8 +28,9 @@ public interface ItemHandler {
      * @param parent is the parent component for any dialog.
      * @param item is the item to edit.
      * @return true if edited, false if not.
+     * @throws Exception 
      */
-    public boolean editSymbolItem(Component parent, Object item);
+    public boolean editSymbolItem(Component parent, Object item) throws Exception;
     
     /**
      * Potentially creates a new symbol at the given location.

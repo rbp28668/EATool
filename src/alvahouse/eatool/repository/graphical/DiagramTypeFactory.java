@@ -96,12 +96,16 @@ public class DiagramTypeFactory extends FactoryBase implements IXMLContentHandle
 	 */
 	public void endElement(String uri, String local) throws InputException {
 		if(local.equals("DiagramType")) {
-			currentFamily.add(currentDiagramType);
-			currentDiagramType = null;
-			eventMapFactory.setEventMap(savedEventMap);
-			savedEventMap = null;
-			currentHandler = null;
-			counter.count("Diagram Type");
+			try {
+				currentFamily.add(currentDiagramType);
+				currentDiagramType = null;
+				eventMapFactory.setEventMap(savedEventMap);
+				savedEventMap = null;
+				currentHandler = null;
+				counter.count("Diagram Type");
+			} catch (Exception e) {
+				throw new InputException("Unable to add diagram type",e);
+			}
 		} else {
 		    currentHandler.endElement(uri, local);
 		}

@@ -132,8 +132,12 @@ public class EntityImportFactory implements IXMLContentHandler  {
                     e.getPropertyByMeta(uuidMeta).setValue( currentEntity.getPropertyByMeta(uuidMeta).getValue() );
                 }
             } else {
-                model.addEntity(currentEntity);
-                ec.add(currentEntity);  // in case of duplicates in input
+                try {
+					model.addEntity(currentEntity);
+					ec.add(currentEntity);  // in case of duplicates in input
+				} catch (Exception e1) {
+					throw new InputException("Unable to add entity",e1);
+				}
             }
             
             //model.addEntity(currentEntity);

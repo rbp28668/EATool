@@ -16,25 +16,25 @@ public class MetaModelChangeAdapter implements MetaModelChangeListener {
     public MetaModelChangeAdapter() {
     }
 
-    public void metaRelationshipDeleted(MetaModelChangeEvent e) {
+    public void metaRelationshipDeleted(MetaModelChangeEvent e) throws Exception{
     }
     
-    public void metaRelationshipAdded(MetaModelChangeEvent e) {
+    public void metaRelationshipAdded(MetaModelChangeEvent e) throws Exception{
     }
     
-    public void modelUpdated(MetaModelChangeEvent e) {
+    public void modelUpdated(MetaModelChangeEvent e) throws Exception {
     }
     
-    public void metaEntityDeleted(MetaModelChangeEvent e) {
+    public void metaEntityDeleted(MetaModelChangeEvent e) throws Exception {
     }
     
-    public void metaEntityAdded(MetaModelChangeEvent e) {
+    public void metaEntityAdded(MetaModelChangeEvent e) throws Exception {
     }
     
-    public void metaEntityChanged(MetaModelChangeEvent e) {
+    public void metaEntityChanged(MetaModelChangeEvent e) throws Exception {
     }
     
-    public void metaRelationshipChanged(MetaModelChangeEvent e) {
+    public void metaRelationshipChanged(MetaModelChangeEvent e) throws Exception {
     }
     
 }

@@ -54,7 +54,11 @@ public final class DeleteConfirmationDialog extends BasicDialog {
 	 * Called when the user presses OK - deletes all the dependencies.
 	 */
 	protected void onOK(){
-		dependencies.deleteDependencies();
+		try {
+			dependencies.deleteDependencies();
+		} catch (Exception e) {
+			new ExceptionDisplay(this,e);
+		}
 	}
 	
   

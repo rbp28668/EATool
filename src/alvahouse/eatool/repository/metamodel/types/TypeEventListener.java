@@ -18,19 +18,20 @@ public interface TypeEventListener {
      * Signals that a new type has been created.
      * @param event contains the type.
      */
-    public void typeAdded(TypeEvent event);
+    public void typeAdded(TypeEvent event) throws Exception;
     
     /**
      * Signals that a type has been edited.  Users of the type need to 
      * check validity of any properties.
      * @param event contains the type.
      */
-    public void typeChanged(TypeEvent event);
+    public void typeChanged(TypeEvent event) throws Exception;
     
     /**
      * Signals that a type has been deleted.  Users of the type need to 
      * remove any references to the type.
      * @param event contains the type.
+     * @throws Exception 
      */
-    public void typeDeleted(TypeEvent event);
+    public void typeDeleted(TypeEvent event) throws Exception;
 }

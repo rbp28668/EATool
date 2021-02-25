@@ -57,10 +57,15 @@ public class StandardDiagramViewerProxy {
         if(viewer == null){
             EventQueue.invokeAndWait( new Runnable(){
                 public void run(){
-                    WindowCoordinator wc = app.getWindowCoordinator();
-                    viewer = (StandardDiagramViewer)wc.getFrame(diagram.getKey().toString(), new ModelViewer.WindowFactory( diagram, app, repository));             
-                    viewer.refresh();
-                    viewer.show();
+                    try {
+						WindowCoordinator wc = app.getWindowCoordinator();
+						viewer = (StandardDiagramViewer)wc.getFrame(diagram.getKey().toString(), new ModelViewer.WindowFactory( diagram, app, repository));             
+						viewer.refresh();
+						viewer.show();
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
                 }
             });
         }

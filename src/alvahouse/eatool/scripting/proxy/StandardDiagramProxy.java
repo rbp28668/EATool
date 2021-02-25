@@ -10,7 +10,6 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.lang.reflect.InvocationTargetException;
 
-import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.graphical.standard.Connector;
 import alvahouse.eatool.repository.graphical.standard.ImageDisplay;
 import alvahouse.eatool.repository.graphical.standard.StandardDiagram;
@@ -54,7 +53,12 @@ public class StandardDiagramProxy {
     public void clear() throws InterruptedException, InvocationTargetException{
         EventQueue.invokeAndWait( new Runnable(){
             public void run(){
-                diagram.reset();
+                try {
+					diagram.reset();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
             }
         });
     }
@@ -73,7 +77,7 @@ public class StandardDiagramProxy {
      * @param title is the new name of the diagram.
      */
     @Scripted(description="Sets the title of the diagram.")
-    public void setTitle(String title){
+    public void setTitle(String title)  throws Exception{
         diagram.setName(title);
     }
     
@@ -215,7 +219,12 @@ public class StandardDiagramProxy {
     public void addConnectors() throws InterruptedException, InvocationTargetException{
         EventQueue.invokeAndWait( new Runnable(){
             public void run(){
-                diagram.addConnectors();
+                try {
+					diagram.addConnectors();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
             }
         });
     }
@@ -245,7 +254,12 @@ public class StandardDiagramProxy {
          * @see java.lang.Runnable#run()
          */
         public void run() {
-            diagram.addConnectors(types.getContents());
+            try {
+				diagram.addConnectors(types.getContents());
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
         }
         
     }

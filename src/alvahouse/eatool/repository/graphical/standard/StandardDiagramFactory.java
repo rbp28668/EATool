@@ -15,7 +15,6 @@ import org.xml.sax.Attributes;
 
 import alvahouse.eatool.repository.base.FactoryBase;
 import alvahouse.eatool.repository.base.KeyedItem;
-import alvahouse.eatool.repository.base.RepositoryItem;
 import alvahouse.eatool.repository.exception.InputException;
 import alvahouse.eatool.repository.exception.LogicException;
 import alvahouse.eatool.repository.graphical.Diagram;
@@ -55,7 +54,7 @@ public class StandardDiagramFactory extends FactoryBase implements DiagramDetail
     
 	// Translation map that translates old classnames to their current ones
 	// when packages have changed.
-	private static final Map typeTranslation = new HashMap();
+	private static final Map<String, String> typeTranslation = new HashMap<>();
 	static {
 	    typeTranslation.put("alvahouse.eatool.gui.graphical.StraightConnectorStrategy",StraightConnectorStrategy.class.getName());
 	    typeTranslation.put("alvahouse.eatool.gui.graphical.QuadraticConnectorStrategy",QuadraticConnectorStrategy.class.getName());
@@ -189,7 +188,7 @@ public class StandardDiagramFactory extends FactoryBase implements DiagramDetail
 		        throw new InputException("Missing class name on connector strategy");
 		    }
 		    
-		    Class csClass = null;
+		    Class<?> csClass = null;
 		    className = translate(className);
 		    try {
                 csClass = Class.forName(className);
@@ -290,13 +289,21 @@ public class StandardDiagramFactory extends FactoryBase implements DiagramDetail
 //			eventMapFactory.setEventMap(savedEventMap);
 //			savedEventMap = null;
 		} else if( local.equals("Symbol")){
-		    currentDiagram.addSymbol(currentSymbol);
+		    try {
+				currentDiagram.addSymbol(currentSymbol);
+			} catch (Exception e) {
+				throw new InputException("Unable to add symbol",e);
+			}
 		    currentSymbol = null;
 		    currentTextObject = null;
 		} else if( local.equals("Connector")){
             currentStart.addArc(currentConnector);
             currentFinish.addArc(currentConnector);
-		    currentDiagram.addConnector(currentConnector);
+		    try {
+				currentDiagram.addConnector(currentConnector);
+			} catch (Exception e) {
+				throw new InputException("Unable to add connector",e);
+			}
 		    
 		    currentConnector = null;
 		    currentStart = null;

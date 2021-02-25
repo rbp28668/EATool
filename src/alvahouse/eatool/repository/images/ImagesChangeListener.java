@@ -17,20 +17,21 @@ public interface ImagesChangeListener {
     /**
      * Signals an image has been added to the collection.
      * @param event references the image.
+     * @throws Exception 
      */
-    void imageAdded(ImageChangeEvent event);
+    void imageAdded(ImageChangeEvent event) throws Exception;
 
 
     /**
      * Signals an image has been removed from the collection.
      * @param event references the image.
      */
-    void imageRemoved(ImageChangeEvent event);
+    void imageRemoved(ImageChangeEvent event) throws Exception;
 
     /**
      * Signals an image has been edited.
      * @param event references the image.
      */
-    void imageEdited(ImageChangeEvent event);
+    void imageEdited(ImageChangeEvent event) throws Exception;
 
 }

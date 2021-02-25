@@ -116,7 +116,7 @@ public class StandardDiagram extends Diagram implements NodeGraph{
 	 * Adds a Symbol to the diagram.
 	 * @param s is the symbol to add.
 	 */
-	public void addSymbol(Symbol s) {
+	public void addSymbol(Symbol s)  throws Exception{
 		if(s == null) {
 			throw new NullPointerException("Adding null symbol to diagram");
 		}
@@ -131,7 +131,7 @@ public class StandardDiagram extends Diagram implements NodeGraph{
 	 * Adds a connector to the diagram.
 	 * @param c is the connector to add.
 	 */
-	public void addConnector(Connector c){
+	public void addConnector(Connector c) throws Exception{
 		if(c == null) {
 			throw new NullPointerException("Adding null connector to diagram");
 		}
@@ -145,7 +145,7 @@ public class StandardDiagram extends Diagram implements NodeGraph{
 	/* (non-Javadoc)
 	 * @see alvahouse.eatool.gui.graphical.Diagram#reset()
 	 */
-	public void reset(){
+	public void reset()  throws Exception{
 		symbols.clear();
 		connectors.clear();	
 		nodeMap.clear();
@@ -405,7 +405,7 @@ public class StandardDiagram extends Diagram implements NodeGraph{
 	 * @throws LogicException
 	 * @throw IllegalStateException if the end nodes aren't known to the model
 	 */
-	public Connector addArcForObject(KeyedItem item, KeyedItem firstEnd, KeyedItem secondEnd) {
+	public Connector addArcForObject(KeyedItem item, KeyedItem firstEnd, KeyedItem secondEnd)  throws Exception{
     	
 		Connector arc = null; //new BasicConnector(new UUID(),arcObject,null);
 		MetaRelationship mr = null;
@@ -533,7 +533,7 @@ public class StandardDiagram extends Diagram implements NodeGraph{
 	/**
 	 * Adds all possible connectors to this diagram.
      */
-    public void addConnectors() {
+    public void addConnectors()  throws Exception{
         
         for(Iterator<? extends Node> iter = getNodes().iterator(); iter.hasNext();){
         	Symbol symbol = (Symbol)iter.next();
@@ -567,7 +567,7 @@ public class StandardDiagram extends Diagram implements NodeGraph{
 	 * @param types is a Set of MetaRelationship that determine which
 	 * types of connector should be added.
      */
-    public void addConnectors(Set<MetaRelationship> types) {
+    public void addConnectors(Set<MetaRelationship> types)  throws Exception{
         
         for(Iterator<? extends Node> iter = getNodes().iterator(); iter.hasNext();){
         	Symbol symbol = (Symbol)iter.next();

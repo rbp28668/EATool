@@ -17,7 +17,7 @@ package alvahouse.eatool.repository.base;
 public interface IDeleteDependenciesProxy {
 
     public String toString();
-    public void delete();
+    public void delete() throws Exception;
     public Object getTarget();
 }
 

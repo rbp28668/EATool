@@ -10,6 +10,7 @@ import java.awt.Shape;
 import java.io.IOException;
 
 import alvahouse.eatool.gui.graphical.layout.Node;
+import alvahouse.eatool.repository.base.KeyedItem;
 import alvahouse.eatool.repository.graphical.GraphicalObject;
 import alvahouse.eatool.repository.graphical.GraphicalProxy;
 import alvahouse.eatool.util.UUID;
@@ -20,7 +21,7 @@ import alvahouse.eatool.util.XMLWriter;
  * @author Bruce.Porteous
  *
  */
-public interface Symbol extends Node, GraphicalObject, GraphicalProxy, TextObjectSettings {
+public interface Symbol extends Node, GraphicalObject, GraphicalProxy, TextObjectSettings, KeyedItem {
 
 	/**
 	 * This gets the outline shape of the symbol.  Needed by connectors to know

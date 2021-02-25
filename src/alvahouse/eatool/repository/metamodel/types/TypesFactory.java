@@ -84,12 +84,16 @@ public class TypesFactory extends FactoryBase implements IXMLContentHandler {
             currentList = null;
             currentTypeName = null;
         } else if (currentTypeName != null && local.equals(currentTypeName)){
-            currentType.endElement(uri,local);
-            // type is finished - add to list.
-            currentList.add(currentType);
-            types.fireTypeAdded(currentType);
-            currentType = null;
-            counter.count("Property Type");
+            try {
+				currentType.endElement(uri,local);
+				// type is finished - add to list.
+				currentList.add(currentType);
+				types.fireTypeAdded(currentType);
+				currentType = null;
+				counter.count("Property Type");
+			} catch (Exception e) {
+				throw new InputException("Unable to add type",e);
+			}
         } else {
             // Delegate to current type.
             if(currentType != null) {

@@ -219,7 +219,7 @@ public class ApplicationProxy {
     @Scripted(description="Clears out the repository leaving you with a new empty repository.  Note that you"
     		+ " should call this if you want to load in a new repository via loadFile and not merge it with "
     		+ " the exiting one")
-    public void fileNew() throws IOException{
+    public void fileNew() throws Exception{
         getActions().fileNew();
     }
     
@@ -284,7 +284,7 @@ public class ApplicationProxy {
      * Display the model explorer.
      */
     @Scripted(description="Display the model explorer.")
-    public void showModel(){
+    public void showModel() throws Exception{
         getActions().showModel();
     }
     
@@ -292,7 +292,7 @@ public class ApplicationProxy {
      * Display a diagram of the complete model.
      */
     @Scripted(description="Display a diagram of the complete model.")
-    public void viewModel(){
+    public void viewModel() throws Exception{
         getActions().viewModel();
     }
     
@@ -300,7 +300,7 @@ public class ApplicationProxy {
      * Display the explorer for the model's diagrams.
      */
     @Scripted(description="Display the explorer for the model's diagrams.")
-    public void showModelDiagrams(){
+    public void showModelDiagrams() throws Exception{
         getActions().showModelDiagrams();
     }
     
@@ -308,7 +308,7 @@ public class ApplicationProxy {
      * Display the model browser.
      */
     @Scripted(description="Display the model browser.")
-    public void browseModel(){
+    public void browseModel() throws Exception{
         getActions().browseModel();
     }
     
@@ -317,7 +317,7 @@ public class ApplicationProxy {
      * Show the scripts explorer.
      */
     @Scripted(description="Show the scripts explorer.")
-    public void showScripts(){
+    public void showScripts() throws Exception{
         getActions().showScripts();
     }
     
@@ -325,7 +325,7 @@ public class ApplicationProxy {
      * Show the import mappings explorer.
      */
     @Scripted(description="Show the import mappings explorer.")
-    public void showImportMappings(){
+    public void showImportMappings() throws Exception{
         getActions().showImportMappings();
     }
     
@@ -333,7 +333,7 @@ public class ApplicationProxy {
      * Show the export mappings explorer.
      */
     @Scripted(description="Show the export mappings explorer.")
-    public void showExportMappings(){
+    public void showExportMappings() throws Exception{
         getActions().showExportMappings();
     }
     
@@ -446,7 +446,7 @@ public class ApplicationProxy {
     		" If the set contains more than one Entity then each entity"
     		+ " will be displayed in a different window.  Normally this would be used"
     		+ " after the user has selected a single entity.")
-    public void browseEntity(EntitySet entities){
+    public void browseEntity(EntitySet entities) throws Exception{
         for(Entity e : entities.getContents()){
             getActions().browseEntity(e);
         }
@@ -457,7 +457,7 @@ public class ApplicationProxy {
      * @param set
      */
     @Scripted(description="Displays the given set of meta-entities in a browser.")
-    public void browseMetaEntities(MetaEntitySet set){
+    public void browseMetaEntities(MetaEntitySet set) throws Exception{
         ModelBrowser browser = (ModelBrowser) app.getWindowCoordinator().getFrame("ModelBrowser");
         Set<alvahouse.eatool.repository.metamodel.MetaEntity> contents = set.getContents();
         MetaEntity[] entities = new MetaEntity[contents.size()];

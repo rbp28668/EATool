@@ -65,7 +65,11 @@ implements IXMLContentHandler{
         if(local.equals("Script")){
             currentScript.setScript(buff.toString());
             buff.delete(0,buff.length());
-            scripts.add(currentScript);
+            try {
+				scripts.add(currentScript);
+			} catch (Exception e) {
+				throw new InputException("Unable to add script",e);
+			}
             currentScript = null;
             counter.count("Script");
         }
