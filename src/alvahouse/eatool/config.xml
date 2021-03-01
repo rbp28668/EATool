@@ -962,6 +962,10 @@
 							display="Edit"
 							mnemonic="E"
 							/>
+				<menuitem 	action="EntityClone" 
+							display="Clone"
+							mnemonic="C"
+							/>
 				<menuitem 	action="EntityDelete" 
 							display="Delete"
 							mnemonic="D"
