@@ -15,8 +15,8 @@ import alvahouse.eatool.repository.metamodel.MetaProperty;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.repository.metamodel.MetaRole;
 import alvahouse.eatool.util.SettingsManager;
-import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.SettingsManager.Element;
+import alvahouse.eatool.util.UUID;
 
 /**
  * SettingsLoader creates ImportMappings from the settings tree.
@@ -36,7 +36,7 @@ public class SettingsLoader {
 //        loadImportMappings(mappings, metaModel, importCfg);
     }
 
-    private void loadImportMappings(ImportMappings mappings, MetaModel metaModel, SettingsManager.Element cfg) {
+    private void loadImportMappings(ImportMappings mappings, MetaModel metaModel, SettingsManager.Element cfg)  throws Exception{
         for(SettingsManager.Element e : cfg.getChildren()){
             ImportMapping mapping = new ImportMapping();
             build(mapping,metaModel,e);
@@ -44,7 +44,7 @@ public class SettingsLoader {
         }
     }
 
-    private void build(ImportMapping mapping, MetaModel metaModel, SettingsManager.Element cfg){
+    private void build(ImportMapping mapping, MetaModel metaModel, SettingsManager.Element cfg) throws Exception{
         mapping.setName(cfg.attributeRequired("name"));
         buildChildren(mapping,metaModel, cfg);
     }
@@ -54,7 +54,7 @@ public class SettingsLoader {
      * Build the child entity and relationship translations.
      * @param cfg is the settings element at the root of the ImportMapping.
      */
-    private void buildChildren(ImportMapping mapping, MetaModel metaModel, Element cfg) {
+    private void buildChildren(ImportMapping mapping, MetaModel metaModel, Element cfg)  throws Exception{
         SettingsManager.Element cfgEntities = cfg.findChild("EntityTranslationSet");
         
         // Add entities (optional)
@@ -82,7 +82,7 @@ public class SettingsLoader {
      * @param metaModel is the metaModel that is being mapped against.
      * @param cfg is the settings manager element to configure this EntityTranslation.
      */
-    private void build (EntityTranslation mapping, MetaModel metaModel, SettingsManager.Element cfg) {
+    private void build (EntityTranslation mapping, MetaModel metaModel, SettingsManager.Element cfg) throws Exception{
         
         if(cfg.getName().compareTo("EntityTranslation") != 0)
             throw new IllegalArgumentException("Invalid Entity Translation " + cfg.getName());
@@ -104,7 +104,7 @@ public class SettingsLoader {
      * @param metaModel is the metaModel this is being built upon.
      * @param cfg defines the RelationshipTranslation.
      */
-    private void build(RelationshipTranslation mapping, MetaModel metaModel, SettingsManager.Element cfg) {
+    private void build(RelationshipTranslation mapping, MetaModel metaModel, SettingsManager.Element cfg) throws Exception {
 
         if(cfg.getName().compareTo("RelationshipTranslation") != 0)
             throw new IllegalArgumentException("Invalid Relationship Translation " + cfg.getName());
@@ -131,7 +131,7 @@ public class SettingsLoader {
      * @param parent is the parent MetaRelationship this role translation bind to.
      * @param cfg defines the configuration of this RoleTranslation.
      */
-    private void build(RoleTranslation mapping, MetaRelationship parent, SettingsManager.Element cfg) {
+    private void build(RoleTranslation mapping, MetaRelationship parent, SettingsManager.Element cfg) throws Exception{
         if(cfg.getName().compareTo("RoleTranslation") != 0)
             throw new IllegalArgumentException("Invalid Role Translation " + cfg.getName());
 
@@ -148,7 +148,7 @@ public class SettingsLoader {
     }
     
     
-    private void addPropertiesFromConfig(PropertyTranslationCollection mapping, MetaEntity meta, SettingsManager.Element cfg) {
+    private void addPropertiesFromConfig(PropertyTranslationCollection mapping, MetaEntity meta, SettingsManager.Element cfg) throws Exception{
         for(SettingsManager.Element child : cfg.getChildren()){
             PropertyTranslation pt = new PropertyTranslation();
             build(pt, meta, child);
@@ -156,7 +156,7 @@ public class SettingsLoader {
         }
     }
 
-    private void build(PropertyTranslation mapping, MetaEntity me, SettingsManager.Element cfg) {
+    private void build(PropertyTranslation mapping, MetaEntity me, SettingsManager.Element cfg) throws Exception{
 
         if(cfg.getName().compareTo("PropertyTranslation") != 0)
             throw new IllegalArgumentException("Invalid Property Translation " + cfg.getName());

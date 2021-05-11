@@ -34,7 +34,7 @@ public abstract class Dialogs {
      * @param frame is the parent frame for the dialog.
      * @return the selected MetaRelationship or null if none selected.
      */
-    public static MetaRelationship selectMetaRelationship(JInternalFrame frame,Repository repository){
+    public static MetaRelationship selectMetaRelationship(JInternalFrame frame,Repository repository) throws Exception{
         MetaRelationship[] options = repository.getMetaModel().getMetaRelationshipsAsArray();
         MetaRelationship meta = null;
         if(options.length == 1){
@@ -57,7 +57,7 @@ public abstract class Dialogs {
      * @param frame is the parent frame for the dialog.
      * @return the selected MetaRelationship or null if none selected.
      */
-    public static MetaRelationship selectMetaRelationshipFor(MetaEntity me, Component parent,Repository repository){
+    public static MetaRelationship selectMetaRelationshipFor(MetaEntity me, Component parent,Repository repository) throws Exception{
     	Set<MetaRelationship> related = repository.getMetaModel().getMetaRelationshipsFor(me);
         MetaRelationship[] options = related.toArray(new MetaRelationship[related.size()]);
         MetaRelationship meta = null;

@@ -202,7 +202,7 @@ public class Diagrams extends ModelChangeAdapter {
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.model.ModelChangeListener#RelationshipChanged(alvahouse.eatool.repository.model.ModelChangeEvent)
      */
-    public void RelationshipChanged(ModelChangeEvent e) {
+    public void RelationshipChanged(ModelChangeEvent e) throws Exception{
         Relationship rel = (Relationship)e.getSource();
         validateRelationship(rel);
     }
@@ -211,7 +211,7 @@ public class Diagrams extends ModelChangeAdapter {
      * This validates the relationship in all the diagrams.
      * @param rel is the Relationship to validate.
      */
-    private void validateRelationship(Relationship rel) {
+    private void validateRelationship(Relationship rel) throws Exception{
         Entity start = rel.start().connectsTo();
         Entity finish = rel.finish().connectsTo();
 
@@ -238,7 +238,7 @@ public class Diagrams extends ModelChangeAdapter {
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.model.ModelChangeListener#RoleChanged(alvahouse.eatool.repository.model.ModelChangeEvent)
      */
-    public void RoleChanged(ModelChangeEvent e) {
+    public void RoleChanged(ModelChangeEvent e) throws Exception{
         // Some connectors may be invalid.
         Role role = (Role)e.getSource();
         validateRelationship(role.getRelationship());

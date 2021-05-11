@@ -25,7 +25,7 @@ import alvahouse.eatool.util.XMLWriter;
  * @author bruce.porteous
  *
  */
-public class PersistentMetaModel implements MetaModel {
+public class PersistentMetaModel  {
 
     /**
      * Gets a MetaEntity from the meta model.
@@ -248,22 +248,22 @@ public class PersistentMetaModel implements MetaModel {
     	return Collections.emptyList();
     }
 
-	/* (non-Javadoc)
-	 * @see alvahouse.eatool.repository.base.KeyedItem#getKey()
-	 */
-	@Override
-	public UUID getKey() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see alvahouse.eatool.repository.base.KeyedItem#setKey(alvahouse.eatool.util.UUID)
-	 */
-	@Override
-	public void setKey(UUID uuid) {
-		// TODO Auto-generated method stub
-		
-	}
+//	/* (non-Javadoc)
+//	 * @see alvahouse.eatool.repository.base.KeyedItem#getKey()
+//	 */
+//	@Override
+//	public UUID getKey() {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+//
+//	/* (non-Javadoc)
+//	 * @see alvahouse.eatool.repository.base.KeyedItem#setKey(alvahouse.eatool.util.UUID)
+//	 */
+//	@Override
+//	public void setKey(UUID uuid) {
+//		// TODO Auto-generated method stub
+//		
+//	}
 
 }

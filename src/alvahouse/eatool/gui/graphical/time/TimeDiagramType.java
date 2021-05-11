@@ -66,7 +66,7 @@ public class TimeDiagramType extends DiagramType {
      * the diagram type.
      * @param entry is the TypeEntry to add.
      */
-    public void addTarget(TypeEntry entry) {
+    public void addTarget(TypeEntry entry) throws Exception{
         assert(entry != null);
         assert(entry.getTargetType() != null);
         assert(entry.getTargetProperty() != null);
@@ -189,7 +189,7 @@ public class TimeDiagramType extends DiagramType {
          * @param targetType is the MetaEntity containing the targetProperty.
          * @param targetProperty is the MetaProperty to display.
          */
-        TypeEntry( MetaEntity targetType, MetaProperty targetProperty){
+        TypeEntry( MetaEntity targetType, MetaProperty targetProperty) throws Exception{
             assert(targetType != null);
             assert(targetProperty != null);
             assert(targetType.getMetaProperty(targetProperty.getKey()) != null);
@@ -226,7 +226,7 @@ public class TimeDiagramType extends DiagramType {
          * Sets the target property for this entry.
          * @param targetProperty is the new target property to set.
          */
-        void setTargetProperty(MetaProperty targetProperty){
+        void setTargetProperty(MetaProperty targetProperty) throws Exception{
             assert(targetProperty != null);
             assert(targetType.getMetaProperty(targetProperty.getKey()) != null);
             this.targetProperty = targetProperty;

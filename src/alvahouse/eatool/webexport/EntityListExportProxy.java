@@ -6,7 +6,6 @@
  */
 package alvahouse.eatool.webexport;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -47,7 +46,7 @@ public class EntityListExportProxy implements ExportProxy {
     /* (non-Javadoc)
      * @see webexport.ExportProxy#export(alvahouse.eatool.util.XMLWriter)
      */
-    public void export(XMLWriter out) throws IOException {
+    public void export(XMLWriter out) throws Exception {
 
         if(me == null) {
             throw new IllegalStateException("MetaEntity not set for export");

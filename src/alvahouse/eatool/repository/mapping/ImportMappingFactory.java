@@ -83,16 +83,32 @@ public class ImportMappingFactory extends FactoryBase implements
             text.delete(0,text.length());
 
         } else if (local.equals("EntityTranslation")){
-            startEntityTranslation(attrs);
+        	try {
+        		startEntityTranslation(attrs);
+        	}catch (Exception e) {
+        		throw new InputException("Unable to start entity translation",e);
+        	}
            
         } else if (local.equals("RelationshipTranslation")){
-            startRelationshipTranslation(attrs);
+        	try {
+        		startRelationshipTranslation(attrs);
+        	} catch (Exception e) {
+        		throw new InputException("Unable to start relationship translation",e);
+        	}
             
         } else if (local.equals("RoleTranslation")){
-            startRoleTranslation(attrs);
+        	try {
+        		startRoleTranslation(attrs);
+        	} catch (Exception e) {
+        		throw new InputException("Unable to start role translation",e);
+        	}
             
         } else if (local.equals("PropertyTranslation")){
-            startPropertyTranslation(attrs);
+        	try {
+        		startPropertyTranslation(attrs);
+        	} catch (Exception e) {
+        		throw new InputException("Unable to start property translation",e);
+        	}
         }
 
     }
@@ -159,7 +175,7 @@ public class ImportMappingFactory extends FactoryBase implements
      * @param uri
      * @param attrs
      */
-    private void startPropertyTranslation(Attributes attrs) {
+    private void startPropertyTranslation(Attributes attrs) throws Exception{
         if(currentPTC == null){
             throw new InputException("PropertyTranslation outside its container");
         }
@@ -197,7 +213,7 @@ public class ImportMappingFactory extends FactoryBase implements
      * @param uri
      * @param attrs
      */
-    private void startRoleTranslation(Attributes attrs) {
+    private void startRoleTranslation(Attributes attrs) throws Exception{
         if(currentRelationshipTranslation == null){
             throw new InputException("RoleTranslation outside RelationshipTranslation");
         }
@@ -228,7 +244,7 @@ public class ImportMappingFactory extends FactoryBase implements
      * @param uri
      * @param attrs
      */
-    private void startRelationshipTranslation(Attributes attrs) {
+    private void startRelationshipTranslation(Attributes attrs)  throws Exception{
         if(mapping == null) {
             throw new InputException("RelationshipTranslation outside ImportMapping");
         }
@@ -260,7 +276,7 @@ public class ImportMappingFactory extends FactoryBase implements
      * @param uri
      * @param attrs
      */
-    private void startEntityTranslation(Attributes attrs) {
+    private void startEntityTranslation(Attributes attrs)  throws Exception{
         if(mapping == null) {
             throw new InputException("EntityTranslation outside ImportMapping");
         }

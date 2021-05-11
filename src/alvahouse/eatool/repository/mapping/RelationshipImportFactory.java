@@ -7,8 +7,6 @@
 package alvahouse.eatool.repository.mapping;
 
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import org.xml.sax.Attributes;
@@ -120,10 +118,15 @@ public class RelationshipImportFactory implements IXMLContentHandler, ModelChang
             
             // want key lookup to allow easy lookup of target entity by
             // natural composite key. 
-            MetaEntity me = currentRoleTranslation.getMeta().connectsTo();
+            MetaEntity me = null;
+            try {
+            	me = currentRoleTranslation.getMeta().connectsTo();
+            } catch (Exception e) {
+            	throw new InputException("Unable to get connected MetaEntity during input",e);
+            }
             EntityKeyLookup ec = entityLookup.get(me);
             if(ec == null) {
-                ec = new EntityKeyLookup(model, currentRoleTranslation.getMeta().connectsTo(), currentRoleTranslation);
+                ec = new EntityKeyLookup(model, me, currentRoleTranslation);
                 entityLookup.put(me, ec);
             }
             
@@ -140,7 +143,7 @@ public class RelationshipImportFactory implements IXMLContentHandler, ModelChang
         }
     }
     
-    public void startElement(String uri, String local, Attributes attrs) {
+    public void startElement(String uri, String local, Attributes attrs) throws InputException {
        if(local.equals("Relationship")) {
             if(currentRelationship != null)
                 throw new IllegalArgumentException("Nested Relationships importing XML");
@@ -151,7 +154,11 @@ public class RelationshipImportFactory implements IXMLContentHandler, ModelChang
             if(currentRelationshipTranslation == null)
                 throw new InputException("Relationship type " + type + " not recognised importing XML");
             
-            currentRelationship = new Relationship(new UUID(), currentRelationshipTranslation.getMeta()); // default position is to assume it's a new relationship
+            try {
+            	currentRelationship = new Relationship(new UUID(), currentRelationshipTranslation.getMeta()); // default position is to assume it's a new relationship
+            }catch(Exception e) {
+            	throw new InputException("Unable to create new relationship during import",e);
+            }
             
         } else if (local.equals("Role")) {
              if(currentRole != null)
@@ -162,9 +169,17 @@ public class RelationshipImportFactory implements IXMLContentHandler, ModelChang
             
             currentRoleTranslation = currentRelationshipTranslation.getRoleByTypename(type);
             MetaRole mr = currentRoleTranslation.getMeta();
-            currentRole = new Role(new UUID(),mr);
+            try{
+            	currentRole = new Role(new UUID(),mr);
+            } catch (Exception e) {
+            	throw new InputException("Unable to create new Role during import", e);
+            }
             
-            currentEntity = new Entity(new UUID(), mr.connectsTo()); // of correct type for role
+            try {
+            	currentEntity = new Entity(new UUID(), mr.connectsTo()); // of correct type for role
+            } catch (Exception e) {
+            	throw new InputException("Unable to create new Entity during import", e);
+            }
   
         } else if (local.equals("PropertyKey")) {
             String type = attrs.getValue("type");

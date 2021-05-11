@@ -21,7 +21,7 @@ public interface GraphicalObject {
 	 * @param g is the graphics surface to draw it on.
 	 * @param scale is the current zoom factor to draw it at.
 	 */
-	public abstract void draw(Graphics2D g, float scale);
+	public abstract void draw(Graphics2D g, float scale) throws Exception;
 	
 	/**
 	 * Allows the graphical object to automatically resize itself. It
@@ -30,14 +30,14 @@ public interface GraphicalObject {
 	 * that is independent from any device resolution.
 	 * @param g is a Graphics2D to use for resizing.
 	 */
-	public abstract void sizeWith(Graphics2D g);
+	public abstract void sizeWith(Graphics2D g) throws Exception;
 	
 	/**
 	 * Draws any attached handles, borders etc.
 	 * @param g is the graphics surface to draw it on.
 	 * @param scale is the current zoom factor to draw it at.
 	 */
-	public abstract void drawCollateral(Graphics2D g, float scale);
+	public abstract void drawCollateral(Graphics2D g, float scale) throws Exception;
 	
 	/**
 	 * Gets the bounds of the object at zoom 1.

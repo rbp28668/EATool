@@ -20,8 +20,6 @@ import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.metamodel.MetaModelChangeEvent;
 import alvahouse.eatool.repository.metamodel.MetaModelChangeListener;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
-import alvahouse.eatool.repository.metamodel.impl.MetaEntityImpl;
-import alvahouse.eatool.repository.metamodel.impl.MetaRelationshipImpl;
 import alvahouse.eatool.repository.model.Entity;
 import alvahouse.eatool.repository.model.Model;
 import alvahouse.eatool.repository.model.ModelChangeEvent;
@@ -80,7 +78,7 @@ public class ModelExplorerTreeModel extends ExplorerTreeModel
 
      /** initialises the tree model from the model or meta-model.
      */
-    private void initModel() {
+    private void initModel()  throws Exception{
         MutableTreeNode metn = getMetaEntitiesNode();
         MutableTreeNode mrtn = getMetaRelationshipsNode();
         insertNodeInto(metn, (DefaultMutableTreeNode)getRoot(),0);
@@ -89,7 +87,7 @@ public class ModelExplorerTreeModel extends ExplorerTreeModel
         int idx = 0;
         List<MetaEntity> metaEntities = new LinkedList<>();
         metaEntities.addAll(metaModel.getMetaEntities());
-        Collections.sort(metaEntities, new MetaEntityImpl.Compare());
+        Collections.sort(metaEntities, new MetaEntity.Compare());
         for(MetaEntity me : metaEntities) {
             idx = addMetaEntityNode(metn,me,idx);
         }
@@ -97,7 +95,7 @@ public class ModelExplorerTreeModel extends ExplorerTreeModel
         idx=0;
         List<MetaRelationship> metaRelationships = new LinkedList<>();
         metaRelationships.addAll(metaModel.getMetaRelationships());
-        Collections.sort(metaRelationships,new MetaRelationshipImpl.Compare());
+        Collections.sort(metaRelationships,new MetaRelationship.Compare());
         for(MetaRelationship mr : metaRelationships) {
             idx = addMetaRelationshipNode(mrtn,mr,idx);
         }
@@ -119,7 +117,7 @@ public class ModelExplorerTreeModel extends ExplorerTreeModel
     /** Call when the meta model changes to get the explorer to re-build
      * it's internal representation
      */
-    public void refresh() {
+    public void refresh()  throws Exception{
        clearTree();
        reload();
        initModel();
@@ -256,7 +254,7 @@ public class ModelExplorerTreeModel extends ExplorerTreeModel
      * @idxRelationship is where to insert the relationship-node into its parent
      * @returns the index for the next relationship to be added to
      */
-    private int addMetaRelationshipNode(MutableTreeNode parent, MetaRelationship mr, int idxRelationship) {
+    private int addMetaRelationshipNode(MutableTreeNode parent, MetaRelationship mr, int idxRelationship)  throws Exception{
         List<Relationship> listRelationships = model.getRelationshipsOfType(mr);
         if(!listRelationships.isEmpty()) {
             DefaultMutableTreeNode tnRelationship = new DefaultMutableTreeNode(mr);
@@ -271,7 +269,7 @@ public class ModelExplorerTreeModel extends ExplorerTreeModel
      * @param tnMetaRelationship is the tree node for the meta-relationship
      * @param listRelationships is a list of relationships of the the meta-relaitonship
      */
-    public void setMetaRelationshipNodeChildren(MutableTreeNode tnMetaRelationship, List<Relationship> listRelationships) {
+    public void setMetaRelationshipNodeChildren(MutableTreeNode tnMetaRelationship, List<Relationship> listRelationships)  throws Exception{
         int idx = 0;
         for(Relationship  r : listRelationships) {
             addRelationshipNode(tnMetaRelationship, r, idx++);
@@ -283,7 +281,7 @@ public class ModelExplorerTreeModel extends ExplorerTreeModel
      * @param r is the relationship to add
      * @idxRelationship is where to insert the relationship-node into its parent
      */
-    private void addRelationshipNode(MutableTreeNode parent, Relationship r, int idxRelationship) {
+    private void addRelationshipNode(MutableTreeNode parent, Relationship r, int idxRelationship)  throws Exception{
         DefaultMutableTreeNode tnRelationship = new DefaultMutableTreeNode(r);
         insertNodeInto(tnRelationship, parent, idxRelationship);
         registerNode(tnRelationship,r);
@@ -311,7 +309,7 @@ public class ModelExplorerTreeModel extends ExplorerTreeModel
      * @param roleNode is the role node to add detail to.
      * @param r is the Role to supply that detail.
      */
-    private void addRoleDetail(MutableTreeNode roleNode, Role r){
+    private void addRoleDetail(MutableTreeNode roleNode, Role r) throws Exception{
         int idx = 0;
         insertNodeInto(new DefaultMutableTreeNode("connects to " + r.connectsTo().toString()),roleNode,idx++);
         Collection<Property> properties = r.getProperties();
@@ -348,7 +346,7 @@ public class ModelExplorerTreeModel extends ExplorerTreeModel
     /** signals a major update to the meta model
      * @ param e is the event that references the object being changed
      */
-    public void modelUpdated(MetaModelChangeEvent e) {
+    public void modelUpdated(MetaModelChangeEvent e)  throws Exception{
         refresh();
     }
     
@@ -389,7 +387,7 @@ public class ModelExplorerTreeModel extends ExplorerTreeModel
     /** signals that a meta relationship has been changed
      * @ param e is the event that references the object being changed
      */
-    public void metaRelationshipChanged(MetaModelChangeEvent e) {
+    public void metaRelationshipChanged(MetaModelChangeEvent e)  throws Exception{
         refresh(); // likely to spawn major changes.
     }
 
@@ -488,7 +486,7 @@ public class ModelExplorerTreeModel extends ExplorerTreeModel
     /** signals that a  relationship has been added
      * @ param e is the event that references the object being changed
      */
-    public void RelationshipAdded(ModelChangeEvent e) {
+    public void RelationshipAdded(ModelChangeEvent e)  throws Exception{
         Relationship r = (Relationship)e.getSource();
         MetaRelationship mr = r.getMeta();
         
@@ -510,7 +508,7 @@ public class ModelExplorerTreeModel extends ExplorerTreeModel
     /** signals a major update to the  model
      * @ param e is the event that references the object being changed
      */
-    public void modelUpdated(ModelChangeEvent e) {
+    public void modelUpdated(ModelChangeEvent e)  throws Exception{
         refresh();
     }
     

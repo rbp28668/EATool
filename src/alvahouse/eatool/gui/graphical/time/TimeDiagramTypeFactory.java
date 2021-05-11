@@ -32,7 +32,7 @@ public class TimeDiagramTypeFactory extends FactoryBase implements
     private MetaModel metaModel;
     private TimeDiagramType diagramType;
     private TimeDiagramType.TypeEntry currentTarget = null;
-    private Vector colours = null;
+    private Vector<Color> colours = null;
     
     
     /**
@@ -57,32 +57,41 @@ public class TimeDiagramTypeFactory extends FactoryBase implements
     public void startElement(String uri, String local, Attributes attrs)
             throws InputException {
         if(local.equals("TypeEntry")){
-            if(currentTarget != null){
-                throw new InputException("Nested TypeEntries in TimeDiagramType");
-            }
-            
-            String entityKey = attrs.getValue("entity");
-            if(entityKey == null){
-                throw new InputException("Missing entity key attribute in TypeEntry");
-            }
-            
-            String propertyKey = attrs.getValue("property");
-            if(propertyKey == null){
-                throw new InputException("Missing property key attribute in TypeEntry");
-            }
-            
-            MetaEntity metaEntity = metaModel.getMetaEntity(new UUID(entityKey));
-            if(metaEntity == null){
-                throw new InputException("No Meta Entity corresponding to key " + entityKey);
-            }
-            
-            MetaProperty metaProperty = metaEntity.getMetaProperty(new UUID(propertyKey));
-            if(metaProperty == null){
-                throw new InputException("No Meta Property corresponding to key " + propertyKey);
-            }
-            
-            currentTarget = new TimeDiagramType.TypeEntry(metaEntity, metaProperty);
-            colours = new Vector();
+        	try {
+	            if(currentTarget != null){
+	                throw new InputException("Nested TypeEntries in TimeDiagramType");
+	            }
+	            
+	            String entityKey = attrs.getValue("entity");
+	            if(entityKey == null){
+	                throw new InputException("Missing entity key attribute in TypeEntry");
+	            }
+	            
+	            String propertyKey = attrs.getValue("property");
+	            if(propertyKey == null){
+	                throw new InputException("Missing property key attribute in TypeEntry");
+	            }
+	            
+	            MetaEntity metaEntity = null;
+	            try{
+	            	metaEntity = metaModel.getMetaEntity(new UUID(entityKey));
+	            } catch(Exception e) {
+	            	throw new InputException("Can't fetch meta entity corresponding to key " + entityKey);
+	            }
+	            if(metaEntity == null){
+	                throw new InputException("No Meta Entity corresponding to key " + entityKey);
+	            }
+	            
+	            MetaProperty metaProperty = metaEntity.getMetaProperty(new UUID(propertyKey));
+	            if(metaProperty == null){
+	                throw new InputException("No Meta Property corresponding to key " + propertyKey);
+	            }
+	            
+	            currentTarget = new TimeDiagramType.TypeEntry(metaEntity, metaProperty);
+	            colours = new Vector<Color>();
+        	} catch (Exception e) {
+        		throw new InputException("Unable to load TypeEntry", e);
+        	}
         } else if (local.equals("Colour")){
             Color colour = processColour(attrs);
             colours.add(colour);
@@ -98,8 +107,11 @@ public class TimeDiagramTypeFactory extends FactoryBase implements
         if(local.equals("TypeEntry")){
             currentTarget.setColours(colours);
             colours = null;
-            
-            diagramType.addTarget(currentTarget);
+            try {
+            	diagramType.addTarget(currentTarget);
+            } catch (Exception e) {
+            	throw new InputException("Unable to save time diagram TypeEntry",e);
+            }
             currentTarget = null;
         }
 

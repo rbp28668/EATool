@@ -17,9 +17,10 @@ import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
+import alvahouse.eatool.Main;
 import alvahouse.eatool.gui.BasicDialog;
+import alvahouse.eatool.gui.ExceptionDisplay;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
-import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.model.Entity;
 import alvahouse.eatool.repository.model.Model;
 
@@ -31,17 +32,18 @@ import alvahouse.eatool.repository.model.Model;
  *
  */
 public class EntitySelectionDialog extends BasicDialog {
+	private static final long serialVersionUID = 1L;
 	private boolean selected = false;
 	private JTree tree = null;
 
 	public EntitySelectionDialog(
 		Component parent,
-		MetaModel metaModel,
+		List<MetaEntity> allowedMetaEntities,
 		Model model) {
 		super(parent, "Select Entity");
 
 		// Build a tree model to display a tree
-		tree = new JTree(createTree(metaModel, model));
+		tree = new JTree(createTree(allowedMetaEntities, model));
 		tree.setRootVisible(false);
 
 		JScrollPane scroll = new JScrollPane(tree);
@@ -51,7 +53,11 @@ public class EntitySelectionDialog extends BasicDialog {
 				int selRow = tree.getRowForLocation(e.getX(), e.getY());
 				if (selRow != -1) {
 					if (e.getClickCount() == 2) {
-						fireOK();
+						try {
+							fireOK();
+						} catch (Exception x) {
+							new ExceptionDisplay(Main.getAppFrame(),x);
+						}
 					}
 				}
 			}
@@ -88,7 +94,6 @@ public class EntitySelectionDialog extends BasicDialog {
 			return false;
 		}
 
-		List entities = new LinkedList();
 		for(int i=0; i<paths.length; ++i){
 			DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) paths[i].getLastPathComponent();
 			Object obj = selectedNode.getUserObject();
@@ -133,12 +138,12 @@ public class EntitySelectionDialog extends BasicDialog {
 			return null;
 		}
 
-		List entities = new LinkedList();
+		List<Entity> entities = new LinkedList<>();
 		for(int i=0; i<paths.length; ++i){
 			DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) paths[i].getLastPathComponent();
 			Object obj = selectedNode.getUserObject();
 			if(obj instanceof Entity) {
-			    entities.add(obj);
+			    entities.add((Entity)obj);
 			}
 		}
 		return (Entity[])entities.toArray(new Entity[entities.size()]);
@@ -148,13 +153,12 @@ public class EntitySelectionDialog extends BasicDialog {
 	 * @param model
 	 * @return
 	 */
-	private TreeModel createTree(MetaModel metaModel, Model model) {
+	private TreeModel createTree(List<MetaEntity> allowedMetaEntities, Model model) {
 
 		DefaultTreeModel treeModel =
 			new DefaultTreeModel(new DefaultMutableTreeNode("Entities"));
 		int idx = 0;
-		for (Iterator iter = metaModel.getMetaEntities().iterator(); iter.hasNext();) {
-			MetaEntity me = (MetaEntity) iter.next();
+		for (MetaEntity me : allowedMetaEntities) {
 			idx = addMetaEntityNode(treeModel, me, model, idx);
 		}
 		return treeModel;
@@ -172,7 +176,7 @@ public class EntitySelectionDialog extends BasicDialog {
 		MetaEntity me,
 		Model model,
 		int idxEntity) {
-		List listEntities = model.getEntitiesOfType(me);
+		List<Entity> listEntities = model.getEntitiesOfType(me);
 		if (!listEntities.isEmpty()) {
 			DefaultMutableTreeNode tnEntity = new DefaultMutableTreeNode(me);
 			treeModel.insertNodeInto(
@@ -193,11 +197,11 @@ public class EntitySelectionDialog extends BasicDialog {
 	private void setMetaEntityNodeChildren(
 		DefaultTreeModel treeModel,
 		MutableTreeNode tnMetaEntity,
-		List listEntities) {
-		Iterator iter = listEntities.iterator();
+		List<Entity> listEntities) {
+		Iterator<Entity> iter = listEntities.iterator();
 		int idx = 0;
 		while (iter.hasNext()) {
-			Entity e = (Entity) iter.next();
+			Entity e = iter.next();
 			DefaultMutableTreeNode tnEntity = new DefaultMutableTreeNode(e);
 			treeModel.insertNodeInto(tnEntity, tnMetaEntity, idx++);
 		}

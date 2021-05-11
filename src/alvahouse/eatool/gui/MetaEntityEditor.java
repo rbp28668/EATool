@@ -34,7 +34,7 @@ public class MetaEntityEditor extends BasicDialog {
     private MetaPropertiesPanel propPanel;
 
     /** Creates new form MetaEntityEditor */
-    public MetaEntityEditor(Component parent, MetaEntity me, Repository repository) {
+    public MetaEntityEditor(Component parent, MetaEntity me, Repository repository)  throws Exception{
         super(parent ,"Edit Meta-Entity");
 
         meOriginal = me;
@@ -83,7 +83,8 @@ public class MetaEntityEditor extends BasicDialog {
     /*=================================================================*/
     private class InheritancePanel extends JPanel{
          private static final long serialVersionUID = 1L;
-        InheritancePanel(MetaEntity me) {
+         
+        InheritancePanel(MetaEntity me)  throws Exception{
             setLayout(new BorderLayout());
             setBorder(new TitledBorder("Inheritance"));
             

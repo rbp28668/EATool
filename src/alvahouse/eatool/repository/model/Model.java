@@ -8,20 +8,18 @@ package alvahouse.eatool.repository.model;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import alvahouse.eatool.repository.base.DeleteDependenciesList;
-import alvahouse.eatool.repository.base.IDeleteDependenciesProxy;
 import alvahouse.eatool.repository.base.KeyedItem;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.metamodel.MetaModelChangeAdapter;
 import alvahouse.eatool.repository.metamodel.MetaModelChangeEvent;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
+import alvahouse.eatool.repository.persist.ModelPersistence;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
@@ -33,17 +31,16 @@ import alvahouse.eatool.util.XMLWriter;
  */
 public class Model extends MetaModelChangeAdapter implements KeyedItem{
 
+	private ModelPersistence persistence;
 	private UUID uuid;
     private MetaModel meta;
-    private Map<UUID,Entity> entities = new HashMap<UUID,Entity>();
-    private Map<UUID,Relationship> relationships = new HashMap<UUID,Relationship>();
     private LinkedList<ModelChangeListener> listeners = new LinkedList<ModelChangeListener>();
-    private Map<UUID,List<Entity>> entityCacheByType = new HashMap<UUID,List<Entity>>(); // good candidate for weak ref.
-    private Map<UUID,List<Relationship>> relationshipCacheByType = new HashMap<UUID,List<Relationship>>(); // ditto
 
     /** Creates new Model */
-    public Model(MetaModel meta) {
+    public Model(MetaModel meta, ModelPersistence persistence) {
         this.meta = meta;
+        this.persistence = persistence;
+        
         uuid = new UUID();
         meta.addChangeListener(this);
     }
@@ -69,23 +66,7 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
      * @return the corresponding entity, or null if not in the model
      */
     public Entity getEntity(UUID uuid) {
-        Entity e = (Entity)entities.get(uuid);
-        return e;
-    }
-
-    /** Deletes an entity keyed by UUID.
-     * @param uuid is the key of the entity to delete.
-     * @throws IllegalStateException if deleting an entity not in the model.
-     */
-    public void deleteEntity(UUID uuid) throws Exception {
-        Entity e = (Entity)entities.remove(uuid);
-        if(e == null)
-            throw new IllegalStateException("Entity " + uuid + " cannot be deleted - does not exist");
-
-        List<Entity> cache = entityCacheByType.get(e.getMeta().getKey());
-        if(cache != null) cache.remove(e);
-        
-        fireEntityDeleted(e);
+        return persistence.getEntity(uuid);
     }
 
     /** adds a new entity to the collection.
@@ -94,24 +75,38 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
      * @throws IllegalStateException if the entity already exists in the model.
      */
     public Entity addEntity(Entity e) throws Exception {
-        if(entities.containsKey(e.getKey()))
-            throw new IllegalStateException("Entity " + e.getKey() + " already exists in model");
-        
         e.setModel(this);
-        entities.put(e.getKey(), e);
-        
-        List<Entity> cache = entityCacheByType.get(e.getMeta().getKey());
-        if(cache != null) cache.add(e);
-
+        persistence.addEntity(e);
         fireEntityAdded(e);
         return e;
     }
     
+    /** Updates and existing entity in the model.
+     * @param e is the entity to update.
+     * @return the added entity (to allow chaining).
+     * @throws IllegalStateException if the entity already exists in the model.
+     */
+    public Entity updateEntity(Entity e) throws Exception {
+        e.setModel(this);
+        persistence.updateEntity(e);
+        fireEntityChanged(e);
+        return e;
+    }
+
+    /** Deletes an entity keyed by UUID.
+     * @param uuid is the key of the entity to delete.
+     * @throws IllegalStateException if deleting an entity not in the model.
+     */
+    public void deleteEntity(UUID uuid) throws Exception {
+    	Entity e = persistence.deleteEntity(uuid);
+        fireEntityDeleted(e);
+    }
+
     /** Gets an iterator that iterates though all the entites.
      * @return an iterator for the entities.
      */
     public Collection<Entity> getEntities() {
-        return Collections.unmodifiableCollection(entities.values());
+        return persistence.getEntities();
     }
     
     /**
@@ -119,7 +114,7 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
      * @return
      */
     public int getEntityCount(){
-        return entities.size();
+        return persistence.getEntityCount();
     }
     
     /** Gets a list of entities corresponding to a given meta-entity.
@@ -127,17 +122,7 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
      * @return a list of all the entities of the given type.
      */
     public List<Entity> getEntitiesOfType(MetaEntity meta) {
-        List<Entity> cache = entityCacheByType.get(meta.getKey());
-        if(cache == null) {   // not cached.
-            cache = new LinkedList<Entity>();
-            for(Entity e : getEntities()){
-                if(e.getMeta().equals(meta)) {
-                	cache.add(e);
-                }
-            }
-            entityCacheByType.put(meta.getKey(), cache);
-        }
-        return cache;
+        return persistence.getEntitiesOfType(meta);
     }
     
     /** Gets the relationship with the given key.
@@ -145,8 +130,7 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
      * @return the relationship corresponding to uuid or null if not in the model.
      */
     public Relationship getRelationship(UUID uuid) {
-        Relationship mr = (Relationship)relationships.get(uuid);
-        return mr;
+        return persistence.getRelationship(uuid);
     }
 
      /** adds a new relationship to the collection
@@ -155,16 +139,21 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
       * @throws IllegalStateException if the relationship is already in the model.
      */
     public Relationship addRelationship(Relationship r) throws Exception {
-        
-        if(relationships.containsKey(r.getKey()))
-            throw new IllegalStateException("Relationship " + r.getKey() + " already exists in model");
-
         r.setModel(this);
-        relationships.put(r.getKey(),r);
+        persistence.addRelationship(r);
+        fireRelationshipAdded(r);
+        return r;
+    }
 
-        List<Relationship> cache = relationshipCacheByType.get(r.getMeta().getKey());
-        if(cache != null) cache.add(r);
+    /** updates an existing relationship.
+     * @param r is the relationship to update
+     * @return the added relationship (to allow chaining)
+      * @throws IllegalStateException if the relationship is already in the model.
+     */
+    public Relationship updateRelationship(Relationship r) throws Exception {
         
+        r.setModel(this);
+        persistence.updateRelationship(r);
         fireRelationshipAdded(r);
         return r;
     }
@@ -175,13 +164,7 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
      * relationship in the model.
      */
     public void deleteRelationship(UUID uuid) throws Exception {
-        Relationship r = (Relationship)relationships.remove(uuid);
-        if(r == null)
-            throw new IllegalStateException("Relationship " + uuid + " cannot be deleted - does not exist");
-        
-        List<Relationship> cache = relationshipCacheByType.get(r.getMeta().getKey());
-        if(cache != null) cache.remove(r);
-        
+        Relationship r = persistence.deleteRelationship(uuid);
         fireRelationshipDeleted(r);
     }
     
@@ -189,7 +172,7 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
      * @return an iterator.
      */
     public Collection<Relationship> getRelationships() {
-        return relationships.values();
+        return persistence.getRelationships();
     }
 
     /**
@@ -197,7 +180,7 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
      * @return the count of relationships.
      */
     public int getRelationshipCount() {
-        return relationships.size();
+        return persistence.getRelationshipCount();
     }
 
     /** Gets a list containing all the relationships in the model of a given
@@ -206,16 +189,34 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
      * @return a list of all the corresponding relationships.
      */
     public List<Relationship> getRelationshipsOfType(MetaRelationship meta) {
-        List<Relationship> cache = relationshipCacheByType.get(meta.getKey());
-        if(cache == null) {   // not cached.
-            cache = new LinkedList<Relationship>();
-            for(Relationship r : getRelationships()) {
-                if(r.getMeta() == meta) cache.add(r);
-            }
-        }
-        relationshipCacheByType.put(meta.getKey(), cache);
-        return cache;
+    	return persistence.getRelationshipsOfType(meta);
     }
+    
+	/**
+	 * This gets the set of relationships that are connected to the given entity in this model. 
+	 * 
+	 * @param model is the model to use to query for the relationships.
+	 * @param e     e is the entity we want the relationships for.
+	 * @return the set of connected relationships.
+	 */
+	public Set<Relationship> getConnectedRelationships(Entity e) throws Exception{
+		return persistence.getConnectedRelationships(this, e);
+	}
+
+	/**
+	 * This gets the set of relationships that are connected to the given entity in this model. 
+	 * The only relationships returned will correspond to the supplied MetaRelationship.
+	 * 
+	 * @param model is the model to use to query for the relationships.
+	 * @param e     e is the entity we want the relationships for.
+	 * @param meta  is used to restrict the set of relationships to this particular
+	 *              type.
+	 * @return the set of connected relationships.
+	 */
+	public Set<Relationship> getConnectedRelationshipsOf(Entity e, MetaRelationship meta) throws Exception{
+		return persistence.getConnectedRelationshipsOf(this, e, meta);
+	}
+
     
       /**
      * Writes the Model out as XML
@@ -244,8 +245,8 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
      * @param dependencies is the list of dependencies to add to.
      * @param e is the entity which will be deleted.
      */    
-    public void getDeleteDependencies(DeleteDependenciesList dependencies, Relationship r) {
-        dependencies.addDependency(new RelationshipDeleteProxy(r));
+    public void getDeleteDependencies(DeleteDependenciesList dependencies, Relationship r) throws Exception {
+        persistence.getDeleteDependencies(this, dependencies, r);
     }
     
     /** This gets gets the list of dependent objects that
@@ -257,25 +258,13 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
      * @param dependencies is the list of dependencies to add to.
      * @param e is the entity which will be deleted.
      */    
-    public void getDeleteDependencies(DeleteDependenciesList dependencies, Entity e) {
-        dependencies.addDependency(new EntityDeleteProxy(e));
-
-        // Mark any relationships that depend on this entity for deletion
-        for(Relationship r : getRelationships()) {
-            if(r.start().connectsTo().equals(e) || r.finish().connectsTo().equals(e)) {
-                if(!dependencies.containsTarget(r))
-                    dependencies.addDependency(new RelationshipDeleteProxy(r));
-            }
-        }
+    public void getDeleteDependencies(DeleteDependenciesList dependencies, Entity e) throws Exception {
+        persistence.getDeleteDependencies(this, dependencies, e);
     }
 
     /** Deletes the entire contents of the model */
     public void deleteContents()  throws Exception {
-        entities.clear();
-        relationships.clear();
-        entityCacheByType.clear();
-        relationshipCacheByType.clear();
-        fireModelUpdated();
+        persistence.deleteContents();
     }
 
     /**
@@ -306,114 +295,48 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
         }
     }
     
-    public void fireEntityAdded(Entity me) throws Exception{
+    private void fireEntityAdded(Entity me) throws Exception{
         ModelChangeEvent evt = new ModelChangeEvent(me);
         for(ModelChangeListener l : listeners){
             l.EntityAdded(evt);
         }
     }
     
-    public void fireEntityChanged(Entity me) throws Exception{
+    private void fireEntityChanged(Entity me) throws Exception{
         ModelChangeEvent evt = new ModelChangeEvent(me);
         for(ModelChangeListener l : listeners){
             l.EntityChanged(evt);
         }
     }
     
-    public void fireEntityDeleted(Entity me) throws Exception{ 
+    private void fireEntityDeleted(Entity me) throws Exception{ 
         ModelChangeEvent evt = new ModelChangeEvent(me);
         for(ModelChangeListener l : listeners){
             l.EntityDeleted(evt);
         }
     }
         
-    public void fireRelationshipAdded(Relationship mr) throws Exception{
+    private void fireRelationshipAdded(Relationship mr) throws Exception{
         ModelChangeEvent evt = new ModelChangeEvent(mr);
         for(ModelChangeListener l : listeners){
             l.RelationshipAdded(evt);
         }
     }
     
-    public void fireRelationshipChanged(Relationship mr) throws Exception{
+    private void fireRelationshipChanged(Relationship mr) throws Exception{
         ModelChangeEvent evt = new ModelChangeEvent(mr);
         for(ModelChangeListener l : listeners){
             l.RelationshipChanged(evt);
         }
     }
     
-    public void fireRelationshipDeleted(Relationship mr) throws Exception{
+    private void fireRelationshipDeleted(Relationship mr) throws Exception{
         ModelChangeEvent evt = new ModelChangeEvent(mr);
         for(ModelChangeListener l : listeners){
             l.RelationshipDeleted(evt);
         }
     }
 
-
-    /** Proxy class for recording dependent -entities
-     */
-    private class EntityDeleteProxy implements IDeleteDependenciesProxy {
-        /** Creates a new proxy for deleting dependent entities
-         * @param me is the dependent entity
-         */        
-        public EntityDeleteProxy(Entity e) {
-            entity = e;
-        }
-        
-        /** gets the name of the dependent  entity
-         * @return name for the dependent entity
-         */        
-        public String toString() {
-            return "Entity " + entity.toString();
-        }
-
-        /** deletes the dependent entity
-         */
-        public void delete() throws Exception {
-            deleteEntity(entity.getKey());
-        }
-        
-        /** gets the dependent entity
-         * @return the dependent entity
-         */        
-        public Object getTarget() {
-            return entity;
-        }
-        
-        private Entity entity;
-    }
-    
-    /** Proxy class for recording dependent -relationship
-     */
-    private class RelationshipDeleteProxy implements IDeleteDependenciesProxy {
-        /** Creates a new proxy for deleting a dependent relationship
-         * @param m is the dependent relationship
-         */        
-        public RelationshipDeleteProxy(Relationship r) {
-            relationship = r;
-        }
-        
-        /** gets the name of the dependent  relationship
-         * @return name for the dependent relationship
-         */        
-        public String toString() {
-            return "Relationship " + relationship.toString();
-        }
-
-        /** deletes the dependent relationship
-         */
-        public void delete() throws Exception {
-            deleteRelationship(relationship.getKey());
-        }
-        
-        /** gets the dependent -relationship
-         * @return the dependent -relationship
-         */
-        public Object getTarget() {
-            return relationship;
-        }
-        
-        private Relationship relationship;
-    }
 
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.metamodel.MetaModelChangeListener#modelUpdated(alvahouse.eatool.repository.metamodel.MetaModelChangeEvent)

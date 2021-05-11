@@ -16,7 +16,6 @@ import java.util.Map;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.metamodel.MetaModelChangeAdapter;
-import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.util.UUID;
 
 
@@ -167,18 +166,18 @@ public class PersistentModel extends MetaModelChangeAdapter{
         return relationships.size();
     }
 
-    /** Gets a list containing all the relationships in the model of a given
-     * type.
-     * @param meta is the type of relationship required.
-     * @return a list of all the corresponding relationships.
-     */
-    public List<PersistentRelationship> getRelationshipsOfType(MetaRelationship meta) {
-        List<PersistentRelationship> cache= new LinkedList<PersistentRelationship>();
-            for(PersistentRelationship r : getRelationships()) {
-                if(r.getMeta() == meta) cache.add(r);
-            }
-        return cache;
-    }
+//    /** Gets a list containing all the relationships in the model of a given
+//     * type.
+//     * @param meta is the type of relationship required.
+//     * @return a list of all the corresponding relationships.
+//     */
+//    public List<PersistentRelationship> getRelationshipsOfType(MetaRelationship meta) {
+//        List<PersistentRelationship> cache= new LinkedList<PersistentRelationship>();
+//            for(PersistentRelationship r : getRelationships()) {
+//                if(r.getMeta() == meta) cache.add(r);
+//            }
+//        return cache;
+//    }
     
 
 

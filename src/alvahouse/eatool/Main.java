@@ -6,6 +6,7 @@
 
 package alvahouse.eatool;
 
+import java.awt.Frame;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -64,6 +65,10 @@ public class Main implements Application{
 		if (app == null)
 			app = new Main();
 		return app;
+	}
+	
+	public static Frame getAppFrame() {
+		return getApp().getCommandFrame();
 	}
 
 	public SettingsManager getConfig() {

@@ -63,7 +63,7 @@ public class ModelExplorer extends javax.swing.JInternalFrame implements Explore
     /** Call when the meta model changes to get the explorer to re-build
      * it's internal representation
      */
-    public void refresh() {
+    public void refresh()  throws Exception{
         treeModel.refresh();
     }
 

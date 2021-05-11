@@ -22,7 +22,6 @@ import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaRole;
 import alvahouse.eatool.repository.metamodel.Multiplicity;
-import alvahouse.eatool.repository.metamodel.impl.MultiplicityImpl;
 
 /**
  *
@@ -37,14 +36,14 @@ public class MetaRoleEditor extends BasicDialog {
     private MetaPropertiesPanel propertiesPanel;
     
     /** Creates new form MetaRoleEditor */
-    public MetaRoleEditor(Component parent, MetaRole mr, Repository repository) {
+    public MetaRoleEditor(Component parent, MetaRole mr, Repository repository)  throws Exception{
         super(parent,"Edit Meta-Role");
         mrOriginal = mr;
         setLocationRelativeTo(parent);
         init(mr,repository);
     }
   
-    private void init(MetaRole mr, Repository repository) {
+    private void init(MetaRole mr, Repository repository)  throws Exception{
         getContentPane().add( getOKCancelPanel(), BorderLayout.EAST);
         
         JPanel mainPanel = new JPanel(new BorderLayout());
@@ -78,7 +77,7 @@ public class MetaRoleEditor extends BasicDialog {
         private JComboBox<MetaEntity> cmbConnects;
         private NamedRepositoryItemPanel nriPanel;
         
-        RolePanel(MetaRole mr, Repository repository) {
+        RolePanel(MetaRole mr, Repository repository)  throws Exception{
             role = mr;
             setLayout(new BorderLayout());
             setBorder(new TitledBorder("Role"));
@@ -88,7 +87,7 @@ public class MetaRoleEditor extends BasicDialog {
             
             cmbMultiplicity = new JComboBox<Multiplicity>();
             cmbMultiplicity.setBorder(new TitledBorder("Multiplicity"));
-            for(Multiplicity multiplicity : MultiplicityImpl.getValues()){
+            for(Multiplicity multiplicity : Multiplicity.getValues()){
                 cmbMultiplicity.addItem(multiplicity);
             }
             cmbMultiplicity.setSelectedItem(mr.getMultiplicity());

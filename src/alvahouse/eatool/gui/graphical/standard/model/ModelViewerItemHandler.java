@@ -34,9 +34,7 @@ import alvahouse.eatool.repository.graphical.standard.StandardDiagramType;
 import alvahouse.eatool.repository.graphical.standard.Symbol;
 import alvahouse.eatool.repository.graphical.standard.SymbolType;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
-import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
-import alvahouse.eatool.repository.metamodel.impl.MetaModelImpl;
 import alvahouse.eatool.repository.model.Entity;
 import alvahouse.eatool.repository.model.Relationship;
 import alvahouse.eatool.util.SettingsManager;
@@ -70,7 +68,7 @@ public class ModelViewerItemHandler implements ItemHandler {
     /* (non-Javadoc)
      * @see alvahouse.eatool.gui.graphical.ItemHandler#editSymbolItem(java.lang.Object)
      */
-    public boolean editSymbolItem(Component parent, Object item) {
+    public boolean editSymbolItem(Component parent, Object item) throws Exception {
 		Entity entity = (Entity)item;
 		EntityEditor editor = new EntityEditor(parent, entity, repository);
 		editor.setVisible(true);
@@ -86,13 +84,13 @@ public class ModelViewerItemHandler implements ItemHandler {
     
         Symbol[] symbols = null;
         
-    	MetaModel allowedMeta = new MetaModelImpl();
+    	List<MetaEntity> allowedMeta = new LinkedList<>();
 		
 		try {
 			Collection<SymbolType> symbolTypes = diagramType.getSymbolTypes();
 			for(SymbolType symbolType : symbolTypes){
 				MetaEntity me = symbolType.getRepresents();
-				allowedMeta.addMetaEntity(me);
+				allowedMeta.add(me);
 			}
 		} catch (Exception e) {
 			throw new LogicException("Unable to add meta entity to diagram",e);
@@ -138,7 +136,7 @@ public class ModelViewerItemHandler implements ItemHandler {
 	 * @return LogicException - if the connector can't be created.
 	 */
 	public Connector addConnector(Component parent, Symbol first, Symbol second) 
-	throws LogicException{
+	throws Exception{
 		// Need to figure out what the options are for
 		// this diagram
 		
@@ -148,8 +146,8 @@ public class ModelViewerItemHandler implements ItemHandler {
 		
 		StandardDiagram diagram = ((StandardDiagramViewer.ViewerPane)parent).getDiagram();
 
-		Set connectingRelationships = getConnectingRelationships(first,second);
-		Set possibleConnectors = getPossibleConnectorsBetween(diagram, first, second);
+		Set<Relationship> connectingRelationships = getConnectingRelationships(first,second);
+		Set<ConnectorType> possibleConnectors = getPossibleConnectorsBetween(diagram, first, second);
 		connectingRelationships = pruneRelationships(connectingRelationships,possibleConnectors);
 		// possibleConnectors has a set of all the possible connectors to use if the user wants to
 		// create a new relationship between the 2 symnbols.
@@ -170,7 +168,7 @@ public class ModelViewerItemHandler implements ItemHandler {
 			values[idx++] = newOption;
 			//StandardDiagramType dt = diagram.getType();
 			
-			for(Iterator iter = connectingRelationships.iterator(); iter.hasNext();){
+			for(Iterator<Relationship> iter = connectingRelationships.iterator(); iter.hasNext();){
 				Relationship r = (Relationship)iter.next();
 				values[idx++] = new RelationshipProxy(r, diagramType.getConnectorTypeFor(r.getMeta()));
 			}
@@ -242,11 +240,11 @@ public class ModelViewerItemHandler implements ItemHandler {
 	 * @param second is the second Symbol to be connected.
 	 * @return a Set of Relationship. Maybe empty, never null.
 	 */
-	private Set getConnectingRelationships(Symbol first, Symbol second){
+	private Set<Relationship> getConnectingRelationships(Symbol first, Symbol second) throws Exception{
 		Entity entityFirst = (Entity)first.getItem();
 		Entity entitySecond = (Entity)second.getItem();
-		Set relFirst = entityFirst.getConnectedRelationships();
-		Set relSecond = entitySecond.getConnectedRelationships();
+		Set<Relationship> relFirst = entityFirst.getConnectedRelationships();
+		Set<Relationship> relSecond = entitySecond.getConnectedRelationships();
 		relFirst.retainAll(relSecond); // intersection
 		
 		return relFirst;
@@ -262,14 +260,14 @@ public class ModelViewerItemHandler implements ItemHandler {
 	 * @param second is the second Symbol to be connected.
 	 * @return A Set of ConnectorType.  Maybe empty, not null.
 	 */
-	private Set getPossibleConnectorsBetween(StandardDiagram diagram, Symbol first, Symbol second){
+	private Set<ConnectorType> getPossibleConnectorsBetween(StandardDiagram diagram, Symbol first, Symbol second) throws Exception{
 		Entity entityFirst = (Entity)first.getItem();
 		Entity entitySecond = (Entity)second.getItem();
 		
 		StandardDiagramType diagramType = (StandardDiagramType)diagram.getType();
-		Collection connectorTypes = diagramType.getConnectorTypes();
-		Set validConnectorTypes = new HashSet();
-		for(Iterator iter = connectorTypes.iterator(); iter.hasNext();){
+		Collection<?> connectorTypes = diagramType.getConnectorTypes();
+		Set<ConnectorType> validConnectorTypes = new HashSet<ConnectorType>();
+		for(Iterator<?> iter = connectorTypes.iterator(); iter.hasNext();){
 			ConnectorType ct = (ConnectorType)iter.next();
 			MetaRelationship mr = ct.getRepresents();
 			MetaEntity metaStart = mr.start().connectsTo();
@@ -311,16 +309,16 @@ public class ModelViewerItemHandler implements ItemHandler {
 	 * @param connectorTypes is the set of connectorTypes to prune by.
 	 * @return a pruned Set of Relationship.
 	 */
-	private Set pruneRelationships(Set relationships, Set connectorTypes){
+	private Set<Relationship> pruneRelationships(Set<Relationship> relationships, Set<ConnectorType> connectorTypes){
 		// Create set of allowable MetaRelationships from the connectorTypes.
-		Set allowableMeta = new HashSet();
-		for(Iterator iter = connectorTypes.iterator(); iter.hasNext();){
+		Set<MetaRelationship> allowableMeta = new HashSet<MetaRelationship>();
+		for(Iterator<ConnectorType> iter = connectorTypes.iterator(); iter.hasNext();){
 			ConnectorType ct = (ConnectorType)iter.next();
 			allowableMeta.add(ct.getRepresents());
 		}
 		
-		Set pruned = new HashSet();
-		for(Iterator iter = relationships.iterator(); iter.hasNext();){
+		Set<Relationship> pruned = new HashSet<Relationship>();
+		for(Iterator<Relationship> iter = relationships.iterator(); iter.hasNext();){
 			Relationship r = (Relationship)iter.next();
 			if(allowableMeta.contains(r.getMeta())){
 				pruned.add(r);
@@ -355,7 +353,7 @@ public class ModelViewerItemHandler implements ItemHandler {
     /* (non-Javadoc)
      * @see alvahouse.eatool.gui.graphical.ItemHandler#getPopupFor(java.lang.Class)
      */
-    public PositionalPopup getPopupFor(StandardDiagramViewer viewer, Class targetClass) {
+    public PositionalPopup getPopupFor(StandardDiagramViewer viewer, Class<?> targetClass) {
         ActionSet actions = new ModelViewerActionSet(viewer, app, repository);
         PositionalPopup popup = GUIBuilder.buildPopup(actions,cfg,targetClass);
        return popup;
@@ -373,12 +371,12 @@ public class ModelViewerItemHandler implements ItemHandler {
     /* (non-Javadoc)
      * @see alvahouse.eatool.gui.graphical.ItemHandler#addSymbolNewItem(java.awt.Component, int, int)
      */
-    public Symbol addSymbolNewItem(Component parent, int x, int y) throws LogicException {
+    public Symbol addSymbolNewItem(Component parent, int x, int y) throws Exception {
         
-       	List allowedMeta = new LinkedList();
+       	List<MetaEntity> allowedMeta = new LinkedList<MetaEntity>();
 		
-		Collection symbolTypes = diagramType.getSymbolTypes();
-		for(Iterator iter = symbolTypes.iterator(); iter.hasNext();){
+		Collection<?> symbolTypes = diagramType.getSymbolTypes();
+		for(Iterator<?> iter = symbolTypes.iterator(); iter.hasNext();){
 			SymbolType symbolType = (SymbolType)iter.next();
 			MetaEntity me = symbolType.getRepresents();
 			allowedMeta.add(me);

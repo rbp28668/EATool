@@ -33,7 +33,7 @@ public class PropertiesPanel extends JPanel{
 	 * editing of the entity.
 	 * @param e is the Entity to be edited.
 	 */
-    PropertiesPanel(PropertyContainer pc, MetaPropertyContainer mpc) {
+    PropertiesPanel(PropertyContainer pc, MetaPropertyContainer mpc)  throws Exception{
         
         GridBagLayout layout = new GridBagLayout();
         setLayout(layout);

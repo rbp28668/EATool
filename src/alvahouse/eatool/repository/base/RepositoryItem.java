@@ -35,12 +35,12 @@ public class RepositoryItem implements KeyedItem{
         m_uuid = uuid;
     }
     
-//    /** base implementation of cloneTo.
-//     * @param copy is the copy to be cloned to
-//     */
-//    protected void cloneTo(RepositoryItem copy) {
-//        copy.m_uuid = (UUID)m_uuid.clone();
-//    }
+    /** base implementation of cloneTo.
+     * @param copy is the copy to be cloned to
+     */
+    protected void cloneTo(RepositoryItem copy) {
+        copy.m_uuid = (UUID)m_uuid.clone();
+    }
     
     /** Tests for equality between repository items 
      * @param other is the other repository item being tested for equality to this one

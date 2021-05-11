@@ -36,10 +36,12 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import alvahouse.eatool.Main;
 import alvahouse.eatool.gui.BasicDialog;
 import alvahouse.eatool.gui.ButtonBox;
 import alvahouse.eatool.gui.DiagramTypeEditor;
 import alvahouse.eatool.gui.Dialogs;
+import alvahouse.eatool.gui.ExceptionDisplay;
 import alvahouse.eatool.gui.NamedRepositoryItemPanel;
 import alvahouse.eatool.gui.graphical.time.TimeDiagramType.TypeEntry;
 import alvahouse.eatool.repository.graphical.DiagramType;
@@ -92,7 +94,7 @@ public class TimeDiagramTypeDialog extends BasicDialog implements DiagramTypeEdi
     /**
      * @param type
      */
-    private void init(TimeDiagramType type,MetaModel metaModel) {
+    private void init(TimeDiagramType type,MetaModel metaModel)  throws Exception{
         this.type = type;
         
         // Can only have meta-entities on diagram with time series type properties.
@@ -123,13 +125,13 @@ public class TimeDiagramTypeDialog extends BasicDialog implements DiagramTypeEdi
     /* (non-Javadoc)
      * @see alvahouse.eatool.gui.BasicDialog#onOK()
      */
-    protected void onOK() {
+    protected void onOK() throws Exception {
         type.setName(nriPanel.getName());
         type.setDescription(nriPanel.getDescription());
 
         type.clearTargets();
-        Collection types = typePanel.getTypes();
-        for(Iterator iter = types.iterator(); iter.hasNext();){
+        Collection<TypeEntry> types = typePanel.getTypes();
+        for(Iterator<TypeEntry> iter = types.iterator(); iter.hasNext();){
             TimeDiagramType.TypeEntry entry = (TimeDiagramType.TypeEntry)iter.next();
             type.addTarget(entry);
         }
@@ -198,14 +200,19 @@ public class TimeDiagramTypeDialog extends BasicDialog implements DiagramTypeEdi
      */
     private class TypePanel extends JPanel {
 
-        /** List of selected entries */
+        /**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		/** List of selected entries */
         private TypesPanel types;
         
         /** Tabbed Pane for all the properties/colours settings */
         private JTabbedPane tabs;
 
         /** Keep track of the entries by index for tabs */
-        private Vector entries = new Vector();
+        private Vector<TypeEntry> entries = new Vector<TypeEntry>();
 
         
         TypePanel(TimeDiagramType type){
@@ -215,7 +222,7 @@ public class TimeDiagramTypeDialog extends BasicDialog implements DiagramTypeEdi
             add(tabs, BorderLayout.NORTH);
             add(types, BorderLayout.SOUTH);
             
-            for(Iterator iter = type.getTargets().iterator(); iter.hasNext();){
+            for(Iterator<?> iter = type.getTargets().iterator(); iter.hasNext();){
                 TimeDiagramType.TypeEntry entry = (TimeDiagramType.TypeEntry)iter.next();
                 addEntry(entry);
             }
@@ -267,11 +274,11 @@ public class TimeDiagramTypeDialog extends BasicDialog implements DiagramTypeEdi
          * Gets the collection of TypeEntry as edited on the diagram.
          * @return
          */
-        Collection getTypes(){
+        Collection<TypeEntry> getTypes(){
             for(int i=0; i<entries.size(); ++i){
                 TypeEntry entry = (TypeEntry)entries.get(i);
                 ColourPanel colourPanel = (ColourPanel)tabs.getComponentAt(i);
-                Collection colours = colourPanel.getColours();
+                Collection<Color> colours = colourPanel.getColours();
                 entry.setColours(colours);
             }
             return entries;
@@ -293,16 +300,20 @@ public class TimeDiagramTypeDialog extends BasicDialog implements DiagramTypeEdi
      */
     private class ColourPanel extends JPanel {
  
-        private GridBagLayout gridBag = new GridBagLayout();
-        private Vector buttons = new Vector();
-        private Vector displays = new Vector();
-        
         /**
-         * 
-         */
-        ColourPanel(){
-            this(null);
-        }
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private GridBagLayout gridBag = new GridBagLayout();
+        private Vector<JButton> buttons = new Vector<JButton>();
+        private Vector<ColourDisplay> displays = new Vector<ColourDisplay>();
+        
+//        /**
+//         * 
+//         */
+//        ColourPanel(){
+//            this(null);
+//        }
         
         /**
          * @param type
@@ -324,7 +335,7 @@ public class TimeDiagramTypeDialog extends BasicDialog implements DiagramTypeEdi
          * @param type
          * @param colours
          */
-        void setType(TimeSeriesType type, Vector colours){
+        void setType(TimeSeriesType type, Vector<Color> colours){
             assert(type != null);
             assert(colours != null);
             assert(colours.size() > 1);
@@ -339,9 +350,8 @@ public class TimeDiagramTypeDialog extends BasicDialog implements DiagramTypeEdi
             
             
             int idx=0;
-            for(Iterator iter = type.getIntervals().iterator(); iter.hasNext();){
-                String interval = (String)iter.next();
-                Color colour = (Color)colours.get(idx);
+            for(String interval : type.getIntervals()){
+                Color colour = colours.get(idx);
                 
                 JLabel label = new JLabel(interval);
                 c.gridwidth = 1;
@@ -380,8 +390,8 @@ public class TimeDiagramTypeDialog extends BasicDialog implements DiagramTypeEdi
             }
         }
         
-        Collection getColours(){
-            List colours = new LinkedList();
+        Collection<Color> getColours(){
+            List<Color> colours = new LinkedList<Color>();
             for(int i=0; i<displays.size(); ++i){
                 ColourDisplay display = (ColourDisplay)displays.get(i);
                 colours.add(display.getColour());
@@ -397,6 +407,8 @@ public class TimeDiagramTypeDialog extends BasicDialog implements DiagramTypeEdi
 	 */
 	private static class ColourDisplay extends JLabel{
 		
+		private static final long serialVersionUID = 1L;
+
 		/**
 		 * 
 		 */
@@ -429,18 +441,18 @@ public class TimeDiagramTypeDialog extends BasicDialog implements DiagramTypeEdi
      */
     private class TypesPanel extends JPanel {
         
-        private JList list = new JList();
+  		private static final long serialVersionUID = 1L;
+		private JList<TypeEntry> list = new JList<TypeEntry>();
         private JButton addButton = new JButton("Add");
         private JButton delButton = new JButton("Delete");
         
-        private DefaultListModel listModel = new DefaultListModel();
+        private DefaultListModel<TypeEntry> listModel = new DefaultListModel<TypeEntry>();
 
         
         TypesPanel(){
 
-            Collection types = type.getTargets();
-            for(Iterator iter = types.iterator(); iter.hasNext();){
-                TimeDiagramType.TypeEntry entry = (TimeDiagramType.TypeEntry)iter.next();
+            Collection<TimeDiagramType.TypeEntry> types = type.getTargets();
+            for( TimeDiagramType.TypeEntry entry : types) {
                 listModel.addElement(entry);
             }
        
@@ -484,21 +496,25 @@ public class TimeDiagramTypeDialog extends BasicDialog implements DiagramTypeEdi
                      MetaEntity selected = (MetaEntity)Dialogs.selectNRIFrom(getSelectableEntities(),"Select Entity", TimeDiagramTypeDialog.this);
                     if(selected != null){
                         
-                        List possibleProperties = getPossibleProperties(selected);
-                        
-                        assert(possibleProperties.size() > 0);
-                        
-                        MetaProperty selectedProperty = (MetaProperty)possibleProperties.get(0);
-                        if(possibleProperties.size() > 1){
-                            selectedProperty = (MetaProperty)Dialogs.selectNRIFrom(possibleProperties,"Select Property", TimeDiagramTypeDialog.this);
-                        }
-                        if(selectedProperty != null){
-                            TimeDiagramType.TypeEntry entry = new TimeDiagramType.TypeEntry(selected,selectedProperty);
-                            entry.setColours(defaultColoursFor((TimeSeriesType)selectedProperty.getMetaPropertyType()));
-                            listModel.addElement(entry);
-                            addEntry(entry);
-                            enableButtons();
-                        }
+                    	try {
+	                        List<MetaProperty> possibleProperties = getPossibleProperties(selected);
+	                        
+	                        assert(possibleProperties.size() > 0);
+	                        
+	                        MetaProperty selectedProperty = possibleProperties.get(0);
+	                        if(possibleProperties.size() > 1){
+	                            selectedProperty = (MetaProperty)Dialogs.selectNRIFrom(possibleProperties,"Select Property", TimeDiagramTypeDialog.this);
+	                        }
+	                        if(selectedProperty != null){
+	                            TimeDiagramType.TypeEntry entry = new TimeDiagramType.TypeEntry(selected,selectedProperty);
+	                            entry.setColours(defaultColoursFor((TimeSeriesType)selectedProperty.getMetaPropertyType()));
+	                            listModel.addElement(entry);
+	                            addEntry(entry);
+	                            enableButtons();
+	                        }
+                    	} catch (Exception e) {
+                    		new ExceptionDisplay(Main.getAppFrame(), e);
+                    	}
                     }
                 }
 	        });
@@ -537,17 +553,17 @@ public class TimeDiagramTypeDialog extends BasicDialog implements DiagramTypeEdi
          * The resulting list provides a set of parent MetaEntities.
          * @return Selectable meta-entities.
          */
-        Collection getSelectableEntities(){
-            List selectable = new LinkedList();
+        Collection<MetaEntity> getSelectableEntities(){
+            List<MetaEntity> selectable = new LinkedList<MetaEntity>();
             
             // Create a set of used MetaProperty to exclude them from the list.
-            Set used = new HashSet();
+            Set<MetaProperty> used = new HashSet<MetaProperty>();
             for(int i=0; i< listModel.size(); ++i){
                 TypeEntry entry = (TypeEntry)listModel.elementAt(i);
                 used.add(entry.getTargetProperty());
             }
             
-            for(Iterator iter = allowableMeta.iterator(); iter.hasNext();){
+            for(Iterator<MetaProperty> iter = allowableMeta.iterator(); iter.hasNext();){
                 MetaProperty meta = (MetaProperty)iter.next();
                 if(!used.contains(meta)){
 	                MetaEntity metaEntity = (MetaEntity)meta.getContainer();
@@ -565,18 +581,18 @@ public class TimeDiagramTypeDialog extends BasicDialog implements DiagramTypeEdi
          * @param selected  is the selected MetaEntity.
          * @return allowable meta-properties for the selected MetaEntity.
          */
-        private List<MetaProperty> getPossibleProperties(MetaEntity selected) {
+        private List<MetaProperty> getPossibleProperties(MetaEntity selected) throws Exception{
             
             // Create a set of used MetaProperty to exclude them from the list.
-            Set used = new HashSet();
+            Set<MetaProperty> used = new HashSet<MetaProperty>();
             for(int i=0; i< listModel.size(); ++i){
                 TypeEntry entry = (TypeEntry)listModel.elementAt(i);
                 used.add(entry.getTargetProperty());
             }
             
-            List possibleProperties = new LinkedList();
+            List<MetaProperty> possibleProperties = new LinkedList<MetaProperty>();
             
-            for(Iterator iterProps = selected.getMetaProperties().iterator(); iterProps.hasNext();){
+            for(Iterator<?> iterProps = selected.getMetaProperties().iterator(); iterProps.hasNext();){
                 MetaProperty metaProperty = (MetaProperty)iterProps.next();
                 if(metaProperty.getMetaPropertyType() instanceof TimeSeriesType){
                     if(!used.contains(metaProperty)){
@@ -598,13 +614,13 @@ public class TimeDiagramTypeDialog extends BasicDialog implements DiagramTypeEdi
         /**
          * @param type
          */
-        Collection defaultColoursFor(TimeSeriesType type){
+        Collection<Color> defaultColoursFor(TimeSeriesType type){
             float h = 0.0f;
             float s = 1.0f; // Saturated colours
             float b = 1.0f;
             
-            Collection intervals = type.getIntervals();
-            Vector colours = new Vector(intervals.size());
+            Collection<?> intervals = type.getIntervals();
+            Vector<Color> colours = new Vector<Color>(intervals.size());
             
             float dh = 1.0f / (1.0f + intervals.size());
             

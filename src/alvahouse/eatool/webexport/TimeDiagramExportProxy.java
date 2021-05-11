@@ -36,7 +36,7 @@ public class TimeDiagramExportProxy implements DiagramExportProxy {
     /* (non-Javadoc)
      * @see alvahouse.eatool.webexport.ExportProxy#export(alvahouse.eatool.util.XMLWriter)
      */
-    public void export(XMLWriter out) throws IOException {
+    public void export(XMLWriter out) throws Exception {
         if(diagram == null){
             throw new IllegalStateException("StandardDiagram not set in diagram export proxy");
         }

@@ -12,7 +12,7 @@ import alvahouse.eatool.repository.base.NamedRepositoryItemFactory;
 import alvahouse.eatool.repository.exception.InputException;
 import alvahouse.eatool.repository.metamodel.MetaProperty;
 import alvahouse.eatool.repository.metamodel.MetaPropertyContainer;
-import alvahouse.eatool.repository.metamodel.impl.MetaPropertyImpl;
+import alvahouse.eatool.repository.metamodel.MetaProperty;
 import alvahouse.eatool.repository.metamodel.types.MetaPropertyType;
 import alvahouse.eatool.repository.metamodel.types.MetaPropertyTypes;
 import alvahouse.eatool.util.UUID;
@@ -52,7 +52,7 @@ public class MetaPropertyContainerFactory extends NamedRepositoryItemFactory{
      * @param attrs
      * @return true if it processes a meta property, false otherwise.
      */
-    protected boolean startMetaProperty(MetaPropertyContainer container, String uri, String local, Attributes attrs){
+    protected boolean startMetaProperty(MetaPropertyContainer container, String uri, String local, Attributes attrs) throws Exception{
         boolean isMetaProperty = false;
         if(local.equals("MetaProperty")) {
 	        if(container == null) 
@@ -65,10 +65,11 @@ public class MetaPropertyContainerFactory extends NamedRepositoryItemFactory{
 	        
 	        UUID uuid = getUUID(attrs);
 	        
-	        currentMetaProperty = container.getMetaProperty(uuid);
-	        if(currentMetaProperty == null){
-	            currentMetaProperty = new MetaPropertyImpl(uuid);
-	        }
+//	        currentMetaProperty = container.getMetaProperty(uuid);
+//	        if(currentMetaProperty == null){
+//	            currentMetaProperty = new MetaProperty(uuid);
+//	        }
+            currentMetaProperty = new MetaProperty(uuid);
 	        
 	        getCommonFields(currentMetaProperty, attrs);
 	        

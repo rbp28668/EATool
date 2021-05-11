@@ -183,7 +183,7 @@ public class AbstractSymbol extends TextualObject implements Symbol  {
 	 * Entity without any display hint, then don't display text.
 	 * @return true if should display text.
 	 */
-	protected boolean hasText() {
+	protected boolean hasText() throws Exception {
 	    boolean hasText = true;
 	    if(item instanceof Entity){
 	        hasText = ((Entity)item).getMeta().getDisplayHint() != null;

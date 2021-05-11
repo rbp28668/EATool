@@ -296,7 +296,8 @@ public class StandardDiagramType extends DiagramType {
      * then it is removed.
      * @param meta is the MetaRelationship to check.
      */
-    public void validate(MetaRelationship meta) {
+    @Override
+    public void validate(MetaRelationship meta) throws Exception{
         MetaEntity start = meta.start().connectsTo();
         MetaEntity finish = meta.finish().connectsTo();
         

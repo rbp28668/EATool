@@ -39,7 +39,7 @@ public interface ItemHandler {
      * @param y is the y-coordinate where the symbol is to be added.
      * @return an array of new Symbols or null if the user stops the operation.
      */
-    public Symbol[] addSymbolsAt(Component parent, int x, int y) throws LogicException;
+    public Symbol[] addSymbolsAt(Component parent, int x, int y) throws Exception;
 
     /**
      * Potentially creates a new symbol at the given location attached
@@ -49,7 +49,7 @@ public interface ItemHandler {
      * @param y is the y-coordinate where the symbol is to be added.
      * @return an array of new Symbols or null if the user stops the operation.
      */
-    public Symbol addSymbolNewItem(Component parent, int x, int y) throws LogicException;
+    public Symbol addSymbolNewItem(Component parent, int x, int y) throws Exception;
 
 	/**
 	 * Attempts to join 2 symbols on the diagram.
@@ -60,7 +60,7 @@ public interface ItemHandler {
 	 * @throws LogicException - in the event of an error.
 	 */
 	public Connector addConnector(Component parent, Symbol first, Symbol second) 
-	throws LogicException;
+	throws Exception;
 
 	public PositionalPopup getPopupFor(StandardDiagramViewer viewer, Class<?> targetClass);
 	

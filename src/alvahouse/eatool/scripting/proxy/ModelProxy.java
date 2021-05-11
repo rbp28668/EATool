@@ -105,7 +105,7 @@ public class ModelProxy {
     		+ " only start, finish or either end to be included.  This is important"  
     		+ " when parent/child relationships are being processed. "
     		+ " Parameters are the initial set, include start and include finish.")
-    public EntitySet getRelated(EntitySet seed, boolean includeStart, boolean includeFinish){
+    public EntitySet getRelated(EntitySet seed, boolean includeStart, boolean includeFinish) throws Exception{
         EntitySet related = new EntitySet();
         for(Entity e : seed.getContents()){
             Set<Relationship> connected = e.getConnectedRelationships();
@@ -143,7 +143,7 @@ public class ModelProxy {
     		+ " only start, finish or either end to be included.  This is important"  
     		+ " when parent/child relationships are being processed. "
     		+ " Parameters are the initial set, allowed routes, include start and include finish.")
-    public EntitySet getRelatedVia(EntitySet seed, MetaRelationshipSet routes, boolean includeStart, boolean includeFinish){
+    public EntitySet getRelatedVia(EntitySet seed, MetaRelationshipSet routes, boolean includeStart, boolean includeFinish) throws Exception{
         EntitySet related = new EntitySet();
         for(Entity e : seed.getContents()){
             

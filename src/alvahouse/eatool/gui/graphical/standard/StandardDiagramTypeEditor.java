@@ -8,6 +8,7 @@ package alvahouse.eatool.gui.graphical.standard;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -176,7 +177,7 @@ public class StandardDiagramTypeEditor extends BasicDialog implements DiagramTyp
 	 */
 	private class MainPanel extends JPanel{
 		
-		MainPanel() throws ClassNotFoundException {
+		MainPanel() throws Exception {
 			setLayout(new BorderLayout());
 			
 			Box strip = Box.createHorizontalBox();
@@ -258,7 +259,19 @@ public class StandardDiagramTypeEditor extends BasicDialog implements DiagramTyp
 				public void tableChanged(TableModelEvent e) {
 					System.out.println("Table Changed at " + e.getColumn() + "," + e.getFirstRow());
 					if(e.getColumn() == 1) {
-						updateValidConnectors();
+						try {
+							updateValidConnectors();
+						} catch (Exception x) {
+							Container c = MainPanel.this;
+							while(c != null){
+								if(c instanceof java.awt.Frame) {
+									java.awt.Frame frame = (java.awt.Frame)c;
+									new ExceptionDisplay(frame, x);
+									break;
+								}
+								c = c.getParent();
+							}
+						}
 					}
 				}
 			});
@@ -272,7 +285,7 @@ public class StandardDiagramTypeEditor extends BasicDialog implements DiagramTyp
 		 * initialisation.
 		 */
 		public void initFromDiagramType(StandardDiagramType diagramType)
-		throws ClassNotFoundException{
+		throws Exception{
 			nameField.setText(diagramType.getName());
 			symbolsModel.initFromDiagramType(diagramType);
 			updateValidConnectors();
@@ -283,7 +296,7 @@ public class StandardDiagramTypeEditor extends BasicDialog implements DiagramTyp
 		 * This takes the set of selected meta entities and sets the allowable meta-relationships in
 		 * the connectors model to those meta-relationships that join the selected meta-entities.
 		 */
-		private void updateValidConnectors(){
+		private void updateValidConnectors() throws Exception{
 			Set selected = symbolsModel.getSelectedMetaEntities();
 			connectorsModel.resetRelationships();
 			Iterator iter = metaModel.getMetaRelationships().iterator();
@@ -320,7 +333,7 @@ public class StandardDiagramTypeEditor extends BasicDialog implements DiagramTyp
 		private String[] headers = {"Entity Type", "Symbol", "Configure"};
 		private Class[] columnClasses = {String.class, ItemTag.class, JButton.class};
 		
-		public SymbolsModel(AllowableElements allowable) {
+		public SymbolsModel(AllowableElements allowable)  throws Exception{
 		    Collection<MetaEntity> mes = metaModel.getMetaEntities();
 			metaEntities = mes.toArray(new MetaEntity[mes.size()]);
 			symbolTags = new ItemTag[metaEntities.length];

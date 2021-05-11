@@ -18,10 +18,10 @@ import alvahouse.eatool.Main;
 import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.base.DeleteDependenciesList;
 import alvahouse.eatool.repository.metamodel.MetaEntityDisplayHint;
+import alvahouse.eatool.repository.metamodel.MetaEntity;
+import alvahouse.eatool.repository.metamodel.MetaProperty;
+import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.repository.metamodel.MetaRole;
-import alvahouse.eatool.repository.metamodel.impl.MetaEntityImpl;
-import alvahouse.eatool.repository.metamodel.impl.MetaPropertyImpl;
-import alvahouse.eatool.repository.metamodel.impl.MetaRelationshipImpl;
 import alvahouse.eatool.util.UUID;
 
 /**
@@ -65,7 +65,7 @@ public class MetaModelActionSet extends ActionSet {
     public final Action actionMetaEntityNew = new AbstractAction() {
         public void actionPerformed(ActionEvent e) {
             try {
-                MetaEntityImpl me = new MetaEntityImpl(new UUID());
+                MetaEntity me = new MetaEntity(new UUID());
                 MetaEntityEditor editor;
                 (editor = new MetaEntityEditor(explorer, me, repository)).setVisible(true);
                 if(editor.wasEdited()) {
@@ -83,7 +83,7 @@ public class MetaModelActionSet extends ActionSet {
     public final Action actionMetaEntityEdit = new AbstractAction() {
         public void actionPerformed(ActionEvent e) {
             try {
-                MetaEntityImpl me = (MetaEntityImpl)explorer.getSelectedNode().getUserObject();
+                MetaEntity me = (MetaEntity)explorer.getSelectedNode().getUserObject();
                 MetaEntityEditor editor;
                 (editor = new MetaEntityEditor(explorer, me, repository)).setVisible(true);
                 if(editor.wasEdited()) {
@@ -101,7 +101,7 @@ public class MetaModelActionSet extends ActionSet {
     public final Action actionMetaEntityDisplayHintEdit = new AbstractAction() {
         public void actionPerformed(ActionEvent e) {
             try {
-                MetaEntityImpl me = (MetaEntityImpl)explorer.getSelectedNode().getUserObject();
+                MetaEntity me = (MetaEntity)explorer.getSelectedNode().getUserObject();
                 MetaEntityDisplayHint dh = me.getDisplayHint();
                 if(dh == null){
                     dh = new MetaEntityDisplayHint(me);
@@ -125,7 +125,7 @@ public class MetaModelActionSet extends ActionSet {
             //System.out.println("MetaEntityDelete called.");
             try {
                 DefaultMutableTreeNode node = explorer.getSelectedNode();
-                MetaEntityImpl me = (MetaEntityImpl)node.getUserObject();
+                MetaEntity me = (MetaEntity)node.getUserObject();
 
                 DeleteDependenciesList dependencies = repository.getDeleteDependencies(me);
 
@@ -144,7 +144,7 @@ public class MetaModelActionSet extends ActionSet {
         public void actionPerformed(ActionEvent e) {
             try {
                 DefaultMutableTreeNode node = explorer.getSelectedNode();
-                MetaEntityImpl me = (MetaEntityImpl)node.getUserObject();
+                MetaEntity me = (MetaEntity)node.getUserObject();
                 String newName = JOptionPane.showInputDialog(null,
                     "Rename Meta-entity " + me.getName(),"EATool",
                     JOptionPane.QUESTION_MESSAGE);
@@ -166,9 +166,9 @@ public class MetaModelActionSet extends ActionSet {
             //System.out.println("MetaEntityAddProperty called.");
             try {
                 DefaultMutableTreeNode node = explorer.getSelectedNode();
-                MetaEntityImpl me = (MetaEntityImpl)node.getUserObject();
+                MetaEntity me = (MetaEntity)node.getUserObject();
 
-                MetaPropertyImpl mp = new MetaPropertyImpl(new UUID());
+                MetaProperty mp = new MetaProperty(new UUID());
                 MetaPropertyEditor editor;
                 (editor = new MetaPropertyEditor(explorer, mp, repository)).setVisible(true);
                 if(editor.wasEdited()) {
@@ -187,8 +187,8 @@ public class MetaModelActionSet extends ActionSet {
         public void actionPerformed(ActionEvent e) {
             //System.out.println("MetaEntityAddRelationship called.");
             try {
-                MetaEntityImpl me = (MetaEntityImpl)explorer.getSelectedNode().getUserObject();
-                MetaRelationshipImpl mr = new MetaRelationshipImpl(new UUID());
+                MetaEntity me = (MetaEntity)explorer.getSelectedNode().getUserObject();
+                MetaRelationship mr = new MetaRelationship(new UUID());
                 mr.getMetaRole(new UUID()).setConnection(me);
                 mr.getMetaRole(new UUID());
                 MetaRelationshipEditor editor;
@@ -208,7 +208,7 @@ public class MetaModelActionSet extends ActionSet {
     public final Action actionMetaRelationshipNew = new AbstractAction() {
         public void actionPerformed(ActionEvent e) {
             try {
-                MetaRelationshipImpl mr = new MetaRelationshipImpl(new UUID());
+                MetaRelationship mr = new MetaRelationship(new UUID());
                 mr.getMetaRole(new UUID());
                 mr.getMetaRole(new UUID());
                 MetaRelationshipEditor editor;
@@ -228,7 +228,7 @@ public class MetaModelActionSet extends ActionSet {
     public final Action actionMetaRelationshipEdit  = new AbstractAction() {
         public void actionPerformed(ActionEvent e) {
             try {
-                MetaRelationshipImpl mr = (MetaRelationshipImpl)explorer.getSelectedNode().getUserObject();
+                MetaRelationship mr = (MetaRelationship)explorer.getSelectedNode().getUserObject();
                 MetaRelationshipEditor editor;
                 (editor = new MetaRelationshipEditor(explorer, mr, repository)).setVisible(true);
             } catch(Throwable t) {
@@ -240,7 +240,7 @@ public class MetaModelActionSet extends ActionSet {
     public final Action actionMetaPropertyEdit = new AbstractAction() {
         public void actionPerformed(ActionEvent e) {
             try {
-                MetaPropertyImpl mp = (MetaPropertyImpl)explorer.getSelectedNode().getUserObject();
+                MetaProperty mp = (MetaProperty)explorer.getSelectedNode().getUserObject();
                 MetaPropertyEditor editor;
                 (editor = new MetaPropertyEditor(explorer, mp, repository)).setVisible(true);
             } catch(Throwable t) {
@@ -257,7 +257,7 @@ public class MetaModelActionSet extends ActionSet {
         public void actionPerformed(ActionEvent e) {
             try {
                 DefaultMutableTreeNode node = explorer.getSelectedNode();
-                MetaRelationshipImpl mr = (MetaRelationshipImpl)node.getUserObject();
+                MetaRelationship mr = (MetaRelationship)node.getUserObject();
                 DeleteDependenciesList dependencies = repository.getDeleteDependencies(mr);
                 DeleteConfirmationDialog dlg = new DeleteConfirmationDialog(explorer, dependencies);
                 dlg.setVisible(true);

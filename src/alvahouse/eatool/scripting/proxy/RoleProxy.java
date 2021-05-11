@@ -49,7 +49,7 @@ public class RoleProxy {
      * @return the connected Entity.
      */
     @Scripted(description="Gets the entity this role connects to.")
-    public EntityProxy connectsTo(){
+    public EntityProxy connectsTo() throws Exception{
         return new EntityProxy(role.connectsTo());
     }
 

@@ -63,7 +63,7 @@ public class EntityImportFactory implements IXMLContentHandler  {
     	
     }
     
-    public void startElement(String uri, String local, Attributes attrs) {
+    public void startElement(String uri, String local, Attributes attrs) throws InputException{
         // Expect Entity followed by a number of Property
         if(local.equals("Entity")) {
             
@@ -78,8 +78,11 @@ public class EntityImportFactory implements IXMLContentHandler  {
             currentEntityTranslation = (EntityTranslation)translations.get(type);
             if(currentEntityTranslation == null)
                 throw new InputException("Entity type " + type + " not recognised importing XML");
-            
-            currentEntity = new Entity(new UUID(), currentEntityTranslation.getMeta()); // default position is to assume it's a new entity
+            try {
+            	currentEntity = new Entity(new UUID(), currentEntityTranslation.getMeta()); // default position is to assume it's a new entity
+            } catch (Exception e) {
+        		throw new InputException("Unable to create Entity during import",e);
+        	}
             
         } else if (local.equals("Property")) {
             
