@@ -37,9 +37,7 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
 import alvahouse.eatool.Application;
-import alvahouse.eatool.Main;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
-import alvahouse.eatool.repository.metamodel.MetaProperty;
 import alvahouse.eatool.repository.metamodel.MetaProperty;
 import alvahouse.eatool.repository.metamodel.types.MetaPropertyType;
 import alvahouse.eatool.repository.model.Entity;
@@ -66,7 +64,7 @@ public class TabularEntityEditor extends JInternalFrame {
     /**
      * 
      */
-    public TabularEntityEditor(Model model, MetaEntity meta, Application app) {
+    public TabularEntityEditor(Model model, MetaEntity meta, Application app)  throws Exception{
         super();
         this.app = app;
         
@@ -165,19 +163,19 @@ public class TabularEntityEditor extends JInternalFrame {
      */
     private class TabularEntityTable extends JTable {
         
-        private Vector columnTypes;
+ 		private static final long serialVersionUID = 1L;
+		private Vector<MetaPropertyType> columnTypes;
         
-        TabularEntityTable(TableModel tableModel, MetaEntity me){
+        TabularEntityTable(TableModel tableModel, MetaEntity me) throws Exception{
             super(tableModel);
             
             setDefaultRenderer(Property.class, new PropertyCellRenderer());
             setDefaultEditor(Property.class, new PropertyCellEditor());
             
             int idx = 0;
-            Collection metaProperties = me.getMetaProperties();
-            columnTypes = new Vector(metaProperties.size());
-            for(Iterator iter = me.getMetaProperties().iterator(); iter.hasNext();){
-                MetaProperty mp = (MetaProperty)iter.next();
+            Collection<MetaProperty> metaProperties = me.getMetaProperties();
+            columnTypes = new Vector<>(metaProperties.size());
+            for(MetaProperty mp : me.getMetaProperties()){
                 MetaPropertyType type = mp.getMetaPropertyType();
                 columnTypes.add(idx++, type);
             }
@@ -207,7 +205,9 @@ public class TabularEntityEditor extends JInternalFrame {
      */
     private class PropertyCellRenderer extends DefaultTableCellRenderer{
 
-        /* (non-Javadoc)
+ 		private static final long serialVersionUID = 1L;
+
+		/* (non-Javadoc)
          * @see javax.swing.table.TableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
          */
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -226,8 +226,7 @@ public class TabularEntityEditor extends JInternalFrame {
      */
     private class PropertyCellEditor implements TableCellEditor{
 
-        private transient List listeners = new LinkedList();
-        private transient String originalValue;
+        private transient List<CellEditorListener> listeners = new LinkedList<CellEditorListener>();
         private transient Component editor;
         private transient MetaPropertyType type;
         
@@ -236,7 +235,6 @@ public class TabularEntityEditor extends JInternalFrame {
          */
         public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
             type = ((TabularEntityTable)table).getTypeForColumn(column);
-            this.originalValue = (String)value;
             editor = type.getEditor(value);
             return editor;
         }
@@ -319,16 +317,17 @@ public class TabularEntityEditor extends JInternalFrame {
      */
     private class TabularEntityTableHeader extends JTableHeader {
         
-        public TabularEntityTableHeader(){
-            super();
-        }
-        
+ 		private static final long serialVersionUID = 1L;
+
+//		public TabularEntityTableHeader(){
+//            super();
+//        }
+//        
         public TabularEntityTableHeader(TableColumnModel columnModel){
             super(columnModel);
         }
         
         public String getToolTipText(MouseEvent e) {
-            String tip = null;
             java.awt.Point p = e.getPoint();
             int index = columnModel.getColumnIndexAtX(p.x);
             int realIndex = columnModel.getColumn(index).getModelIndex();
@@ -350,26 +349,27 @@ public class TabularEntityEditor extends JInternalFrame {
      */
     private class TabularEntityTableModel extends AbstractTableModel{
 
-        private Vector metaProperties;
-        private Vector rowState;
+		private static final long serialVersionUID = 1L;
+		private Vector<MetaProperty> metaProperties;
+        private Vector<RowState> rowState;
         private MetaEntity metaEntity;
         private Model model;
-        private List deleted = new LinkedList();
+        private List<Object> deleted = new LinkedList<Object>();
         
         /**
          * @param model
          * @param metaEntity
          */
-        TabularEntityTableModel(Model model, MetaEntity metaEntity){
+        TabularEntityTableModel(Model model, MetaEntity metaEntity) throws Exception{
             this.model = model;
             this.metaEntity = metaEntity;
             
-            List entityList = model.getEntitiesOfType(metaEntity);
-            metaProperties = new Vector(metaEntity.getMetaProperties());
-            rowState = new Vector(entityList.size());
-            Iterator iter = entityList.iterator();
+            List<Entity> entityList = model.getEntitiesOfType(metaEntity);
+            metaProperties = new Vector<MetaProperty>(metaEntity.getMetaProperties());
+            rowState = new Vector<RowState>(entityList.size());
+            Iterator<Entity> iter = entityList.iterator();
             for(int i=0; i<entityList.size(); ++i){
-                Entity e = (Entity)iter.next();
+                Entity e = iter.next();
                 rowState.add(i,new RowState(e,metaProperties));
             }
         }
@@ -394,7 +394,7 @@ public class TabularEntityEditor extends JInternalFrame {
             }
             
             // Now handle any deleted rows...
-            for(Iterator iter = deleted.iterator(); iter.hasNext();){
+            for(Iterator<Object> iter = deleted.iterator(); iter.hasNext();){
                 RowState row = (RowState)iter.next();
                 Entity e = row.getEntity();
                 if(e != null){
@@ -422,7 +422,7 @@ public class TabularEntityEditor extends JInternalFrame {
          * This allows the table to pick an appropriate editor/renderer
          * for each property type.
          */
-        public Class getColumnClass(int columnIndex) {
+        public Class<Property> getColumnClass(int columnIndex) {
             return Property.class;
         }
         
@@ -526,7 +526,8 @@ public class TabularEntityEditor extends JInternalFrame {
 	 */
 	private static class TableRowHeader extends JComponent implements ListSelectionListener {
 		
- 		//private Vector rowEntities;
+ 		private static final long serialVersionUID = 1L;
+		//private Vector rowEntities;
 	    private TabularEntityTableModel tableModel;
 		private JTable table;
 		private int width;
@@ -539,7 +540,6 @@ public class TabularEntityEditor extends JInternalFrame {
 			this.table = table;
 			this.tableModel = tableModel;
 			
-			int rows = tableModel.getRowCount();
 			width = 0;
 			JLabel label = new JLabel();
 			FontMetrics fontMetrics = label.getFontMetrics(label.getFont());
@@ -589,23 +589,23 @@ public class TabularEntityEditor extends JInternalFrame {
     class RowState {
         boolean isNew = false;
         boolean isEdited = false;
-        Vector values = null;
-        Vector metaProperties = null;
+        Vector<Object> values = null;
+        Vector<MetaProperty> metaProperties = null;
         Entity entity = null;
         
 
-        RowState(Vector metaProperties){
+        RowState(Vector<MetaProperty> metaProperties){
             this.metaProperties = metaProperties;
             this.isNew = true;
             this.isEdited = false;
-            values = new Vector(metaProperties.size());
+            values = new Vector<Object>(metaProperties.size());
             for(int i=0; i<metaProperties.size(); ++i){
                 MetaProperty mp = (MetaProperty)metaProperties.get(i);
                 values.add(i,mp.getDefaultValue());
             }
         }
         
-        RowState(Entity entity, Vector metaProperties){
+        RowState(Entity entity, Vector<MetaProperty> metaProperties){
             this.entity = entity;
             this.metaProperties = metaProperties;
             this.isNew = false;
@@ -625,7 +625,7 @@ public class TabularEntityEditor extends JInternalFrame {
             if(values == null){
                 
                 // Initialise a copy of the data for the underlying entity.
-                values = new Vector(metaProperties.size());
+                values = new Vector<Object>(metaProperties.size());
                 for(int i=0; i<metaProperties.size(); ++i){
                     MetaProperty mp = (MetaProperty)metaProperties.get(i);
                     Property p = entity.getPropertyByMeta(mp.getKey());
@@ -690,7 +690,7 @@ public class TabularEntityEditor extends JInternalFrame {
         /* (non-Javadoc)
          * @see alvahouse.eatool.gui.WindowCoordinator.WindowFactory#createFrame()
          */
-        public JInternalFrame createFrame() {
+        public JInternalFrame createFrame()  throws Exception{
             return new TabularEntityEditor(model,metaEntity,app);
         }
 

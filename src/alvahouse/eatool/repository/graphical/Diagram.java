@@ -219,7 +219,7 @@ public abstract class Diagram extends NamedRepositoryItem {
 		backColour = colour;
 	}
 	
-	public abstract void draw(Graphics2D g, float zoom);
+	public abstract void draw(Graphics2D g, float zoom) throws Exception;
 
 	/**
 	 * Get the bounds for a zoom of 1.0
@@ -322,7 +322,7 @@ public abstract class Diagram extends NamedRepositoryItem {
      * @param format should be png or jpg.
      * @throws IOException
      */
-    public void export(File path, String format) throws IOException{
+    public void export(File path, String format) throws Exception{
         final int BORDER = 10;
 		Rectangle2D.Float bounds = getBounds();
 		int width = (int)bounds.width;

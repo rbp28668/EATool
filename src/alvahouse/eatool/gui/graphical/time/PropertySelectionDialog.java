@@ -18,6 +18,7 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
 import alvahouse.eatool.gui.BasicDialog;
+import alvahouse.eatool.gui.ExceptionDisplay;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.model.Entity;
 import alvahouse.eatool.repository.model.Model;
@@ -56,7 +57,11 @@ public class PropertySelectionDialog extends BasicDialog {
 				int selRow = tree.getRowForLocation(e.getX(), e.getY());
 				if (selRow != -1) {
 					if (e.getClickCount() == 2) {
-						fireOK();
+						try {
+							fireOK();
+						} catch (Exception x) {
+							new ExceptionDisplay(PropertySelectionDialog.this,x);
+						}
 					}
 				}
 			}
@@ -95,7 +100,6 @@ public class PropertySelectionDialog extends BasicDialog {
 			return false;
 		}
 
-		List<Entity> entities = new LinkedList<Entity>();
 		for(int i=0; i<paths.length; ++i){
 			DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) paths[i].getLastPathComponent();
 			Object obj = selectedNode.getUserObject();
@@ -143,9 +147,6 @@ public class PropertySelectionDialog extends BasicDialog {
 		List<Property> properties = new LinkedList<Property>();
 		for(int i=0; i<paths.length; ++i){
 		    Object[] path = paths[i].getPath();
-		    int len;
-            DefaultMutableTreeNode selectedNode;
-            Object obj;
             Property p = getPropertyFromPath(path);
 			if(p != null){
 			    properties.add(p);
@@ -226,11 +227,11 @@ public class PropertySelectionDialog extends BasicDialog {
 	private void setMetaEntityNodeChildren(
 		DefaultTreeModel treeModel,
 		MutableTreeNode tnMetaEntity,
-		List listEntities) {
-		Iterator iter = listEntities.iterator();
+		List<Entity> listEntities) {
+		Iterator<Entity> iter = listEntities.iterator();
 		int idx = 0;
 		while (iter.hasNext()) {
-			Entity e = (Entity) iter.next();
+			Entity e = iter.next();
 			DefaultMutableTreeNode tnEntity = new DefaultMutableTreeNode(e);
 			treeModel.insertNodeInto(tnEntity, tnMetaEntity, idx++);
 		}

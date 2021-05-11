@@ -116,7 +116,7 @@ public abstract class DiagramType extends NamedRepositoryItem {
 	
 	public abstract void removeConnectorsFor(MetaRelationship meta);
 	
-	public abstract void validate(MetaRelationship meta);
+	public abstract void validate(MetaRelationship meta) throws Exception;
 
 	/**
 	 * Helper class to identify (by key) the family this type belongs to.

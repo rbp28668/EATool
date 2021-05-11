@@ -228,7 +228,7 @@ public class DiagramTypes extends MetaModelChangeAdapter {
      * @see alvahouse.eatool.repository.metamodel.MetaModelChangeListener#metaRelationshipChanged(alvahouse.eatool.repository.metamodel.MetaModelChangeEvent)
      */
     @Override
-    public void metaRelationshipChanged(MetaModelChangeEvent e) {
+    public void metaRelationshipChanged(MetaModelChangeEvent e) throws Exception{
         // If the roles change attached type then potentially 
         // some meta-roles are invalid.
         MetaRelationship meta = (MetaRelationship)e.getSource();
@@ -254,7 +254,7 @@ public class DiagramTypes extends MetaModelChangeAdapter {
       * Call if a meta-role has changed to allow validation of parent relationship.
      * @param e
      */
-    public void metaRoleChanged(MetaModelChangeEvent e) {
+    public void metaRoleChanged(MetaModelChangeEvent e) throws Exception {
         // If Attached class has changed then invalidate 
         MetaRole meta = (MetaRole)e.getSource();
         for(DiagramType type :  typeLookup.values()){

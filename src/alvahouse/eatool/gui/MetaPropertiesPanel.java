@@ -18,7 +18,7 @@ import javax.swing.event.ListSelectionEvent;
 import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.metamodel.MetaProperty;
 import alvahouse.eatool.repository.metamodel.MetaPropertyContainer;
-import alvahouse.eatool.repository.metamodel.impl.MetaPropertyImpl;
+import alvahouse.eatool.repository.metamodel.MetaProperty;
 import alvahouse.eatool.util.UUID;
 
 /*=================================================================*/
@@ -77,7 +77,7 @@ public class MetaPropertiesPanel extends JPanel {
         // New Property
         btnNewProperty.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                MetaProperty mp = new MetaPropertyImpl(new UUID());
+                MetaProperty mp = new MetaProperty(new UUID());
                 MetaPropertyEditor editor;
                 (editor = new MetaPropertyEditor(parentDialog, mp, repository)).setVisible(true);
                 if(editor.wasEdited()) {

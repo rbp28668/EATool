@@ -105,7 +105,7 @@ public class WebExport {
             
         } catch (FileNotFoundException e) {
             throw new OutputException("Unable to generate web output",e);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new OutputException("Unable to generate web output",e);
         }
 
@@ -118,7 +118,7 @@ public class WebExport {
      * @param outputFolder
      * @throws IOException
      */
-    private void writeEntities(Model model, File outputFolder) throws IOException {
+    private void writeEntities(Model model, File outputFolder) throws Exception {
         File subFolder = new File(outputFolder,"entity");
         subFolder.mkdirs();
         
@@ -148,7 +148,7 @@ public class WebExport {
      * @param outputFolder
      * @throws IOException
      */
-    private void writeMetaEntityTables(MetaModel meta, Model model, File outputFolder) throws IOException {
+    private void writeMetaEntityTables(MetaModel meta, Model model, File outputFolder) throws Exception {
         File subFolder = new File(outputFolder,"metaEntityTable");
         subFolder.mkdirs();
         
@@ -173,7 +173,7 @@ public class WebExport {
      * @param outputFolder
      * @throws IOException
      */
-    private void writeMetaEntities(MetaModel meta, Model model, File outputFolder) throws IOException {
+    private void writeMetaEntities(MetaModel meta, Model model, File outputFolder) throws Exception {
 
         File subFolder = new File(outputFolder,"metaEntity");
         subFolder.mkdirs();
@@ -198,7 +198,7 @@ public class WebExport {
      * @param outputFolder
      * @throws IOException
      */
-    private void writeIndex(Repository repository, File outputFolder) throws IOException {
+    private void writeIndex(Repository repository, File outputFolder) throws Exception {
         XMLWriter writer = getWriter(outputFolder,INDEX_PAGE, INDEX_XFORM);
         MetaModel meta = repository.getMetaModel();
         try {
@@ -291,7 +291,7 @@ public class WebExport {
         }
     }
     
-    private void writeDiagrams(Repository repository, File outputFolder) throws IOException {
+    private void writeDiagrams(Repository repository, File outputFolder) throws Exception {
         
         File imageDir = new File(outputFolder,"diagrams");
         imageDir.mkdirs();
@@ -318,7 +318,7 @@ public class WebExport {
      * @param type
      * @throws IOException
      */
-    private void writeDiagramsOfType(Repository repository, File imageDir, DiagramExportProxy proxy, DiagramType type) throws IOException {
+    private void writeDiagramsOfType(Repository repository, File imageDir, DiagramExportProxy proxy, DiagramType type) throws Exception {
         Collection<Diagram> diagrams = repository.getDiagrams().getDiagramsOfType(type);
         
         for(Diagram diagram : diagrams){

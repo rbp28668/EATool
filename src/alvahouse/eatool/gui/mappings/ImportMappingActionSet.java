@@ -88,7 +88,7 @@ public class ImportMappingActionSet extends ActionSet {
          * @param parentNode
          * @return
          */
-        private MetaEntity getControllingMetaEntity(DefaultMutableTreeNode parentNode) {
+        private MetaEntity getControllingMetaEntity(DefaultMutableTreeNode parentNode) throws Exception{
             Object parent = parentNode.getUserObject();
             MetaEntity me = null;
             if(parent instanceof EntityTranslation){

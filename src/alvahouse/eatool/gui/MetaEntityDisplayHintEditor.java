@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -18,9 +17,9 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 
+import alvahouse.eatool.Main;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaEntityDisplayHint;
-import alvahouse.eatool.repository.metamodel.MetaProperty;
 import alvahouse.eatool.repository.metamodel.MetaProperty;
 
 /**
@@ -32,6 +31,7 @@ import alvahouse.eatool.repository.metamodel.MetaProperty;
  */
 public class MetaEntityDisplayHintEditor extends BasicDialog {
 
+	private static final long serialVersionUID = 1L;
 	private MetaEntityDisplayHint originalHint;
 	private MetaEntity metaEntity;
 	private HintsPanel hintsPanel;
@@ -40,7 +40,7 @@ public class MetaEntityDisplayHintEditor extends BasicDialog {
 	 * @param parent
 	 * @param title
 	 */
-	public MetaEntityDisplayHintEditor(Component parent, MetaEntityDisplayHint dh, MetaEntity me) {
+	public MetaEntityDisplayHintEditor(Component parent, MetaEntityDisplayHint dh, MetaEntity me) throws Exception{
         super(parent ,"Edit Display Hint");
         
         if(dh == null) {
@@ -68,9 +68,8 @@ public class MetaEntityDisplayHintEditor extends BasicDialog {
 	 */
 	protected void onOK() {
 		originalHint.clearPropertyKeys();
-		Collection properties = hintsPanel.getIncludedProperties();
-		for (Iterator iter = properties.iterator(); iter.hasNext();) {
-			MetaProperty element = (MetaProperty) iter.next();
+		Collection<MetaProperty> properties = hintsPanel.getIncludedProperties();
+		for (MetaProperty element : properties) {
 			originalHint.addPropertyKey(element.getKey());
 		}
 	}
@@ -86,16 +85,20 @@ public class MetaEntityDisplayHintEditor extends BasicDialog {
 
 	private class HintsPanel extends JPanel {
 		
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
 		private MetaEntityDisplayHint displayHint;
-		private DefaultListModel excludedListModel = new DefaultListModel();
-		private DefaultListModel includedListModel = new DefaultListModel();
-		private JList excludedList = new JList(excludedListModel);
-		private JList includedList = new JList(includedListModel);
+		private DefaultListModel<MetaProperty> excludedListModel = new DefaultListModel<MetaProperty>();
+		private DefaultListModel<MetaProperty> includedListModel = new DefaultListModel<MetaProperty>();
+		private JList<MetaProperty> excludedList = new JList<MetaProperty>(excludedListModel);
+		private JList<MetaProperty> includedList = new JList<MetaProperty>(includedListModel);
 		private JButton include = new JButton(">>>");
 		private JButton exclude = new JButton("<<<");
 		private JButton removeAll = new JButton("Remove All");
 		
-		public HintsPanel(MetaEntityDisplayHint dh) {
+		public HintsPanel(MetaEntityDisplayHint dh) throws Exception {
 			displayHint = dh;
 
 			setLayout(new BorderLayout());
@@ -123,9 +126,7 @@ public class MetaEntityDisplayHintEditor extends BasicDialog {
 			add(box, BorderLayout.CENTER);
 			box.setBorder(componentBorder);
 			
-			Iterator iter =	metaEntity.getMetaProperties().iterator();
-			while (iter.hasNext()) {
-				MetaProperty mp = (MetaProperty) iter.next();
+			for(MetaProperty mp : metaEntity.getMetaProperties()) {
 				if(displayHint.referencesProperty(mp)) {
 					includedListModel.addElement(mp);
 				} else {
@@ -141,7 +142,7 @@ public class MetaEntityDisplayHintEditor extends BasicDialog {
 	            public void actionPerformed(java.awt.event.ActionEvent evt) {
 	            	int idx = excludedList.getSelectedIndex();
 	            	if(idx != -1) {
-	            		Object omp = excludedListModel.remove(idx);
+	            		MetaProperty omp = excludedListModel.remove(idx);
 	            		includedListModel.addElement(omp);
 	            		include.setEnabled(false); // as no selection now
 	            		removeAll.setEnabled(true); // as must be something to remove
@@ -153,7 +154,7 @@ public class MetaEntityDisplayHintEditor extends BasicDialog {
 	            public void actionPerformed(java.awt.event.ActionEvent evt) {
 	            	int idx = includedList.getSelectedIndex();
 	            	if(idx != -1) {
-	            		Object omp = includedListModel.remove(idx);
+	            		MetaProperty omp = includedListModel.remove(idx);
 	            		excludedListModel.addElement(omp);
 	            		exclude.setEnabled(false);
 	            		removeAll.setEnabled(includedListModel.getSize()>0);
@@ -166,11 +167,13 @@ public class MetaEntityDisplayHintEditor extends BasicDialog {
 	            	includedListModel.clear();
 	            	excludedListModel.clear();
 	            	
-					Iterator iter =	metaEntity.getMetaProperties().iterator();
-					while (iter.hasNext()) {
-						MetaProperty mp = (MetaProperty) iter.next();
-						excludedListModel.addElement(mp);
-		            }
+	            	try {
+						for(MetaProperty mp: metaEntity.getMetaProperties()) {
+							excludedListModel.addElement(mp);
+			            }
+	            	} catch (Exception e) {
+	            		new ExceptionDisplay(Main.getAppFrame(), e);
+	            	}
 	            }
 	        });
 
@@ -194,8 +197,8 @@ public class MetaEntityDisplayHintEditor extends BasicDialog {
 		 * list box.
 		 * @return a collection of included properties, never null, may be empty.
 		 */
-		Collection getIncludedProperties() {
-			List properties = new LinkedList();
+		Collection<MetaProperty> getIncludedProperties() {
+			List<MetaProperty> properties = new LinkedList<MetaProperty>();
 			for(int i=0; i<includedListModel.size(); ++i) {
 				properties.add(includedListModel.get(i));
 			}
@@ -213,6 +216,8 @@ public class MetaEntityDisplayHintEditor extends BasicDialog {
 	 */	
 	private class TwinnedScrollPane extends JScrollPane {
 		
+		private static final long serialVersionUID = 1L;
+
 		/** Twin of this scroll pane */
 		private TwinnedScrollPane twin = null;
 		

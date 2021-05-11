@@ -6,8 +6,6 @@
  */
 package alvahouse.eatool.webexport;
 
-import java.io.IOException;
-
 import alvahouse.eatool.util.XMLWriter;
 
 /**
@@ -17,6 +15,6 @@ import alvahouse.eatool.util.XMLWriter;
  */
 public interface ExportProxy {
 
-    public void export(XMLWriter out)  throws IOException;
+    public void export(XMLWriter out)  throws Exception;
     
 }

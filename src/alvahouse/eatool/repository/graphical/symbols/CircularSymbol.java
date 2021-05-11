@@ -61,7 +61,7 @@ public class CircularSymbol extends AbstractSymbol {
 	 * @param g
 	 * @param scale
 	 */
-	public void draw(Graphics2D g, float scale) {
+	public void draw(Graphics2D g, float scale) throws Exception{
 		
 		sizeSymbolFor(g);
 		// Possible that still may need to init extra settings
@@ -93,7 +93,7 @@ public class CircularSymbol extends AbstractSymbol {
 		
 	}
 	
-	public void sizeWith(Graphics2D g) {
+	public void sizeWith(Graphics2D g) throws Exception {
 	    if(hasText()){
 	        DimensionFloat size = new DimensionFloat();
 	        sizeTextBox(g , size);

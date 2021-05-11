@@ -11,7 +11,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
 
@@ -23,8 +22,6 @@ import alvahouse.eatool.repository.metamodel.MetaProperty;
 import alvahouse.eatool.repository.metamodel.MetaPropertyContainer;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.repository.metamodel.MetaRole;
-import alvahouse.eatool.repository.metamodel.impl.MetaEntityImpl;
-import alvahouse.eatool.repository.metamodel.impl.MetaRelationshipImpl;
 
 /**
  * Tree model that represents the MetaModel as a hierarchy. Used by the
@@ -63,13 +60,12 @@ public class MetaModelExplorerTreeModel extends ExplorerTreeModel
     
     public void dispose() {
         if(metaModel != null) metaModel.removeChangeListener(this);
-        tree = null;
     }
 
     /** Call when the meta model changes to get the explorer to re-build
      * it's internal representation
      */
-    public void refresh() {
+    public void refresh()  throws Exception{
        clearTree();
        reload();
        initModel();
@@ -87,7 +83,7 @@ public class MetaModelExplorerTreeModel extends ExplorerTreeModel
 
     /** initialises the tree model from the model or meta-model.
      */
-    private void initModel() {
+    private void initModel()  throws Exception{
         MutableTreeNode metn = getMetaEntitiesNode();
         MutableTreeNode mrtn = getMetaRelationshipsNode();
         insertNodeInto(metn, (DefaultMutableTreeNode)getRoot(),0);
@@ -96,7 +92,7 @@ public class MetaModelExplorerTreeModel extends ExplorerTreeModel
         int idx = 0;
         List<MetaEntity> metaEntities = new LinkedList<>();
         metaEntities.addAll(metaModel.getMetaEntities()); 
-        Collections.sort(metaEntities,new MetaEntityImpl.Compare());
+        Collections.sort(metaEntities,new MetaEntity.Compare());
         for(MetaEntity me : metaEntities) {
             addMetaEntityNode(metn,me,idx++);
         }
@@ -104,7 +100,7 @@ public class MetaModelExplorerTreeModel extends ExplorerTreeModel
         idx=0;
         List<MetaRelationship> metaRelationships = new LinkedList<>();
         metaRelationships.addAll(metaModel.getMetaRelationships());
-        Collections.sort(metaRelationships, new MetaRelationshipImpl.Compare());
+        Collections.sort(metaRelationships, new MetaRelationship.Compare());
         for(MetaRelationship mr : metaRelationships) {
             addMetaRelationshipNode(mrtn,mr,idx++);
         }
@@ -115,7 +111,7 @@ public class MetaModelExplorerTreeModel extends ExplorerTreeModel
      * @param node is the tree node corresponding to the given meta-entity
      * @param me is the meta-entity for the given tree node
      */
-    private void refreshNode(DefaultMutableTreeNode node, MetaEntity me) {
+    private void refreshNode(DefaultMutableTreeNode node, MetaEntity me) throws Exception {
         node.removeAllChildren();
         setMetaEntityNodeChildren(node, me);
         nodeStructureChanged(node);
@@ -135,7 +131,7 @@ public class MetaModelExplorerTreeModel extends ExplorerTreeModel
      * @param node is the tree node corresponding to the given meta-relationship
      * @param mr is the meta-relationship for the given tree node
      */
-    private void refreshNode(DefaultMutableTreeNode node, MetaRelationship mr) {
+    private void refreshNode(DefaultMutableTreeNode node, MetaRelationship mr) throws Exception{
         node.removeAllChildren();
         setMetaRelationshipNodeChildren(node, mr);
         nodeStructureChanged(node);
@@ -145,7 +141,7 @@ public class MetaModelExplorerTreeModel extends ExplorerTreeModel
      * @param node is the tree node corresponding to the given meta-role
      * @param mr is the meta-role for the given tree node
      */
-    private void refreshNode(DefaultMutableTreeNode node, MetaRole mr) {
+    private void refreshNode(DefaultMutableTreeNode node, MetaRole mr) throws Exception{
         node.removeAllChildren();
         setMetaRoleNodeChildren(node, mr);
         nodeStructureChanged(node);
@@ -186,7 +182,7 @@ public class MetaModelExplorerTreeModel extends ExplorerTreeModel
      * @param me is the meta-entity to add
      * @idxEntity is where to insert the entity-node into its parent
      */
-    private void addMetaEntityNode(MutableTreeNode parent, MetaEntity me, int idxEntity) {
+    private void addMetaEntityNode(MutableTreeNode parent, MetaEntity me, int idxEntity) throws Exception {
         DefaultMutableTreeNode tnEntity = new DefaultMutableTreeNode(me.getName());
         insertNodeInto(tnEntity,parent,idxEntity);
         tnEntity.setUserObject(me);
@@ -198,7 +194,7 @@ public class MetaModelExplorerTreeModel extends ExplorerTreeModel
      * @param tnEntity is the tree node for the meta-entity
      * @param me is the meta-entity
      */
-    private void setMetaEntityNodeChildren(MutableTreeNode tnEntity, MetaEntity me) {
+    private void setMetaEntityNodeChildren(MutableTreeNode tnEntity, MetaEntity me) throws Exception{
         int idx = 0;
         
         if(me.getDescription() != null)
@@ -273,7 +269,7 @@ public class MetaModelExplorerTreeModel extends ExplorerTreeModel
      * @param mr is the meta-relationship to add
      * @idxRelationship is where to insert the relationship-node into its parent
      */
-    private void addMetaRelationshipNode(MutableTreeNode parent, MetaRelationship mr, int idxRelationship) {
+    private void addMetaRelationshipNode(MutableTreeNode parent, MetaRelationship mr, int idxRelationship) throws Exception{
         DefaultMutableTreeNode tnRelationship = new DefaultMutableTreeNode(mr.getName());
         tnRelationship.setUserObject(mr);
         insertNodeInto(tnRelationship,parent,idxRelationship);
@@ -285,7 +281,7 @@ public class MetaModelExplorerTreeModel extends ExplorerTreeModel
      * @param tnRole is the tree node for the meta-relationship
      * @param is the meta-relationship
      */
-    private void setMetaRelationshipNodeChildren(MutableTreeNode tnRelationship, MetaRelationship mr) {
+    private void setMetaRelationshipNodeChildren(MutableTreeNode tnRelationship, MetaRelationship mr) throws Exception {
         int idx = 0;
         if(mr.getDescription() != null)
             insertNodeInto(new DefaultMutableTreeNode("description: " + mr.getDescription()), tnRelationship, idx++);
@@ -299,7 +295,7 @@ public class MetaModelExplorerTreeModel extends ExplorerTreeModel
      * @param mr is the meta-role to add
      * @idxRole is where to insert the role-node into its parent
      */
-    private void addMetaRoleNode(MutableTreeNode parent, MetaRole mr, int idxRole) {
+    private void addMetaRoleNode(MutableTreeNode parent, MetaRole mr, int idxRole) throws Exception {
         DefaultMutableTreeNode tnRole = new DefaultMutableTreeNode("Role: " + mr.getName());
         tnRole.setUserObject(mr);
         insertNodeInto(tnRole, parent, idxRole);
@@ -311,7 +307,7 @@ public class MetaModelExplorerTreeModel extends ExplorerTreeModel
      * @param tnRole is the tree node for the meta-role
      * @param is the meta-role
      */
-    private void setMetaRoleNodeChildren(MutableTreeNode tnRole, MetaRole mr) {
+    private void setMetaRoleNodeChildren(MutableTreeNode tnRole, MetaRole mr) throws Exception{
         int idx = 0;
         if((mr.getDescription() != null) && (mr.getDescription().length() > 0))
             insertNodeInto(new DefaultMutableTreeNode("description: " + mr.getDescription()), tnRole, idx++);
@@ -339,7 +335,7 @@ public class MetaModelExplorerTreeModel extends ExplorerTreeModel
     /** signals that a meta relationship has been added
      * @ param e is the event that references the object being changed
      */
-    public void metaRelationshipAdded(MetaModelChangeEvent e) {
+    public void metaRelationshipAdded(MetaModelChangeEvent e) throws Exception {
         MetaRelationship mr = (MetaRelationship)e.getSource();
         MutableTreeNode parent = metaRelationshipsNode; // MetaRelationships
         if(parent != null) {
@@ -351,7 +347,7 @@ public class MetaModelExplorerTreeModel extends ExplorerTreeModel
     /** signals a major update to the meta model
      * @ param e is the event that references the object being changed
      */
-    public void modelUpdated(MetaModelChangeEvent e) {
+    public void modelUpdated(MetaModelChangeEvent e)  throws Exception{
         refresh();
     }
     
@@ -371,7 +367,7 @@ public class MetaModelExplorerTreeModel extends ExplorerTreeModel
     /** signals that a meta entity has been added
      * @ param e is the event that references the object being changed
      */
-    public void metaEntityAdded(MetaModelChangeEvent e) {
+    public void metaEntityAdded(MetaModelChangeEvent e) throws Exception{
         MetaEntity me = (MetaEntity)e.getSource();
         MutableTreeNode parent = metaEntitesNode; // MetaEntities
         if(parent != null) {
@@ -384,7 +380,7 @@ public class MetaModelExplorerTreeModel extends ExplorerTreeModel
     /** signals that a meta entity has been changed
      * @ param e is the event that references the object being changed
      */
-    public void metaEntityChanged(MetaModelChangeEvent e) {
+    public void metaEntityChanged(MetaModelChangeEvent e) throws Exception{
         MetaEntity me = (MetaEntity)e.getSource();
         DefaultMutableTreeNode tn = lookupNodeOf(me);
         if(me != null) {
@@ -396,7 +392,7 @@ public class MetaModelExplorerTreeModel extends ExplorerTreeModel
     /** signals that a meta relationship has been changed
      * @ param e is the event that references the object being changed
      */
-    public void metaRelationshipChanged(MetaModelChangeEvent e) {
+    public void metaRelationshipChanged(MetaModelChangeEvent e) throws Exception {
         MetaRelationship mr = (MetaRelationship)e.getSource();
         DefaultMutableTreeNode tn = lookupNodeOf(mr);
         if(tn != null) {
@@ -432,7 +428,6 @@ public class MetaModelExplorerTreeModel extends ExplorerTreeModel
     
     private MutableTreeNode metaEntitesNode;
     private MutableTreeNode metaRelationshipsNode;
-    private JTree tree;
-    
+     
  
 }

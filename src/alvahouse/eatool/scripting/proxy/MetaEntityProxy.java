@@ -73,7 +73,7 @@ public class MetaEntityProxy {
     		+ "If this MetaEntity is derived from (i.e. has a base of) another,"
     		+ " then this MetaEntity will inherit all the properties of the base MetaEntity."
     		+ " This returns any base MetaEntity or null if this is not derived.")    
-    public MetaEntityProxy getBase(){
+    public MetaEntityProxy getBase() throws Exception{
     	MetaEntity base = metaEntity.getBase();
         return (base != null) ? new MetaEntityProxy(base) : null;
     }
@@ -83,7 +83,7 @@ public class MetaEntityProxy {
      * @return the MetaPropertySet.
      */
     @Scripted(description="Gets the set of MetaProperties corresponding to this MetaEntity.")    
-    public MetaPropertySet getMetaProperties(){
+    public MetaPropertySet getMetaProperties() throws Exception{
         return new MetaPropertySet(metaEntity.getMetaProperties());
     }
     
@@ -92,7 +92,7 @@ public class MetaEntityProxy {
      * @return the MetaPropertySet.
      */
     @Scripted(description="Gets an individual meta property corresponding to the given key.")    
-    public MetaPropertyProxy getMetaProperty(String key){
+    public MetaPropertyProxy getMetaProperty(String key) throws Exception{
         MetaProperty p = metaEntity.getMetaProperty(new UUID(key));
         return new MetaPropertyProxy(p);
     }

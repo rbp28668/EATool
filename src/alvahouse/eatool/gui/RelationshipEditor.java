@@ -39,7 +39,7 @@ public class RelationshipEditor extends BasicDialog {
 	 * @param parent
 	 * @param title
 	 */
-    public RelationshipEditor(Component parent, Relationship r, Model model) {
+    public RelationshipEditor(Component parent, Relationship r, Model model)  throws Exception{
 		super(parent, "Edit Relationship");
 		this.model = model;
 		
@@ -98,7 +98,7 @@ public class RelationshipEditor extends BasicDialog {
 		 * Method RelationshipsPanel.
 		 * @param e
 		 */
-        RelationshipPanel(Relationship r, Model model) {
+        RelationshipPanel(Relationship r, Model model)  throws Exception{
 
 			relationship = r;
 			
@@ -142,7 +142,7 @@ public class RelationshipEditor extends BasicDialog {
         	if(propertiesPanel != null) {
         		propertiesPanel.onOK();
         	}
-        	model.fireRelationshipChanged(relationship);
+        	model.updateRelationship(relationship);
         }
         
 		/**

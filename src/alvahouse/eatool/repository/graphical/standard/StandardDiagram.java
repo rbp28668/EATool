@@ -161,7 +161,7 @@ public class StandardDiagram extends Diagram implements NodeGraph{
 	/**
 	 * @param g
 	 */
-	public void sizeWith(Graphics2D g){
+	public void sizeWith(Graphics2D g) throws Exception{
 		for(Connector c : connectors){
 			c.sizeWith(g);
 		}
@@ -179,7 +179,7 @@ public class StandardDiagram extends Diagram implements NodeGraph{
 	/* (non-Javadoc)
 	 * @see alvahouse.eatool.gui.graphical.Diagram#draw(java.awt.Graphics2D, float)
 	 */
-	public void draw(Graphics2D g, float zoom) {
+	public void draw(Graphics2D g, float zoom) throws Exception {
 		g.setBackground(getBackgroundColour());
 		
 		for(TextBox box : textBoxes){

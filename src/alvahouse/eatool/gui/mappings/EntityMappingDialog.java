@@ -43,7 +43,7 @@ public class EntityMappingDialog extends BasicDialog {
      * @param title is the title for the dialog.
      * @param mapping is the EntityTranslation to edit.
      */
-    public EntityMappingDialog(JDialog parent, String title, EntityTranslation mapping, MetaModel metaModel) {
+    public EntityMappingDialog(JDialog parent, String title, EntityTranslation mapping, MetaModel metaModel) throws Exception {
         super(parent, title);
         init(mapping, metaModel);
     }
@@ -54,7 +54,7 @@ public class EntityMappingDialog extends BasicDialog {
      * @param title is the title for the dialog.
      * @param mapping is the EntityTranslation to edit.
      */
-    public EntityMappingDialog(Component parent, String title, EntityTranslation mapping, MetaModel metaModel) {
+    public EntityMappingDialog(Component parent, String title, EntityTranslation mapping, MetaModel metaModel)  throws Exception{
         super(parent, title);
         init(mapping, metaModel);
     }
@@ -63,7 +63,7 @@ public class EntityMappingDialog extends BasicDialog {
      * The main initialiser for the dialog.
      * @param mapping is the EntityTranslation to edit.
      */
-    private void init(EntityTranslation mapping, MetaModel metaModel) {
+    private void init(EntityTranslation mapping, MetaModel metaModel)  throws Exception{
         if(mapping == null){
             throw new NullPointerException("Can't edit null entity translation");
         }
@@ -108,7 +108,7 @@ public class EntityMappingDialog extends BasicDialog {
         /**
          * Create a new MainPanel.
          */
-        MainPanel(MetaModel metaModel) {
+        MainPanel(MetaModel metaModel) throws Exception{
             GridBagLayout gridbag = new GridBagLayout();
             setLayout(gridbag);
             GridBagConstraints c = new GridBagConstraints();

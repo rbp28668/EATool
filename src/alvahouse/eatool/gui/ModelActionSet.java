@@ -184,7 +184,7 @@ public class ModelActionSet extends ActionSet {
                 EntityEditor editor;
                 (editor = new EntityEditor(explorer, entity,repository)).setVisible(true);
                 if(editor.wasEdited()) {
-                	repository.getModel().fireEntityChanged(entity);
+                	repository.getModel().updateEntity(entity);
                 }
             } catch(Throwable t) {
                 new ExceptionDisplay(explorer,t);
@@ -296,7 +296,7 @@ public class ModelActionSet extends ActionSet {
                 RelationshipEditor editor;
                 (editor = new RelationshipEditor(explorer, relationship, repository.getModel())).setVisible(true);
                 if(editor.wasEdited()) {
-                	repository.getModel().fireRelationshipChanged(relationship);
+                	repository.getModel().updateRelationship(relationship);
                 }
             } catch(Throwable t) {
                 new ExceptionDisplay(explorer,t);
@@ -315,7 +315,7 @@ public class ModelActionSet extends ActionSet {
                 DeleteConfirmationDialog dlg;
                 (dlg = new DeleteConfirmationDialog(explorer, dependencies)).setVisible(true);
                 if(dlg.wasEdited()) {
-                	repository.getModel().fireRelationshipDeleted(r);
+                	repository.getModel().deleteRelationship(r.getKey());
                 }
             } catch(Throwable t) {
                 new ExceptionDisplay(explorer,t);

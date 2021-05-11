@@ -33,8 +33,6 @@ import alvahouse.eatool.repository.graphical.standard.Symbol;
 import alvahouse.eatool.repository.graphical.standard.SymbolType;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
-import alvahouse.eatool.repository.metamodel.impl.MetaEntityImpl;
-import alvahouse.eatool.repository.metamodel.impl.MetaRelationshipImpl;
 import alvahouse.eatool.util.SettingsManager;
 import alvahouse.eatool.util.UUID;
 
@@ -81,7 +79,7 @@ public class MetaModelViewerItemHandler implements ItemHandler {
     /* (non-Javadoc)
      * @see alvahouse.eatool.gui.graphical.ItemHandler#addSymbolAt(java.awt.Component, int, int)
      */
-    public Symbol[] addSymbolsAt(Component parent, int x, int y) throws LogicException {
+    public Symbol[] addSymbolsAt(Component parent, int x, int y) throws Exception {
         Symbol[] symbols = null;
         
 		ItemSelectionDialog dlg = new ItemSelectionDialog(parent, "Select Meta-Entities", repository.getMetaModel().getMetaEntities());
@@ -121,7 +119,7 @@ public class MetaModelViewerItemHandler implements ItemHandler {
     /* (non-Javadoc)
      * @see alvahouse.eatool.gui.graphical.ItemHandler#addConnector(java.awt.Component, alvahouse.eatool.gui.graphical.Symbol, alvahouse.eatool.gui.graphical.Symbol)
      */
-    public Connector addConnector(Component parent, Symbol first, Symbol second) throws LogicException {
+    public Connector addConnector(Component parent, Symbol first, Symbol second) throws Exception {
         
         MetaEntity meFirst = (MetaEntity)first.getItem();
         MetaEntity meSecond = (MetaEntity)second.getItem();
@@ -173,7 +171,7 @@ public class MetaModelViewerItemHandler implements ItemHandler {
 		// If the user has selected a new meta-relationship then magic one up
 		// and get the user to edit it.
 		if(selectNew) { 
-		    MetaRelationship mr = new MetaRelationshipImpl(new UUID());
+		    MetaRelationship mr = new MetaRelationship(new UUID());
 			mr.start().setConnection(meFirst);
 			mr.finish().setConnection(meSecond);
 		
@@ -221,8 +219,8 @@ public class MetaModelViewerItemHandler implements ItemHandler {
     /* (non-Javadoc)
      * @see alvahouse.eatool.gui.graphical.ItemHandler#addSymbolNewItem(java.awt.Component, int, int)
      */
-    public Symbol addSymbolNewItem(Component parent, int x, int y) throws LogicException {
-		MetaEntity metaEntity = new MetaEntityImpl(new UUID());
+    public Symbol addSymbolNewItem(Component parent, int x, int y) throws Exception {
+		MetaEntity metaEntity = new MetaEntity(new UUID());
 		MetaEntityEditor editor = new MetaEntityEditor(parent, metaEntity, repository);
 		editor.setVisible(true);
         boolean edited = editor.wasEdited();

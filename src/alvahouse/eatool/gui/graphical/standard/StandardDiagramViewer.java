@@ -397,14 +397,19 @@ public abstract class StandardDiagramViewer extends DiagramViewer {
 			this.setBackground(diagram.getBackgroundColour());
             super.paintComponent(g);
 
-			if(diagram.isLayoutDeferred()){
-				diagram.sizeWith((Graphics2D)g);
-				layoutDiagram();
-				diagram.sizeWith((Graphics2D)g);
-			}
-
-            g.setColor(Color.black);
-            diagram.draw((Graphics2D)g, zoom);
+            try {
+				if(diagram.isLayoutDeferred()){
+					diagram.sizeWith((Graphics2D)g);
+					layoutDiagram();
+					diagram.sizeWith((Graphics2D)g);
+				}
+	
+	            g.setColor(Color.black);
+	            diagram.draw((Graphics2D)g, zoom);
+            } catch (Exception e) {
+            	// Fail silently atm.
+            	// TODO log exception
+            }
         }
 
         /* (non-Javadoc)

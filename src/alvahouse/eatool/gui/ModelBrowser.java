@@ -29,9 +29,7 @@ import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.metamodel.MetaProperty;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
-import alvahouse.eatool.repository.metamodel.impl.MetaEntityImpl;
 import alvahouse.eatool.repository.metamodel.types.Keys;
-import alvahouse.eatool.repository.metamodel.types.MetaPropertyType;
 import alvahouse.eatool.repository.model.Entity;
 import alvahouse.eatool.repository.model.Model;
 import alvahouse.eatool.repository.model.Property;
@@ -80,34 +78,34 @@ public class ModelBrowser extends JInternalFrame {
      * Browses the meta-model.
      * @param metaModel is the meta-model to browse.
      */
-    public void browse(MetaModel metaModel){
+    public void browse(MetaModel metaModel) throws Exception{
         display.setPage(metaModel);
     }
 
-    public void browse(MetaEntity me, Model model){
+    public void browse(MetaEntity me, Model model) throws Exception{
         display.setPage(me,model);
     }
     
-    public void browseAsTable(MetaEntity me, Model model){
+    public void browseAsTable(MetaEntity me, Model model) throws Exception{
         display.setPageAsTable(me,model);
     }
     
-    public void browse(Entity e){
+    public void browse(Entity e) throws Exception{
         display.setPage(e);
     }
     
-    public void browse(Entity[] entities){
+    public void browse(Entity[] entities) throws Exception{
         display.setPage(entities);
     }
 
 	/**
 	 * @param entities
 	 */
-	public void browse(Collection<Entity> entities) {
+	public void browse(Collection<Entity> entities)  throws Exception{
 		browse(entities.toArray(new Entity[entities.size()]));
 	}
 
-    public void browse(MetaEntity[] metaEntities){
+    public void browse(MetaEntity[] metaEntities) throws Exception{
         display.setPage(metaEntities);
     }
     
@@ -142,32 +140,32 @@ public class ModelBrowser extends JInternalFrame {
             });
          }
 
-        public void setPage(MetaModel metaModel){
+        public void setPage(MetaModel metaModel) throws Exception{
             ToHTML html = new ToHTML(metaModel);
              setText(html.toString());
         }
 
-        public void setPage(MetaEntity me, Model model){
+        public void setPage(MetaEntity me, Model model)  throws Exception{
             ToHTML html = new ToHTML(me, model);
              setText(html.toString());
         }
 
-        public void setPageAsTable(MetaEntity me, Model model){
+        public void setPageAsTable(MetaEntity me, Model model) throws Exception{
             ToHTML html = new ToHTML(me, model, true);
              setText(html.toString());
         }
 
-        public void setPage(Entity e){
+        public void setPage(Entity e) throws Exception{
             ToHTML html = new ToHTML(e);
              setText(html.toString());
         }
         
-        public void setPage(Entity[] entities){
+        public void setPage(Entity[] entities) throws Exception{
             ToHTML html = new ToHTML(entities);
             setText(html.toString());
         }
         
-        public void setPage(MetaEntity[] metaEntities){
+        public void setPage(MetaEntity[] metaEntities) throws Exception{
             ToHTML html = new ToHTML(metaEntities);
             setText(html.toString());
         }
@@ -184,14 +182,14 @@ public class ModelBrowser extends JInternalFrame {
          * Creates HTMLProxy that describes the Meta-Entities in the meta model.
          * @param m is the meta-model to show.
          */
-        public ToHTML(MetaModel m){
+        public ToHTML(MetaModel m) throws Exception{
             header();
             
             h1("Entity Types");
             buff.append("<dl>");
             List<MetaEntity> metaEntities = new LinkedList<MetaEntity>();
             metaEntities.addAll(m.getMetaEntities());
-            Collections.sort(metaEntities, new MetaEntityImpl.Compare());
+            Collections.sort(metaEntities, new MetaEntity.Compare());
             for(MetaEntity me : metaEntities){
                 if(!me.isAbstract() && me.getDisplayHint() != null){
 	                buff.append("<dt>");
@@ -214,7 +212,7 @@ public class ModelBrowser extends JInternalFrame {
          * Creates HTMLProxy that describes a subset of the Meta-Entities in the meta model.
          * @param metaEntities are the meta-entities to show to show.
          */
-        public ToHTML(MetaEntity[] metaEntities){
+        public ToHTML(MetaEntity[] metaEntities) throws Exception{
             header();
             
             h1("Entity Types");
@@ -245,7 +243,7 @@ public class ModelBrowser extends JInternalFrame {
          * to be browsed.
          * @param model is the Model to get the Entities to be browsed.
          */
-        public ToHTML(MetaEntity me, Model model){
+        public ToHTML(MetaEntity me, Model model) throws Exception{
             this(me,model,false);
         }
 
@@ -255,7 +253,7 @@ public class ModelBrowser extends JInternalFrame {
          * to be browsed.
          * @param model is the Model to get the Entities to be browsed.
          */
-        public ToHTML(MetaEntity me, Model model, boolean table){
+        public ToHTML(MetaEntity me, Model model, boolean table) throws Exception{
             if(table){
                 entityTable(me,model);
             } else {
@@ -268,7 +266,7 @@ public class ModelBrowser extends JInternalFrame {
          * within each group.
          * @param entities is the array of entities to display.
          */
-        public ToHTML(Entity[] entities){
+        public ToHTML(Entity[] entities) throws Exception{
             header();
             
             h1("Entities");
@@ -342,7 +340,7 @@ public class ModelBrowser extends JInternalFrame {
          * Creates the HTMLProxy for a single Entity.
          * @param e is the Entity to create HTMLProxy for.
          */
-        public ToHTML(Entity e){
+        public ToHTML(Entity e) throws Exception{
             header();
 
             MetaEntity me = e.getMeta();
@@ -449,7 +447,7 @@ public class ModelBrowser extends JInternalFrame {
          * to be browsed.
          * @param model is the Model to get the Entities to be browsed.
          */
-        private void entityTable(MetaEntity me, Model model){
+        private void entityTable(MetaEntity me, Model model) throws Exception{
             header();
             
             h1(me.getName());

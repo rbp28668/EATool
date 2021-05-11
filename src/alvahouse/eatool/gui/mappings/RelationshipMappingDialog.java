@@ -25,7 +25,6 @@ import alvahouse.eatool.gui.Dialogs;
 import alvahouse.eatool.repository.mapping.RelationshipTranslation;
 import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
-import alvahouse.eatool.repository.metamodel.MetaRelationship;
 
 /**
  * RelationshipMappingDialog
@@ -44,7 +43,7 @@ public class RelationshipMappingDialog extends BasicDialog {
      * @param parent
      * @param title
      */
-    public RelationshipMappingDialog(JDialog parent, String title, RelationshipTranslation mapping, MetaModel metaModel) {
+    public RelationshipMappingDialog(JDialog parent, String title, RelationshipTranslation mapping, MetaModel metaModel)  throws Exception{
         super(parent, title);
         init(mapping, metaModel);
     }
@@ -53,7 +52,7 @@ public class RelationshipMappingDialog extends BasicDialog {
      * @param parent
      * @param title
      */
-    public RelationshipMappingDialog(Component parent, String title, RelationshipTranslation mapping, MetaModel metaModel) {
+    public RelationshipMappingDialog(Component parent, String title, RelationshipTranslation mapping, MetaModel metaModel)  throws Exception{
         super(parent, title);
         init(mapping,metaModel);
     }
@@ -61,7 +60,7 @@ public class RelationshipMappingDialog extends BasicDialog {
     /**
      * @param mapping
      */
-    private void init(RelationshipTranslation mapping, MetaModel metaModel) {
+    private void init(RelationshipTranslation mapping, MetaModel metaModel)  throws Exception{
         if(mapping == null) {
             throw new NullPointerException("Can't edit a null RelationshipTranslation");
         }
@@ -115,7 +114,7 @@ public class RelationshipMappingDialog extends BasicDialog {
         private JTextField txtStart;
         private JTextField txtFinish;
 
-        MainPanel(){
+        MainPanel() throws Exception{
 	        GridBagLayout gridbag = new GridBagLayout();
 	        setLayout(gridbag);
 	        GridBagConstraints c = new GridBagConstraints();

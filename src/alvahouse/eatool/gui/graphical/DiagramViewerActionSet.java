@@ -9,7 +9,6 @@ package alvahouse.eatool.gui.graphical;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.io.IOException;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -171,7 +170,7 @@ public class DiagramViewerActionSet extends ActionSet {
 		return path;
 	}
 
-	private void exportImage(String path, String format) throws IOException{
+	private void exportImage(String path, String format) throws Exception{
 		assert(path != null);
 		assert(format != null);
 		assert(format.equals("png") || format.equals("jpg"));

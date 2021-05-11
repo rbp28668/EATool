@@ -40,7 +40,7 @@ public class EntityExportProxy implements ExportProxy {
     /* (non-Javadoc)
      * @see webexport.ExportProxy#export(alvahouse.eatool.util.XMLWriter)
      */
-    public void export(XMLWriter out) throws IOException {
+    public void export(XMLWriter out) throws Exception {
         if(e == null) {
             throw new IllegalStateException("Entity not set for export");
         }

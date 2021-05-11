@@ -59,7 +59,7 @@ public class EntityFactory extends PropertyContainerFactory implements IXMLConte
     /* (non-Javadoc)
      * @see alvahouse.eatool.util.IXMLContentHandler#startElement(java.lang.String, java.lang.String, org.xml.sax.Attributes)
      */
-    public void startElement(String uri, String local, Attributes attrs) {
+    public void startElement(String uri, String local, Attributes attrs) throws InputException {
         // Expect Entity followed by a number of Property
         if(local.equals("Entity")) {
             if(currentEntity != null) { // oops, nested entities
@@ -72,19 +72,21 @@ public class EntityFactory extends PropertyContainerFactory implements IXMLConte
             if(instance == null)
                 throw new IllegalArgumentException("Missing instanceof attribute of Entity while loading XML");
 
-            MetaEntity me = metaModel.getMetaEntity(new UUID(instance));
+            MetaEntity me = null;
+            try {
+            	me = metaModel.getMetaEntity(new UUID(instance));
+            } catch (Exception e) {
+            	throw new InputException("Unable to get meta entity from repository",e);
+            }
             if(me == null)
                 throw new IllegalArgumentException("Unknown class of entity while loading XML");
-            
-            currentEntity = model.getEntity(uuid);
-            isNewEntity = currentEntity == null;
 
-            if(isNewEntity){
-                currentEntity = new Entity(uuid,me);
-            } else {
-                if(me != currentEntity.getMeta())
-                    throw new IllegalArgumentException("class of entity does not match current class while loading XML");
-            }
+          	try {
+           		currentEntity = new Entity(uuid,me);
+           		isNewEntity = true; // TODO remove this concept
+           	} catch (Exception e) {
+           		throw new InputException("Unable to create new Entity", e);
+           	}
             
         } else {
             startProperty(currentEntity,uri,local,attrs);

@@ -7,7 +7,6 @@
 package alvahouse.eatool.gui.graphical.standard.model;
 
 import java.awt.Color;
-import java.util.Iterator;
 
 import alvahouse.eatool.repository.graphical.standard.BasicConnector;
 import alvahouse.eatool.repository.graphical.standard.ConnectorType;
@@ -33,7 +32,7 @@ public class ModelDiagramType extends StandardDiagramType {
     /**
      * 
      */
-    public ModelDiagramType(MetaModel metaModel) {
+    public ModelDiagramType(MetaModel metaModel)  throws Exception{
         super();
         init(metaModel);
     }
@@ -42,7 +41,7 @@ public class ModelDiagramType extends StandardDiagramType {
      * @param name
      * @param uuid
      */
-    public ModelDiagramType(MetaModel metaModel, String name, UUID uuid) {
+    public ModelDiagramType(MetaModel metaModel, String name, UUID uuid)  throws Exception{
         super(name, uuid);
         init(metaModel);
     }
@@ -52,7 +51,7 @@ public class ModelDiagramType extends StandardDiagramType {
      * @param metaModel is the meta-model that is used to set up a complete set
      * of symbol types and connector types.
      */
-    private void init(MetaModel metaModel) {
+    private void init(MetaModel metaModel)  throws Exception{
         
         float h = 0.0f;
         float s = 0.3f;

@@ -38,7 +38,7 @@ public class MetaModelProxy {
      */
     @Scripted(description="Gets all the MetaEntities in the meta model."
     		+ " This includes abstract meta entities and ones where the display hint isn't set.")    
-    public MetaEntitySet getAllMetaEntities(){
+    public MetaEntitySet getAllMetaEntities()  throws Exception{
         MetaEntitySet set = new MetaEntitySet();
         set.add(meta.getMetaEntities());
         return set;
@@ -52,7 +52,7 @@ public class MetaModelProxy {
      */
     @Scripted(description="Gets all the MetaEntities apart from those which are marked as Abstract or" + 
     		" which do not have a display hint set.")    
-    public MetaEntitySet getMetaEntities(){
+    public MetaEntitySet getMetaEntities()  throws Exception{
         MetaEntitySet set = new MetaEntitySet();
         for(MetaEntity me : meta.getMetaEntities()){
             if(!me.isAbstract() && me.getDisplayHint() != null){
@@ -69,7 +69,7 @@ public class MetaModelProxy {
      * @return a new MetaEntity containing or null if the key does not match.
      */
     @Scripted(description="Gets a meta entity identified by the given key or null if the key does not match any meta entities.")    
-    public MetaEntityProxy getMetaEntity(String key){
+    public MetaEntityProxy getMetaEntity(String key) throws Exception{
         MetaEntity me = meta.getMetaEntity(new UUID(key));
         return (me != null) ? new MetaEntityProxy(me) : null;
     }
@@ -81,7 +81,7 @@ public class MetaModelProxy {
      * @return the updated MetaEntitySet.
      */
     @Scripted(description="Adds a meta entity identified by the given key to the supplied set.")    
-    public MetaEntitySet addMetaEntity(MetaEntitySet start, String key){
+    public MetaEntitySet addMetaEntity(MetaEntitySet start, String key) throws Exception{
         MetaEntity me = meta.getMetaEntity(new UUID(key));
         if(me != null){
             start.add(me);
@@ -94,7 +94,7 @@ public class MetaModelProxy {
      * @return a MetaRelationshipSet containing all the MetaRelationships.
      */
     @Scripted(description="Gets all the MetaRelationships.")    
-    public MetaRelationshipSet getMetaRelationships(){
+    public MetaRelationshipSet getMetaRelationships() throws Exception{
         MetaRelationshipSet set = new MetaRelationshipSet();
         for(MetaRelationship mr : meta.getMetaRelationships()){
             set.add(mr);
@@ -111,7 +111,7 @@ public class MetaModelProxy {
      * the key or null
      */
     @Scripted(description="Gets a set containing the single meta-relationship identified by the given key or empty if the key does not match.")    
-    public MetaRelationshipProxy getMetaRelationship(String key){
+    public MetaRelationshipProxy getMetaRelationship(String key) throws Exception{
         MetaRelationship mr = meta.getMetaRelationship(new UUID(key));
         return (mr != null) ? new MetaRelationshipProxy(mr) : null;
     }
@@ -124,7 +124,7 @@ public class MetaModelProxy {
      */
     @Scripted(description="Adds a Meta relationship to an existing MetaRelationshipSet."
     		+ " The meta relationship identified by the given key is added to the ")    
-    public MetaRelationshipSet addMetaRelationship(MetaRelationshipSet start, String key){
+    public MetaRelationshipSet addMetaRelationship(MetaRelationshipSet start, String key) throws Exception{
         MetaRelationship mr = meta.getMetaRelationship(new UUID(key));
         if(mr != null){
             start.add(mr);

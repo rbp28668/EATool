@@ -87,7 +87,7 @@ public class MetaRelationshipProxy {
      * @return the MetaPropertySet.
      */
     @Scripted(description="Gets the set of meta-properties corresponding to this meta-relationship.")    
-    public MetaPropertySet getMetaProperties(){
+    public MetaPropertySet getMetaProperties() throws Exception{
         return new MetaPropertySet(meta.getMetaProperties());
     }
 

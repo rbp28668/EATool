@@ -99,27 +99,27 @@ public abstract class PropertyContainer extends RepositoryItem{
         properties.remove(p.getMeta().getKey());
     }
     
-//    /** copies this entity to a copy.
-//     * @param copy is the entity to copy to.
-//     */
-//    protected void cloneTo(PropertyContainer copy) {
-//        super.cloneTo(copy);
-//        
-//        copy.propertyList.clear();
-//        copy.properties.clear();
-//        for(Iterator iter = propertyList.iterator(); iter.hasNext();) {
-//            Property p = (Property)(((Property)iter.next()).clone());
-//            copy.propertyList.addLast(p);
-//            copy.properties.put(p.getMeta().getKey(), p);
-//            p.setContainer(copy);
-//        }
-//    }
+    /** copies this entity to a copy.
+     * @param copy is the entity to copy to.
+     */
+    protected void cloneTo(PropertyContainer copy) {
+        super.cloneTo(copy);
+        
+        copy.propertyList.clear();
+        copy.properties.clear();
+        for(Property property : propertyList) {
+            Property p = (Property) property.clone();
+            copy.propertyList.addLast(p);
+            copy.properties.put(p.getMeta().getKey(), p);
+            p.setContainer(copy);
+        }
+    }
     
     /** Method for adding default properties to a new meta-entity. Note that getMetaProperties
      * recurses through any base classes therefore this doesn't need to.
      * @param m is the meta-entity to add properties from.
      */
-    protected void addDefaultProperties(MetaPropertyContainer meta) {
+    protected void addDefaultProperties(MetaPropertyContainer meta) throws Exception {
 
         for(MetaProperty mp : meta.getMetaProperties()){
             Property p = new Property(new UUID(), mp);
@@ -135,7 +135,7 @@ public abstract class PropertyContainer extends RepositoryItem{
      * properties this <b>should</b> have.
      * @return true if changed, false if not.
      */
-    boolean revalidate(MetaPropertyContainer meta){
+    boolean revalidate(MetaPropertyContainer meta) throws Exception{
         Collection<MetaProperty> metaProperties = meta.getMetaProperties();
         
         Set<MetaProperty> template = new HashSet<MetaProperty>();

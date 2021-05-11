@@ -178,7 +178,7 @@ public interface Repository extends KeyedItem {
      * @param e is the Entity that may be deleted.
      * @return a new DeleteDependenciesList with the delete dependencies.
      */
-    public abstract DeleteDependenciesList getDeleteDependencies(Entity e);
+    public abstract DeleteDependenciesList getDeleteDependencies(Entity e) throws Exception;
 
     /**
      * Gets all the delete dependencies for a given Relationship.
@@ -188,7 +188,7 @@ public interface Repository extends KeyedItem {
      * @param r is the Relationship that may be deleted.
      * @return a new DeleteDependenciesList with the delete dependencies.
      */
-    public abstract DeleteDependenciesList getDeleteDependencies(Relationship r);
+    public abstract DeleteDependenciesList getDeleteDependencies(Relationship r) throws Exception;
 
     /**
      * Gets all the delete dependencies for a given MetaEntity.
@@ -198,7 +198,7 @@ public interface Repository extends KeyedItem {
      * @param me is the MetaEntity that may be deleted.
      * @return a new DeleteDependenciesList with the delete dependencies.
      */
-    public abstract DeleteDependenciesList getDeleteDependencies(MetaEntity me);
+    public abstract DeleteDependenciesList getDeleteDependencies(MetaEntity me) throws Exception;
 
     /**
      * Gets all the delete dependencies for a given MetaRelationship.
@@ -209,7 +209,7 @@ public interface Repository extends KeyedItem {
      * @return a new DeleteDependenciesList with the delete dependencies.
      */
     public abstract DeleteDependenciesList getDeleteDependencies(
-            MetaRelationship mr);
+            MetaRelationship mr) throws Exception;
 
     /**
      * Deletes all the contents of the repository.

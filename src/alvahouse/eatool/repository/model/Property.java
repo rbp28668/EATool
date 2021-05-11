@@ -31,14 +31,14 @@ public class Property extends RepositoryItem  implements Cloneable  {
         value = mp.getMetaPropertyType().initialise();
     }
 
-//    /* (non-Javadoc)
-//     * @see java.lang.Object#clone()
-//     */
-//    public Object clone() {
-//        Property copy = new Property(getKey(),meta);
-//        cloneTo(copy);
-//        return copy;
-//    }
+    /* (non-Javadoc)
+     * @see java.lang.Object#clone()
+     */
+    public Object clone() {
+        Property copy = new Property(getKey(),meta);
+        cloneTo(copy);
+        return copy;
+    }
 //
 //    /**
 //     * Update this Property from a copy while retaining any original
@@ -124,15 +124,15 @@ public class Property extends RepositoryItem  implements Cloneable  {
         out.stopEntity();
     }
 
-//    /** copies the values of one instance to a copy
-//     * @param copy is the property to copy the values to
-//     */
-//    protected void cloneTo(Property copy) {
-//        super.cloneTo(copy);
-//        copy.container = null; // disconnect copy
-//        copy.meta = meta;
-//        copy.value = value; // no clone as strings immutable
-//     }
+    /** copies the values of one instance to a copy
+     * @param copy is the property to copy the values to
+     */
+    protected void cloneTo(Property copy) {
+        super.cloneTo(copy);
+        copy.container = null; // disconnect copy
+        copy.meta = meta;
+        copy.value = value; // no clone as strings immutable
+     }
     
     /**
      * Process this property assuming the data type has changed.

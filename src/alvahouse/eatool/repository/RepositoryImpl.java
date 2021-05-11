@@ -55,7 +55,6 @@ import alvahouse.eatool.repository.metamodel.factory.DisplayHintFactory;
 import alvahouse.eatool.repository.metamodel.factory.MetaEntityFactory;
 import alvahouse.eatool.repository.metamodel.factory.MetaModelFactory;
 import alvahouse.eatool.repository.metamodel.factory.MetaRelationshipFactory;
-import alvahouse.eatool.repository.metamodel.impl.MetaModelImpl;
 import alvahouse.eatool.repository.metamodel.types.ExtensibleTypes;
 import alvahouse.eatool.repository.metamodel.types.MetaPropertyType;
 import alvahouse.eatool.repository.metamodel.types.MetaPropertyTypes;
@@ -69,6 +68,8 @@ import alvahouse.eatool.repository.model.Relationship;
 import alvahouse.eatool.repository.model.factory.EntityFactory;
 import alvahouse.eatool.repository.model.factory.ModelFactory;
 import alvahouse.eatool.repository.model.factory.RelationshipFactory;
+import alvahouse.eatool.repository.persist.RepositoryPersistence;
+import alvahouse.eatool.repository.persist.memory.RepositoryPersistenceMemory;
 import alvahouse.eatool.repository.scripting.EventMap;
 import alvahouse.eatool.repository.scripting.EventMapFactory;
 import alvahouse.eatool.repository.scripting.ScriptFactory;
@@ -92,8 +93,13 @@ import alvahouse.eatool.util.XSLTTransform;
 public class RepositoryImpl implements TypeEventListener, Repository{
 
 	private UUID key;
-    private final MetaModel metaModel = new MetaModelImpl();
-    private final Model model = new Model(metaModel);
+	
+	// For the time being we'll keep the persistence mechanism as in memory.
+	private final RepositoryPersistence persistence = new RepositoryPersistenceMemory();
+	
+	
+    private final MetaModel metaModel = new MetaModel(persistence.getMetaModelPersistence());
+    private final Model model = new Model(metaModel, persistence.getModelPersistence());
     private final Diagrams diagrams = new Diagrams();
     private final Diagrams metaModelDiagrams = new Diagrams();
     private final DiagramTypes diagramTypes = new DiagramTypes();
@@ -582,7 +588,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#getDeleteDependencies(alvahouse.eatool.repository.model.Entity)
      */
-    public DeleteDependenciesList getDeleteDependencies(Entity e) {
+    public DeleteDependenciesList getDeleteDependencies(Entity e)  throws Exception{
         DeleteDependenciesList dependencies = new DeleteDependenciesList();
         getModel().getDeleteDependencies(dependencies,e);
         return dependencies;
@@ -591,7 +597,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#getDeleteDependencies(alvahouse.eatool.repository.model.Relationship)
      */
-    public DeleteDependenciesList getDeleteDependencies(Relationship r) {
+    public DeleteDependenciesList getDeleteDependencies(Relationship r)  throws Exception{
         DeleteDependenciesList dependencies = new DeleteDependenciesList();
         getModel().getDeleteDependencies(dependencies,r);
         return dependencies;
@@ -600,7 +606,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#getDeleteDependencies(alvahouse.eatool.repository.metamodel.MetaEntity)
      */
-    public DeleteDependenciesList getDeleteDependencies(MetaEntity me) {
+    public DeleteDependenciesList getDeleteDependencies(MetaEntity me)  throws Exception{
         DeleteDependenciesList dependencies = new DeleteDependenciesList();
         getMetaModel().getDeleteDependencies(dependencies,me);
         
@@ -615,7 +621,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#getDeleteDependencies(alvahouse.eatool.repository.metamodel.MetaRelationship)
      */
-    public DeleteDependenciesList getDeleteDependencies(MetaRelationship mr) {
+    public DeleteDependenciesList getDeleteDependencies(MetaRelationship mr) throws Exception {
         DeleteDependenciesList dependencies = new DeleteDependenciesList();
         getMetaModel().getDeleteDependencies(dependencies,mr);
 
@@ -686,7 +692,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
                         }
                     }
                     if(isChanged){
-                        model.fireEntityChanged(entity);
+                        model.updateEntity(entity);
                     }
                 }
 

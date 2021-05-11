@@ -35,13 +35,13 @@ public class StandardDiagramTypeFactory extends FactoryBase implements DiagramTy
 	private StandardDiagramType currentDiagramType = null;
 	/**  Track symbols in current diagram type to ensure that we only have
 	 * connectors that connect symbol types already in the diagram type */
-	private Set symbolSet = new HashSet(); // of meta entities
+	private Set<UUID> symbolSet = new HashSet<>(); // of meta entities
 	
 	private MetaModel metaModel;
 
 	// Translation map that translates old classnames to their current ones
 	// when packages have changed.
-	private static final Map typeTranslation = new HashMap();
+	private static final Map<String,String> typeTranslation = new HashMap<>();
 	static {
 	    typeTranslation.put("alvahouse.eatool.gui.graphical.ConnectorArrow",ConnectorArrow.class.getName());
 	    typeTranslation.put("alvahouse.eatool.gui.graphical.BasicConnector",BasicConnector.class.getName());
@@ -86,7 +86,12 @@ public class StandardDiagramTypeFactory extends FactoryBase implements DiagramTy
             if(attr != null) {
                 UUID uuidMeta = new UUID(attr);
                 
-                MetaEntity me = metaModel.getMetaEntity(uuidMeta);
+                MetaEntity me = null;
+                try {
+                	me = metaModel.getMetaEntity(uuidMeta);
+                } catch (Exception e) {
+                	throw new InputException("Unable to get meta entity from repository");
+                }
                 if(me == null) {
                 	throw new InputException("Unable to find meta entity for symbol type");
                 }
@@ -98,7 +103,7 @@ public class StandardDiagramTypeFactory extends FactoryBase implements DiagramTy
 			attr = attrs.getValue("renderClass");
 			if(attr != null) {
 				Object renderer = null;
-				Class symbolClass = null;
+				Class<?> symbolClass = null;
 				try {
 					symbolClass = Class.forName(attr);
 					renderer = symbolClass.newInstance();
@@ -145,7 +150,13 @@ public class StandardDiagramTypeFactory extends FactoryBase implements DiagramTy
             if(attr != null) {
                 UUID uuidMeta = new UUID(attr);
                 
-                MetaRelationship mr = metaModel.getMetaRelationship(uuidMeta);
+                MetaRelationship mr = null;
+                try{
+                	mr = metaModel.getMetaRelationship(uuidMeta);
+                } catch (Exception e) {
+                	throw new InputException("Unable to get meta relationship from repository");
+                }
+                
                 if(mr == null) {
                 	throw new InputException("Unable to find meta relationship for connector type");
                 }
@@ -154,8 +165,8 @@ public class StandardDiagramTypeFactory extends FactoryBase implements DiagramTy
                  * actually connects symbol types that are allowed in this
                  * diagram (not much point otherwise!)
                  */
-                if(! (symbolSet.contains(mr.start().connectsTo())) 
-                && symbolSet.contains(mr.finish().connectsTo())) {
+                if(! (symbolSet.contains(mr.start().connectionKey())) 
+                && symbolSet.contains(mr.finish().connectionKey())) {
                 	throw new InputException("Creating connector that connects to entity types for which there is no symbol type defined");
                 }
                 
@@ -203,7 +214,7 @@ public class StandardDiagramTypeFactory extends FactoryBase implements DiagramTy
     public void endElement(String uri, String local) throws InputException {
         if (local.equals("SymbolType")) {
 			currentDiagramType.add(currentSymbolType);
-			symbolSet.add(currentSymbolType.getRepresents());
+			symbolSet.add(currentSymbolType.getRepresents().getKey());
 			currentSymbolType = null;
 		} else if (local.equals("ConnectorType")) {
 			currentDiagramType.add(currentConnectorType);
