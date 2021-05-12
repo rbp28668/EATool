@@ -95,7 +95,19 @@ public class MetaEntity extends MetaPropertyContainer implements  Versionable{
     public MetaEntity getBase() throws Exception {
         return base.get(model);
     }
-    
+
+    /** 
+     * Gets the key for the base MetaEntity this MetaEntity inherits from (if any).
+     * @return the base key if set.
+     * @throws IllegalStateException if base is marked as null i.e. this does not inherit.
+     */
+    public UUID getBaseKey() throws Exception {
+    	if(base.isNull()) {
+    		throw new IllegalStateException("Unable to get base key where there is no base MetaEntity set");
+    	}
+        return base.getKey();
+    }
+
     /**
      * Sets a MetaEntity as being abstract.  If abstract it cannot be instantiated
      * in a model but can be used as a base entity for other MetaEntities to

@@ -4,7 +4,6 @@
 package alvahouse.eatool.repository.persist.memory;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -105,7 +104,7 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 		for (MetaEntity me : sortedEntities) {
 			result.add((MetaEntity) me.clone());
 		}
-		return Collections.unmodifiableCollection(result);
+		return result;
 	}
 
 	/*
@@ -254,7 +253,7 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 		for (MetaRelationship mr : sortedRelationships) {
 			result.add((MetaRelationship) mr.clone());
 		}
-		return Collections.unmodifiableCollection(result);
+		return result;
 	}
 
 	/*
@@ -295,8 +294,9 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 	@Override
 	public Set<MetaRelationship> getDeclaredMetaRelationshipsFor(MetaEntity me) throws Exception{
 		Set<MetaRelationship> valid = new HashSet<MetaRelationship>();
+		UUID key = me.getKey();
 		for (MetaRelationship mr : sortedRelationships) {
-			if (mr.start().connectsTo().equals(me) || mr.finish().connectsTo().equals(me)) {
+			if (mr.start().connectionKey().equals(key) || mr.finish().connectionKey().equals(key)) {
 				valid.add((MetaRelationship) mr.clone());
 			}
 		}
@@ -327,10 +327,12 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 	public void getDeleteDependencies(MetaModel metaModel, DeleteDependenciesList dependencies, MetaEntity target) throws Exception {
 		dependencies.addDependency(new MetaEntityDeleteProxy(metaModel, target));
 
+		UUID targetKey = target.getKey();
+		
 		// Look for any meta-entities that are derived from the one being deleted.
 		for (MetaEntity derived : sortedEntities) {
 			if (derived.hasBase()) {
-				if (derived.getBase().equals(target)) {
+				if (derived.getBaseKey().equals(targetKey)) {
 					getDeleteDependencies(metaModel, dependencies, derived);
 				}
 			}
@@ -338,7 +340,7 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 
 		// Mark any relationships that depend on this meta entity for deletion
 		for (MetaRelationship mr : sortedRelationships) {
-			if (mr.start().connectsTo().equals(target) || mr.finish().connectsTo().equals(target)) {
+			if (mr.start().connectionKey().equals(targetKey) || mr.finish().connectionKey().equals(targetKey)) {
 				dependencies.addDependency(new MetaRelationshipDeleteProxy(metaModel, mr));
 			}
 		}
@@ -367,18 +369,21 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 	@Override
 	public Collection<MetaEntity> getDerivedMetaEntities(MetaEntity meta) throws Exception {
 		List<MetaEntity> derived = new LinkedList<MetaEntity>();
+		
+		UUID targetKey = meta.getKey();
 		for (MetaEntity me : sortedEntities) {
 
 			// Trundle up the inheritance hierarchy looking for "meta"
 			boolean isDerived = false;
 			
-			MetaEntity base = me;
-			while(base.hasBase()) {
-				base = me.getBase();
-				if (base.equals(meta)) {
+			MetaEntity current = me;
+			while(current.hasBase()) {
+				UUID baseKey = me.getBaseKey();
+				if (baseKey.equals(targetKey)) {
 					isDerived = true;
 					break;
 				}
+				current = metaEntities.get(baseKey);
 			}
 
 			if (isDerived) {
