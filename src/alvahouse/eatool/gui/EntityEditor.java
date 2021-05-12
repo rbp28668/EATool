@@ -13,6 +13,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -194,7 +195,8 @@ public class EntityEditor extends BasicDialog {
 		private static final long serialVersionUID = 1L;
 		private final JTable table;
 		private final List<Relationship> relationshipsToAdd = new LinkedList<Relationship>();
-		private final List<Relationship> relationshipsToDelete = new LinkedList<Relationship>();
+		private final Set<Relationship> relationshipsToDelete = new HashSet<Relationship>();
+		private final Set<Relationship> relationshipsToUpdate = new HashSet<Relationship>();
 		private final RelationshipsTableModel tableModel;
 		private final MetaRelationship ofType;
 
@@ -213,7 +215,7 @@ public class EntityEditor extends BasicDialog {
 
 			add(new JLabel(ofType.getName()), BorderLayout.NORTH);
 
-			tableModel = new RelationshipsTableModel(e, model, this, ofType);
+			tableModel = new RelationshipsTableModel(e, model, this, ofType, relationshipsToUpdate);
 			table = new RelationshipsTable(tableModel);
 			table.setRowSelectionAllowed(true);
 			table.setColumnSelectionAllowed(false);
@@ -441,6 +443,9 @@ public class EntityEditor extends BasicDialog {
 			for (Relationship toAdd : relationshipsToAdd) {
 				model.addRelationship(toAdd);
 			}
+			for (Relationship toUpdate : relationshipsToUpdate) {
+				model.updateRelationship(toUpdate);
+			}
 			for (Relationship toDelete : relationshipsToDelete) {
 				model.deleteRelationship(toDelete.getKey());
 			}
@@ -451,8 +456,20 @@ public class EntityEditor extends BasicDialog {
 		 * delete" lists. No point adding and immediately deleting a relationship!
 		 */
 		private void normaliseRelationships() {
+
+			// If a relationship was added then edited we can ignore the edit
+			// as the edited relationship just needs to be added.
+			relationshipsToUpdate.removeAll(relationshipsToAdd);
+			
 			List<Relationship> tempDelete = new LinkedList<Relationship>();
 			for (Relationship toDelete : relationshipsToDelete) {
+				
+				// If an edited relationship is being deleted don't bother to update
+				if(relationshipsToUpdate.contains(toDelete)) {
+					relationshipsToUpdate.remove(toDelete);
+				}
+				
+				// If a relationship is added then deleted, do neither.
 				if (relationshipsToAdd.contains(toDelete)) {
 					relationshipsToAdd.remove(toDelete);
 				} else {
@@ -501,6 +518,7 @@ public class EntityEditor extends BasicDialog {
 		private final Entity entity;
 		private final Model model;
 		private Vector<Relationship> relationships;
+		private Set<Relationship> relationshipsToUpdate;
 		private Vector<JButton> editButtons;
 		private static String[] defaultHeaders = { "This Role", "Relationship", "Other Role", "To" };
 		private final Vector<String> headers;
@@ -518,12 +536,13 @@ public class EntityEditor extends BasicDialog {
 		 * @toDisplay is either null, in which case all the relationships are used, or
 		 *            to filter the relationships to those that correspond to this type.
 		 */
-		RelationshipsTableModel(Entity e, Model model, Component parentComponent, MetaRelationship toDisplay)
+		RelationshipsTableModel(Entity e, Model model, Component parentComponent, MetaRelationship toDisplay, Set<Relationship> relationshipsToUpdate)
 				throws Exception {
 			this.entity = e;
 			this.model = model;
 			this.parentComponent = parentComponent;
-
+			this.relationshipsToUpdate = relationshipsToUpdate;
+			
 			// Set up the headers & column types
 			editColumn = 0;
 			Collection<MetaProperty> mpc = toDisplay.getMetaProperties();
@@ -626,6 +645,9 @@ public class EntityEditor extends BasicDialog {
 									try {
 										RelationshipEditor editor = new RelationshipEditor(parentComponent, r, model);
 										editor.setVisible(true);
+										if(editor.wasEdited()) {
+											relationshipsToUpdate.add(r);
+										}
 									} catch (Exception e1) {
 										new ExceptionDisplay(Main.getAppFrame(), e1);
 									}
