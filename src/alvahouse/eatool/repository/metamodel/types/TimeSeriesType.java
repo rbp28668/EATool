@@ -24,7 +24,7 @@ import alvahouse.eatool.util.XMLWriter;
 /**
  * TimeSeriesType described a type that defines a time series.  The definition of a time series 
  * consists of a list of named states or intervals.  The time data itself consists of the
- * dates/tiimes of the transitions between the intervals and the start/end dates/times.
+ * dates/times of the transitions between the intervals and the start/end dates/times.
  * 
  * @author rbp28668
  */

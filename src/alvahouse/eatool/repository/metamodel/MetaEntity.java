@@ -159,6 +159,12 @@ public class MetaEntity extends MetaPropertyContainer implements  Versionable{
         super.cloneTo(copy);
         copy.base = (MetaEntityProxy)base.clone();
         copy.m_isAbstract = m_isAbstract;
+        if(displayHint != null) {
+	        copy.displayHint = (MetaEntityDisplayHint)displayHint.clone();
+	        copy.displayHint.reBindTo(copy);
+        } else  {
+        	copy.displayHint = null;
+        }
         version.cloneTo(copy.version);
         copy.setModel(null); // disconnect it
     }

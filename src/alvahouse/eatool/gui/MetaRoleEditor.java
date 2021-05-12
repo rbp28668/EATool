@@ -24,7 +24,7 @@ import alvahouse.eatool.repository.metamodel.MetaRole;
 import alvahouse.eatool.repository.metamodel.Multiplicity;
 
 /**
- *
+ * Edits a meta-role "in place" and does not explicitly update the meta-model.
  * @author  rbp28668
  */
 public class MetaRoleEditor extends BasicDialog {

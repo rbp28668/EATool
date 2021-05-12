@@ -375,7 +375,7 @@ public class ModelBrowser extends JInternalFrame {
                 for(Relationship r : connected){
                     buff.append("<tr>");
                     Role role;
-                    if(r.start().connectsTo() == e){
+                    if(r.start().connectsTo().equals(e)){
                         role = r.finish();
                     } else {
                         role = r.start();

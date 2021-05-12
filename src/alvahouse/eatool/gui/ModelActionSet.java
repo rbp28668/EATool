@@ -81,10 +81,11 @@ public class ModelActionSet extends ActionSet {
                 
                 if(meta != null) {
                     Entity entity = new Entity(meta);
-                    EntityEditor editor;
-                    (editor = new EntityEditor(explorer, entity, repository)).setVisible(true);
+                    EntityEditor editor = new EntityEditor(explorer, entity, repository); 
+                    editor.setVisible(true);
                     if(editor.wasEdited()) {
                         repository.getModel().addEntity(entity);
+                   		editor.persistRelationships(repository.getModel());
                     }
                 }
             } catch(Throwable t) {
@@ -150,10 +151,11 @@ public class ModelActionSet extends ActionSet {
                  
                 if(meta != null) {
                     Entity entity = new Entity(meta);
-                    EntityEditor editor;
-                    (editor = new EntityEditor(explorer, entity,repository)).setVisible(true);
+                    EntityEditor editor = new EntityEditor(explorer, entity,repository); 
+                    editor.setVisible(true);
                     if(editor.wasEdited()) {
                   		repository.getModel().addEntity(entity);
+                   		editor.persistRelationships(repository.getModel());
                     }
                 }
             } catch(Throwable t) {
@@ -181,11 +183,13 @@ public class ModelActionSet extends ActionSet {
         public void actionPerformed(ActionEvent e) {
             try {
                 Entity entity = (Entity)explorer.getSelectedNode().getUserObject();
-                EntityEditor editor;
-                (editor = new EntityEditor(explorer, entity,repository)).setVisible(true);
+                EntityEditor editor = new EntityEditor(explorer, entity,repository);
+                editor.setVisible(true);
                 if(editor.wasEdited()) {
-                	repository.getModel().updateEntity(entity);
+              		repository.getModel().updateEntity(entity);
+              		editor.persistRelationships(repository.getModel());
                 }
+
             } catch(Throwable t) {
                 new ExceptionDisplay(explorer,t);
             }
@@ -208,10 +212,11 @@ public class ModelActionSet extends ActionSet {
                 	destProperty.setValue( p.getValue());
                 }
                 
-                EntityEditor editor;
-                (editor = new EntityEditor(explorer, entity,repository)).setVisible(true);
+                EntityEditor editor = new EntityEditor(explorer, entity,repository);
+                editor.setVisible(true);
                 if(editor.wasEdited()) {
               		repository.getModel().addEntity(entity);
+              		editor.persistRelationships(repository.getModel());
                 }
             } catch(Throwable t) {
                 new ExceptionDisplay(explorer,t);
@@ -229,8 +234,8 @@ public class ModelActionSet extends ActionSet {
 
                 DeleteDependenciesList dependencies = repository.getDeleteDependencies(entity);
 
-                DeleteConfirmationDialog dlg;
-                (dlg = new DeleteConfirmationDialog(explorer, dependencies)).setVisible(true);
+                DeleteConfirmationDialog dlg = new DeleteConfirmationDialog(explorer, dependencies);
+                dlg.setVisible(true);
             } catch(Throwable t) {
                 new ExceptionDisplay(explorer,t);
             }

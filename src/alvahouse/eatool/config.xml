@@ -856,7 +856,7 @@
 							/>
 			</popup>
 			
-			<popup name="MetaEntityImpl">
+			<popup name="MetaEntity">
 				<menuitem 	action="MetaEntityEdit" 
 							display="Edit"
 							mnemonic="E"
@@ -886,7 +886,7 @@
 							mnemonic="K"
 							/>
 			</popup>
-			<popup name="MetaPropertyImpl">
+			<popup name="MetaProperty">
 				<menuitem 	action="MetaPropertyEdit" 
 							display="Edit"
 							mnemonic="E"
@@ -896,7 +896,7 @@
 							mnemonic="K"
 							/>
 						</popup>
-			<popup name="MetaRelationshipImpl">
+			<popup name="MetaRelationship">
 				<menuitem 	action="MetaRelationshipEdit" 
 							display="Edit"
 							mnemonic="E"

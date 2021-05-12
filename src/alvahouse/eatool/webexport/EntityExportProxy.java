@@ -87,7 +87,7 @@ public class EntityExportProxy implements ExportProxy {
                 }
             	
                 Role role;
-                if(r.start().connectsTo() == e){
+                if(r.start().connectsTo().equals(e)){
                     role = r.finish();
                 } else {
                     role = r.start();

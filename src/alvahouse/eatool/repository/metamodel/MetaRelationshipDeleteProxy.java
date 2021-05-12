@@ -5,20 +5,23 @@ package alvahouse.eatool.repository.metamodel;
 
 import alvahouse.eatool.repository.base.IDeleteDependenciesProxy;
 
-/** Proxy class for recording dependent meta-relationship
+/** Proxy class for recording dependent meta-relationship.
+ * Allows meta relationships to be marked for possible deletion then deleted by
+ * the delete method. 
+ * @see IDeleteDependenciesProxy.
  */
 public class MetaRelationshipDeleteProxy implements IDeleteDependenciesProxy {
     /**
 	 * 
 	 */
-	private final MetaModel metaModelImpl;
+	private final MetaModel metaModel;
 
 	/** Creates a new proxy for deleting a dependent meta-relationshi
-     * @param metaModelImpl TODO
+     * @param metaModel TODO
      * @param m is the dependent meta-relationship
      */        
-    public MetaRelationshipDeleteProxy(MetaModel metaModelImpl, MetaRelationship mr) {
-        this.metaModelImpl = metaModelImpl;
+    public MetaRelationshipDeleteProxy(MetaModel metaModel, MetaRelationship mr) {
+        this.metaModel = metaModel;
 		relationship = mr;
     }
     
@@ -32,7 +35,7 @@ public class MetaRelationshipDeleteProxy implements IDeleteDependenciesProxy {
     /** deletes the dependent meta-relationship
      */
     public void delete() throws Exception {
-        this.metaModelImpl.deleteMetaRelationship(relationship.getKey());
+        this.metaModel.deleteMetaRelationship(relationship.getKey());
     }
     
     /** gets the dependent meta-relationship

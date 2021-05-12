@@ -119,6 +119,24 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 		return sortedEntities.size();
 	}
 
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.persist.MetaModelPersistence#updateMetaEntity(alvahouse.eatool.repository.metamodel.MetaEntity)
+	 */
+	@Override
+	public MetaEntity updateMetaEntity(MetaEntity me) throws Exception {
+		UUID key = me.getKey();
+		MetaEntity existing = metaEntities.get(key);
+		if(existing == null) {
+			throw new IllegalArgumentException("Trying to update a meta entity that is not in the repository");
+		}
+		sortedEntities.remove(existing);
+		MetaEntity clone = (MetaEntity)me.clone();
+		metaEntities.put(key,clone);
+		sortedEntities.add(clone);
+
+		return me;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -152,8 +170,6 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 		}
 
 		mr = (MetaRelationship) mr.clone();
-		// TODO - refactor so connected entities are stubbed and can be fetched on
-		// demand
 		return mr;
 	}
 
@@ -168,19 +184,40 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 	public MetaRelationship addMetaRelationship(MetaRelationship mr) throws Exception {
 
 		// This meta relationship should reference meta entities already in the store.
-		MetaEntity start = mr.start().connectsTo();
-		MetaEntity finish = mr.finish().connectsTo();
+		UUID startKey = mr.start().connectionKey();
+		UUID finishKey = mr.finish().connectionKey();
 
-		start = metaEntities.get(start.getKey());
-		finish = metaEntities.get(finish.getKey());
-		if (start == null || finish == null) {
+		if ( !(metaEntities.containsKey(startKey) && metaEntities.containsKey(finishKey)) ) {
 			throw new IllegalStateException("Saving meta relationship that references meta-entities not in the model");
 		}
 
-		// Clone and tie to the meta entities in the store.
+		// Clone - will break references to meta-entities but keys will remain
 		mr = (MetaRelationship) mr.clone();
-		mr.start().setConnection(start);
-		mr.finish().setConnection(finish);
+
+		// And save
+		metaRelationships.put(mr.getKey(), mr);
+		sortedRelationships.add(mr);
+		return mr;
+	}
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.persist.MetaModelPersistence#updateMetaRelationship(alvahouse.eatool.repository.metamodel.MetaRelationship)
+	 */
+	@Override
+	public MetaRelationship updateMetaRelationship(MetaRelationship mr) throws Exception {
+		// This meta relationship should reference meta entities already in the store.
+		UUID startKey = mr.start().connectionKey();
+		UUID finishKey = mr.finish().connectionKey();
+
+		if ( !(metaEntities.containsKey(startKey) && metaEntities.containsKey(finishKey)) ) {
+			throw new IllegalStateException("Updating meta relationship that references meta-entities not in the model");
+		}
+
+		MetaRelationship original = metaRelationships.remove(mr.getKey());
+		sortedRelationships.remove(original);
+		
+		// Clone - will break references to meta-entities but keys will remain
+		mr = (MetaRelationship) mr.clone();
 
 		// And save
 		metaRelationships.put(mr.getKey(), mr);
@@ -373,5 +410,7 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 	public void setKey(UUID uuid) {
 		this.uuid = uuid;
 	}
+
+
 
 }

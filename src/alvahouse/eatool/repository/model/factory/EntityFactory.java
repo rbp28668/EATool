@@ -15,6 +15,7 @@ import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.model.Entity;
 import alvahouse.eatool.repository.model.Model;
 import alvahouse.eatool.repository.model.PropertyContainerFactory;
+import alvahouse.eatool.repository.version.VersionImpl;
 import alvahouse.eatool.util.IXMLContentHandler;
 import alvahouse.eatool.util.UUID;
 
@@ -88,6 +89,8 @@ public class EntityFactory extends PropertyContainerFactory implements IXMLConte
            		throw new InputException("Unable to create new Entity", e);
            	}
             
+        } else if(local.equals("Version")){
+        	VersionImpl.readXML(attrs, currentEntity);
         } else {
             startProperty(currentEntity,uri,local,attrs);
         }
@@ -100,7 +103,7 @@ public class EntityFactory extends PropertyContainerFactory implements IXMLConte
         if(local.equals("Entity")) {
             if(isNewEntity){
                 try {
-					model.addEntity(currentEntity);
+					model._add(currentEntity);
 				} catch (Exception e) {
 					throw new InputException("Unable to add entity");
 				}

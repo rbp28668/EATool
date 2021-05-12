@@ -42,7 +42,9 @@ public class MetaModel implements KeyedItem {
 	 * @return the MetaEntity keyed by uuid
 	 */
 	public MetaEntity getMetaEntity(UUID uuid) throws Exception {
-		return persistence.getMetaEntity(uuid);
+		MetaEntity me =  persistence.getMetaEntity(uuid);
+		me.setModel(this);
+		return me;
 	}
 
 	/**
@@ -54,9 +56,23 @@ public class MetaModel implements KeyedItem {
 	 */
 	public MetaEntity addMetaEntity(MetaEntity me) throws Exception {
 		me.setModel(this);
+		String user = System.getProperty("user.name");
+		me.getVersion().createBy(user);
 		persistence.addMetaEntity(me);
 		fireMetaEntityAdded(me);
 		return me;
+	}
+
+	/**
+	 * Internal to add a new meta-entity to the collection
+	 * 
+	 * @param me is the meta-entity to add
+	 * @return the added meta-entity (to allow chaining)
+	 * @throws Exception
+	 */
+	public void _add(MetaEntity me) throws Exception {
+		me.setModel(this);
+		persistence.addMetaEntity(me);
 	}
 
 	/**
@@ -65,7 +81,11 @@ public class MetaModel implements KeyedItem {
 	 * @return Collection of MetaEntity.
 	 */
 	public Collection<MetaEntity> getMetaEntities()  throws Exception{
-		return persistence.getMetaEntities();
+		Collection<MetaEntity> mes = persistence.getMetaEntities();
+		for(MetaEntity me : mes) {
+			me.setModel(this);
+		}
+		return mes;
 	}
 
 	/**
@@ -85,6 +105,14 @@ public class MetaModel implements KeyedItem {
 //        return (MetaEntity [])sortedEntities.toArray(new MetaEntity[sortedEntities.size()]);
 //    }
 
+	public MetaEntity updateMetaEntity(MetaEntity me) throws Exception{
+		String user = System.getProperty("user.name");
+		me.getVersion().modifyBy(user);
+		persistence.updateMetaEntity(me);
+		fireMetaEntityChanged(me);
+		return me;
+	}
+	
 	/**
 	 * deletes a meta-entity from the meta-model
 	 * 
@@ -105,6 +133,7 @@ public class MetaModel implements KeyedItem {
 	 */
 	public MetaRelationship getMetaRelationship(UUID uuid)  throws Exception{
 		MetaRelationship mr = persistence.getMetaRelationship(uuid);
+		mr.setModel(this);
 		return mr;
 	}
 
@@ -117,11 +146,39 @@ public class MetaModel implements KeyedItem {
 	 */
 	public MetaRelationship addMetaRelationship(MetaRelationship mr) throws Exception {
 		mr.setModel(this);
+		String user = System.getProperty("user.name");
+		mr.getVersion().createBy(user);
 		persistence.addMetaRelationship(mr);
 		fireMetaRelationshipAdded(mr);
 		return mr;
 	}
 
+	/**
+	 * Internal to adds a new meta-relationship to the collection
+	 * 
+	 * @param mr is the meta-relationship to add
+	 * @return the added meta-relationship (to allow chaining)
+	 * @throws Exception
+	 */
+	public void _add(MetaRelationship mr) throws Exception {
+		mr.setModel(this);
+		persistence.addMetaRelationship(mr);
+	}
+
+	/**
+	 * Updates a meta relationship in the meta model.
+	 * @param mr is the meta relationship to update.
+	 * @return the meta relationship (for chaining)
+	 * @throws Exception
+	 */
+	public MetaRelationship updateMetaRelationship(MetaRelationship mr) throws Exception {
+		String user = System.getProperty("user.name");
+		mr.getVersion().modifyBy(user);
+		persistence.updateMetaRelationship(mr);
+		fireMetaRelationshipChanged(mr);
+		return mr;
+	}
+	
 	/**
 	 * deletes a meta-relationship from the meta-model
 	 * 
@@ -139,7 +196,11 @@ public class MetaModel implements KeyedItem {
 	 * @return a Collection containing MetaRelationship.
 	 */
 	public Collection<MetaRelationship> getMetaRelationships()  throws Exception{
-		return persistence.getMetaRelationships();
+		Collection<MetaRelationship> mrs = persistence.getMetaRelationships();
+		for(MetaRelationship mr : mrs) {
+			mr.setModel(this);
+		}
+		return mrs;
 	}
 
 	/**
@@ -149,6 +210,9 @@ public class MetaModel implements KeyedItem {
 	 */
 	public MetaRelationship[] getMetaRelationshipsAsArray()  throws Exception{
 		Collection<MetaRelationship> relationships = persistence.getMetaRelationships();
+		for(MetaRelationship mr : relationships) {
+			mr.setModel(this);
+		}
 		return (MetaRelationship[]) relationships.toArray(new MetaRelationship[relationships.size()]);
 	}
 
@@ -170,7 +234,11 @@ public class MetaModel implements KeyedItem {
 	 * @return a Set of MetaRelationship. Maybe empty, never null.
 	 */
 	public Set<MetaRelationship> getMetaRelationshipsFor(MetaEntity me)  throws Exception{
-		return persistence.getMetaRelationshipsFor(me);
+		Set<MetaRelationship> relationships = persistence.getMetaRelationshipsFor(me);
+		for(MetaRelationship mr : relationships) {
+			mr.setModel(this);
+		}
+		return relationships;
 	}
 
 	/**
@@ -183,7 +251,11 @@ public class MetaModel implements KeyedItem {
 	 * @return a Set of MetaRelationship. Maybe empty, never null.
 	 */
 	public Set<MetaRelationship> getDeclaredMetaRelationshipsFor(MetaEntity me)  throws Exception{
-		return persistence.getDeclaredMetaRelationshipsFor(me);
+		Set<MetaRelationship> relationships = persistence.getDeclaredMetaRelationshipsFor(me);
+		for(MetaRelationship mr : relationships) {
+			mr.setModel(this);
+		}
+		return relationships;
 	}
 
 	/**

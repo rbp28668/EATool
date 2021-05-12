@@ -3,8 +3,8 @@
  */
 package alvahouse.eatool.repository.persist.memory;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -124,7 +124,11 @@ public class ModelPersistenceMemory implements ModelPersistence {
 	 */
 	@Override
 	public Collection<Entity> getEntities() {
-		return Collections.unmodifiableCollection(entities.values());
+		ArrayList<Entity> copy = new ArrayList<>(entities.size());
+		for(Entity e : entities.values()) {
+			copy.add( (Entity) e.clone());
+		}
+		return copy;
 	}
 
 	/*
@@ -145,7 +149,8 @@ public class ModelPersistenceMemory implements ModelPersistence {
 	 */
 	@Override
 	public List<Entity> getEntitiesOfType(MetaEntity meta) {
-		List<Entity> cache = entityCacheByType.get(meta.getKey());
+		UUID key = meta.getKey();
+		List<Entity> cache = entityCacheByType.get(key);
 		if (cache == null) { // not cached.
 			cache = new LinkedList<Entity>();
 			for (Entity e : getEntities()) {
@@ -153,9 +158,13 @@ public class ModelPersistenceMemory implements ModelPersistence {
 					cache.add(e);
 				}
 			}
-			entityCacheByType.put(meta.getKey(), cache);
+			entityCacheByType.put(key, cache);
 		}
-		return Collections.unmodifiableList(cache);
+		ArrayList<Entity> copy = new ArrayList<>(cache.size());
+		for(Entity e : cache) {
+			copy.add( (Entity)e.clone());
+		}
+		return copy;
 	}
 
 	/*
@@ -226,8 +235,11 @@ public class ModelPersistenceMemory implements ModelPersistence {
 	 */
 	@Override
 	public Collection<Relationship> getRelationships() {
-		return Collections.unmodifiableCollection(relationships.values());
-
+		ArrayList<Relationship> copy = new ArrayList<>(relationships.size());
+		for(Relationship r : relationships.values()) {
+			copy.add( (Relationship) r.clone());
+		}
+		return copy;
 	}
 
 	/*
@@ -254,12 +266,17 @@ public class ModelPersistenceMemory implements ModelPersistence {
 		if (cache == null) { // not cached.
 			cache = new LinkedList<Relationship>();
 			for (Relationship r : getRelationships()) {
-				if (r.getMeta() == meta)
+				if (r.getMeta().equals(meta))
 					cache.add(r);
 			}
 		}
 		relationshipCacheByType.put(meta.getKey(), cache);
-		return Collections.unmodifiableList(cache);
+		
+		ArrayList<Relationship> copy = new ArrayList<>(cache.size());
+		for(Relationship r : cache) {
+			copy.add( (Relationship)r.clone());
+		}
+		return copy;
 	}
 
 	
@@ -279,7 +296,7 @@ public class ModelPersistenceMemory implements ModelPersistence {
         for(Relationship rel : model.getRelationships()) {
             if(rel.start().connectsTo().equals(e) ||
                 rel.finish().connectsTo().equals(e)) {
-                rels.add(rel);
+                rels.add( (Relationship)rel.clone());
             }
         }
         return rels;
@@ -302,7 +319,7 @@ public class ModelPersistenceMemory implements ModelPersistence {
             if((rel.start().connectsTo().equals(e) ||
                 rel.finish().connectsTo().equals(e)) &&
                 rel.getMeta().equals(meta)) {
-                rels.add(rel);
+                rels.add( (Relationship)rel.clone());
             }
         }
         return rels;

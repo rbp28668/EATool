@@ -13,12 +13,12 @@ import alvahouse.eatool.repository.exception.InputException;
 import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.repository.metamodel.MetaRole;
-import alvahouse.eatool.repository.model.Entity;
 import alvahouse.eatool.repository.model.Model;
 import alvahouse.eatool.repository.model.PropertyContainer;
 import alvahouse.eatool.repository.model.PropertyContainerFactory;
 import alvahouse.eatool.repository.model.Relationship;
 import alvahouse.eatool.repository.model.Role;
+import alvahouse.eatool.repository.version.VersionImpl;
 import alvahouse.eatool.util.IXMLContentHandler;
 import alvahouse.eatool.util.UUID;
 
@@ -129,6 +129,8 @@ public class RelationshipFactory extends PropertyContainerFactory implements IXM
 				throw new IllegalArgumentException("Missing connection uuid for Role loading XML");
 			currentRole.setConnectionKey(new UUID(connect));
 			
+        } else if(local.equals("Version")){
+        	VersionImpl.readXML(attrs, currentRelationship);
 		} else {
 			PropertyContainer container = currentRelationship;
 			if (currentRole != null) {
@@ -149,7 +151,7 @@ public class RelationshipFactory extends PropertyContainerFactory implements IXM
 		if (local.equals("Relationship")) {
 			if (isNewRelationship) {
 				try {
-					model.addRelationship(currentRelationship);
+					model._add(currentRelationship);
 				} catch (Exception e) {
 					throw new InputException("Unable to add relationship", e);
 				}

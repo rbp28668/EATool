@@ -33,7 +33,7 @@ public class VersionImpl implements Version {
     private Date modifyDate = START;
     private String modifyUser = ANON;
     private UUID version = new UUID();
-    private UUID originalVersion = new UUID();
+    private UUID originalVersion = UUID.NULL;
     
     private final static String TIME_FORMAT_STR = "yyyyMMddHHmmssSSS";
     private static SimpleDateFormat TIME_FORMAT = new SimpleDateFormat(TIME_FORMAT_STR);
@@ -139,6 +139,7 @@ public class VersionImpl implements Version {
     public void modifyBy(String user){
         modifyUser = user;
         modifyDate = new Date();
+        originalVersion = version;
         version = new UUID();
     }
     
