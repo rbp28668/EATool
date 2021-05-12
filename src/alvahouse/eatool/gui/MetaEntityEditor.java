@@ -19,7 +19,7 @@ import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaModel;
 /**
- *
+ * Edits the meta entity "in place".  This does not update the model.
  * @author  rbp28668
  */
 public class MetaEntityEditor extends BasicDialog {

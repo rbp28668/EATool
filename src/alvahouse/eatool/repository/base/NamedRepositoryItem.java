@@ -17,6 +17,9 @@ import alvahouse.eatool.util.XMLWriter;
 
 public class NamedRepositoryItem extends RepositoryItem implements  Comparable<NamedItem>, NamedItem  {
 
+    private String m_name = "";
+    private String m_description = "";
+
     /** Creates new RepositoryItemBase */
     public NamedRepositoryItem(UUID uuid) {
         super(uuid);
@@ -31,11 +34,11 @@ public class NamedRepositoryItem extends RepositoryItem implements  Comparable<N
         }
     }
 
-//    protected void cloneTo(NamedRepositoryItem copy) {
-//        super.cloneTo(copy);
-//        copy.m_name = new String(m_name);
-//        copy.m_description = new String(m_description);
-//    }
+    protected void cloneTo(NamedRepositoryItem copy) {
+        super.cloneTo(copy);
+        copy.m_name = new String(m_name);
+        copy.m_description = new String(m_description);
+    }
     
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.base.NamedItem#getName()
@@ -78,6 +81,4 @@ public class NamedRepositoryItem extends RepositoryItem implements  Comparable<N
         return getKey().compareTo(other.getKey());
     }
     
-    private String m_name = "";
-    private String m_description = "";
 }

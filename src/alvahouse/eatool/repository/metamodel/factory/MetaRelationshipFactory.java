@@ -16,6 +16,7 @@ import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.repository.metamodel.MetaRole;
 import alvahouse.eatool.repository.metamodel.Multiplicity;
 import alvahouse.eatool.repository.metamodel.types.MetaPropertyTypes;
+import alvahouse.eatool.repository.version.VersionImpl;
 import alvahouse.eatool.util.IXMLContentHandler;
 import alvahouse.eatool.util.UUID;
 
@@ -96,6 +97,8 @@ public class MetaRelationshipFactory extends MetaPropertyContainerFactory implem
 			if (attr == null)
 				throw new IllegalArgumentException("Missing connection uuid for MetaRole loading XML");
 			m_currentMetaRole.setConnectionKey(new UUID(attr));
+        } else if(local.equals("Version")){
+        	VersionImpl.readXML(attrs, m_currentMetaRelationship);
 		} else {
 			MetaPropertyContainer container = m_currentMetaRelationship;
 			if (m_currentMetaRole != null) {
@@ -135,7 +138,7 @@ public class MetaRelationshipFactory extends MetaPropertyContainerFactory implem
 		if (local.equals("MetaRelationship")) {
 			if (isNewMetaRelationship) {
 				try {
-					m_metaModel.addMetaRelationship(m_currentMetaRelationship);
+					m_metaModel._add(m_currentMetaRelationship);
 				} catch (Exception e) {
 					throw new InputException("Unable to add meta relationship", e);
 				}

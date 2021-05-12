@@ -13,6 +13,7 @@ import alvahouse.eatool.repository.exception.InputException;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.metamodel.types.MetaPropertyTypes;
+import alvahouse.eatool.repository.version.VersionImpl;
 import alvahouse.eatool.util.IXMLContentHandler;
 import alvahouse.eatool.util.UUID;
 
@@ -88,6 +89,8 @@ public class MetaEntityFactory extends MetaPropertyContainerFactory implements I
 				m_currentMetaEntity.setBaseKey(uuidBase);
 			}
 
+        } else if(local.equals("Version")){
+        	VersionImpl.readXML(attrs, m_currentMetaEntity);
 		} else {
 			try {
 				startMetaProperty(m_currentMetaEntity, uri, local, attrs);
@@ -107,7 +110,7 @@ public class MetaEntityFactory extends MetaPropertyContainerFactory implements I
 		if (local.equals("MetaEntity")) {
 			if (isNewMetaEntity) {
 				try {
-					m_metaModel.addMetaEntity(m_currentMetaEntity);
+					m_metaModel._add(m_currentMetaEntity);
 				} catch (Exception e) {
 					throw new InputException("Unable to add meta entity", e);
 				}

@@ -144,7 +144,7 @@ public class Role extends PropertyContainer implements Cloneable{
     
     protected void cloneTo(Role copy) {
         super.cloneTo(copy);
-        copy.connection = connection;
+        copy.connection = (EntityProxy)connection.clone();
         copy.meta = meta;               // must be same type
         copy.relationship = null;   // possible different parent.
     }

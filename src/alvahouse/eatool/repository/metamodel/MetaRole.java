@@ -31,8 +31,9 @@ public class MetaRole extends MetaPropertyContainer {
 	 * The MetaEntity this MetaRole (and hence the parent MetaRelationship) connects
 	 * to.
 	 */
-	private MetaEntityProxy connection = null;
-
+	private MetaEntityProxy connection = new MetaEntityProxy();
+	
+	
 	/**
 	 * Creates new MetaRole with the given UUID and parent meta-relationship.
 	 * 
@@ -44,7 +45,6 @@ public class MetaRole extends MetaPropertyContainer {
 			throw new NullPointerException("Can't create MetaRole with a null MetaRelationship");
 		}
 		metaRelationship = mr;
-		connection = new MetaEntityProxy();
 	}
 
 	/*
@@ -133,6 +133,7 @@ public class MetaRole extends MetaPropertyContainer {
 	public UUID connectionKey() {
 		return connection.getKey();
 	}
+	
 	/**
 	 * Writes the MetaRole out as XML.
 	 * 

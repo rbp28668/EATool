@@ -10,7 +10,7 @@ import alvahouse.eatool.util.UUID;
 
 
 /**
- * Keys
+ * Keys provides well known UUID keys for standard built-in meta property types.
  * 
  * @author rbp28668
  */

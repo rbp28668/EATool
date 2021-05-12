@@ -47,8 +47,10 @@ import alvahouse.eatool.repository.model.Relationship;
 import alvahouse.eatool.repository.model.Role;
 
 /**
- * EntityEditor provides editing for a single Entity. A cloned copy is edited
- * and only copied back to the original entity if the user clicks on OK. The
+ * EntityEditor provides editing for a single Entity. This edits the entity "in place"
+ * and doesn't update the model.  If wasEdited returns true the caller should update
+ * the model and call persistRelationships to update any relationships in the model.  
+ * The
  * actual editing is done within the inner classes, {@link RelationshipPanel}
  * and {@link PropertiesPanel}. In turn the panels use <code>JTable</code> which
  * handles the actual editing via further inner classes, subclasses of
@@ -63,12 +65,6 @@ public class EntityEditor extends BasicDialog {
 
 	/** The original entity to be edited */
 	private Entity originalEntity;
-
-	/**
-	 * A cloned copy that is edited - it is copied back over the original if the
-	 * user clicks on OK
-	 */
-	// private Entity editCopy;
 
 	/** Panel for handling property edit - presented in the properties tab */
 	private PropertiesPanel propertiesPanel;
@@ -90,7 +86,6 @@ public class EntityEditor extends BasicDialog {
 
 		originalEntity = e;
 		this.repository = repository;
-		// editCopy = (Entity)e.clone();
 
 		JLabel label = new JLabel("uuid: " + e.getKey().toString());
 		label.setBorder(new javax.swing.border.EmptyBorder(new java.awt.Insets(1, 1, 1, 1)));
@@ -113,7 +108,7 @@ public class EntityEditor extends BasicDialog {
 	protected void onOK() {
 		try {
 			propertiesPanel.onOK(); // updates original entity.
-			relationshipsPanel.onOK();
+			relationshipsPanel.onOK(); // and deal with any changes to relationships.
 		} catch (Exception e) {
 			new ExceptionDisplay(this, e);
 		}
@@ -126,6 +121,15 @@ public class EntityEditor extends BasicDialog {
 		return propertiesPanel.validateInput() && relationshipsPanel.validateInput();
 	}
 
+	/**
+	 * Persist all the relationships that may have been added or removed.
+	 * @param is the model to persist to.
+	 * @throws Exception
+	 */
+	public void persistRelationships(Model model) throws Exception {
+		relationshipsPanel.persistRelationships(model);
+	}
+	
 	/* ================================================================= */
 	// RelationshipsPanel is the editing panel for the Entity's
 	// relationships.
@@ -169,10 +173,20 @@ public class EntityEditor extends BasicDialog {
 			return true;
 		}
 
+		/**
+		 * Persist all the relationships which may have been added or removed.
+		 * @throws Exception
+		 */
+		void persistRelationships(Model model) throws Exception {
+			for (RelationshipsSubPanel sub : relationshipPanels) {
+				sub.persistRelationships(model);
+			}
+		}
+
 	}
 
 	/* ================================================================= */
-	// RelationshipsPanel is the editing panel for the Entity's
+	// RelationshipsSubPanel is the editing panel for the Entity's
 	// relationships.
 	/* ================================================================= */
 	private class RelationshipsSubPanel extends JPanel {
@@ -405,17 +419,25 @@ public class EntityEditor extends BasicDialog {
 		}
 
 		/**
-		 * Method onOK. Updates the model from the add/delete relationship lists. Note
-		 * that this assumes that the optionality/cardinality constraints won't be
+		 * Method onOK. Normalises the relationships to remove any that are created then deleted. 
+		 * Note that this assumes that the optionality/cardinality constraints won't be
 		 * invalidated. This should have been checked with validateInput().
+		 * 
 		 */
 		void onOK() throws Exception {
 
 			// First make sure any relationships in both add and delete lists
 			// are removed from both (i.e. user changed his mind).
 			normaliseRelationships();
-
-			Model model = originalEntity.getModel();
+		}
+		
+		/**
+		 * PersistRelationships writes any relationship changes to the model. Not part of OnOk as
+		 * we don't want to update the model in the editor but leave that to the control of the
+		 * caller as the caller knows whether this is an existing entity or a new one. 
+		 * @throws Exception
+		 */
+		void persistRelationships(Model model) throws Exception {
 			for (Relationship toAdd : relationshipsToAdd) {
 				model.addRelationship(toAdd);
 			}
@@ -604,8 +626,8 @@ public class EntityEditor extends BasicDialog {
 									try {
 										RelationshipEditor editor = new RelationshipEditor(parentComponent, r, model);
 										editor.setVisible(true);
-									} catch (Exception x) {
-										new ExceptionDisplay(Main.getAppFrame(),x);
+									} catch (Exception e1) {
+										new ExceptionDisplay(Main.getAppFrame(), e1);
 									}
 								}
 

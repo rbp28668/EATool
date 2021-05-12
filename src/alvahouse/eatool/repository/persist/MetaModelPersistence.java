@@ -50,7 +50,14 @@ public interface MetaModelPersistence {
      * @return meta entity count.
      */
     public int getMetaEntityCount() throws Exception;
-    
+
+    /** updates a meta-entity in the collection
+     * @param me is the meta-entity to update
+     * @return the updated meta-entity (to allow chaining)
+     * @throws Exception 
+     */
+    public MetaEntity updateMetaEntity(MetaEntity me) throws Exception;
+
     
     /** deletes a meta-entity from the meta-model
      * @param uuid is the identifier of the meta-entity to delete
@@ -73,6 +80,13 @@ public interface MetaModelPersistence {
      */
     public MetaRelationship addMetaRelationship(MetaRelationship mr) throws Exception;
     
+    /** updates a meta relationship in the collection
+     * @param mr is the meta-relationship to update
+     * @return the updated meta relationship (to allow chaining)
+     * @throws Exception 
+     */
+    public MetaRelationship updateMetaRelationship(MetaRelationship mr) throws Exception;
+
     /** deletes a meta-relationship from the meta-model
      * @param uuid is the key for the meta-relationship to delete
      * @throws Exception 

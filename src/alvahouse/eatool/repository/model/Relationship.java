@@ -270,6 +270,8 @@ public class Relationship extends PropertyContainer implements TooltipProvider, 
 		super.cloneTo(copy);
 		copy.ends[0] = (Role) ends[0].clone();
 		copy.ends[1] = (Role) ends[1].clone();
+		copy.ends[0].setRelationship(copy);
+		copy.ends[1].setRelationship(copy);
 		version.cloneTo(copy.version);
 	}
 

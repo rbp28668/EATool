@@ -388,7 +388,9 @@ public class TabularEntityEditor extends JInternalFrame {
                         row.updateEntity(e);
                         model.addEntity(e);
                     } else {
-                        row.updateEntity(row.getEntity());
+                    	e = row.getEntity();
+                        row.updateEntity(e);
+                        model.updateEntity(e);
                     }
                 }
             }

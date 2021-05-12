@@ -66,7 +66,9 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
      * @return the corresponding entity, or null if not in the model
      */
     public Entity getEntity(UUID uuid) {
-        return persistence.getEntity(uuid);
+        Entity e = persistence.getEntity(uuid);
+        e.setModel(this);
+        return e;
     }
 
     /** adds a new entity to the collection.
@@ -76,11 +78,23 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
      */
     public Entity addEntity(Entity e) throws Exception {
         e.setModel(this);
+		String user = System.getProperty("user.name");
+		e.getVersion().createBy(user);
         persistence.addEntity(e);
         fireEntityAdded(e);
         return e;
     }
     
+    /**
+     * Internal for loading repository from file etc.
+     * @param e
+     * @throws Exception
+     */
+    public void _add(Entity e) throws Exception {
+        e.setModel(this);
+        persistence.addEntity(e);
+    }
+
     /** Updates and existing entity in the model.
      * @param e is the entity to update.
      * @return the added entity (to allow chaining).
@@ -88,6 +102,8 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
      */
     public Entity updateEntity(Entity e) throws Exception {
         e.setModel(this);
+		String user = System.getProperty("user.name");
+		e.getVersion().modifyBy(user);
         persistence.updateEntity(e);
         fireEntityChanged(e);
         return e;
@@ -106,7 +122,11 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
      * @return an iterator for the entities.
      */
     public Collection<Entity> getEntities() {
-        return persistence.getEntities();
+        Collection<Entity> entities = persistence.getEntities();
+        for(Entity e : entities) {
+        	e.setModel(this);
+        }
+        return entities;
     }
     
     /**
@@ -122,15 +142,21 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
      * @return a list of all the entities of the given type.
      */
     public List<Entity> getEntitiesOfType(MetaEntity meta) {
-        return persistence.getEntitiesOfType(meta);
-    }
+        List<Entity> entities = persistence.getEntitiesOfType(meta);
+        for(Entity e : entities) {
+        	e.setModel(this);
+        }
+        return entities;
+   }
     
     /** Gets the relationship with the given key.
      * @param uuid is the key for the relationship.
      * @return the relationship corresponding to uuid or null if not in the model.
      */
     public Relationship getRelationship(UUID uuid) {
-        return persistence.getRelationship(uuid);
+        Relationship r =  persistence.getRelationship(uuid);
+        r.setModel(this);
+        return r;
     }
 
      /** adds a new relationship to the collection
@@ -140,10 +166,22 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
      */
     public Relationship addRelationship(Relationship r) throws Exception {
         r.setModel(this);
+		String user = System.getProperty("user.name");
+		r.getVersion().createBy(user);
         persistence.addRelationship(r);
         fireRelationshipAdded(r);
         return r;
     }
+
+    /** Internal to add a relationship
+    * @param r is the relationship to add
+    * @return the added relationship (to allow chaining)
+     * @throws IllegalStateException if the relationship is already in the model.
+    */
+   public void _add(Relationship r) throws Exception {
+       r.setModel(this);
+       persistence.addRelationship(r);
+   }
 
     /** updates an existing relationship.
      * @param r is the relationship to update
@@ -151,8 +189,9 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
       * @throws IllegalStateException if the relationship is already in the model.
      */
     public Relationship updateRelationship(Relationship r) throws Exception {
-        
         r.setModel(this);
+		String user = System.getProperty("user.name");
+		r.getVersion().modifyBy(user);
         persistence.updateRelationship(r);
         fireRelationshipAdded(r);
         return r;
@@ -172,7 +211,12 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
      * @return an iterator.
      */
     public Collection<Relationship> getRelationships() {
-        return persistence.getRelationships();
+    	
+        Collection<Relationship> relationships =  persistence.getRelationships();
+        for(Relationship r : relationships) {
+        	r.setModel(this);
+        }
+        return relationships;
     }
 
     /**
@@ -189,7 +233,12 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
      * @return a list of all the corresponding relationships.
      */
     public List<Relationship> getRelationshipsOfType(MetaRelationship meta) {
-    	return persistence.getRelationshipsOfType(meta);
+        List<Relationship> relationships =  persistence.getRelationshipsOfType(meta);
+        for(Relationship r : relationships) {
+        	r.setModel(this);
+        }
+        return relationships;
+
     }
     
 	/**
@@ -200,7 +249,12 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
 	 * @return the set of connected relationships.
 	 */
 	public Set<Relationship> getConnectedRelationships(Entity e) throws Exception{
-		return persistence.getConnectedRelationships(this, e);
+        Set<Relationship> relationships =  persistence.getConnectedRelationships(this, e);
+        for(Relationship r : relationships) {
+        	r.setModel(this);
+        }
+        return relationships;
+
 	}
 
 	/**
@@ -214,7 +268,11 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
 	 * @return the set of connected relationships.
 	 */
 	public Set<Relationship> getConnectedRelationshipsOf(Entity e, MetaRelationship meta) throws Exception{
-		return persistence.getConnectedRelationshipsOf(this, e, meta);
+		Set<Relationship> relationships = persistence.getConnectedRelationshipsOf(this, e, meta);
+        for(Relationship r : relationships) {
+        	r.setModel(this);
+        }
+        return relationships;
 	}
 
     

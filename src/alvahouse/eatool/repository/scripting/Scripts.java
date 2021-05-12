@@ -9,8 +9,10 @@ package alvahouse.eatool.repository.scripting;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
@@ -24,6 +26,7 @@ public class Scripts {
 
     /** List of Script */
     private List<Script> scripts = new LinkedList<Script>();
+    private Set<UUID> keys = new HashSet<>();
     
     /** List of ScriptsChangeListener for change notification */
     private List<ScriptsChangeListener> listeners = new LinkedList<ScriptsChangeListener>();
@@ -40,8 +43,14 @@ public class Scripts {
      * @param script is the script to be added.
      */
     public void add(Script script) throws Exception {
-        scripts.add(script);
-        fireScriptAdded(script);
+    	UUID key = script.getKey();
+    	if(keys.contains(key)) {
+    		throw new IllegalArgumentException("Duplicate script -" + script.getName());
+    	} else {
+    		keys.add(key);
+	        scripts.add(script);
+	        fireScriptAdded(script);
+    	}
     }
     
     /**
@@ -71,6 +80,7 @@ public class Scripts {
      */
     public void deleteContents()  throws Exception {
         scripts.clear();
+        keys.clear();
         fireUpdated();
     }
     
@@ -86,7 +96,12 @@ public class Scripts {
      * @param script is the script to delete.
      */
     public void delete(Script script)  throws Exception {
+    	UUID key = script.getKey();
+    	if(!keys.contains(key)) {
+    		throw new IllegalArgumentException("Script " + script.getName() + " with key " + key + " is not in the scripts collection");
+    	}
         scripts.remove(script);
+        keys.remove(key);
         fireScriptDeleted(script);
     }
 

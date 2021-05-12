@@ -26,14 +26,23 @@ public class MetaEntityDisplayHint {
     	this.target = target;
     }
 
-//    /** Creates a copy of the MetaEntityDisplayHint
-//     * @return a new MetaEntityDisplayHint 
-//     */
-//    public Object clone() {
-//        MetaEntityDisplayHint copy = new MetaEntityDisplayHint(this.target);
-//        cloneTo(copy);
-//        return copy;
-//    }
+    /** Creates a copy of the MetaEntityDisplayHint
+     * @return a new MetaEntityDisplayHint 
+     */
+    public Object clone() {
+        MetaEntityDisplayHint copy = new MetaEntityDisplayHint(this.target);
+        cloneTo(copy);
+        return copy;
+    }
+    
+    /**
+     * In conjunction with clone, allow the copy to be bound to
+     * a new MetaEntity.
+     * @param target is the new meta entity to bind to.
+     */
+    void reBindTo(MetaEntity target) {
+    	this.target = target;
+    }
 //    
 //    /** Updates this meta entity from a copy.  Used for editing - the 
 //     * copy should be edited (use clone to get the copy) and only if the
@@ -103,16 +112,16 @@ public class MetaEntityDisplayHint {
   
     }
     
-//	/**
-//	 * Method cloneTo implements a copy from one 
-//	 * MetaEntityDisplayHint to another
-//	 * @param copy is the MetaEntityDisplayHint to be copied
-//	 * to.
-//	 */
-//    private void cloneTo(MetaEntityDisplayHint copy) {
-//    	copy.target = target;
-//    	copy.keys = new LinkedList();
-//    	copy.keys.addAll(keys);
-//    }
+	/**
+	 * Method cloneTo implements a copy from one 
+	 * MetaEntityDisplayHint to another
+	 * @param copy is the MetaEntityDisplayHint to be copied
+	 * to.
+	 */
+    private void cloneTo(MetaEntityDisplayHint copy) {
+    	copy.target = target;
+    	copy.keys = new LinkedList<UUID>();
+    	copy.keys.addAll(keys);
+    }
 }
 

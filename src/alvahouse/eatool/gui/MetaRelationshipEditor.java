@@ -19,7 +19,8 @@ import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
 
 /**
- * Editor for a MetaRelationship.
+ * Editor for a MetaRelationship. This edits the meta relationship "in place" and does
+ * not explicitly update the meta model.
  * @author  rbp28668
  */
 public class MetaRelationshipEditor extends BasicDialog {
