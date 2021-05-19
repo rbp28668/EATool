@@ -18,6 +18,7 @@ import alvahouse.eatool.repository.metamodel.MetaEntityDeleteProxy;
 import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.repository.metamodel.MetaRelationshipDeleteProxy;
+import alvahouse.eatool.repository.metamodel.types.ExtensibleMetaPropertyType;
 import alvahouse.eatool.repository.persist.MetaModelPersistence;
 import alvahouse.eatool.util.UUID;
 
@@ -41,6 +42,8 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 	/** Set of MetaRelationship kept in sorted order */
 	private Set<MetaRelationship> sortedRelationships = new TreeSet<MetaRelationship>();
 
+	/** Map of MetaPropertyType keyed by their key for the user defined (i.e. not predefined/built-in) types. */
+	private Map<UUID, ExtensibleMetaPropertyType> userDefinedTypes = new HashMap<UUID, ExtensibleMetaPropertyType>();
 	/**
 	 * 
 	 */
@@ -414,6 +417,62 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 	@Override
 	public void setKey(UUID uuid) {
 		this.uuid = uuid;
+	}
+
+	
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.persist.MetaModelPersistence#getDefinedTypes()
+	 */
+	@Override
+    public Collection<ExtensibleMetaPropertyType> getDefinedTypes() throws Exception{
+		Collection<ExtensibleMetaPropertyType> copies = new LinkedList<ExtensibleMetaPropertyType>();
+		for(ExtensibleMetaPropertyType mpt : userDefinedTypes.values()) {
+			copies.add( (ExtensibleMetaPropertyType)mpt.clone());
+		}
+		return copies;
+    }
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.persist.MetaModelPersistence#addType(alvahouse.eatool.repository.metamodel.types.MetaPropertyType)
+	 */
+	@Override
+	public void addType(ExtensibleMetaPropertyType mpt)  throws Exception{
+		if(userDefinedTypes.containsKey(mpt.getKey())) {
+			throw new IllegalStateException("MetaPropertyType " + mpt.getName() + " with key " + mpt.getKey() + " already exists");
+		}
+		ExtensibleMetaPropertyType copy = (ExtensibleMetaPropertyType) mpt.clone();
+		userDefinedTypes.put(copy.getKey(), copy);
+	}
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.persist.MetaModelPersistence#updateType(alvahouse.eatool.repository.metamodel.types.MetaPropertyType)
+	 */
+	@Override
+	public void updateType(ExtensibleMetaPropertyType mpt)  throws Exception{
+		if(!userDefinedTypes.containsKey(mpt.getKey())) {
+			throw new IllegalStateException("MetaPropertyType " + mpt.getName() + " with key " + mpt.getKey() + " does not exist in repository");
+		}
+		ExtensibleMetaPropertyType copy = (ExtensibleMetaPropertyType) mpt.clone();
+		userDefinedTypes.put(copy.getKey(), copy);
+	}
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.persist.MetaModelPersistence#removeType(alvahouse.eatool.repository.metamodel.types.MetaPropertyType)
+	 */
+	@Override
+	public void deleteType(UUID uuid) throws Exception{
+		if(!userDefinedTypes.containsKey(uuid)) {
+			throw new IllegalStateException("Can't delete MetaPropertyType with key " + uuid + " - not in repository");
+		}
+		userDefinedTypes.remove(uuid);
+	}
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.persist.MetaModelPersistence#deleteDefinedTypes()
+	 */
+	@Override
+	public void deleteDefinedTypes() {
+		userDefinedTypes.clear();
 	}
 
 

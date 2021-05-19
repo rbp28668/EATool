@@ -34,7 +34,7 @@ public class TypesExplorer extends JInternalFrame {
     /**
      * 
      */
-    public TypesExplorer(ExtensibleTypes types, Application app) {
+    public TypesExplorer(ExtensibleTypes types, Application app) throws Exception{
         super();
         this.app = app;
         

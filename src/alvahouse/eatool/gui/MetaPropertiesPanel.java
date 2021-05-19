@@ -69,21 +69,29 @@ public class MetaPropertiesPanel extends JPanel {
         // Edit Property
         btnEditProperty.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                MetaProperty mp = lstProperties.getSelectedValue();
-                new MetaPropertyEditor(parentDialog, mp, repository).setVisible(true);
+            	try {
+	                MetaProperty mp = lstProperties.getSelectedValue();
+	                new MetaPropertyEditor(parentDialog, mp, repository).setVisible(true);
+            	}catch (Exception e) {
+            		new ExceptionDisplay(parentDialog, e);
+            	}
             }
         });
 
         // New Property
         btnNewProperty.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                MetaProperty mp = new MetaProperty(new UUID());
-                MetaPropertyEditor editor;
-                (editor = new MetaPropertyEditor(parentDialog, mp, repository)).setVisible(true);
-                if(editor.wasEdited()) {
-                    DefaultListModel<MetaProperty> model = (DefaultListModel<MetaProperty>)lstProperties.getModel();
-                    model.addElement(mp);
-                }
+            	try {
+	                MetaProperty mp = new MetaProperty(new UUID());
+	                MetaPropertyEditor editor;
+	                (editor = new MetaPropertyEditor(parentDialog, mp, repository)).setVisible(true);
+	                if(editor.wasEdited()) {
+	                    DefaultListModel<MetaProperty> model = (DefaultListModel<MetaProperty>)lstProperties.getModel();
+	                    model.addElement(mp);
+	                }
+            	} catch (Exception e) {
+            		new ExceptionDisplay(parentDialog, e);
+            	}
             }
         });
 

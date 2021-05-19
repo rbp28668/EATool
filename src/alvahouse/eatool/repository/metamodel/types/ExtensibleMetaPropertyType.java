@@ -11,6 +11,9 @@ import java.io.IOException;
 import org.xml.sax.Attributes;
 
 import alvahouse.eatool.repository.exception.InputException;
+import alvahouse.eatool.repository.version.Version;
+import alvahouse.eatool.repository.version.VersionImpl;
+import alvahouse.eatool.repository.version.Versionable;
 import alvahouse.eatool.util.ClassUtils;
 import alvahouse.eatool.util.IXMLContentHandler;
 import alvahouse.eatool.util.UUID;
@@ -21,8 +24,9 @@ import alvahouse.eatool.util.XMLWriter;
  * 
  * @author rbp28668
  */
-public abstract class ExtensibleMetaPropertyType extends MetaPropertyType implements IXMLContentHandler{
+public abstract class ExtensibleMetaPropertyType extends MetaPropertyType implements IXMLContentHandler, Versionable{
 
+	private VersionImpl version = new VersionImpl();
     private transient String xmlValue = null;
     
     /**
@@ -39,12 +43,40 @@ public abstract class ExtensibleMetaPropertyType extends MetaPropertyType implem
         super(key);
     }
 
+    /* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.version.Versionable#getVersion()
+	 */
+	@Override
+	public Version getVersion() {
+		return version;
+	}
+
+	@Override
+    public Object clone() {
+    	// Can't throw CloneNotSupported as that's a checked exception.
+    	throw new IllegalStateException("Clone not supported on this MetaPropertyType");
+    }
+    
+    protected void cloneTo(ExtensibleMetaPropertyType other) {
+    	super.cloneTo(other);
+    	version.cloneTo(other.version);
+    }
+
     /**
      * Writes the list out as XML
      * @param out is the XMLWriterDirect to write the XML to
      */
     public abstract void writeXML(XMLWriter out) throws IOException;
     
+    
+    /**
+     * Write out the version tag into the XML output.
+     * @param out
+     * @throws IOException
+     */
+    protected void writeVersionXML(XMLWriter out) throws IOException{
+    	version.writeXML(out);
+    }
     
     /* (non-Javadoc)
      * @see alvahouse.eatool.util.IXMLContentHandler#startElement(java.lang.String, java.lang.String, org.xml.sax.Attributes)
@@ -67,6 +99,8 @@ public abstract class ExtensibleMetaPropertyType extends MetaPropertyType implem
             if(desc != null){
                 setDescription(desc);
             }
+        } else if (local.equals("Version")){
+        	VersionImpl.readXML(attrs, this);
         }
     }
     

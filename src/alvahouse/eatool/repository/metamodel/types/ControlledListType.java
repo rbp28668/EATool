@@ -50,6 +50,7 @@ public class ControlledListType extends ExtensibleMetaPropertyType {
     public void writeXML(XMLWriter out) throws IOException {
         out.startEntity(ClassUtils.baseClassNameOf(this));
         writeAttributesXML(out);
+        writeVersionXML(out);
 
         for(String value : values){
             out.textEntity("Value",value);
@@ -163,7 +164,7 @@ public class ControlledListType extends ExtensibleMetaPropertyType {
      * @see alvahouse.eatool.repository.metamodel.types.MetaPropertyType#getEditor(java.lang.Object)
      */
     public Component getEditor(Object value) {
-        JComboBox combo = new JComboBox(values.toArray());
+        JComboBox<String> combo = new JComboBox<String>(values.toArray(new String[values.size()]));
         combo.setSelectedItem(value);
         combo.setEditable(false);	// select only
         return combo;
@@ -176,7 +177,8 @@ public class ControlledListType extends ExtensibleMetaPropertyType {
         if(!(component instanceof JComboBox)){
             throw new IllegalArgumentException("Invalid type of component");
         }
-        JComboBox combo = (JComboBox)component;
+        @SuppressWarnings("unchecked")
+		JComboBox<String> combo = (JComboBox<String>)component;
         
         return (String)combo.getSelectedItem();
     }
@@ -193,4 +195,12 @@ public class ControlledListType extends ExtensibleMetaPropertyType {
         }
     }
 
+    @Override
+    public Object clone() {
+    	ControlledListType copy = new ControlledListType(getKey());
+    	super.cloneTo(copy);
+    	copy.values.addAll(values);
+    	copy.defaultValue = defaultValue;
+    	return copy;
+    }
 }

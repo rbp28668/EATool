@@ -22,7 +22,7 @@ import alvahouse.eatool.util.IXMLContentHandler;
 public class TypesFactory extends FactoryBase implements IXMLContentHandler {
 
     private ExtensibleTypes types;
-    private ExtensibleTypeList currentList = null;
+    private Class<? extends ExtensibleMetaPropertyType> implementingClass;
     private String currentTypeName = null;
     private ExtensibleMetaPropertyType currentType = null;
     private ProgressCounter counter;
@@ -46,25 +46,23 @@ public class TypesFactory extends FactoryBase implements IXMLContentHandler {
             throws InputException {
         if(local.equals("TypeList")){
             String className = attrs.getValue("class");
-            Class<? extends ExtensibleMetaPropertyType> implementingClass;
             try {
                 implementingClass = (Class <? extends ExtensibleMetaPropertyType>)Class.forName(className);
             } catch (ClassNotFoundException e) {
                 throw new InputException("Type class " + className + " is not known");
             }
-            currentList = types.lookupList(implementingClass);
-            if(currentList == null){
+            if(!types.isValidType(implementingClass)) {
                 throw new InputException("No type list defined for " + implementingClass.getCanonicalName());
             }
             
             currentTypeName = ClassUtils.baseClassNameOf(implementingClass);
         } else if (currentTypeName != null && local.equals(currentTypeName)){
             try {
-                currentType = currentList.createNew();
+                currentType =  implementingClass.newInstance();
             } catch (InstantiationException e) {
-                throw new InputException("Unable to create type " + currentList.getImplementingClass().getName());
+                throw new InputException("Unable to create type " + implementingClass.getName());
             } catch (IllegalAccessException e) {
-                throw new InputException("No access to create type " + currentList.getImplementingClass().getName());
+                throw new InputException("No access to create type " + implementingClass.getName());
             }
             currentType.startElement(uri,local,attrs);
         } else {
@@ -81,14 +79,13 @@ public class TypesFactory extends FactoryBase implements IXMLContentHandler {
      */
     public void endElement(String uri, String local) throws InputException {
         if(local.equals("TypeList")){
-            currentList = null;
+//            currentList = null;
             currentTypeName = null;
         } else if (currentTypeName != null && local.equals(currentTypeName)){
             try {
 				currentType.endElement(uri,local);
 				// type is finished - add to list.
-				currentList.add(currentType);
-				types.fireTypeAdded(currentType);
+				types._add(currentType);
 				currentType = null;
 				counter.count("Property Type");
 			} catch (Exception e) {
