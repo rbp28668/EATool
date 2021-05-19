@@ -150,7 +150,7 @@ public interface Repository extends KeyedItem {
      * Gets the types associated with this repository.
      * @return the MetaPropertyTypes.
      */
-    public abstract MetaPropertyTypes getTypes();
+    public abstract MetaPropertyTypes getTypes() throws Exception;
 
     /**
      * Gets the extensible types in the repository.

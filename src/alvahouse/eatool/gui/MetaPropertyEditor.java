@@ -12,7 +12,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.util.Iterator;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -43,13 +42,13 @@ public class MetaPropertyEditor extends BasicDialog {
     private PropertyPanel propPanel;
 
     /** Creates new form MetaPropertyEditor */
-    public MetaPropertyEditor(Component parent, MetaProperty mp, Repository repository) {
+    public MetaPropertyEditor(Component parent, MetaProperty mp, Repository repository) throws Exception{
         super(parent,"Edit Meta-Property");
         init(mp, repository);
     }
 
     /** Creates new form MetaPropertyEditor */
-    public MetaPropertyEditor(javax.swing.JDialog parent, MetaProperty mp, Repository repository) {
+    public MetaPropertyEditor(javax.swing.JDialog parent, MetaProperty mp, Repository repository) throws Exception{
         super(parent,"Edit Meta-Property"); 
         init(mp, repository);
     }
@@ -59,7 +58,7 @@ public class MetaPropertyEditor extends BasicDialog {
      * Initialises the editor.
      * @param mp is the MetaProperty to be edited.
      */
-    private void init(MetaProperty mp, Repository repository) {
+    private void init(MetaProperty mp, Repository repository) throws Exception {
         mpEdit = mp;
 
         nriPanel = new NamedRepositoryItemPanel(mp);
@@ -103,7 +102,7 @@ public class MetaPropertyEditor extends BasicDialog {
 		 */
 		private static final long serialVersionUID = 1L;
 		
-		PropertyPanel(MetaProperty mp, Repository repository) {
+		PropertyPanel(MetaProperty mp, Repository repository) throws Exception {
             setLayout(new GridBagLayout());
             GridBagConstraints c;
             

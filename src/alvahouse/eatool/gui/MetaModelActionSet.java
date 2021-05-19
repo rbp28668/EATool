@@ -14,11 +14,10 @@ import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import alvahouse.eatool.Application;
-import alvahouse.eatool.Main;
 import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.base.DeleteDependenciesList;
-import alvahouse.eatool.repository.metamodel.MetaEntityDisplayHint;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
+import alvahouse.eatool.repository.metamodel.MetaEntityDisplayHint;
 import alvahouse.eatool.repository.metamodel.MetaProperty;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.repository.metamodel.MetaRole;

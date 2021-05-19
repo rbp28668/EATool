@@ -6,8 +6,6 @@
  */
 package alvahouse.eatool.gui.types;
 
-import java.util.Iterator;
-
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
 
@@ -25,12 +23,13 @@ import alvahouse.eatool.repository.metamodel.types.TypeEventListener;
  */
 public class TypesTreeModel extends ExplorerTreeModel implements TypeEventListener {
 
-    private ExtensibleTypes types;
+	private static final long serialVersionUID = 1L;
+	private ExtensibleTypes types;
     
     /**
      * @param rootTitle
      */
-    public TypesTreeModel(ExtensibleTypes types, String rootTitle) {
+    public TypesTreeModel(ExtensibleTypes types, String rootTitle) throws Exception{
         super(rootTitle);
 
         this.types = types;
@@ -38,10 +37,9 @@ public class TypesTreeModel extends ExplorerTreeModel implements TypeEventListen
         types.addListener(this);
     }
 
-    private void buildTree(){
+    private void buildTree() throws Exception{
         int idx = 0;
-        for(Iterator iter = types.getTypes().iterator(); iter.hasNext();){
-            ExtensibleTypeList typeList = (ExtensibleTypeList)iter.next();
+        for(ExtensibleTypeList typeList : types.getTypes()) {
             DefaultMutableTreeNode node = new DefaultMutableTreeNode(typeList);
             registerNode(node,typeList);
             insertNodeInto(node, (DefaultMutableTreeNode)getRoot(),idx);
@@ -52,8 +50,7 @@ public class TypesTreeModel extends ExplorerTreeModel implements TypeEventListen
     
     private void insertChildrenOf(MutableTreeNode parent, ExtensibleTypeList typeList){
         int idx = 0;
-        for(Iterator iter = typeList.getTypes().iterator(); iter.hasNext();){
-            ExtensibleMetaPropertyType type = (ExtensibleMetaPropertyType)iter.next();
+        for(ExtensibleMetaPropertyType type : typeList.getTypes()) {
             DefaultMutableTreeNode node = new DefaultMutableTreeNode(type);
             registerNode(node,type);
             insertNodeInto(node, parent,idx);
@@ -79,7 +76,7 @@ public class TypesTreeModel extends ExplorerTreeModel implements TypeEventListen
 	/* (non-Javadoc)
 	 * @see alvahouse.eatool.repository.metamodel.types.TypeEventListener#typeAdded(alvahouse.eatool.repository.metamodel.types.TypeEvent)
 	 */
-	public void typeAdded(TypeEvent event) {
+	public void typeAdded(TypeEvent event) throws Exception{
 	    ExtensibleMetaPropertyType type = event.getType();
 	    ExtensibleTypeList parentList = types.lookupList(type);
 	    DefaultMutableTreeNode parentNode = lookupNodeOf(parentList);
