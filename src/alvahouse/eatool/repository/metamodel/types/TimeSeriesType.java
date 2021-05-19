@@ -72,6 +72,7 @@ public class TimeSeriesType extends ExtensibleMetaPropertyType {
     public void writeXML(XMLWriter out) throws IOException {
         out.startEntity(ClassUtils.baseClassNameOf(this));
         writeAttributesXML(out);
+        writeVersionXML(out);
         for(String value : intervals){
             out.textEntity("Interval",value);
         }
@@ -189,6 +190,14 @@ public class TimeSeriesType extends ExtensibleMetaPropertyType {
     public void clear() {
         intervals.clear();
         
+    }
+
+    @Override
+    public Object clone() {
+    	TimeSeriesType copy = new TimeSeriesType(getKey());
+    	super.cloneTo(copy);
+    	copy.intervals.addAll(intervals);
+    	return copy;
     }
 
 }

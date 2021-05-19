@@ -141,7 +141,7 @@ public class EAToolWindowCoordinator extends WindowCoordinator {
         },"FunctionHelpBrowser");
 
         addFactory( new WindowFactory () {
-            public JInternalFrame createFrame() {
+            public JInternalFrame createFrame() throws Exception {
                 return new TypesExplorer(rep.getExtensibleTypes(), app);
             }
         },"TypesExplorer");

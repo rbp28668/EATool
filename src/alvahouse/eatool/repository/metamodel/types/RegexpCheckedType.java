@@ -49,6 +49,7 @@ public class RegexpCheckedType extends ExtensibleMetaPropertyType {
     public void writeXML(XMLWriter out) throws IOException {
         out.startEntity(ClassUtils.baseClassNameOf(this));
         writeAttributesXML(out);
+        writeVersionXML(out);
         out.textEntity("Pattern",pattern.pattern());
         out.textEntity("Default", defaultValue);
         out.textEntity("FieldLength",Integer.toString(fieldLength));
@@ -141,5 +142,14 @@ public class RegexpCheckedType extends ExtensibleMetaPropertyType {
         }
     }
 
- 
+    @Override
+    public Object clone() {
+    	RegexpCheckedType copy = new RegexpCheckedType(getKey());
+    	super.cloneTo(copy);
+    	copy.pattern = pattern;
+    	copy.defaultValue = defaultValue;
+    	copy.fieldLength = fieldLength;
+    	return copy;
+    }
+
  }

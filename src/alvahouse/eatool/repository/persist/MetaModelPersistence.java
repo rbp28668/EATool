@@ -10,6 +10,8 @@ import alvahouse.eatool.repository.base.DeleteDependenciesList;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
+import alvahouse.eatool.repository.metamodel.types.ExtensibleMetaPropertyType;
+import alvahouse.eatool.repository.metamodel.types.MetaPropertyType;
 import alvahouse.eatool.util.UUID;
 
 /**
@@ -20,6 +22,10 @@ import alvahouse.eatool.util.UUID;
  * meta-entities and meta-relationships rather than their individual properties and roles.
  * May also be used as a basis for adapters such as broadcast of changes, data
  * security or logging and audit.
+ * @author bruce_porteous
+ *
+ */
+/**
  * @author bruce_porteous
  *
  */
@@ -159,6 +165,43 @@ public interface MetaModelPersistence {
      * @return Collection of MetaEntity.  Collection may be empty, never null.
      */
     public Collection<MetaEntity> getDerivedMetaEntities(MetaEntity meta) throws Exception ;
+    
+    /**
+     * getDefinedTypes gets the list of extensible meta property types that are known
+     * to the persistence layer. These are all types that can be extended in the meta
+     * model e.g. a controlled list.
+     * @return a collection of ExtensibleMetaPropertyType. May be empty, never null.
+     * @throws Exception
+     */
+    public Collection<ExtensibleMetaPropertyType> getDefinedTypes() throws Exception;
+    
+	/**
+	 * Adds a single ExtensibleMetaPropertyType to the repository. The meta property
+	 * type must not already exist in the repository.
+	 * @param mpt is the ExtensibleMetaPropertyType to add to the repository.
+	 * @throws Exception
+	 */
+	public void addType(ExtensibleMetaPropertyType mpt) throws Exception;
+
+	/**
+	 * Updates a single ExtensibleMetaPropertyType to the repository. The meta property
+	 * type must already exist in the repository.
+	 * @param mpt is the ExtensibleMetaPropertyType to update in the repository.
+	 * @throws Exception
+	 */
+	public void updateType(ExtensibleMetaPropertyType mpt) throws Exception;
+
+    /**
+     * Removes an ExtensibleMetaPropertyType from the repository identified by its key.
+     * @param key is the key of the type to remove.
+     */
+    public void deleteType(UUID key) throws Exception;
+
+    /**
+     * Removes all ExtensibleMetaPropertyTypes from the repository.
+     */
+    public void deleteDefinedTypes() throws Exception;
+
     
 	public UUID getKey() ;
 

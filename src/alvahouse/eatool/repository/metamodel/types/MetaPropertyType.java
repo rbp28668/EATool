@@ -9,12 +9,15 @@ import java.awt.Component;
 import java.net.URL;
 import java.text.DateFormat;
 import java.util.Date;
- 
+
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
 import alvahouse.eatool.repository.base.NamedRepositoryItem;
+import alvahouse.eatool.repository.version.Version;
+import alvahouse.eatool.repository.version.VersionImpl;
+import alvahouse.eatool.repository.version.Versionable;
 import alvahouse.eatool.util.UUID;
 
 /* Use basic Java types
@@ -40,9 +43,9 @@ import alvahouse.eatool.util.UUID;
  * type of properties created from this MetaProperty).
  * @author  rbp28668
  */
-public abstract class MetaPropertyType extends NamedRepositoryItem{
+public abstract class MetaPropertyType extends NamedRepositoryItem {
 
-    
+
     /** Creates new MetaPropertyType - note this is implemented to allow
      * Class.newInstance to be used to create new types. At other times
      * the keys should be known. */
@@ -146,6 +149,7 @@ public abstract class MetaPropertyType extends NamedRepositoryItem{
     public int getDisplayLength(){
         return 40;
     }
+
     
     /*=================================================================*/
     // Built in type classes:

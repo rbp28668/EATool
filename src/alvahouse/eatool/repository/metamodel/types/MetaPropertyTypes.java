@@ -16,18 +16,21 @@ import alvahouse.eatool.util.SettingsManager;
 
 /**
  * MetaPropertyTypes is a container class for MetaPropertyTypes (the
- * field types in the model).
- * 
+ * field types in the model). This is an immutable class - once created there is no way to add or remove
+ * meta property types.  As such these should be created as short-term sets of types (e.g. for
+ * loading a repository).  Manages the built-in primitive types such as boolean, integer etc. As such
+ * the set of types are the combination of the native and extensible types.
+ * For historical reasons, a primitive type can be looked up by UUID (preferred) or name.
  * @author rbp28668
  */
 public class MetaPropertyTypes {
 
     // Note that these are keyed by both the type name and the string representation of the UUID.
-    private HashMap<String,MetaPropertyType> metaProperties = new HashMap<String,MetaPropertyType>();
-    private List<MetaPropertyType> metaList = new LinkedList<MetaPropertyType>();
+    private final HashMap<String,MetaPropertyType> metaProperties = new HashMap<String,MetaPropertyType>();
+    private final List<MetaPropertyType> metaList = new LinkedList<MetaPropertyType>();
 
-    private static List<MetaPropertyType> builtinTypes = new LinkedList<MetaPropertyType>();
-    private static HashMap<String,MetaPropertyType> builtinLookup = new HashMap<String,MetaPropertyType>();
+    private final static List<MetaPropertyType> builtinTypes = new LinkedList<MetaPropertyType>();
+    private final static HashMap<String,MetaPropertyType> builtinLookup = new HashMap<String,MetaPropertyType>();
     
     static {
         addNativeType(new MetaPropertyType.TypeBoolean());
@@ -46,18 +49,17 @@ public class MetaPropertyTypes {
         addNativeType(new MetaPropertyType.TypeInterval());
         addNativeType(new MetaPropertyType.TypeURL());
         addNativeType(new MetaPropertyType.TypeText());
-
     }
     
     /**
      * 
      */
-    public MetaPropertyTypes() {
+    public MetaPropertyTypes(ExtensibleTypes extensibleTypes) throws Exception{
         super();
-        init();
+        init(extensibleTypes);
     }
 
-    private void init(){
+    private void init(ExtensibleTypes extensibleTypes) throws Exception{
         metaProperties.clear();
         metaList.clear();
         
@@ -65,6 +67,12 @@ public class MetaPropertyTypes {
             metaProperties.put(mpt.getTypeName(), mpt);
             metaProperties.put(mpt.getKey().toString().toLowerCase(),mpt);
             metaList.add(mpt);
+        }
+        
+        for(ExtensibleTypeList list : extensibleTypes.getTypes()) {
+        	for(ExtensibleMetaPropertyType type : list.getTypes()) {
+        		addType(type);
+        	}
         }
     }
     
@@ -99,7 +107,7 @@ public class MetaPropertyTypes {
 	 * a settings manager.
 	 * @param cfg is the SettingsManager to look for extensions in.
 	 */
-	public void extendTypesFromConfig(SettingsManager cfg) {
+	public static void extendTypesFromConfig(SettingsManager cfg) {
         SettingsManager.Element eRoot = cfg.getOrCreateElement("/MetaTypes");
         for(SettingsManager.Element e : eRoot.getChildren()){
             if(e.getName().compareTo("MetaType") != 0)
@@ -125,34 +133,16 @@ public class MetaPropertyTypes {
 	    return Collections.unmodifiableCollection(metaList);
 	}
 	
-//    public String[] getTypeNames() {
-//        return (String[])(metaProperties.keySet().toArray(new String[0]));
-//    }
-    
-	public void addType(MetaPropertyType mpt){
-        metaProperties.put(mpt.getKey().toString().toLowerCase(),mpt);
-        metaList.add(mpt);
-	}
-	
     private static void addNativeType(MetaPropertyType mpt) {
         builtinTypes.add(mpt);
         builtinLookup.put(mpt.getTypeName(),mpt);
     }
 
-    /**
-     * Resets the contents to just the built-in types. 
-     */
-    public void deleteContents() {
-        init();
-    }
 
-    /**
-     * Removes a type from the list.
-     * @param deletedType is the type to remove.
-     */
-    public void removeType(MetaPropertyType deletedType) {
-        metaProperties.remove(deletedType.getKey().toString().toLowerCase());
-        metaList.remove(deletedType);
-    }
+	private void addType(MetaPropertyType mpt){
+        metaProperties.put(mpt.getKey().toString().toLowerCase(),mpt);
+        metaList.add(mpt);
+	}
+
 
 }

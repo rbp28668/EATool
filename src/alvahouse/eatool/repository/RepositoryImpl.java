@@ -108,8 +108,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     private final Scripts scripts = new Scripts();
     private final EventMap events = new EventMap();
     private final RepositoryProperties properties = new RepositoryProperties();
-    private final MetaPropertyTypes types = new MetaPropertyTypes();
-    private final ExtensibleTypes extensibleTypes = new ExtensibleTypes();
+    private final ExtensibleTypes extensibleTypes = new ExtensibleTypes(persistence.getMetaModelPersistence());
     private final HTMLPages pages = new HTMLPages();
     private final Images images = new Images();
     private final EventMap modelEvents = new EventMap();
@@ -135,7 +134,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
             throw new RepositoryException("Unable to initialse diagram elements from config", e);
         }
         
-		getTypes().extendTypesFromConfig(config);
+		MetaPropertyTypes.extendTypesFromConfig(config);
 		getImportMappings().setParsers(config);
 		diagramTypes.setFamilies(config);
 		
@@ -203,11 +202,11 @@ public class RepositoryImpl implements TypeEventListener, Repository{
 		loader.registerContent(OLD_NAMESPACE,"Script",sf);
 
      
-        MetaEntityFactory mef = new MetaEntityFactory(counter,types, metaModel);
+        MetaEntityFactory mef = new MetaEntityFactory(counter,extensibleTypes, metaModel);
         loader.registerContent(NAMESPACE,"MetaEntity",mef);
         loader.registerContent(OLD_NAMESPACE,"MetaEntity",mef);
         
-        MetaRelationshipFactory mrf = new MetaRelationshipFactory(counter,types, metaModel);
+        MetaRelationshipFactory mrf = new MetaRelationshipFactory(counter,extensibleTypes, metaModel);
         loader.registerContent(NAMESPACE,"MetaRelationship",mrf);
         loader.registerContent(OLD_NAMESPACE,"MetaRelationship",mrf);
         
@@ -559,8 +558,8 @@ public class RepositoryImpl implements TypeEventListener, Repository{
  	/* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#getTypes()
      */
- 	public MetaPropertyTypes getTypes() {
- 	    return types;
+ 	public MetaPropertyTypes getTypes() throws Exception {
+ 	    return new MetaPropertyTypes(extensibleTypes);
  	}
  	
     /* (non-Javadoc)
@@ -645,26 +644,18 @@ public class RepositoryImpl implements TypeEventListener, Repository{
         getScripts().deleteContents();
         getEventMap().deleteHandlers();
         getProperties().reset();
-        getTypes().deleteContents();
         getExtensibleTypes().deleteContents();
         getPages().reset();
         getImages().reset();
     }
 
     /* (non-Javadoc)
-     * @see alvahouse.eatool.repository.metamodel.types.TypeEventListener#typeAdded(alvahouse.eatool.repository.metamodel.types.TypeEvent)
-     */
-    /* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#typeAdded(alvahouse.eatool.repository.metamodel.types.TypeEvent)
      */
     public void typeAdded(TypeEvent event) {
-        MetaPropertyType newType = event.getType();
-        types.addType(newType);
+    	// NOP
     }
 
-    /* (non-Javadoc)
-     * @see alvahouse.eatool.repository.metamodel.types.TypeEventListener#typeChanged(alvahouse.eatool.repository.metamodel.types.TypeEvent)
-     */
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#typeChanged(alvahouse.eatool.repository.metamodel.types.TypeEvent)
      */
@@ -702,9 +693,6 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     }
 
     /* (non-Javadoc)
-     * @see alvahouse.eatool.repository.metamodel.types.TypeEventListener#typeDeleted(alvahouse.eatool.repository.metamodel.types.TypeEvent)
-     */
-    /* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#typeDeleted(alvahouse.eatool.repository.metamodel.types.TypeEvent)
      */
     public void typeDeleted(TypeEvent event) throws Exception{
@@ -718,7 +706,6 @@ public class RepositoryImpl implements TypeEventListener, Repository{
                 }
             }
         }
-        types.removeType(deletedType);
     }
 
     
