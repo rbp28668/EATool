@@ -9,6 +9,9 @@ package alvahouse.eatool.repository.scripting;
 import java.io.IOException;
 
 import alvahouse.eatool.repository.base.NamedRepositoryItem;
+import alvahouse.eatool.repository.version.Version;
+import alvahouse.eatool.repository.version.VersionImpl;
+import alvahouse.eatool.repository.version.Versionable;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
@@ -17,10 +20,11 @@ import alvahouse.eatool.util.XMLWriter;
  * 
  * @author rbp28668
  */
-public class Script extends NamedRepositoryItem {
+public class Script extends NamedRepositoryItem implements Versionable {
 
     private String language = "javascript"; // one of the language strings known to bsf
     private String script;	// the actual script.
+    private VersionImpl version = new VersionImpl();
     
     /**
      * @param uuid
@@ -70,6 +74,7 @@ public class Script extends NamedRepositoryItem {
         out.startEntity("Script");
         super.writeAttributesXML(out);
         out.addAttribute("language",getLanguage());
+        version.writeXML(out);
         out.text(script);
         out.stopEntity();
     }
@@ -77,4 +82,30 @@ public class Script extends NamedRepositoryItem {
     public String toString(){
         return super.toString();
     }
+
+    
+	protected void cloneTo(Script copy) {
+		super.cloneTo(copy);
+		version.cloneTo(copy.version);
+		copy.language = language;
+		copy.script = script;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public Object clone()  {
+		Script copy = new Script(getKey());
+		cloneTo(copy);
+		return copy;
+	}
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.version.Versionable#getVersion()
+	 */
+	@Override
+	public Version getVersion() {
+		return version;
+	}
 }

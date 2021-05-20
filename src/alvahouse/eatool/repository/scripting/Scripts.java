@@ -8,12 +8,10 @@ package alvahouse.eatool.repository.scripting;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
+import alvahouse.eatool.repository.persist.ScriptPersistence;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
@@ -24,18 +22,22 @@ import alvahouse.eatool.util.XMLWriter;
  */
 public class Scripts {
 
+	private ScriptPersistence persistence;
+	
     /** List of Script */
-    private List<Script> scripts = new LinkedList<Script>();
-    private Set<UUID> keys = new HashSet<>();
+//    private List<Script> scripts = new LinkedList<Script>();
+//    private Set<UUID> keys = new HashSet<>();
     
     /** List of ScriptsChangeListener for change notification */
     private List<ScriptsChangeListener> listeners = new LinkedList<ScriptsChangeListener>();
     
     /**
      * Creates an empty scripts object.
+     * @param scriptPersistence 
      */
-    public Scripts() {
+    public Scripts(ScriptPersistence scriptPersistence) {
         super();
+        this.persistence = scriptPersistence;
     }
 
     /**
@@ -43,22 +45,48 @@ public class Scripts {
      * @param script is the script to be added.
      */
     public void add(Script script) throws Exception {
-    	UUID key = script.getKey();
-    	if(keys.contains(key)) {
-    		throw new IllegalArgumentException("Duplicate script -" + script.getName());
-    	} else {
-    		keys.add(key);
-	        scripts.add(script);
-	        fireScriptAdded(script);
-    	}
+ 		String user = System.getProperty("user.name");
+		script.getVersion().createBy(user);
+		persistence.addScript(script);
+        fireScriptAdded(script);
     }
-    
+
+    /**
+     * Internal version of add that doesn't change the version information.
+     * @param script is the script to be added.
+     */
+    public void _add(Script script) throws Exception {
+		persistence.addScript(script);
+        fireScriptAdded(script);
+    }
+
+    /**
+     * Updates a script in the repository.
+     * @param script is the script to be added.
+     */
+    public void update(Script script) throws Exception {
+ 		String user = System.getProperty("user.name");
+		script.getVersion().modifyBy(user);
+		persistence.updateScript(script);
+        fireScriptChanged(script);
+    }
+
+    /**
+     * Deletes the given script from the list.
+     * @param script is the script to delete.
+     */
+    public void delete(Script script)  throws Exception {
+    	UUID key = script.getKey();
+    	persistence.deleteScript(key);
+        fireScriptDeleted(script);
+    }
+
     /**
      * Gets an unmodifiable collection of all the scripts.
      * @return an unmodifiable collection of Script.
      */
     public Collection<Script> getScripts(){
-        return Collections.unmodifiableCollection(scripts);
+        return persistence.getScripts();
     }
     
     /**
@@ -68,7 +96,7 @@ public class Scripts {
     public void writeXML(XMLWriter out) throws IOException {
         out.startEntity("Scripts");
         
-        for(Script script: scripts) {
+        for(Script script: getScripts()) {
             script.writeXML(out);
         }
         
@@ -79,8 +107,7 @@ public class Scripts {
      * Clears the list of Scripts.
      */
     public void deleteContents()  throws Exception {
-        scripts.clear();
-        keys.clear();
+        persistence.dispose();
         fireUpdated();
     }
     
@@ -88,22 +115,9 @@ public class Scripts {
      * @see java.lang.Object#toString()
      */
     public String toString(){
-        return "Scripts (" + scripts.size() + ")";
+        return "Scripts (" + persistence.getScriptCount() + ")";
     }
 
-    /**
-     * Deletes the given script from the list.
-     * @param script is the script to delete.
-     */
-    public void delete(Script script)  throws Exception {
-    	UUID key = script.getKey();
-    	if(!keys.contains(key)) {
-    		throw new IllegalArgumentException("Script " + script.getName() + " with key " + key + " is not in the scripts collection");
-    	}
-        scripts.remove(script);
-        keys.remove(key);
-        fireScriptDeleted(script);
-    }
 
     /**
      * Adds a ScriptsChangeListener that will then be informed
@@ -137,7 +151,7 @@ public class Scripts {
      * Signals to any attached listeners that a script has been added.
      * @param script is the script that has been added.
      */
-    public void fireScriptAdded(Script script) throws Exception {
+    private void fireScriptAdded(Script script) throws Exception {
         ScriptChangeEvent event = new ScriptChangeEvent(script);
         for(ScriptsChangeListener listener : listeners) {
             listener.scriptAdded(event);
@@ -148,7 +162,7 @@ public class Scripts {
      * Signals to any attached listeners that a script has been modified.
      * @param script is the script that has been modified.
      */
-    public void fireScriptChanged(Script script) throws Exception {
+    private void fireScriptChanged(Script script) throws Exception {
         ScriptChangeEvent event = new ScriptChangeEvent(script);
         for(ScriptsChangeListener listener : listeners) {
             listener.scriptChanged(event);
@@ -159,7 +173,7 @@ public class Scripts {
      * Signals to any attached listeners that a script has been deleted.
      * @param script is the script that has been deleted.
      */
-    public void fireScriptDeleted(Script script) throws Exception {
+    private void fireScriptDeleted(Script script) throws Exception {
         ScriptChangeEvent event = new ScriptChangeEvent(script);
         for(ScriptsChangeListener listener : listeners) {
             listener.scriptDeleted(event);
@@ -171,14 +185,8 @@ public class Scripts {
      * @param uuid is the key of the script to find.
      * @return the Script or null if not found.
      */
-    public Script lookupScript(UUID uuid) {
-        Script theScript = null;
-        for(Script script : scripts) {
-            if(script.getKey().equals(uuid)){
-                theScript = script;
-                break;
-            }
-        }
+    public Script lookupScript(UUID uuid) throws Exception {
+        Script theScript = persistence.getScript(uuid);
         return theScript;
     }
 
@@ -188,7 +196,7 @@ public class Scripts {
      * @return the number of scripts.
      */
     public int getScriptCount() {
-        return scripts.size();
+        return persistence.getScriptCount();
     }
 
     
