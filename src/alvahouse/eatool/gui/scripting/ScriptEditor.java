@@ -25,6 +25,7 @@ import javax.swing.text.Keymap;
 import org.apache.bsf.BSFException;
 
 import alvahouse.eatool.Application;
+import alvahouse.eatool.gui.ExceptionDisplay;
 import alvahouse.eatool.gui.GUIBuilder;
 import alvahouse.eatool.gui.WrappedTextArea;
 import alvahouse.eatool.repository.scripting.Script;
@@ -40,12 +41,14 @@ import alvahouse.eatool.util.SettingsManager;
  */
 public class ScriptEditor extends JInternalFrame implements ScriptErrorListener{
 
-    private EditorPane display;
+	private static final long serialVersionUID = 1L;
+	private EditorPane display;
     private JTextArea messages;
     private ScriptEditorActionSet actions; 
     private Script script;
     private Application app;
-    
+    private boolean isUpdated = false; 
+    private Completion completion = null;
     private final static String WINDOW_SETTINGS = "/Windows/ScriptEditor";
 	private static final String MENU_CONFIG = "/ScriptEditor/menus";
 
@@ -60,8 +63,8 @@ public class ScriptEditor extends JInternalFrame implements ScriptErrorListener{
     /**
      * @param arg0
      */
-    public ScriptEditor(String arg0,Application app) {
-        super(arg0);
+    public ScriptEditor(String title,Application app) {
+        super(title);
         init(app);
     }
 
@@ -100,6 +103,17 @@ public class ScriptEditor extends JInternalFrame implements ScriptErrorListener{
         } catch (BSFException e) {
             // NOP
         }
+    }
+    
+    /**
+     * Sets a handler to be called when editing is complete.
+     * @param completion
+     */
+    public void onCompletion(Completion completion) {
+    	if(completion == null) {
+    		throw new NullPointerException("Can't have a null completion");
+    	}
+    	this.completion = completion;
     }
     
     /**
@@ -146,11 +160,29 @@ public class ScriptEditor extends JInternalFrame implements ScriptErrorListener{
     public void updateScript() {
         String scriptText = display.getText(); 
         script.setScript(scriptText);
+        isUpdated = true;
     }
 
+    boolean wasUpdated() {
+    	return isUpdated;
+    }
+    
+    void setModified() {
+    	isUpdated = true;
+    }
+    
     public void dispose() {
         GUIBuilder.saveBounds(this,WINDOW_SETTINGS,app);
         app.getWindowCoordinator().removeFrame(this);
+        
+        if(isUpdated && completion != null) {
+        	try {
+        		completion.onCompletion(script);
+        	} catch (Exception e) {
+        		new ExceptionDisplay(app.getCommandFrame(),e);
+        	}
+        }
+        
         try {
             ScriptManager.getInstance().removeListener(this);
         } catch (BSFException e) {
@@ -164,7 +196,10 @@ public class ScriptEditor extends JInternalFrame implements ScriptErrorListener{
     }
     
     private class EditorPane extends JEditorPane{
-        public EditorPane() {
+
+		private static final long serialVersionUID = 1L;
+
+    	public EditorPane() {
             super();
             setEditable(true);
             setContentType("text/plain");
@@ -176,8 +211,10 @@ public class ScriptEditor extends JInternalFrame implements ScriptErrorListener{
     }
 
     private class JSizedScroll extends JScrollPane {
-        
-        JSizedScroll(JComponent component){
+      
+		private static final long serialVersionUID = 1L;
+
+		JSizedScroll(JComponent component){
             super(component);
             Dimension d = new Dimension(200,300);
             super.setPreferredSize(d);
@@ -207,4 +244,12 @@ public class ScriptEditor extends JInternalFrame implements ScriptErrorListener{
         showMessage(err);
     }
 
+    /**
+     * Callback interface to allow caller to specify what to do when the script is saved.
+     * @author bruce_porteous
+     *
+     */
+    public interface Completion {
+    	void onCompletion(Script s);
+    }
 }

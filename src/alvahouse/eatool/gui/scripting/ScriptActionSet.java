@@ -10,12 +10,14 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JInternalFrame;
 
 import alvahouse.eatool.Application;
 import alvahouse.eatool.gui.ActionSet;
 import alvahouse.eatool.gui.CopyKeyAction;
 import alvahouse.eatool.gui.Dialogs;
 import alvahouse.eatool.gui.ExceptionDisplay;
+import alvahouse.eatool.gui.WindowCoordinator.WindowFactory;
 import alvahouse.eatool.repository.scripting.Script;
 import alvahouse.eatool.repository.scripting.ScriptContext;
 import alvahouse.eatool.repository.scripting.ScriptErrorListener;
@@ -53,14 +55,26 @@ public class ScriptActionSet extends ActionSet {
     }
 
     private final Action actionScriptNew = new AbstractAction() {
+		private static final long serialVersionUID = 1L;
+
 		public void actionPerformed(ActionEvent e) {
 			try {
-			    Script script = new Script(new UUID());
+			    final Script script = new Script(new UUID());
 		        ScriptAttributesDialog editor = new ScriptAttributesDialog(explorer, "Edit Script Properties", script);
 		        editor.setVisible(true);
 		        if(editor.wasEdited()){
-		            scripts.add(script);
-			        ScriptEditor se = (ScriptEditor)app.getWindowCoordinator().getFrame("ScriptEditor");
+			    	ScriptEditor se = getEditorFor(script);
+			        se.onCompletion(new ScriptEditor.Completion() {
+						@Override
+						public void onCompletion(Script s) {
+							try {
+								scripts.add(script);
+							}catch(Exception e) {
+								new ExceptionDisplay(explorer,e);
+							}
+						}
+					});
+			        
 			        se.edit(script);
 		        }
 
@@ -71,19 +85,35 @@ public class ScriptActionSet extends ActionSet {
 	};   
 
     private final Action actionScriptEdit = new AbstractAction() {
+		private static final long serialVersionUID = 1L;
+
 		public void actionPerformed(ActionEvent e) {
 			try {
-			    Script script = (Script)explorer.getSelectedNode().getUserObject();
+			    final Script script = (Script)explorer.getSelectedNode().getUserObject();
 			    if(script != null){
-			        ScriptEditor editor = (ScriptEditor)app.getWindowCoordinator().getFrame("ScriptEditor");
+			    	ScriptEditor editor = getEditorFor(script);
+			        editor.onCompletion(new ScriptEditor.Completion() {
+						@Override
+						public void onCompletion(Script s) {
+							try {
+								scripts.update(script);
+							}catch(Exception e) {
+								new ExceptionDisplay(explorer,e);
+							}
+						}
+					});
+			        
 			        editor.edit(script);
 			    }
 			} catch(Throwable t) {
 				new ExceptionDisplay(explorer,t);
 			}
 		}
-	};   
+	};
+	
     private final Action actionScriptProperties = new AbstractAction() {
+		private static final long serialVersionUID = 1L;
+
 		public void actionPerformed(ActionEvent e) {
 			try {
 			    Script script = (Script)explorer.getSelectedNode().getUserObject();
@@ -91,7 +121,7 @@ public class ScriptActionSet extends ActionSet {
 			        ScriptAttributesDialog editor = new ScriptAttributesDialog(explorer, "Edit Script Properties", script);
 			        editor.setVisible(true);
 			        if(editor.wasEdited()){
-			            scripts.fireScriptChanged(script);
+			            scripts.update(script);
 			        }
 			    }
 			} catch(Throwable t) {
@@ -101,6 +131,8 @@ public class ScriptActionSet extends ActionSet {
 	};   
     
 	private final Action actionScriptDelete = new AbstractAction() {
+		private static final long serialVersionUID = 1L;
+
 		public void actionPerformed(ActionEvent e) {
 			try {
 			    Script script = (Script)explorer.getSelectedNode().getUserObject();
@@ -116,6 +148,8 @@ public class ScriptActionSet extends ActionSet {
 	};
 	
     private final Action actionScriptRun = new AbstractAction() {
+		private static final long serialVersionUID = 1L;
+
 		public void actionPerformed(ActionEvent e) {
 			try {
 			    Script script = (Script)explorer.getSelectedNode().getUserObject();
@@ -135,6 +169,25 @@ public class ScriptActionSet extends ActionSet {
 				new ExceptionDisplay(explorer,t);
 			}
 		}
-	};   
+	};
+
+	/**
+	 * @param script
+	 * @return
+	 * @throws Exception
+	 */
+	private ScriptEditor getEditorFor(final Script script) throws Exception {
+		String windowKey = "ScriptEditor" + script.getKey().toString();
+		if(!app.getWindowCoordinator().hasFactory(windowKey)) {
+			app.getWindowCoordinator().addFactory( new WindowFactory () {
+		        public JInternalFrame createFrame() {
+		            return new ScriptEditor(app);
+		        }
+		    },windowKey);
+		}
+
+		ScriptEditor editor = (ScriptEditor)app.getWindowCoordinator().getFrame(windowKey);
+		return editor;
+	}   
 	
 }

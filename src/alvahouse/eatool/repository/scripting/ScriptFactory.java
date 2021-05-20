@@ -11,6 +11,7 @@ import org.xml.sax.Attributes;
 import alvahouse.eatool.repository.ProgressCounter;
 import alvahouse.eatool.repository.base.NamedRepositoryItemFactory;
 import alvahouse.eatool.repository.exception.InputException;
+import alvahouse.eatool.repository.version.VersionImpl;
 import alvahouse.eatool.util.IXMLContentHandler;
 import alvahouse.eatool.util.UUID;
 
@@ -56,6 +57,8 @@ implements IXMLContentHandler{
             super.getCommonFields(currentScript,attrs);
             currentScript.setLanguage(lang);
             buff.delete(0,buff.length());
+        } else if (local.equals("Version")) {
+        	VersionImpl.readXML(attrs, currentScript);
         }
     }
     /* (non-Javadoc)
@@ -66,7 +69,7 @@ implements IXMLContentHandler{
             currentScript.setScript(buff.toString());
             buff.delete(0,buff.length());
             try {
-				scripts.add(currentScript);
+				scripts._add(currentScript);
 			} catch (Exception e) {
 				throw new InputException("Unable to add script",e);
 			}

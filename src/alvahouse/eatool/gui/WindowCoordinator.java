@@ -121,10 +121,9 @@ public class WindowCoordinator {
      * @param is the frame to remove.
      */
     public void removeFrame(JInternalFrame frame) {
-        for(Iterator<Map.Entry<String, JInternalFrame>> iter = frames.entrySet().iterator(); iter.hasNext();) {
-            Map.Entry<String, JInternalFrame> entry = iter.next();
+        for(Map.Entry<String, JInternalFrame> entry : frames.entrySet()) {
             if(entry.getValue() == frame) {
-                frames.remove((String)entry.getKey());
+                frames.remove(entry.getKey());
                 break;
             }
         }
@@ -160,6 +159,17 @@ public class WindowCoordinator {
             throw new IllegalArgumentException("Empty name for window factory");
         
         factories.put(internalName, factory);
+    }
+    
+    /**
+     * Determines whether a window factory exists for a given internal name.  Used
+     * to support dynamic factories - e.g. for scripts where you want to have
+     * separate windows for each script.
+     * @param internalName is the name to check.
+     * @return true if there's a window factory registered for the given name.
+     */
+    public boolean hasFactory(String internalName) {
+    	return factories.containsKey(internalName);
     }
     
     /** sets the desktop pane so that windows can be automatically added
