@@ -52,9 +52,11 @@ public class EventMapFactory extends FactoryBase implements IXMLContentHandler{
             
             UUID scriptID = getUUID(attrs,"handler");
             
-            Script handler = scripts.lookupScript(scriptID);
-            if(handler == null){
-                throw new InputException("No handler script found for " + scriptID.toString());
+            Script handler = null;
+            try {
+            	handler =  scripts.lookupScript(scriptID);
+            } catch (Exception e) {
+                throw new InputException("Unable to get handler script for " + scriptID.toString(), e);
             }
             
             events.setHandler(name,handler);

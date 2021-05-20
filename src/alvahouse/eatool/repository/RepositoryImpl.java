@@ -105,7 +105,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     private final DiagramTypes diagramTypes = new DiagramTypes();
     private final ImportMappings importMappings = new ImportMappings();
     private final ExportMappings exportMappings = new ExportMappings();
-    private final Scripts scripts = new Scripts();
+    private final Scripts scripts = new Scripts(persistence.getScriptPersistence());
     private final EventMap events = new EventMap();
     private final RepositoryProperties properties = new RepositoryProperties();
     private final ExtensibleTypes extensibleTypes = new ExtensibleTypes(persistence.getMetaModelPersistence());
