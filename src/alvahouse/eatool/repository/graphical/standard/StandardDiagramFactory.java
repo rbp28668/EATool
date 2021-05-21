@@ -301,8 +301,10 @@ public class StandardDiagramFactory extends FactoryBase implements DiagramDetail
 			currentImage.setSize(width, height);
 
 			UUID imageKey = getUUID(attrs, "displays");
-			Image image = images.lookupImage(imageKey);
-			if (image == null) {
+			Image image = null; 
+			try{
+				image = images.lookupImage(imageKey);
+			} catch (Exception e) {
 				throw new InputException("Key " + imageKey.toString() + " does not match any images");
 			}
 			currentImage.setImage(image);

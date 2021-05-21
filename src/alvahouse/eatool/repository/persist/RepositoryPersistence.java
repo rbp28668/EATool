@@ -28,5 +28,10 @@ public interface RepositoryPersistence {
 	 * @return
 	 */
 	ScriptPersistence getScriptPersistence();
+	
+	/**
+	 * @return
+	 */
+	ImagePersistence getImagePersistence();
 
 }

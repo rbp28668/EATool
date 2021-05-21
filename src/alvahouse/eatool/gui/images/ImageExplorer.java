@@ -45,7 +45,7 @@ public class ImageExplorer extends JInternalFrame implements Explorer{
     /**
      * 
      */
-    public ImageExplorer(Application app, Repository repository) {
+    public ImageExplorer(Application app, Repository repository) throws Exception {
         super();
         setTitle("Images");
         init(app,repository);
@@ -54,7 +54,7 @@ public class ImageExplorer extends JInternalFrame implements Explorer{
     /**
      * @param title
      */
-    public ImageExplorer(String title,Application app, Repository repository) {
+    public ImageExplorer(String title,Application app, Repository repository) throws Exception {
         super(title);
         init(app,repository);
     }
@@ -62,7 +62,7 @@ public class ImageExplorer extends JInternalFrame implements Explorer{
     /**
      * 
      */
-    private void init(Application app, Repository repository){
+    private void init(Application app, Repository repository) throws Exception{
     	assert(app != null);
     	assert(repository != null);
     	

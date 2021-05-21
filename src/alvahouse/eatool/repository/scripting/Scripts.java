@@ -57,7 +57,6 @@ public class Scripts {
      */
     public void _add(Script script) throws Exception {
 		persistence.addScript(script);
-        fireScriptAdded(script);
     }
 
     /**
@@ -85,7 +84,7 @@ public class Scripts {
      * Gets an unmodifiable collection of all the scripts.
      * @return an unmodifiable collection of Script.
      */
-    public Collection<Script> getScripts(){
+    public Collection<Script> getScripts() throws Exception{
         return persistence.getScripts();
     }
     
@@ -96,8 +95,12 @@ public class Scripts {
     public void writeXML(XMLWriter out) throws IOException {
         out.startEntity("Scripts");
         
-        for(Script script: getScripts()) {
-            script.writeXML(out);
+        try {
+	        for(Script script: getScripts()) {
+	            script.writeXML(out);
+	        }
+        } catch (Exception e) {
+        	throw new IOException("Unable to write scripts to XML", e);
         }
         
         out.stopEntity();
@@ -115,7 +118,11 @@ public class Scripts {
      * @see java.lang.Object#toString()
      */
     public String toString(){
-        return "Scripts (" + persistence.getScriptCount() + ")";
+    	try {
+    		return "Scripts (" + persistence.getScriptCount() + ")";
+    	} catch (Exception e) {
+    		return "Scripts";
+    	}
     }
 
 
@@ -195,7 +202,7 @@ public class Scripts {
      * <code>getScripts().getSize()</code>
      * @return the number of scripts.
      */
-    public int getScriptCount() {
+    public int getScriptCount() throws Exception{
         return persistence.getScriptCount();
     }
 

@@ -129,7 +129,7 @@ public class EAToolWindowCoordinator extends WindowCoordinator {
         },"ScriptEditor");
 
         addFactory( new WindowFactory () {
-            public JInternalFrame createFrame() {
+            public JInternalFrame createFrame() throws Exception {
                 return new ScriptExplorer(app, rep);
             }
         },"ScriptExplorer");
@@ -166,7 +166,7 @@ public class EAToolWindowCoordinator extends WindowCoordinator {
         },"PageExplorer");
         
         addFactory( new WindowFactory () {
-            public JInternalFrame createFrame() {
+            public JInternalFrame createFrame() throws Exception  {
                 return new ImageExplorer(app, rep);
             }
         },"ImageExplorer");

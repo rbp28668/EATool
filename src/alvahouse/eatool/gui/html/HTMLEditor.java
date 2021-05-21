@@ -185,7 +185,7 @@ public class HTMLEditor extends JInternalFrame {
                       public View create(Element elem) {
                           View view = null;
                           if(elem.getName().equals("img")){
-                             view = new LocalImageView(elem,images);
+                       		  view = new LocalImageView(elem,images);
                           } else {
  	                        view = super.create(elem);
                           }

@@ -110,7 +110,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     private final RepositoryProperties properties = new RepositoryProperties();
     private final ExtensibleTypes extensibleTypes = new ExtensibleTypes(persistence.getMetaModelPersistence());
     private final HTMLPages pages = new HTMLPages();
-    private final Images images = new Images();
+    private final Images images = new Images(persistence.getImagePersistence());
     private final EventMap modelEvents = new EventMap();
     private final EventMap metaModelEvents = new EventMap();
     // Events 
