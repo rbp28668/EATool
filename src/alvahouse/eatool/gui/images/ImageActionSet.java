@@ -64,8 +64,6 @@ public class ImageActionSet extends ActionSet {
 			       	SettingsManager.Element cfg = app.getSettings().getOrCreateElement("/Files/Image");
 			       	String path = cfg.attribute("path");
 			        
-			       	boolean loaded = false;
-
 			        JFileChooser chooser = new JFileChooser();
 			        if(path == null){
 			            chooser.setCurrentDirectory( new File("."));
@@ -148,7 +146,7 @@ public class ImageActionSet extends ActionSet {
 			        ImageAttributesDialog editor = new ImageAttributesDialog(explorer, "Edit Image Properties", image);
 			        editor.setVisible(true);
 			        if(editor.wasEdited()){
-			            images.fireImageEdited(image);
+			            images.updateImage(image);
 			        }
 			    }
 			} catch(Throwable t) {

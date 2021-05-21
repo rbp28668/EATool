@@ -11,6 +11,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -19,6 +20,7 @@ import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -50,6 +52,8 @@ import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.StyleSheet;
 
+import alvahouse.eatool.Main;
+import alvahouse.eatool.gui.ExceptionDisplay;
 import alvahouse.eatool.repository.images.Images;
 import alvahouse.eatool.util.UUID;
 
@@ -73,7 +77,7 @@ public class LocalImageView extends View implements ImageObserver, MouseListener
      *
      * @param elem the element to create a view for
      */
-    public LocalImageView(Element elem, Images images) {
+    public LocalImageView(Element elem, Images images)  {
         super(elem);
         this.images = images;
         
@@ -96,7 +100,6 @@ public class LocalImageView extends View implements ImageObserver, MouseListener
             fElement = elem;
             
             // Request image from document's cache:
-            AttributeSet attr = elem.getAttributes();
             if (isURL()) {
                 URL src = getSourceURL();
                 if( src != null ) {
@@ -117,9 +120,26 @@ public class LocalImageView extends View implements ImageObserver, MouseListener
                     Matcher matcher = pattern.matcher(src);
                     if(matcher.find()){
                         String strUUID = matcher.group(1);
-                        alvahouse.eatool.repository.images.Image found = images.lookupImage(new UUID(strUUID));
+                        alvahouse.eatool.repository.images.Image found = null;
+                        try {
+                        	found = images.lookupImage(new UUID(strUUID));
+                        } catch (Exception e) {
+                        	new ExceptionDisplay(Main.getAppFrame(), e);
+                        }
                         if(found != null){
                             fImage = found.getImage();
+                        } else {
+                        	// Getting the image failed so create a dummy placeholder with red border and cross.
+                        	BufferedImage bi = new BufferedImage(20,20, BufferedImage.TYPE_INT_RGB);
+                        	Graphics2D g = bi.createGraphics();
+                        	g.setColor(Color.white);
+                        	g.clearRect(0, 0, bi.getWidth(), bi.getHeight());
+                        	g.setColor(Color.red);
+                        	g.drawRect(0, 0, bi.getWidth(), bi.getHeight());
+                        	g.drawLine(0, 0, bi.getWidth(), bi.getHeight());
+                        	g.drawLine(0, bi.getHeight(), bi.getWidth(), 0);
+                        	g.dispose();
+                        	fImage = bi;
                         }
                     }
                 }
@@ -173,26 +193,26 @@ public class LocalImageView extends View implements ImageObserver, MouseListener
         src.toLowerCase().startsWith("http");
     }    
     
-    /** Added this guy to make sure an image is loaded - ie no broken 
-     images. So far its used only for images loaded off the disk (non-URL). 
-     It seems to work marvelously. By the way, it does the same thing as
-     MediaTracker, but you dont need to know the component its being 
-     rendered on. Rob */
-    private void waitForImage() throws InterruptedException { 
-        int w = fImage.getWidth(this);
-        int h = fImage.getHeight(this);
-        
-        while (true) {
-            int flags = Toolkit.getDefaultToolkit().checkImage(fImage, w, h, this);
-            
-            if ( ((flags & ERROR) != 0) || ((flags & ABORT) != 0 ) )
-                throw new InterruptedException();
-            else if ((flags & (ALLBITS | FRAMEBITS)) != 0) 
-                return;
-            Thread.sleep(10);
-            //System.out.println("rise and shine...");
-        }
-    }
+//    /** Added this guy to make sure an image is loaded - ie no broken 
+//     images. So far its used only for images loaded off the disk (non-URL). 
+//     It seems to work marvelously. By the way, it does the same thing as
+//     MediaTracker, but you dont need to know the component its being 
+//     rendered on. Rob */
+//    private void waitForImage() throws InterruptedException { 
+//        int w = fImage.getWidth(this);
+//        int h = fImage.getHeight(this);
+//        
+//        while (true) {
+//            int flags = Toolkit.getDefaultToolkit().checkImage(fImage, w, h, this);
+//            
+//            if ( ((flags & ERROR) != 0) || ((flags & ABORT) != 0 ) )
+//                throw new InterruptedException();
+//            else if ((flags & (ALLBITS | FRAMEBITS)) != 0) 
+//                return;
+//            Thread.sleep(10);
+//            //System.out.println("rise and shine...");
+//        }
+//    }
     
     
     /**
@@ -302,7 +322,7 @@ public class LocalImageView extends View implements ImageObserver, MouseListener
     }
     
     /** My attributes may have changed. */
-    public void changedUpdate(DocumentEvent e, Shape a, ViewFactory f) {
+    public void changedUpdate(DocumentEvent e, Shape a, ViewFactory f){
         if(DEBUG) System.out.println("ImageView: changedUpdate begin...");
         super.changedUpdate(e,a,f);
         float align = getVerticalAlignment();
@@ -310,7 +330,11 @@ public class LocalImageView extends View implements ImageObserver, MouseListener
         int height = fHeight;
         int width  = fWidth;
         
-        initialize(getElement());
+        try {
+        	initialize(getElement());
+        } catch (Exception x) {
+        	new ExceptionDisplay(Main.getAppFrame(),x);
+        }
         
         boolean hChanged = fHeight!=height;
         boolean wChanged = fWidth!=width;

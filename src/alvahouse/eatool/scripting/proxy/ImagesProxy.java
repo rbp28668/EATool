@@ -27,7 +27,7 @@ public class ImagesProxy {
     }
 
     @Scripted(description="Look up a given image by key.")    
-    public ImageProxy lookupImage(String key){
+    public ImageProxy lookupImage(String key) throws Exception{
         UUID uuidKey = new UUID(key);
         alvahouse.eatool.repository.images.Image image = images.lookupImage(uuidKey);
         if(image == null){

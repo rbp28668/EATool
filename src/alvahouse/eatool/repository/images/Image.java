@@ -16,6 +16,9 @@ import javax.imageio.ImageIO;
 import org.apache.commons.codec.binary.Base64;
 
 import alvahouse.eatool.repository.base.NamedRepositoryItem;
+import alvahouse.eatool.repository.version.Version;
+import alvahouse.eatool.repository.version.VersionImpl;
+import alvahouse.eatool.repository.version.Versionable;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
@@ -25,10 +28,11 @@ import alvahouse.eatool.util.XMLWriter;
  * 
  * @author rbp28668
  */
-public class Image extends NamedRepositoryItem {
+public class Image extends NamedRepositoryItem implements Versionable{
 
     private BufferedImage image;
     private String format = "png";
+    private VersionImpl version = new VersionImpl();
         
     /**
      * Creates an empty Image.  Call importImage or readFrom to 
@@ -110,6 +114,7 @@ public class Image extends NamedRepositoryItem {
         out.startEntity("Image");
         super.writeAttributesXML(out);
         out.addAttribute("format",format);
+        version.writeXML(out);
         out.text(writeDataAsString());
         out.stopEntity();
     }
@@ -120,8 +125,39 @@ public class Image extends NamedRepositoryItem {
     public String toString(){
         return getName() + ": " + image.getWidth() + " by " + image.getHeight(); 
     }
-    
-    /**
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.version.Versionable#getVersion()
+	 */
+	@Override
+	public Version getVersion() {
+		return version;
+	}
+
+	/**
+	 * Copies the data from this object to a copy.
+	 * @param copy
+	 */
+	protected void cloneTo(Image copy) {
+		super.cloneTo(copy);
+		copy.format = format;
+		version.cloneTo(copy.version);
+		copy.image = new BufferedImage(image.getWidth(), image.getHeight(),image.getType());
+		image.copyData(copy.image.getRaster());
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		Image copy = new Image(getKey());
+		cloneTo(copy);
+		return copy;
+	}
+
+	/**
      * Base64InputStream presents a base64 encoded string
      * as an InputStream. 
      * 
@@ -195,5 +231,6 @@ public class Image extends NamedRepositoryItem {
         }
         
     }
+
 
 }
