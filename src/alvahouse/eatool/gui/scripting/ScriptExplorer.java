@@ -45,13 +45,12 @@ public class ScriptExplorer extends JInternalFrame implements Explorer{
     private ScriptTreeModel treeModel;
     private JInternalFrame thisFrame;
     private Application app;
-    private Repository repository;
     private static final String WINDOW_SETTINGS = "/Windows/ScriptExplorer";
 
     /**
      * 
      */
-    public ScriptExplorer(Application app, Repository repository) {
+    public ScriptExplorer(Application app, Repository repository) throws Exception{
         super();
         setTitle("Scripts");
         init(app,repository);
@@ -60,7 +59,7 @@ public class ScriptExplorer extends JInternalFrame implements Explorer{
     /**
      * @param title
      */
-    public ScriptExplorer(String title,Application app, Repository repository) {
+    public ScriptExplorer(String title,Application app, Repository repository) throws Exception {
         super(title);
         init(app,repository);
     }
@@ -68,10 +67,9 @@ public class ScriptExplorer extends JInternalFrame implements Explorer{
     /**
      * 
      */
-    private void init(Application app, Repository repository){
+    private void init(Application app, Repository repository) throws Exception{
 		thisFrame = this;
 		this.app = app;
-		this.repository = repository;
         
         setResizable(true);
         setMaximizable(true);

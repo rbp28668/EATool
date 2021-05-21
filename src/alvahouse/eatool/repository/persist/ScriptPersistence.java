@@ -17,7 +17,7 @@ public interface ScriptPersistence {
 	/**
 	 * Clears down the model.
 	 */
-	public void dispose();
+	public void dispose() throws Exception;
 
 	/**
 	 * Looks up a script by UUID.
@@ -56,13 +56,13 @@ public interface ScriptPersistence {
 	 * 
 	 * @return an iterator for the entities.
 	 */
-	public Collection<Script> getScripts();
+	public Collection<Script> getScripts() throws Exception;
 
 	/**
 	 * DEBUG only
 	 * 
 	 * @return
 	 */
-	public int getScriptCount();
+	public int getScriptCount() throws Exception;
 
 }

@@ -3,6 +3,7 @@
  */
 package alvahouse.eatool.repository.persist.memory;
 
+import alvahouse.eatool.repository.persist.ImagePersistence;
 import alvahouse.eatool.repository.persist.MetaModelPersistence;
 import alvahouse.eatool.repository.persist.ModelPersistence;
 import alvahouse.eatool.repository.persist.RepositoryPersistence;
@@ -18,7 +19,7 @@ public class RepositoryPersistenceMemory implements RepositoryPersistence {
 	ModelPersistence modelPersistence = new ModelPersistenceMemory();
 	MetaModelPersistence metaModelPersistence = new MetaModelPersistenceMemory();
 	ScriptPersistence scriptPersistence = new ScriptPersistenceMemory();
-	
+	ImagePersistence imagePersistence = new ImagePersistenceMemory();
 	/**
 	 * 
 	 */
@@ -47,6 +48,14 @@ public class RepositoryPersistenceMemory implements RepositoryPersistence {
 	@Override
 	public ScriptPersistence getScriptPersistence() {
 		return scriptPersistence;
+	}
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.persist.RepositoryPersistence#getImagePersistence()
+	 */
+	@Override
+	public ImagePersistence getImagePersistence() {
+		return imagePersistence;
 	}
 
 }

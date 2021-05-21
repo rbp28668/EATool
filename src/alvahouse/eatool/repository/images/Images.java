@@ -8,11 +8,9 @@ package alvahouse.eatool.repository.images;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Map;
 
+import alvahouse.eatool.repository.persist.ImagePersistence;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
@@ -25,15 +23,18 @@ import alvahouse.eatool.util.XMLWriter;
  */
 public class Images {
 
-    private LinkedList<Image> images = new LinkedList<Image>();
-    private Map<UUID,Image> imageLookup = new HashMap<UUID,Image>();
+	private ImagePersistence persistence;
+//    private LinkedList<Image> images = new LinkedList<Image>();
+//    private Map<UUID,Image> imageLookup = new HashMap<UUID,Image>();
     private LinkedList<ImagesChangeListener> listeners = new LinkedList<ImagesChangeListener>();
 
     /**
      * Creates a new, empty collection of images. 
+     * @param imagePersistence 
      */
-    public Images() {
+    public Images(ImagePersistence imagePersistence) {
         super();
+        this.persistence = imagePersistence;
     }
 
     /**
@@ -44,19 +45,40 @@ public class Images {
         if(image == null){
             throw new NullPointerException("Can't add null Image");
         }
-        images.add(image);
-        imageLookup.put(image.getKey(),image);
+ 		String user = System.getProperty("user.name");
+		image.getVersion().createBy(user);
+		persistence.addImage(image);
         fireImageAdded(image);
     }
     
+    /**
+     * Internal Add an image to the collection.
+     * @param image is the Image to add.
+     */
+    public void _add(Image image) throws Exception{
+        if(image == null){
+            throw new NullPointerException("Can't add null Image");
+        }
+		persistence.addImage(image);
+    }
+
+    /**
+     * Updates an image in the repository.
+     * @param image is the image to be updated.
+     */
+    public void updateImage(Image image) throws Exception {
+ 		String user = System.getProperty("user.name");
+		image.getVersion().modifyBy(user);
+		persistence.updateImage(image);
+        fireImageChanged(image);
+    }
 
     /**
      * Removes an image from the collection.
      * @param image is the image to remove.
      */
     public void removeImage(Image image) throws Exception{
-        images.remove(image);
-        imageLookup.remove(image.getKey());
+        persistence.deleteImage(image.getKey());
         fireImageRemoved(image);
     }
     
@@ -64,16 +86,15 @@ public class Images {
      * Gets an unmodifiable version of the underlying collection.
      * @return an unmodifiable collection.
      */
-    public Collection<Image> getImages(){
-        return Collections.unmodifiableCollection(images);
+    public Collection<Image> getImages() throws Exception{
+        return persistence.getImages();
     }
     
     /**
      * Removes all images from the collection. 
      */
-    public void reset(){
-        images.clear();
-        imageLookup.clear();
+    public void reset() throws Exception{
+        persistence.dispose();
     }
     
     /**
@@ -121,7 +142,7 @@ public class Images {
      * Signals that an image has been edited.
      * @param image is the image that has been edited.
      */
-    public void fireImageEdited(Image image) throws Exception{
+    private void fireImageChanged(Image image) throws Exception{
         ImageChangeEvent event = new ImageChangeEvent(image);
         for(ImagesChangeListener listener : listeners){
             listener.imageEdited(event);
@@ -143,8 +164,12 @@ public class Images {
     public void writeXML(XMLWriter out) throws IOException {
         out.startEntity("Images");
         
-        for(Image image : images){
-            image.writeXML(out);
+        try {
+	        for(Image image : getImages()){
+	            image.writeXML(out);
+	        }
+        } catch (Exception e) {
+        	throw new IOException("Unable to write images to XML",e);
         }
         out.stopEntity();
     }
@@ -154,8 +179,8 @@ public class Images {
      * @param imageKey is the key to use for image lookup.
      * @return the corresponding image or null if not found.
      */
-    public Image lookupImage(UUID imageKey) {
-        return imageLookup.get(imageKey);
+    public Image lookupImage(UUID imageKey) throws Exception{
+        return persistence.getImage(imageKey);
     }
 
 }

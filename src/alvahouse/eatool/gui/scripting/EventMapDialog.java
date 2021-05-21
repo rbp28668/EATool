@@ -32,7 +32,7 @@ public class EventMapDialog extends BasicDialog {
      * @param parent
      * @param title
      */
-    public EventMapDialog(JDialog parent, String title, EventMap eventMap, Scripts scripts) {
+    public EventMapDialog(JDialog parent, String title, EventMap eventMap, Scripts scripts) throws Exception {
         super(parent, title);
         init(eventMap, scripts);
     }
@@ -41,7 +41,7 @@ public class EventMapDialog extends BasicDialog {
      * @param parent
      * @param title
      */
-    public EventMapDialog(Component parent, String title, EventMap eventMap, Scripts scripts) {
+    public EventMapDialog(Component parent, String title, EventMap eventMap, Scripts scripts) throws Exception {
         super(parent, title);
         init(eventMap, scripts);
     }
@@ -49,7 +49,7 @@ public class EventMapDialog extends BasicDialog {
     /**
      * @param eventMap
      */
-    private void init(EventMap eventMap, Scripts scripts) {
+    private void init(EventMap eventMap, Scripts scripts) throws Exception {
         panel = new EventMapPanel(eventMap,scripts);
         getContentPane().add(panel, BorderLayout.CENTER);
         getContentPane().add(getOKCancelPanel(), BorderLayout.EAST);

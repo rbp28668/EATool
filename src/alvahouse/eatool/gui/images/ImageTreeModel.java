@@ -6,8 +6,6 @@
  */
 package alvahouse.eatool.gui.images;
 
-import java.util.Iterator;
-
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
 
@@ -35,7 +33,7 @@ public class ImageTreeModel extends ExplorerTreeModel implements ImagesChangeLis
     /**
      * @param rootTitle
      */
-    public ImageTreeModel(String rootTitle, Images images) {
+    public ImageTreeModel(String rootTitle, Images images) throws Exception {
         super(rootTitle);
         this.images = images;
         
@@ -61,7 +59,7 @@ public class ImageTreeModel extends ExplorerTreeModel implements ImagesChangeLis
     /**
 	 * Method initModel builds the tree model from the images.
 	 */
-    private void initModel() {
+    private void initModel() throws Exception{
         int idx = 0;
         for(Image image : images.getImages()){
             addImageNode((MutableTreeNode)getRoot(),image,idx++);
@@ -105,7 +103,7 @@ public class ImageTreeModel extends ExplorerTreeModel implements ImagesChangeLis
     /* (non-Javadoc)
      * @see alvahouse.eatool.scripting.ImagesChangeListener#updated(alvahouse.eatool.scripting.ImageChangeEvent)
      */
-    public void updated(ImageChangeEvent e) {
+    public void updated(ImageChangeEvent e) throws Exception {
         root.removeAllChildren();
         initModel();
     }

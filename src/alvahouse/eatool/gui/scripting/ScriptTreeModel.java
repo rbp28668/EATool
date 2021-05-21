@@ -30,7 +30,7 @@ public class ScriptTreeModel extends ExplorerTreeModel implements ScriptsChangeL
     /**
      * @param rootTitle
      */
-    public ScriptTreeModel(String rootTitle, Scripts scripts) {
+    public ScriptTreeModel(String rootTitle, Scripts scripts) throws Exception {
         super(rootTitle);
         this.scripts = scripts;
         
@@ -53,7 +53,7 @@ public class ScriptTreeModel extends ExplorerTreeModel implements ScriptsChangeL
     /**
 	 * Method initModel builds the tree model from the mappings.
 	 */
-    private void initModel() {
+    private void initModel() throws Exception{
         int idx = 0;
         for (Script script : scripts.getScripts()) {
             addScriptNode((MutableTreeNode)getRoot(),script,idx++);
@@ -94,7 +94,7 @@ public class ScriptTreeModel extends ExplorerTreeModel implements ScriptsChangeL
     /* (non-Javadoc)
      * @see alvahouse.eatool.scripting.ScriptsChangeListener#updated(alvahouse.eatool.scripting.ScriptChangeEvent)
      */
-    public void updated(ScriptChangeEvent e) {
+    public void updated(ScriptChangeEvent e) throws Exception{
         root.removeAllChildren();
         initModel();
     }
