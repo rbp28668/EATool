@@ -6,10 +6,13 @@
  */
 package alvahouse.eatool.repository;
 
+import java.util.Properties;
+
 import org.xml.sax.Attributes;
 
 import alvahouse.eatool.repository.base.FactoryBase;
 import alvahouse.eatool.repository.exception.InputException;
+import alvahouse.eatool.repository.version.VersionImpl;
 import alvahouse.eatool.util.IXMLContentHandler;
 
 /**
@@ -20,6 +23,7 @@ import alvahouse.eatool.util.IXMLContentHandler;
 public class RepositoryPropertiesFactory extends FactoryBase implements IXMLContentHandler{
 
     private RepositoryProperties properties;
+    private Properties currentProps;
     private String name = null;
     private String value = null;
     private StringBuffer chars = new StringBuffer(64);
@@ -46,10 +50,14 @@ public class RepositoryPropertiesFactory extends FactoryBase implements IXMLCont
             if(name != null){
                 throw new InputException("Nested Name in Property");
             }
-        } if(local.equals("Value")) {
+        } else if(local.equals("Value")) {
             if(value != null) {
                 throw new InputException("Nested Value in Property");
             }
+        } else if(local.equals("Version")) {
+        	VersionImpl.readXML(attrs, properties);
+        } else if(local.equals("RepositoryProperties")) {
+        	currentProps = new Properties();
         }
         
     }
@@ -65,7 +73,7 @@ public class RepositoryPropertiesFactory extends FactoryBase implements IXMLCont
             if(value == null){
                 throw new InputException("Missing value in property XML");
             }
-            properties.setProperty(name,value);
+            currentProps.setProperty(name,value);
             name = null;
             value = null;
             counter.count("Repository Property");
@@ -75,10 +83,13 @@ public class RepositoryPropertiesFactory extends FactoryBase implements IXMLCont
             }
             name = chars.toString();
             chars.delete(0,chars.length());
-        } if(local.equals("Value")) {
+        } else if(local.equals("Value")) {
             // Empty string is ok for value.
             value = chars.toString();
             chars.delete(0,chars.length());
+        } else if (local.equals("RepositoryProperties")) {
+        	properties._set(currentProps);
+        	currentProps = null;
         }
     }
 

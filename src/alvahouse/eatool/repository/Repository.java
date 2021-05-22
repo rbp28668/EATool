@@ -144,7 +144,13 @@ public interface Repository extends KeyedItem {
      * Get the repository properties.
      * @return the properties.
      */
-    public abstract RepositoryProperties getProperties();
+    public abstract RepositoryProperties getProperties() throws Exception;
+
+	/**
+	 * Updates the repository properties.
+	 * @param properties
+	 */
+	public abstract void updateProperties(RepositoryProperties properties) throws Exception;
 
     /**
      * Gets the types associated with this repository.
@@ -224,5 +230,6 @@ public interface Repository extends KeyedItem {
 
     public abstract Set<Entity> searchForEntitiesOfType(String query,
             Set<MetaEntity> contents) throws RepositoryException;
+
 
 }
