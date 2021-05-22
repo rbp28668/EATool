@@ -15,6 +15,7 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.xml.transform.stream.StreamResult;
 
@@ -78,22 +79,24 @@ public class WebExport {
         
         MetaModel meta = repository.getMetaModel();
         Model model = repository.getModel();
-        
-        // Always start with a clean folder.
-        File outputFolder = new File(path);
-        if(outputFolder.exists()){
-            outputFolder.delete();
-        }
-        outputFolder.mkdirs();
-        
-        // Try and get page titles from repository properties.
-        title = "Repository Export";
-        String t2 = repository.getProperties().getProperty(RepositoryProperties.NAME);
-        if(t2 != null && t2.length() > 0){
-            title = t2;
-        }
-        
+
         try {
+
+	        // Always start with a clean folder.
+	        File outputFolder = new File(path);
+	        if(outputFolder.exists()){
+	            outputFolder.delete();
+	        }
+	        outputFolder.mkdirs();
+	        
+	        // Try and get page titles from repository properties.
+	        title = "Repository Export";
+	        Properties props = repository.getProperties().get(); 
+	        String t2 = props.getProperty(RepositoryProperties.NAME);
+	        if(t2 != null && t2.length() > 0){
+	            title = t2;
+	        }
+        
             
             writeIndex(repository, outputFolder);
             writeMetaEntities(meta, model, outputFolder);

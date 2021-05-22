@@ -7,6 +7,7 @@ import alvahouse.eatool.repository.persist.ImagePersistence;
 import alvahouse.eatool.repository.persist.MetaModelPersistence;
 import alvahouse.eatool.repository.persist.ModelPersistence;
 import alvahouse.eatool.repository.persist.RepositoryPersistence;
+import alvahouse.eatool.repository.persist.RepositoryPropertiesPersistence;
 import alvahouse.eatool.repository.persist.ScriptPersistence;
 
 /**
@@ -16,6 +17,7 @@ import alvahouse.eatool.repository.persist.ScriptPersistence;
  */
 public class RepositoryPersistenceMemory implements RepositoryPersistence {
 
+	RepositoryPropertiesPersistence repositoryPropertiesPersistence = new RepositoryPropertiesPersistenceMemory();
 	ModelPersistence modelPersistence = new ModelPersistenceMemory();
 	MetaModelPersistence metaModelPersistence = new MetaModelPersistenceMemory();
 	ScriptPersistence scriptPersistence = new ScriptPersistenceMemory();
@@ -24,6 +26,14 @@ public class RepositoryPersistenceMemory implements RepositoryPersistence {
 	 * 
 	 */
 	public RepositoryPersistenceMemory() {
+	}
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.persist.RepositoryPersistence#getRepositoryPropertiesPersistence()
+	 */
+	@Override
+	public RepositoryPropertiesPersistence getRepositoryPropertiesPersistence() {
+		return repositoryPropertiesPersistence;
 	}
 
 	/* (non-Javadoc)
