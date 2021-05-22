@@ -107,7 +107,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     private final ExportMappings exportMappings = new ExportMappings();
     private final Scripts scripts = new Scripts(persistence.getScriptPersistence());
     private final EventMap events = new EventMap();
-    private final RepositoryProperties properties = new RepositoryProperties();
+//    private final RepositoryProperties properties = new RepositoryProperties();
     private final ExtensibleTypes extensibleTypes = new ExtensibleTypes(persistence.getMetaModelPersistence());
     private final HTMLPages pages = new HTMLPages();
     private final Images images = new Images(persistence.getImagePersistence());
@@ -189,7 +189,8 @@ public class RepositoryImpl implements TypeEventListener, Repository{
 		loader.registerContent(NAMESPACE,"RepositorySizes",countHandler);
 		loader.registerContent(OLD_NAMESPACE,"RepositorySizes",countHandler);
 
-		RepositoryPropertiesFactory propsf = new RepositoryPropertiesFactory(counter,getProperties());
+		RepositoryProperties props = new RepositoryProperties();
+		RepositoryPropertiesFactory propsf = new RepositoryPropertiesFactory(counter,props);
 		loader.registerContent(NAMESPACE,"RepositoryProperties",propsf);
 		loader.registerContent(OLD_NAMESPACE,"RepositoryProperties",propsf);
 
@@ -280,6 +281,12 @@ public class RepositoryImpl implements TypeEventListener, Repository{
         }
         
         try {
+        	persistence.getRepositoryPropertiesPersistence().set(props);
+        } catch (Exception e) {
+        	throw new InputException("Unable to save properties into model when loading XML",e);
+        }
+        
+        try {
             search.indexModel(null,model);
         } catch (IOException e) {
             throw new InputException("Unable to index model: " + e.getMessage(),e);
@@ -333,6 +340,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
 	            writer.startEntity("Repository");
 	            writer.addAttribute("uuid", key.toString());
 	            
+	            RepositoryProperties properties = persistence.getRepositoryPropertiesPersistence().get();
 	            properties.writeXML(writer);
 	            
 	            CountHandler counts = new CountHandler(this);
@@ -551,10 +559,17 @@ public class RepositoryImpl implements TypeEventListener, Repository{
  	/* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#getProperties()
      */
- 	public RepositoryProperties getProperties(){
- 	    return properties;
+ 	public RepositoryProperties getProperties() throws Exception{
+ 	    return persistence.getRepositoryPropertiesPersistence().get();
  	}
  	
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.Repository#updateProperties(alvahouse.eatool.repository.RepositoryProperties)
+	 */
+	public void updateProperties(RepositoryProperties properties) throws Exception {
+		persistence.getRepositoryPropertiesPersistence().set(properties);
+	}
+
  	/* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#getTypes()
      */

@@ -13,6 +13,10 @@ package alvahouse.eatool.repository.persist;
  */
 public interface RepositoryPersistence {
 
+	/**
+	 * @return
+	 */
+	RepositoryPropertiesPersistence getRepositoryPropertiesPersistence();
 
 	/**
 	 * @return

@@ -450,6 +450,10 @@ public class CommandActionSet extends ActionSet {
                 RepositoryProperties properties = repository.getProperties();
                 RepositoryPropertiesDialog dlg = new RepositoryPropertiesDialog(frame,"Edit Repository Properties", properties);
                 dlg.setVisible(true);
+                if(dlg.wasEdited()) {
+                	repository.updateProperties(properties);
+                }
+                
             } catch(Throwable t) {
                 new ExceptionDisplay(frame,t);
             }
