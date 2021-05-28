@@ -18,6 +18,7 @@ import alvahouse.eatool.repository.model.ModelChangeAdapter;
 import alvahouse.eatool.repository.model.ModelChangeEvent;
 import alvahouse.eatool.repository.model.ModelChangeListener;
 import alvahouse.eatool.repository.model.Relationship;
+import alvahouse.eatool.repository.scripting.Scripts;
 import alvahouse.eatool.util.UUID;
 /**
  * GraphicalModel povides a basic graphical display of a model including all the
@@ -31,8 +32,8 @@ public class GraphicalModel extends StandardDiagram {
     private final Repository repository;
     
     /** Creates new GraphicalModel */
-    public GraphicalModel(Repository rep, Model m, StandardDiagramType diagramType, UUID key)  throws Exception{
-    	super(diagramType,key);
+    public GraphicalModel(Repository rep, Model m, StandardDiagramType diagramType, UUID key, Scripts scripts)  throws Exception{
+    	super(diagramType,key, scripts);
         model = m;
         repository = rep;
         
@@ -65,7 +66,7 @@ public class GraphicalModel extends StandardDiagram {
 	 * @see alvahouse.eatool.repository.graphical.Diagram#scriptsUpdated()
 	 */
 	@Override
-	public void scriptsUpdated() {
+	public void scriptsUpdated() throws Exception {
 		getEventMap().cloneTo(repository.getModelViewerEvents()); // as now changed
 	}
     

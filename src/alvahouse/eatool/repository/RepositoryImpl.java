@@ -106,13 +106,13 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     private final ImportMappings importMappings = new ImportMappings();
     private final ExportMappings exportMappings = new ExportMappings();
     private final Scripts scripts = new Scripts(persistence.getScriptPersistence());
-    private final EventMap events = new EventMap();
-//    private final RepositoryProperties properties = new RepositoryProperties();
+    //private final EventMap events = new EventMap(scripts);
+    //private final RepositoryProperties properties = new RepositoryProperties();
     private final ExtensibleTypes extensibleTypes = new ExtensibleTypes(persistence.getMetaModelPersistence());
     private final HTMLPages pages = new HTMLPages();
     private final Images images = new Images(persistence.getImagePersistence());
-    private final EventMap modelEvents = new EventMap();
-    private final EventMap metaModelEvents = new EventMap();
+    //private final EventMap modelEvents = new EventMap(scripts);
+    //private final EventMap metaModelEvents = new EventMap(scripts);
     // Events 
     private final String POST_LOAD_EVENT = "PostLoadEvent";
     private final String PRE_SAVE_EVENT = "PreSaveEvent";
@@ -149,14 +149,24 @@ public class RepositoryImpl implements TypeEventListener, Repository{
         // the master types list.
         extensibleTypes.addListener(this);
         
-        // Event maps need to be initialised with the allowable events
-        // even if no handlers defined.
-        events.addEvent(POST_LOAD_EVENT);
-        events.addEvent(PRE_SAVE_EVENT);
-        
-        ModelDiagramType.defineEventMap(modelEvents);
-        MetaModelDiagramType.defineEventMap(metaModelEvents);
-        
+        try {
+	        // Event maps need to be initialised with the allowable events
+	        // even if no handlers defined.
+	        EventMap events = new EventMap(scripts);
+	        ensureEvents(events);
+	        persistence.getRepositoryEventMapPersistence().set(events);
+
+	        EventMap modelEvents = new EventMap(scripts);
+	        ModelDiagramType.defineEventMap(modelEvents);
+	        persistence.getModelViewerEventMapPersistence().set(modelEvents);
+	        
+	        EventMap metaModelEvents = new EventMap(scripts);
+	        MetaModelDiagramType.defineEventMap(metaModelEvents);
+	        persistence.getMetaModelViewerEventMapPersistence().set(metaModelEvents);
+	        
+        } catch (Exception e) {
+        	throw new RepositoryException("Unable to define event maps", e);
+        }
         // Set up search engine
         search = new SearchEngine();
         model.addChangeListener(search);
@@ -172,13 +182,21 @@ public class RepositoryImpl implements TypeEventListener, Repository{
         }
 
     }
+
+	/**
+	 * @param events
+	 */
+	private void ensureEvents(EventMap events) {
+		events.ensureEvent(POST_LOAD_EVENT);
+		events.ensureEvent(PRE_SAVE_EVENT);
+	}
     
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#loadXML(java.lang.String, alvahouse.eatool.repository.LoadProgress)
      */
+    @Override
     public void loadXML(String uri, LoadProgress counter) throws InputException {
         
-        events.deleteHandlers();
         
         XMLLoader loader = new XMLLoader();
         loader.setNameSpaces(true);
@@ -194,6 +212,8 @@ public class RepositoryImpl implements TypeEventListener, Repository{
 		loader.registerContent(NAMESPACE,"RepositoryProperties",propsf);
 		loader.registerContent(OLD_NAMESPACE,"RepositoryProperties",propsf);
 
+		EventMap events = new EventMap(null); // basic empty map to load into
+		ensureEvents(events);
         EventMapFactory eventsmf = new EventMapFactory(counter,events,scripts);
 		loader.registerContent(NAMESPACE,"EventMap",eventsmf);
 		loader.registerContent(OLD_NAMESPACE,"EventMap",eventsmf);
@@ -223,15 +243,15 @@ public class RepositoryImpl implements TypeEventListener, Repository{
         loader.registerContent(NAMESPACE,"DisplayHint",dhf);
         loader.registerContent(OLD_NAMESPACE,"DisplayHint",dhf);
         
-        DiagramTypeFactory dtf = new DiagramTypeFactory(counter,diagramTypes, metaModel, eventsmf);
+        DiagramTypeFactory dtf = new DiagramTypeFactory(counter,diagramTypes, metaModel, eventsmf, scripts);
         loader.registerContent(NAMESPACE,"DiagramType",dtf);
         loader.registerContent(OLD_NAMESPACE,"DiagramType",dtf);
 
-		DiagramFactory metadf = new DiagramFactory(counter,diagrams,diagramTypes, metaModel, model, images, eventsmf);
+		DiagramFactory metadf = new DiagramFactory(counter,diagrams,diagramTypes, metaModel, model, images, eventsmf, scripts);
 		loader.registerContent(NAMESPACE,"MetaDiagrams",metadf);
 		loader.registerContent(OLD_NAMESPACE,"MetaDiagrams",metadf);
         
-		DiagramFactory df = new DiagramFactory(counter,diagrams,diagramTypes, metaModel, model, images,  eventsmf);
+		DiagramFactory df = new DiagramFactory(counter,diagrams,diagramTypes, metaModel, model, images,  eventsmf, scripts);
 		loader.registerContent(NAMESPACE,"Diagrams",df);
 		loader.registerContent(OLD_NAMESPACE,"Diagrams",df);
 
@@ -253,9 +273,13 @@ public class RepositoryImpl implements TypeEventListener, Repository{
 		loader.registerContent(NAMESPACE,"Images",
 				new ImageFactory(counter, images));
 
+		EventMap metaModelEvents = new EventMap(null);
+        MetaModelDiagramType.defineEventMap(metaModelEvents);
 		loader.registerContent(NAMESPACE,"MetaModelEventMap", 
 				new EventMapFactory(counter,metaModelEvents,scripts));
 
+		EventMap modelEvents = new EventMap(null);
+        ModelDiagramType.defineEventMap(modelEvents);
 		loader.registerContent(NAMESPACE,"ModelEventMap",
 				new EventMapFactory(counter,modelEvents,scripts));
 
@@ -287,51 +311,36 @@ public class RepositoryImpl implements TypeEventListener, Repository{
         }
         
         try {
+        	persistence.getRepositoryEventMapPersistence().set(events);
+        	persistence.getMetaModelViewerEventMapPersistence().set(metaModelEvents);
+        	persistence.getModelViewerEventMapPersistence().set(modelEvents);
+        } catch (Exception e) {
+        	throw new InputException("Unable to save events when loading XML",e);
+        }
+        
+        try {
             search.indexModel(null,model);
         } catch (IOException e) {
             throw new InputException("Unable to index model: " + e.getMessage(),e);
         }
 
         try {
-            events.fireEvent(POST_LOAD_EVENT);
-        } catch (BSFException ex) {
+            getEventMap().fireEvent(POST_LOAD_EVENT);
+        } catch (Exception ex) {
             throw new InputException("Problem running post-load event script: " + ex.getMessage());
         }
         
         //System.out.println("**Loaded XML");
     }
     
-
-    /**
-	 * @return the events
-	 */
-	public EventMap getEvents() {
-		return events;
-	}
-
-	/* (non-Javadoc)
-	 * @see alvahouse.eatool.repository.Repository#getMetaModelViewerEvents()
-	 */
-	@Override
-	public EventMap getMetaModelViewerEvents() {
-		return metaModelEvents;
-	}
-
-	/* (non-Javadoc)
-	 * @see alvahouse.eatool.repository.Repository#getModelViewerEvents()
-	 */
-	@Override
-	public EventMap getModelViewerEvents() {
-		return modelEvents;
-	}
-
 	/* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#saveXML(java.lang.String)
      */
+    @Override
     public void saveXML(String uri) throws OutputException {
         try {
 
-            events.fireEvent(PRE_SAVE_EVENT);
+            getEventMap().fireEvent(PRE_SAVE_EVENT);
             
             XMLWriter writer = new XMLWriterSAX(new FileOutputStream(uri));
             try{
@@ -347,7 +356,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
 	            counts.writeXML(writer);
 	            
 	            scripts.writeXML(writer);
-	            events.writeXML(writer);
+	            getEventMap().writeXML(writer);
 	            extensibleTypes.writeXML(writer);
 	            metaModel.writeXML(writer);
 	            model.writeXML(writer);
@@ -358,8 +367,8 @@ public class RepositoryImpl implements TypeEventListener, Repository{
 	            importMappings.writeXML(writer);
 	            exportMappings.writeXML(writer);
 	            pages.writeXML(writer);
-	    		metaModelEvents.writeXML(writer, "MetaModelEventMap"); 
-	    		modelEvents.writeXML(writer, "ModelEventMap");
+	    		getMetaModelViewerEvents().writeXML(writer, "MetaModelEventMap"); 
+	    		getModelViewerEvents().writeXML(writer, "ModelEventMap");
 
 	            writer.stopEntity();
 	            writer.stopXML();
@@ -375,6 +384,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#ImportXML(java.lang.String, alvahouse.eatool.repository.mapping.ImportMapping)
      */
+    @Override
     public void ImportXML(String uri, ImportMapping mapping)
         throws InputException {
             
@@ -427,6 +437,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#ExportXML(java.lang.String, alvahouse.eatool.repository.mapping.ExportMapping)
      */
+    @Override
     public void ExportXML(String uri, ExportMapping mapping)
     throws InputException {
         try {
@@ -474,7 +485,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
           }
           
           if(mapping.hasComponent(EVENTS)){
-              events.writeXML(writer);
+              getEventMap().writeXML(writer);
           }
 
           if(mapping.hasComponent(PAGES)){
@@ -497,6 +508,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#getModel()
      */
+    @Override
     public Model getModel() {
         return model;
     }
@@ -504,6 +516,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#getMetaModel()
      */
+    @Override
     public MetaModel getMetaModel() {
         return metaModel;
     }
@@ -511,12 +524,14 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#getMetaModelDiagrams()
      */
+    @Override
     public Diagrams getMetaModelDiagrams(){
         return metaModelDiagrams;
     }
  	/* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#getDiagrams()
      */
+    @Override
  	public Diagrams getDiagrams() {
  		return diagrams;
  	}
@@ -524,6 +539,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
  	/* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#getDiagramTypes()
      */
+ 	@Override
  	public DiagramTypes getDiagramTypes() {
  		return diagramTypes;
  	}
@@ -531,6 +547,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
  	/* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#getImportMappings()
      */
+ 	@Override
  	public ImportMappings getImportMappings() {
  	    return importMappings;
  	}
@@ -538,6 +555,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
  	/* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#getExportMappings()
      */
+ 	@Override
  	public ExportMappings getExportMappings() {
  	    return exportMappings;
  	}
@@ -545,6 +563,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
  	/* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#getScripts()
      */
+ 	@Override
  	public Scripts getScripts(){
  	    return scripts;
  	}
@@ -552,13 +571,55 @@ public class RepositoryImpl implements TypeEventListener, Repository{
  	/* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#getEventMap()
      */
- 	public EventMap getEventMap(){
- 	    return events;
+ 	@Override
+ 	public EventMap getEventMap() throws Exception{
+ 	    return persistence.getRepositoryEventMapPersistence().get(getScripts());
  	}
- 	
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.Repository#setEventMap(alvahouse.eatool.repository.scripting.EventMap)
+	 */
+	@Override
+	public void setEventMap(EventMap events) throws Exception {
+		persistence.getRepositoryEventMapPersistence().set(events);
+	}
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.Repository#getMetaModelViewerEvents()
+	 */
+	@Override
+	public EventMap getMetaModelViewerEvents() throws Exception{
+		return persistence.getMetaModelViewerEventMapPersistence().get(getScripts());
+	}
+	
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.Repository#setMetaModelViewerEvents(alvahouse.eatool.repository.scripting.EventMap)
+	 */
+	@Override
+	public void setMetaModelViewerEvents(EventMap metaModelViewerEvents) throws Exception {
+		persistence.getMetaModelViewerEventMapPersistence().set(metaModelViewerEvents);
+	}
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.Repository#getModelViewerEvents()
+	 */
+	@Override
+	public EventMap getModelViewerEvents() throws Exception{
+		return persistence.getModelViewerEventMapPersistence().get(getScripts());
+	}
+
  	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.Repository#setModelViewerEvents(alvahouse.eatool.repository.scripting.EventMap)
+	 */
+	@Override
+	public void setModelViewerEvents(EventMap modelViewerEvents) throws Exception {
+		persistence.getModelViewerEventMapPersistence().set(modelViewerEvents);
+	}
+
+	/* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#getProperties()
      */
+    @Override
  	public RepositoryProperties getProperties() throws Exception{
  	    return persistence.getRepositoryPropertiesPersistence().get();
  	}
@@ -566,6 +627,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
 	/* (non-Javadoc)
 	 * @see alvahouse.eatool.repository.Repository#updateProperties(alvahouse.eatool.repository.RepositoryProperties)
 	 */
+    @Override
 	public void updateProperties(RepositoryProperties properties) throws Exception {
 		persistence.getRepositoryPropertiesPersistence().set(properties);
 	}
@@ -573,6 +635,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
  	/* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#getTypes()
      */
+    @Override
  	public MetaPropertyTypes getTypes() throws Exception {
  	    return new MetaPropertyTypes(extensibleTypes);
  	}
@@ -580,6 +643,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#getExtensibleTypes()
      */
+    @Override
     public ExtensibleTypes getExtensibleTypes() {
         return extensibleTypes;
     }
@@ -587,6 +651,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#getPages()
      */
+    @Override
     public HTMLPages getPages(){
         return pages;
     }
@@ -595,6 +660,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#getImages()
      */
+    @Override
     public Images getImages() {
         return images;
     }
@@ -602,6 +668,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#getDeleteDependencies(alvahouse.eatool.repository.model.Entity)
      */
+    @Override
     public DeleteDependenciesList getDeleteDependencies(Entity e)  throws Exception{
         DeleteDependenciesList dependencies = new DeleteDependenciesList();
         getModel().getDeleteDependencies(dependencies,e);
@@ -611,6 +678,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#getDeleteDependencies(alvahouse.eatool.repository.model.Relationship)
      */
+    @Override
     public DeleteDependenciesList getDeleteDependencies(Relationship r)  throws Exception{
         DeleteDependenciesList dependencies = new DeleteDependenciesList();
         getModel().getDeleteDependencies(dependencies,r);
@@ -620,6 +688,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#getDeleteDependencies(alvahouse.eatool.repository.metamodel.MetaEntity)
      */
+    @Override
     public DeleteDependenciesList getDeleteDependencies(MetaEntity me)  throws Exception{
         DeleteDependenciesList dependencies = new DeleteDependenciesList();
         getMetaModel().getDeleteDependencies(dependencies,me);
@@ -635,6 +704,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#getDeleteDependencies(alvahouse.eatool.repository.metamodel.MetaRelationship)
      */
+    @Override
     public DeleteDependenciesList getDeleteDependencies(MetaRelationship mr) throws Exception {
         DeleteDependenciesList dependencies = new DeleteDependenciesList();
         getMetaModel().getDeleteDependencies(dependencies,mr);
@@ -650,6 +720,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#deleteContents()
      */
+    @Override
     public void deleteContents() throws Exception{
     	getDiagrams().deleteContents();
     	getDiagramTypes().deleteContents();
@@ -667,6 +738,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#typeAdded(alvahouse.eatool.repository.metamodel.types.TypeEvent)
      */
+    @Override
     public void typeAdded(TypeEvent event) {
     	// NOP
     }
@@ -674,6 +746,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#typeChanged(alvahouse.eatool.repository.metamodel.types.TypeEvent)
      */
+    @Override
     public void typeChanged(TypeEvent event) throws Exception{
         MetaPropertyType changedType = event.getType();
         List<MetaProperty> changed = new LinkedList<MetaProperty>();
@@ -710,6 +783,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#typeDeleted(alvahouse.eatool.repository.metamodel.types.TypeEvent)
      */
+    @Override
     public void typeDeleted(TypeEvent event) throws Exception{
         MetaPropertyType deletedType = event.getType();
         for(MetaEntity me : metaModel.getMetaEntities()){
@@ -810,6 +884,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#index(alvahouse.eatool.repository.LoadProgress)
      */
+    @Override
     public void index(LoadProgress progress) throws IOException {
         search.indexModel(progress, model);
         
@@ -818,6 +893,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#searchForEntities(java.lang.String)
      */
+    @Override
     public Set<Entity> searchForEntities(String query) throws RepositoryException{
         try {
             return search.searchForEntities(query);
@@ -829,6 +905,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#searchForEntitiesOfType(java.lang.String, java.util.Set)
      */
+    @Override
     public Set<Entity> searchForEntitiesOfType(String query, Set<MetaEntity> contents) throws RepositoryException{
         try {
             return search.searchForEntitiesOfType(query, contents);

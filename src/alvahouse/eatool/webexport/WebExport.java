@@ -35,6 +35,7 @@ import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.model.Entity;
 import alvahouse.eatool.repository.model.Model;
+import alvahouse.eatool.repository.scripting.EventMap;
 import alvahouse.eatool.repository.scripting.ScriptContext;
 import alvahouse.eatool.repository.scripting.ScriptManager;
 import alvahouse.eatool.scripting.proxy.ScriptWrapper;
@@ -349,16 +350,17 @@ public class WebExport {
      * @param repository
      * @param outputFolder
      */
-    private void writePages(Repository repository, File outputFolder) throws IOException {
+    private void writePages(Repository repository, File outputFolder) throws Exception {
     	File pageDir = new File(outputFolder,"pages");
     	pageDir.mkdirs();
 
     	for(HTMLPage page : repository.getPages().getPages()){
     		PageExportProxy proxy = new PageExportProxy(page);
     		String file =  page.getKey().toString() + ".html";
-
-    		ScriptContext context = page.getEventMap().getContextFor(HTMLPage.ON_DISPLAY_EVENT);
-    		if(context != null) {
+    		
+    		EventMap eventMap = page.getEventMap();
+    		if(eventMap.hasHandler(HTMLPage.ON_DISPLAY_EVENT)) {
+    			ScriptContext context = page.getEventMap().getContextFor(HTMLPage.ON_DISPLAY_EVENT);
     			try {
     				proxy.setDestination(pageDir, file);
     				Object wrapped = ScriptWrapper.wrap(page);

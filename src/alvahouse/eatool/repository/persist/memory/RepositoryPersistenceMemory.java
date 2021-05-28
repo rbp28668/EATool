@@ -3,6 +3,7 @@
  */
 package alvahouse.eatool.repository.persist.memory;
 
+import alvahouse.eatool.repository.persist.EventMapPersistence;
 import alvahouse.eatool.repository.persist.ImagePersistence;
 import alvahouse.eatool.repository.persist.MetaModelPersistence;
 import alvahouse.eatool.repository.persist.ModelPersistence;
@@ -18,6 +19,10 @@ import alvahouse.eatool.repository.persist.ScriptPersistence;
 public class RepositoryPersistenceMemory implements RepositoryPersistence {
 
 	RepositoryPropertiesPersistence repositoryPropertiesPersistence = new RepositoryPropertiesPersistenceMemory();
+	EventMapPersistence eventMapPersistence = new EventMapPersistenceMemory();
+	EventMapPersistence eventMapModelPersistence = new EventMapPersistenceMemory();
+	EventMapPersistence eventMapMetaModelPersistence = new EventMapPersistenceMemory();
+	
 	ModelPersistence modelPersistence = new ModelPersistenceMemory();
 	MetaModelPersistence metaModelPersistence = new MetaModelPersistenceMemory();
 	ScriptPersistence scriptPersistence = new ScriptPersistenceMemory();
@@ -66,6 +71,30 @@ public class RepositoryPersistenceMemory implements RepositoryPersistence {
 	@Override
 	public ImagePersistence getImagePersistence() {
 		return imagePersistence;
+	}
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.persist.RepositoryPersistence#getRepositoryEventMapPersistence()
+	 */
+	@Override
+	public EventMapPersistence getRepositoryEventMapPersistence() {
+		return eventMapPersistence;
+	}
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.persist.RepositoryPersistence#getModelViewerEventMapPersistence()
+	 */
+	@Override
+	public EventMapPersistence getModelViewerEventMapPersistence() {
+		return eventMapModelPersistence;
+	}
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.persist.RepositoryPersistence#getMetaModelViewerEventMapPersistence()
+	 */
+	@Override
+	public EventMapPersistence getMetaModelViewerEventMapPersistence() {
+		return eventMapMetaModelPersistence;
 	}
 
 }

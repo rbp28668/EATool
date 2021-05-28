@@ -56,7 +56,7 @@ public class HTMLPageFactory extends NamedRepositoryItemFactory implements IXMLC
                 throw new IllegalStateException("Nested Page elements in input");
             }
             UUID uuid = getUUID(attrs);
-            currentPage = new HTMLPage(uuid);
+            currentPage = new HTMLPage(uuid, scripts);
             getCommonFields(currentPage,attrs);
             text.delete(0, text.length());
             

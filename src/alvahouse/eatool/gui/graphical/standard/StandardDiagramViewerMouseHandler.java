@@ -30,6 +30,7 @@ import alvahouse.eatool.repository.graphical.standard.StandardDiagram;
 import alvahouse.eatool.repository.graphical.standard.Symbol;
 import alvahouse.eatool.repository.graphical.standard.TextBox;
 import alvahouse.eatool.repository.graphical.standard.TextObjectSettings;
+import alvahouse.eatool.repository.scripting.EventMap;
 import alvahouse.eatool.repository.scripting.ScriptContext;
 import alvahouse.eatool.repository.scripting.ScriptManager;
 import alvahouse.eatool.scripting.proxy.ScriptWrapper;
@@ -323,8 +324,9 @@ final class StandardDiagramViewerMouseHandler extends MouseInputAdapter {
 						    Object target = ScriptWrapper.wrapObject(item);
 						    Object diagram = ScriptWrapper.wrap(viewPane.getDiagram());
 						    
-						    ScriptContext context = viewPane.getDiagram().getEventMap().getContextFor(event);
-						    if(context != null){
+						    EventMap eventMap = viewPane.getDiagram().getEventMap();
+						    if(eventMap.hasHandler(event)) {
+						    	ScriptContext context = eventMap.getContextFor(event);
 							    context.addObject("target",target,target.getClass());
 							    context.addObject("diagram", diagram, diagram.getClass());
 
@@ -332,7 +334,6 @@ final class StandardDiagramViewerMouseHandler extends MouseInputAdapter {
 							    context.setErrorHandler(errHandler);
 							    
 							    ScriptManager.getInstance().runScript(context);
-							    
 						    }
 						}
 					} else if (e.isAltDown()) {

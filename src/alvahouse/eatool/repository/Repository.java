@@ -124,22 +124,45 @@ public interface Repository extends KeyedItem {
      * Gets the repository event map.
      * @return the event map.
      */
-    public abstract EventMap getEventMap();
+    public abstract EventMap getEventMap() throws Exception;
+
+    /**
+     * Updates the repository event map.
+     * @param events is the new event map.
+     */
+    public abstract void setEventMap(EventMap events) throws Exception;
 
     /**
      * Gets the event map that should be used for any meta-model viewer.
      * Allows event handlers to be created in the dynamic meta-model viewer.
      * @return
      */
-    public abstract EventMap getMetaModelViewerEvents();
+    public abstract EventMap getMetaModelViewerEvents() throws Exception;
+
+    /**
+     * Sets the events for the meta model viewer.  As the diagram type for meta model viewer isn't
+     * persisted, the repository manages the events on its behalf.
+     * @param metaModelViewerEvents are the events to use in the meta model. Typically this will
+     * contain the reference to a script to display the meta model in a pleasing and eye catching fashion!
+     * @throws Exception
+     */
+    public abstract void setMetaModelViewerEvents(EventMap metaModelViewerEvents) throws Exception;
 
     /**
      * Gets the event map that should be used for any model viewer.
      * Allows event handlers to be created in the dynamic model viewer.
      * @return
      */
-    public abstract EventMap getModelViewerEvents();
-    
+    public abstract EventMap getModelViewerEvents() throws Exception;
+
+    /**
+     * Sets the events for the model viewer. As the diagram type for the model viewer isn't persisted,
+     * the repository manages the events on its behalf.
+     * @param modelViewerEvents is the value to set.
+     * @throws Exception
+     */
+    public abstract void setModelViewerEvents(EventMap modelViewerEvents) throws Exception;
+
     /**
      * Get the repository properties.
      * @return the properties.

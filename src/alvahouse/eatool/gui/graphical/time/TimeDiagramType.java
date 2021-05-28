@@ -25,6 +25,7 @@ import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaProperty;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.repository.metamodel.types.TimeSeriesType;
+import alvahouse.eatool.repository.scripting.Scripts;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
@@ -46,19 +47,23 @@ public class TimeDiagramType extends DiagramType {
      */
     private Map<MetaProperty,TypeEntry> typeLookup = new HashMap<MetaProperty,TypeEntry>();
     
+    private Scripts scripts;
+    
     /**
      * Default constructor for instantiation using Class.newInstance().
      */
-    public TimeDiagramType(){
-        super(new UUID());
+    public TimeDiagramType(Scripts scripts){
+        super(new UUID(), scripts);
+        this.scripts = scripts;
     }
     
     /**
      * Create a TimeDiagramType from a persisted state where the UUID is known.
      * @param uuid
      */
-    public TimeDiagramType(UUID uuid) {
-        super(uuid);
+    public TimeDiagramType(UUID uuid, Scripts scripts) {
+        super(uuid, scripts);
+        this.scripts = scripts;
     }
 
     /**
@@ -111,7 +116,7 @@ public class TimeDiagramType extends DiagramType {
      * @see alvahouse.eatool.gui.graphical.DiagramType#newDiagram(alvahouse.eatool.util.UUID)
      */
     public Diagram newDiagram(UUID key) {
-        TimeDiagram diagram = new TimeDiagram(this,key);
+        TimeDiagram diagram = new TimeDiagram(this,key, scripts);
         return diagram;
     }
 

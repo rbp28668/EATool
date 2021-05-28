@@ -61,8 +61,8 @@ public class RepositoryProxy {
      */
     @Scripted(description="Gets the diagram containing the complete model.")
     public StandardDiagramProxy getModelDiagram() throws Exception{
-        StandardDiagramType diagramType = new ModelDiagramType(repository.getMetaModel());
-        GraphicalModel gm = new GraphicalModel(repository, repository.getModel(),diagramType,new UUID());
+        StandardDiagramType diagramType = new ModelDiagramType(repository.getMetaModel(), repository.getScripts());
+        GraphicalModel gm = new GraphicalModel(repository, repository.getModel(),diagramType,new UUID(), repository.getScripts());
 		repository.getModelViewerEvents().cloneTo(gm.getEventMap());
         return new StandardDiagramProxy(gm);
     }

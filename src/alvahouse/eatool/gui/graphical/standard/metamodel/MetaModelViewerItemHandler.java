@@ -93,7 +93,7 @@ public class MetaModelViewerItemHandler implements ItemHandler {
 		    int inRow = 0;
 		    int startX = x;
 		    int idx = 0;
-		    MetaModelDiagramType type = MetaModelDiagramType.getInstance();
+		    MetaModelDiagramType type = MetaModelDiagramType.getInstance(repository.getScripts());
 		    
 		    for(MetaEntity metaEntity : selected){
 				
@@ -192,7 +192,7 @@ public class MetaModelViewerItemHandler implements ItemHandler {
 			selected = mr;
 		} 
 
-		ConnectorType ct = MetaModelDiagramType.getInstance().getConnectorType();
+		ConnectorType ct = MetaModelDiagramType.getInstance(repository.getScripts()).getConnectorType();
 		Connector con = ct.newConnector(new UUID());
 		con.setItem(selected);
 		return con;
@@ -229,7 +229,7 @@ public class MetaModelViewerItemHandler implements ItemHandler {
         Symbol symbol = null;
         if(edited){
 			// Need to get the correct symbol type for this entity.
-		    MetaModelDiagramType type = MetaModelDiagramType.getInstance();
+		    MetaModelDiagramType type = MetaModelDiagramType.getInstance(repository.getScripts());
 			SymbolType st = type.getSymbolType();
 			symbol = st.newSymbol(metaEntity, x, y);
 			
