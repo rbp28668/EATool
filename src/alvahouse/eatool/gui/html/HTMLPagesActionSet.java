@@ -60,7 +60,7 @@ public class HTMLPagesActionSet extends ActionSet {
 
         public void actionPerformed(ActionEvent e) {
 			try {
-			    HTMLPage page = new HTMLPage(new UUID());
+			    HTMLPage page = new HTMLPage(new UUID(), repository.getScripts());
 		        HTMLPagePropertiesEditor propertiesDialog = new HTMLPagePropertiesEditor(explorer,page);
 		        propertiesDialog.setVisible(true);
 		        if(propertiesDialog.wasEdited()) {

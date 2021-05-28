@@ -61,7 +61,7 @@ public class TimeDiagramViewer extends DiagramViewer {
 	private static final String WINDOW_SETTINGS = "Windows/TimeDiagramViewer";
 
 
-    public TimeDiagramViewer(TimeDiagram diagram, Application app, Repository repository) {
+    public TimeDiagramViewer(TimeDiagram diagram, Application app, Repository repository) throws Exception {
 		super(getViewerTitle(diagram), diagram);
 
 		this.diagram = (TimeDiagram)diagram;
@@ -196,7 +196,7 @@ public class TimeDiagramViewer extends DiagramViewer {
     public void dispose() {
  		try {
             diagram.getEventMap().fireEvent(Diagram.ON_CLOSE_EVENT);
-        } catch (BSFException e) {
+        } catch (Exception e) {
             new ExceptionDisplay(app.getCommandFrame(),e);
         }
 
@@ -351,7 +351,7 @@ public class TimeDiagramViewer extends DiagramViewer {
 		/* (non-Javadoc)
 		 * @see alvahouse.eatool.gui.WindowCoordinator.WindowFactory#createFrame()
 		 */
-		public JInternalFrame createFrame() {
+		public JInternalFrame createFrame() throws Exception {
 		    if(diagram == null || repository == null){
 		        throw new IllegalStateException("Model viewer not intitialised");  
 		    }

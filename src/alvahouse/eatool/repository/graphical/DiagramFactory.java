@@ -20,6 +20,7 @@ import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.model.Model;
 import alvahouse.eatool.repository.scripting.EventMap;
 import alvahouse.eatool.repository.scripting.EventMapFactory;
+import alvahouse.eatool.repository.scripting.Scripts;
 import alvahouse.eatool.util.IXMLContentHandler;
 import alvahouse.eatool.util.UUID;
 
@@ -38,8 +39,8 @@ public class DiagramFactory extends FactoryBase implements IXMLContentHandler {
     private Images images;
     private EventMapFactory eventMapFactory;
     private EventMap savedEventMap;
-    
-    private Map detailFactories = new HashMap(); // DiagramDetailFactory keyed by DiagramType
+    private Scripts scripts;
+    private Map<DiagramType, DiagramDetailFactory> detailFactories = new HashMap<>(); // DiagramDetailFactory keyed by DiagramType
     
     private Diagram currentDiagram = null;
     private DiagramDetailFactory currentHandler = null;
@@ -53,7 +54,7 @@ public class DiagramFactory extends FactoryBase implements IXMLContentHandler {
 	 * @param diagramTypes provides the types of any diagram.
 	 * @param metaModel is the meta-model that the digrams belong to.
 	 */
-	public DiagramFactory(ProgressCounter counter, Diagrams diagrams, DiagramTypes diagramTypes, MetaModel metaModel, Model model, Images images, EventMapFactory eventMapFactory) {
+	public DiagramFactory(ProgressCounter counter, Diagrams diagrams, DiagramTypes diagramTypes, MetaModel metaModel, Model model, Images images, EventMapFactory eventMapFactory, Scripts scripts) {
 		super();
 		this.diagrams = diagrams;
 		this.diagramTypes = diagramTypes;
@@ -61,6 +62,7 @@ public class DiagramFactory extends FactoryBase implements IXMLContentHandler {
 		this.model = model;
 		this.images = images;
 		this.eventMapFactory = eventMapFactory;
+		this.scripts = scripts;
 		this.counter = counter;
 	}
 
@@ -84,7 +86,7 @@ public class DiagramFactory extends FactoryBase implements IXMLContentHandler {
 			
 			DiagramType type = diagramTypes.get(typeID);
 			if(type == null){
-			    type = MetaModelDiagramType.getInstance();
+			    type = MetaModelDiagramType.getInstance(scripts);
 			}
 			
 			currentDiagram = type.newDiagram(uuid);

@@ -35,7 +35,7 @@ public class ModelViewer extends StandardDiagramViewer{
 
     /** Creates new ModelViewer 
      * @throws BSFException*/
-    public ModelViewer(StandardDiagram diagram, Application app, Repository repository)  {
+    public ModelViewer(StandardDiagram diagram, Application app, Repository repository) throws Exception {
         super(  diagram, 
                 new ModelViewerItemHandler((StandardDiagramType)diagram.getType(), app, repository),
                 app, repository);
@@ -99,7 +99,7 @@ public class ModelViewer extends StandardDiagramViewer{
 		/* (non-Javadoc)
 		 * @see alvahouse.eatool.gui.WindowCoordinator.WindowFactory#createFrame()
 		 */
-		public JInternalFrame createFrame() {
+		public JInternalFrame createFrame() throws Exception {
 		    if(diagram == null || repository == null){
 		        throw new IllegalStateException("Model viewer not intitialised");  
 		    }

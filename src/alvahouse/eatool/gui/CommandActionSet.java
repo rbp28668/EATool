@@ -600,7 +600,8 @@ public class CommandActionSet extends ActionSet {
     public void showMetaModelDiagrams(){
         try {
 			DiagramExplorer dex = (DiagramExplorer) app.getWindowCoordinator().getFrame("MetaDiagramExplorer");
-			dex.setRepository(MetaModelDiagramTypes.getInstance(),repository.getMetaModelDiagrams());
+			dex.setRepository(MetaModelDiagramTypes.getInstance(repository.getScripts()),
+					repository.getMetaModelDiagrams());
 			dex.refresh();
 			dex.show();
         } catch(Throwable t) {
@@ -870,6 +871,9 @@ public class CommandActionSet extends ActionSet {
                 Scripts scripts = repository.getScripts();
                 EventMapDialog editor = new EventMapDialog(frame, "Edit Event Map", eventMap, scripts);
                 editor.setVisible(true);
+                if(editor.wasEdited()) {
+                	repository.setEventMap(eventMap);
+                }
             } catch(Throwable t) {
                 new ExceptionDisplay(frame,t);
             }

@@ -9,6 +9,7 @@ import alvahouse.eatool.repository.graphical.standard.StandardDiagramTypeFamily;
 import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.scripting.EventMap;
 import alvahouse.eatool.repository.scripting.EventMapFactory;
+import alvahouse.eatool.repository.scripting.Scripts;
 import alvahouse.eatool.util.IXMLContentHandler;
 import alvahouse.eatool.util.UUID;
 
@@ -24,6 +25,7 @@ public class DiagramTypeFactory extends FactoryBase implements IXMLContentHandle
 	private MetaModel metaModel;
 	private DiagramTypes types;
 	private EventMapFactory eventMapFactory;
+	private Scripts scripts;
 	private EventMap savedEventMap = null;
 	private DiagramType currentDiagramType = null;
 	private DiagramTypeFamily currentFamily = null;
@@ -35,11 +37,12 @@ public class DiagramTypeFactory extends FactoryBase implements IXMLContentHandle
 	 * Constructor for DiagramTypeFactory.
 	 * @param counter
 	 */
-	public DiagramTypeFactory(ProgressCounter counter, DiagramTypes diagramTypes, MetaModel mm, EventMapFactory eventMapFactory) {
+	public DiagramTypeFactory(ProgressCounter counter, DiagramTypes diagramTypes, MetaModel mm, EventMapFactory eventMapFactory, Scripts scripts) {
 		super();
 		types = diagramTypes;
         metaModel = mm; 
         this.eventMapFactory = eventMapFactory;
+        this.scripts = scripts;
         this.counter = counter;
 	}
 
@@ -68,13 +71,10 @@ public class DiagramTypeFactory extends FactoryBase implements IXMLContentHandle
                 }
                 
                 currentFamily = types.lookupFamily(familyKey);
-                currentDiagramType = currentFamily.newDiagramType();
-            } catch (InstantiationException e) {
-                throw new InputException("Unable to create diagram type: " + e.getMessage());
-            } catch (IllegalAccessException e) {
-                throw new InputException("Unable to access diagram type: " + e.getMessage());
+                currentDiagramType = currentFamily.newDiagramType(scripts);
+            } catch (Exception e) {
+                throw new InputException("Unable to create diagram type: " + e.getMessage(), e);
             }
-			
             String attr = attrs.getValue("name");
             if(attr != null) currentDiagramType.setName(attr);
  			

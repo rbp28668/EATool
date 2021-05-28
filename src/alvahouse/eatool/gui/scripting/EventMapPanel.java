@@ -10,7 +10,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.util.Map;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.JComboBox;
@@ -96,15 +95,15 @@ public class EventMapPanel extends JPanel implements ItemListener {
         private  String[] events;
         private Script[] handlers; 
 
-        EventMapTableModel(){
+        EventMapTableModel() throws Exception{
             int count = eventMap.getEventCount();
             events = new String[count];
             handlers = new Script[count];
             
             int idx = 0;
-            for(Map.Entry<String, Script> entry : eventMap.getMap().entrySet()){
-                events[idx] = entry.getKey();
-                handlers[idx] = entry.getValue();
+            for(String event : eventMap.getEvents()){
+                events[idx] = event;
+                handlers[idx] = eventMap.hasHandler(event) ? null : eventMap.get(event);
                 ++idx;
             }
         }

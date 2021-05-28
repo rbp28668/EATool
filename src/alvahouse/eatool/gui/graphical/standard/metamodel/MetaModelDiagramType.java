@@ -17,6 +17,7 @@ import alvahouse.eatool.repository.graphical.symbols.RectangularSymbol;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.repository.scripting.EventMap;
+import alvahouse.eatool.repository.scripting.Scripts;
 import alvahouse.eatool.util.UUID;
 
 /**
@@ -28,14 +29,14 @@ public class MetaModelDiagramType extends StandardDiagramType {
 
     private SymbolType symbolType;
     private ConnectorType connectorType;
-
     private static MetaModelDiagramType instance = null;
+    
     
     /**
      * 
      */
-    private MetaModelDiagramType() {
-        super();
+    private MetaModelDiagramType(Scripts scripts) {
+        super(scripts);
         init();
     }
 
@@ -43,8 +44,8 @@ public class MetaModelDiagramType extends StandardDiagramType {
      * @param name
      * @param uuid
      */
-    private MetaModelDiagramType(String name, UUID uuid) {
-        super(name, uuid);
+    private MetaModelDiagramType(String name, UUID uuid, Scripts scripts) {
+        super(name, uuid, scripts);
         init();
     }
 
@@ -52,9 +53,9 @@ public class MetaModelDiagramType extends StandardDiagramType {
      * Singleton accessor.
      * @return the singleton instance of MetaModelDiagramType.
      */
-    public static MetaModelDiagramType getInstance(){
+    public static MetaModelDiagramType getInstance(Scripts scripts){
         if(instance == null){
-            instance = new MetaModelDiagramType("Meta-Model Diagrams", new UUID());
+            instance = new MetaModelDiagramType("Meta-Model Diagrams", new UUID(),scripts);
         }
         return instance;
     }
@@ -71,10 +72,10 @@ public class MetaModelDiagramType extends StandardDiagramType {
 
     public static void defineEventMap(EventMap eventMap) {
     	eventMap.clear();
-	    eventMap.addEvent(StandardDiagram.ON_DISPLAY_EVENT);
-	    eventMap.addEvent(StandardDiagram.ON_CLOSE_EVENT);
-	    eventMap.addEvent("MetaEntity");
-	    eventMap.addEvent("MetaRelationship");
+	    eventMap.ensureEvent(StandardDiagram.ON_DISPLAY_EVENT);
+	    eventMap.ensureEvent(StandardDiagram.ON_CLOSE_EVENT);
+	    eventMap.ensureEvent("MetaEntity");
+	    eventMap.ensureEvent("MetaRelationship");
     }
     
     /**

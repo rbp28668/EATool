@@ -12,6 +12,7 @@ import org.apache.commons.codec.binary.Base64;
 
 import alvahouse.eatool.repository.base.NamedRepositoryItem;
 import alvahouse.eatool.repository.scripting.EventMap;
+import alvahouse.eatool.repository.scripting.Scripts;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
@@ -32,11 +33,11 @@ public class HTMLPage extends NamedRepositoryItem {
     /**
      * @param uuid
      */
-    public HTMLPage(UUID uuid) {
+    public HTMLPage(UUID uuid, Scripts scripts) {
         super(uuid);
-        eventMap = new EventMap();
-        eventMap.addEvent(ON_DISPLAY_EVENT);
-        eventMap.addEvent(ON_CLOSE_EVENT);
+        eventMap = new EventMap(scripts);
+        eventMap.ensureEvent(ON_DISPLAY_EVENT);
+        eventMap.ensureEvent(ON_CLOSE_EVENT);
     }
     
 
