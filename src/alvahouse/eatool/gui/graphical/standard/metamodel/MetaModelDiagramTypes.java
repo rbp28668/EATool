@@ -8,6 +8,7 @@ package alvahouse.eatool.gui.graphical.standard.metamodel;
 
 import alvahouse.eatool.repository.graphical.DiagramTypeFamily;
 import alvahouse.eatool.repository.graphical.DiagramTypes;
+import alvahouse.eatool.repository.scripting.Scripts;
 import alvahouse.eatool.util.UUID;
 
 /**
@@ -25,9 +26,9 @@ public class MetaModelDiagramTypes extends DiagramTypes {
     /**
      * private constructor that sets up the single MetaModelDiagramType.
      */
-    private MetaModelDiagramTypes() throws Exception{
+    private MetaModelDiagramTypes(Scripts scripts) throws Exception{
         super();
-        MetaModelDiagramFamily family = new MetaModelDiagramFamily(this);
+        MetaModelDiagramFamily family = new MetaModelDiagramFamily(this, scripts);
         addDiagramFamily(family);
     }
     
@@ -35,9 +36,9 @@ public class MetaModelDiagramTypes extends DiagramTypes {
      * Singleton accessor.
      * @return singleton instance of MetaModelDiagramTypes.
      */
-    public static MetaModelDiagramTypes getInstance() throws Exception {
+    public static MetaModelDiagramTypes getInstance(Scripts scripts) throws Exception {
         if(instance == null){
-            instance = new MetaModelDiagramTypes();
+            instance = new MetaModelDiagramTypes(scripts);
         }
         return instance;
     }
@@ -53,10 +54,10 @@ public class MetaModelDiagramTypes extends DiagramTypes {
         /**
          * @param types is the parent DiagramTypes.
          */
-        public MetaModelDiagramFamily(DiagramTypes types) throws Exception{
+        public MetaModelDiagramFamily(DiagramTypes types, Scripts scripts) throws Exception{
             super(MetaModelDiagramType.class,FAMILY_KEY);
             setParent(types);
-            this.add(MetaModelDiagramType.getInstance());
+            this.add(MetaModelDiagramType.getInstance(scripts));
             setName("Meta-Model Diagram Types");
         }
     }

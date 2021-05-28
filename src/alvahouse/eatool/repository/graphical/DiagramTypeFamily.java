@@ -6,11 +6,14 @@
  */
 package alvahouse.eatool.repository.graphical;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import alvahouse.eatool.repository.scripting.Scripts;
 import alvahouse.eatool.util.UUID;
 
 /**
@@ -68,9 +71,14 @@ public abstract class DiagramTypeFamily {
      * @return a new DiagramType.
      * @throws InstantiationException
      * @throws IllegalAccessException
+     * @throws SecurityException 
+     * @throws NoSuchMethodException 
+     * @throws InvocationTargetException 
+     * @throws IllegalArgumentException 
      */
-    public DiagramType newDiagramType() throws InstantiationException, IllegalAccessException{
-        DiagramType created = createdClass.newInstance();
+    public DiagramType newDiagramType(Scripts scripts) throws InstantiationException, IllegalAccessException, NoSuchMethodException, SecurityException, IllegalArgumentException, InvocationTargetException{
+    	Constructor<? extends DiagramType> cons = createdClass.getConstructor(Scripts.class);
+        DiagramType created = cons.newInstance(scripts); //createdClass.newInstance();
         created.setFamily(this);
         return created;
     }

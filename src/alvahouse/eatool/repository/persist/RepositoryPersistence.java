@@ -17,6 +17,10 @@ public interface RepositoryPersistence {
 	 * @return
 	 */
 	RepositoryPropertiesPersistence getRepositoryPropertiesPersistence();
+	
+	EventMapPersistence getRepositoryEventMapPersistence();
+	EventMapPersistence getModelViewerEventMapPersistence();
+	EventMapPersistence getMetaModelViewerEventMapPersistence();
 
 	/**
 	 * @return

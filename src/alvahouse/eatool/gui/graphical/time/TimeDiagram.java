@@ -34,6 +34,7 @@ import alvahouse.eatool.repository.graphical.GraphicalProxy;
 import alvahouse.eatool.repository.metamodel.MetaProperty;
 import alvahouse.eatool.repository.model.Entity;
 import alvahouse.eatool.repository.model.Property;
+import alvahouse.eatool.repository.scripting.Scripts;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
@@ -199,8 +200,8 @@ public class TimeDiagram extends Diagram {
     /**
      * @param uuid
      */
-    public TimeDiagram(DiagramType type, UUID key) {
-        super(type,key);
+    public TimeDiagram(DiagramType type, UUID key, Scripts scripts) {
+        super(type,key, scripts);
         this.type = (TimeDiagramType)type;
 		font = new Font("SansSerif", Font.PLAIN,10);
     }

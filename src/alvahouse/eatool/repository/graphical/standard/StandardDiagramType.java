@@ -14,6 +14,7 @@ import alvahouse.eatool.repository.graphical.DiagramType;
 import alvahouse.eatool.repository.graphical.DiagramTypeDetailFactory;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
+import alvahouse.eatool.repository.scripting.Scripts;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
@@ -32,14 +33,15 @@ public class StandardDiagramType extends DiagramType {
 	private Map<MetaRelationship,ConnectorType> connectorLookup = new HashMap<MetaRelationship,ConnectorType>(); // by meta type
 	private Map<UUID,SymbolType> symbolLookupByUUID = new HashMap<UUID,SymbolType>();
 	private Map<UUID,ConnectorType> connectorLookupByUUID = new HashMap<UUID,ConnectorType>();
-	
+	private Scripts scripts;
 	
 	
 	/**
 	 * Constructs a new StandardDiagramType.
 	 */
-	public StandardDiagramType() {
-		super(new UUID());
+	public StandardDiagramType(Scripts scripts) {
+		super(new UUID(), scripts);
+		this.scripts = scripts;
 	}
 
 	/**
@@ -47,8 +49,9 @@ public class StandardDiagramType extends DiagramType {
 	 * @param name is the name of the diagram type.
 	 * @param uuid is the unique ID of the diagram type.
 	 */
-	public StandardDiagramType(String name, UUID uuid) {
-		super(name,uuid);
+	public StandardDiagramType(String name, UUID uuid, Scripts scripts) {
+		super(name,uuid, scripts);
+		this.scripts = scripts;
 	}
 
 	
@@ -199,7 +202,7 @@ public class StandardDiagramType extends DiagramType {
 	 * @return a new diagram.
 	 */
 	public Diagram newDiagram(UUID key) {
-		StandardDiagram diagram = new StandardDiagram(this, key);
+		StandardDiagram diagram = new StandardDiagram(this, key, scripts);
 		return diagram;
 	}
 	

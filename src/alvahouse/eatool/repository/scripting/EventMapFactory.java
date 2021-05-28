@@ -11,6 +11,7 @@ import org.xml.sax.Attributes;
 import alvahouse.eatool.repository.ProgressCounter;
 import alvahouse.eatool.repository.base.FactoryBase;
 import alvahouse.eatool.repository.exception.InputException;
+import alvahouse.eatool.repository.version.VersionImpl;
 import alvahouse.eatool.util.IXMLContentHandler;
 import alvahouse.eatool.util.UUID;
 
@@ -62,6 +63,8 @@ public class EventMapFactory extends FactoryBase implements IXMLContentHandler{
             events.setHandler(name,handler);
             counter.count("Event");
             
+        } else if(local.equals("Version")) {
+        	VersionImpl.readXML(attrs, events);
         }
     }
 
@@ -93,4 +96,6 @@ public class EventMapFactory extends FactoryBase implements IXMLContentHandler{
     public void setEventMap(EventMap eventMap){
         events = eventMap;
     }
+    
+    
 }

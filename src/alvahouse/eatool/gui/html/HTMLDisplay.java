@@ -28,6 +28,7 @@ import alvahouse.eatool.gui.URLResolver;
 import alvahouse.eatool.gui.graphical.EventErrorHandler;
 import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.html.HTMLPage;
+import alvahouse.eatool.repository.scripting.EventMap;
 import alvahouse.eatool.repository.scripting.ScriptContext;
 import alvahouse.eatool.repository.scripting.ScriptManager;
 import alvahouse.eatool.scripting.proxy.ScriptWrapper;
@@ -106,16 +107,17 @@ public class HTMLDisplay extends JInternalFrame {
      * @throws IOException
      * @throws BSFException
      */
-    public void showPage(HTMLPage page) throws IOException, BSFException{
+    public void showPage(HTMLPage page) throws Exception{
     	this.page = page;
     	fireDisplayEvent(page);
         display.setText(page.getHtml());
         setVisible(true);
     }
     
-    private void  fireDisplayEvent(HTMLPage page) throws BSFException {
-		ScriptContext context = page.getEventMap().getContextFor(HTMLPage.ON_DISPLAY_EVENT);
-		if(context != null) {
+    private void  fireDisplayEvent(HTMLPage page) throws Exception {
+    	EventMap eventMap = page.getEventMap();
+    	if(eventMap.hasHandler(HTMLPage.ON_DISPLAY_EVENT)) {
+    		ScriptContext context = page.getEventMap().getContextFor(HTMLPage.ON_DISPLAY_EVENT);
 			Object proxy = ScriptWrapper.wrap(page);
 		    context.addObject("page", proxy, proxy.getClass());
 		    

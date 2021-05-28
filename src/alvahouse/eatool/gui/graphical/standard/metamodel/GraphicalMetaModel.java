@@ -32,7 +32,7 @@ public class GraphicalMetaModel extends StandardDiagram {
 
     /** Creates new GraphicalMetaModel */
     public GraphicalMetaModel(Repository rep, MetaModel mm, StandardDiagramType diagramType, UUID key) throws Exception {
-    	super(diagramType, key);
+    	super(diagramType, key, rep.getScripts());
         repository = rep;
         metaModel = mm;
         setDynamic(true);
@@ -60,7 +60,7 @@ public class GraphicalMetaModel extends StandardDiagram {
 	 * @see alvahouse.eatool.repository.graphical.Diagram#scriptsUpdated()
 	 */
 	@Override
-	public void scriptsUpdated() {
+	public void scriptsUpdated() throws Exception {
 		getEventMap().cloneTo(repository.getMetaModelViewerEvents());
 	}
 
