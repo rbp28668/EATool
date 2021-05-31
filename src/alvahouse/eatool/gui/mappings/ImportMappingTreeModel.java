@@ -6,12 +6,11 @@
  */
 package alvahouse.eatool.gui.mappings;
 
-import java.util.Iterator;
-
-import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
 
+import alvahouse.eatool.Main;
+import alvahouse.eatool.gui.ExceptionDisplay;
 import alvahouse.eatool.gui.ExplorerTreeModel;
 import alvahouse.eatool.repository.mapping.EntityTranslation;
 import alvahouse.eatool.repository.mapping.ImportMapping;
@@ -31,8 +30,9 @@ import alvahouse.eatool.repository.mapping.RoleTranslation;
 public class ImportMappingTreeModel extends ExplorerTreeModel 
 implements ImportMappingChangeListener{
 
+	private static final long serialVersionUID = 1L;
 	private MutableTreeNode root = null;
-	private JTree tree = null;
+	//private JTree tree = null;
 	private ImportMappings mappings;
 	private final static int ENTITY_MAPPINGS = 0;
 	private final static int RELATIONSHIP_MAPPINGS = 1;
@@ -40,7 +40,7 @@ implements ImportMappingChangeListener{
     /**
      * @param rootTitle
      */
-    public ImportMappingTreeModel(String rootTitle,ImportMappings mappings) {
+    public ImportMappingTreeModel(String rootTitle,ImportMappings mappings) throws Exception {
         super(rootTitle);
         this.mappings = mappings;
         root = (MutableTreeNode)getRoot();
@@ -55,17 +55,17 @@ implements ImportMappingChangeListener{
         }
     }
     
-    public void setMappings(ImportMappings mappings){
+    public void setMappings(ImportMappings mappings) throws Exception {
         this.mappings = mappings;
         initModel();
     }
+    
 	/**
 	 * Method initModel builds the tree model from the mappings.
 	 */
-    private void initModel() {
+    private void initModel() throws Exception{
         int idx = 0;
-        for(Iterator iter = mappings.getImportMappings().iterator();iter.hasNext();){
-            ImportMapping mapping = (ImportMapping)iter.next();
+        for(ImportMapping mapping : mappings.getImportMappings()){
             addImportMappingNode((MutableTreeNode)getRoot(),mapping,idx++);
         }
     }
@@ -107,8 +107,7 @@ implements ImportMappingChangeListener{
      */
     private void setRelationshipMappings(DefaultMutableTreeNode tnRelationships, ImportMapping mapping) {
         int idx = 0;
-        for(Iterator iter = mapping.getRelationshipTranslations().iterator(); iter.hasNext();){
-            RelationshipTranslation rt = (RelationshipTranslation)iter.next();
+        for(RelationshipTranslation rt : mapping.getRelationshipTranslations()){
             setRelationship(tnRelationships, rt, idx++);
         }
     }
@@ -150,8 +149,7 @@ implements ImportMappingChangeListener{
         registerNode(tnRole,rt);
 
         int idx = 0;
-        for(Iterator iter = rt.getPropertyTranslations().iterator(); iter.hasNext();){
-            PropertyTranslation pt = (PropertyTranslation)iter.next();
+        for(PropertyTranslation pt : rt.getPropertyTranslations()){
             setProperty(tnRole, pt, idx++);
         }
         return idxRole;
@@ -163,8 +161,7 @@ implements ImportMappingChangeListener{
      */
     private void setEntityMappings(DefaultMutableTreeNode tnEntities, ImportMapping mapping) {
         int idx = 0;
-        for(Iterator iter = mapping.getEntityTranslations().iterator(); iter.hasNext();){
-            EntityTranslation et = (EntityTranslation)iter.next();
+        for(EntityTranslation et : mapping.getEntityTranslations()){
             setEntity(tnEntities,et,idx++);
         }
     }
@@ -183,8 +180,7 @@ implements ImportMappingChangeListener{
         registerNode(tnEntity,et);
 
         int idx = 0;
-        for(Iterator iter = et.getPropertyTranslations().iterator(); iter.hasNext();){
-            PropertyTranslation pt = (PropertyTranslation)iter.next();
+        for(PropertyTranslation pt : et.getPropertyTranslations()){
             setProperty(tnEntity, pt, idx++);
         }
         return idxEntity;
@@ -211,9 +207,13 @@ implements ImportMappingChangeListener{
         while(root.getChildCount() > 0){
             root.remove(0);
         }
-        removeAll();
-        reload();
-        initModel();
+        try {
+	        removeAll();
+	        reload();
+	        initModel();
+        } catch (Exception x) {
+        	new ExceptionDisplay(Main.getAppFrame(),x);
+        }
     }
 
     /* (non-Javadoc)
@@ -257,8 +257,7 @@ implements ImportMappingChangeListener{
         DefaultMutableTreeNode entities = (DefaultMutableTreeNode)tn.getChildAt(ENTITY_MAPPINGS);
 
         // Add any entity translations not already registered - i.e. the new one!
-        for(Iterator iter = mapping.getEntityTranslations().iterator(); iter.hasNext();){
-            EntityTranslation et = (EntityTranslation)iter.next();
+        for(EntityTranslation et : mapping.getEntityTranslations()){
             if(lookupNodeOf(et) == null){
                 setEntity(entities,et,entities.getChildCount());
             }
@@ -295,8 +294,7 @@ implements ImportMappingChangeListener{
         PropertyTranslationCollection mapping = (PropertyTranslationCollection)e.getSource();
         DefaultMutableTreeNode tnEntity = lookupNodeOf(mapping);
         // Add any entity translations not already registered - i.e. the new one!
-        for(Iterator iter = mapping.getPropertyTranslations().iterator(); iter.hasNext();){
-            PropertyTranslation pt = (PropertyTranslation)iter.next();
+        for(PropertyTranslation pt : mapping.getPropertyTranslations()){
             if(lookupNodeOf(pt) == null){
                 setProperty(tnEntity, pt, tnEntity.getChildCount());
             }
@@ -335,8 +333,7 @@ implements ImportMappingChangeListener{
         DefaultMutableTreeNode relationships = (DefaultMutableTreeNode)tn.getChildAt(RELATIONSHIP_MAPPINGS);
 
         // Add any entity translations not already registered - i.e. the new one!
-        for(Iterator iter = mapping.getRelationshipTranslations().iterator(); iter.hasNext();){
-            RelationshipTranslation rt = (RelationshipTranslation)iter.next();
+        for(RelationshipTranslation rt : mapping.getRelationshipTranslations()){
             if(lookupNodeOf(rt) == null){
                 setRelationship(relationships,rt,relationships.getChildCount());
             }

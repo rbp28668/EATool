@@ -42,4 +42,14 @@ public interface RepositoryPersistence {
 	 */
 	ImagePersistence getImagePersistence();
 
+	/**
+	 * @return
+	 */
+	ImportMappingPersistence getImportMappingPersistence();
+	
+	/**
+	 * @return
+	 */
+	ExportMappingPersistence getExportMappingPersistence();
+	
 }

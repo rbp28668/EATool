@@ -14,6 +14,7 @@ import java.util.Map;
 import org.xml.sax.Attributes;
 
 import alvahouse.eatool.repository.exception.InputException;
+import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.model.Entity;
 import alvahouse.eatool.repository.model.Model;
 import alvahouse.eatool.repository.model.Property;
@@ -27,7 +28,9 @@ import alvahouse.eatool.util.UUID;
  */
 public class EntityImportFactory implements IXMLContentHandler  {
 
-    private Model model = null;
+    private Model model;
+    
+    private MetaModel metaModel;
 
     // current state of input... 
     private EntityTranslation currentEntityTranslation = null;
@@ -48,8 +51,9 @@ public class EntityImportFactory implements IXMLContentHandler  {
      * @param mapping is the ImportMapping to use.
      * @param m is the model to import into.
      */
-    public EntityImportFactory(ImportMapping mapping, Model m) {
+    public EntityImportFactory(ImportMapping mapping, Model m, MetaModel meta) {
         model = m;
+        metaModel = meta;
 
         for(EntityTranslation et : mapping.getEntityTranslations()){
             translations.put(et.getTypeName(), et);
@@ -79,7 +83,7 @@ public class EntityImportFactory implements IXMLContentHandler  {
             if(currentEntityTranslation == null)
                 throw new InputException("Entity type " + type + " not recognised importing XML");
             try {
-            	currentEntity = new Entity(new UUID(), currentEntityTranslation.getMeta()); // default position is to assume it's a new entity
+            	currentEntity = new Entity(new UUID(), currentEntityTranslation.getMeta(metaModel)); // default position is to assume it's a new entity
             } catch (Exception e) {
         		throw new InputException("Unable to create Entity during import",e);
         	}
@@ -112,7 +116,7 @@ public class EntityImportFactory implements IXMLContentHandler  {
         }
     }
 
-    public void endElement(String uri, String local) {
+    public void endElement(String uri, String local) throws InputException {
         if(local.equals("Entity")) {
             
             // the imported entity is in currentEntity.  Using the fields marked as keys
@@ -120,34 +124,33 @@ public class EntityImportFactory implements IXMLContentHandler  {
             // update the fields that are present, if it's not in the model, we need to 
             // verify that all the mandatory properties are set, add default values for 
             // any missing properties, and add it.
-            
-            EntityKeyLookup ec = (EntityKeyLookup)entityLookup.get(currentEntityTranslation);
-            if(ec == null) {
-                ec = new EntityKeyLookup(model, currentEntityTranslation.getMeta(), currentEntityTranslation);
-                entityLookup.put(currentEntityTranslation, ec);
-            }
-            
-            String key = currentEntityTranslation.getKeyOf(currentEntity);
-            Entity e = ec.get(key);
-            if(e != null) {
-                // Only want to update the values just read in.
-                for(UUID uuidMeta : propertyIDs){
-                    e.getPropertyByMeta(uuidMeta).setValue( currentEntity.getPropertyByMeta(uuidMeta).getValue() );
-                }
-            } else {
-                try {
-					model.addEntity(currentEntity);
+            try {
+	            EntityKeyLookup ec = (EntityKeyLookup)entityLookup.get(currentEntityTranslation);
+	            if(ec == null) {
+	                ec = new EntityKeyLookup(model, currentEntityTranslation.getMeta(metaModel), currentEntityTranslation);
+	                entityLookup.put(currentEntityTranslation, ec);
+	            }
+	            
+	            String key = currentEntityTranslation.getKeyOf(currentEntity);
+	            Entity e = ec.get(key);
+	            if(e != null) {
+	                // Only want to update the values just read in.
+	                for(UUID uuidMeta : propertyIDs){
+	                    e.getPropertyByMeta(uuidMeta).setValue( currentEntity.getPropertyByMeta(uuidMeta).getValue() );
+	                }
+	            } else {
+	            	model.addEntity(currentEntity);
 					ec.add(currentEntity);  // in case of duplicates in input
-				} catch (Exception e1) {
-					throw new InputException("Unable to add entity",e1);
-				}
+	            }
+	            
+	            //model.addEntity(currentEntity);
+	            
+	            currentEntity = null;
+	            currentEntityTranslation = null;
+	            propertyIDs.clear();
+            } catch (Exception e) {
+            	throw new InputException("Unable to import entity", e);
             }
-            
-            //model.addEntity(currentEntity);
-            
-            currentEntity = null;
-            currentEntityTranslation = null;
-            propertyIDs.clear();
         } else if (local.equals("Property")) {
             currentProperty = null;
         }        

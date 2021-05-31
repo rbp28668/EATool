@@ -93,7 +93,7 @@ public class ImportMappingActionSet extends ActionSet {
             MetaEntity me = null;
             if(parent instanceof EntityTranslation){
                 EntityTranslation parentTranslation = (EntityTranslation)parent;
-            	me = parentTranslation.getMeta();
+            	me = parentTranslation.getMeta(repository.getMetaModel());
             } else if (parent instanceof RoleTranslation){
                 RoleTranslation parentTranslation = (RoleTranslation)parent;
                 me = parentTranslation.getMeta().connectsTo();
@@ -131,7 +131,7 @@ public class ImportMappingActionSet extends ActionSet {
                     ImportMappingDialog dialog = new ImportMappingDialog(explorer,"New Import Mapping",mapping,app,repository);
                     dialog.setVisible(true);
                     if(dialog.wasEdited()){
-                        mappings.fireUpdated();
+                        mappings.update(mapping);
                     }
                 } catch(Throwable t) {
     				new ExceptionDisplay(explorer,t);

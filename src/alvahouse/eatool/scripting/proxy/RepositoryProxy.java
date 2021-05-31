@@ -73,7 +73,7 @@ public class RepositoryProxy {
      * @param path is the file where data should be read from.
      */
     @Scripted(description="Imports data into the model given the name of an import mapping and a path to the data.")
-    public void importData(String importName, String path){
+    public void importData(String importName, String path) throws Exception{
         ImportMappings mappings = repository.getImportMappings();
         for(ImportMapping mapping : mappings.getImportMappings()){
             if(mapping.getName().equals(importName)){
@@ -90,7 +90,7 @@ public class RepositoryProxy {
      * @param path is where the data should be written to.
      */
     @Scripted(description="Exports data from the model given the name of an output mapping and a path to write to.")
-    public void exportData(String exportName, String path){
+    public void exportData(String exportName, String path) throws Exception{
         ExportMappings mappings = repository.getExportMappings();
         for(ExportMapping mapping : mappings.getExportMappings()){
              if(mapping.getName().equals(exportName)){

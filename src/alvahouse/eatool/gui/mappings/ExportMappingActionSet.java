@@ -49,6 +49,8 @@ public class ExportMappingActionSet extends ActionSet {
     }
 
     private final Action actionExportMappingNew = new AbstractAction() {
+		private static final long serialVersionUID = 1L;
+
 		public void actionPerformed(ActionEvent e) {
 			try {
 			    ExportMapping mapping = new ExportMapping();
@@ -64,13 +66,15 @@ public class ExportMappingActionSet extends ActionSet {
 	};   
 	
 	private final Action actionExportMappingEdit = new AbstractAction() {
+		private static final long serialVersionUID = 1L;
+
 		public void actionPerformed(ActionEvent e) {
 			try {
                 ExportMapping mapping = (ExportMapping)explorer.getSelectedNode().getUserObject();
                 ExportMappingDialog dialog = new ExportMappingDialog(explorer,"New Export Mapping",mapping);
                 dialog.setVisible(true);
                 if(dialog.wasEdited()){
-                    mappings.fireEdited(mapping);
+                    mappings.update(mapping);
                 }
             } catch(Throwable t) {
 				new ExceptionDisplay(explorer,t);
@@ -79,6 +83,8 @@ public class ExportMappingActionSet extends ActionSet {
 	};   
 
 	private final Action actionExportMappingDelete = new AbstractAction() {
+		private static final long serialVersionUID = 1L;
+
 		public void actionPerformed(ActionEvent e) {
 			try {
                 ExportMapping mapping = (ExportMapping)explorer.getSelectedNode().getUserObject();
