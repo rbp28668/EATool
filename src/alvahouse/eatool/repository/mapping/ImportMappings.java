@@ -7,11 +7,13 @@
 package alvahouse.eatool.repository.mapping;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import alvahouse.eatool.repository.persist.ImportMappingPersistence;
 import alvahouse.eatool.util.SettingsManager;
 import alvahouse.eatool.util.XMLWriter;
 
@@ -24,21 +26,22 @@ import alvahouse.eatool.util.XMLWriter;
  */
 public class ImportMappings {
     
-    private List<ImportMapping> importMappings = new LinkedList<ImportMapping>();
+	private ImportMappingPersistence persistence;
     private List<ImportMappingChangeListener> listeners = new LinkedList< ImportMappingChangeListener>(); // of ImportMappingChangeListener
     private Map<String,ParserDescription> parsers = null;
     
     /**
      * Creates an empty list of import mappings.
      */
-    public ImportMappings(){
+    public ImportMappings(ImportMappingPersistence persistence){
+    	this.persistence = persistence;
     }
     /**
      * Gets the list of ImportMappings currently defined.
      * @return a list of ImportMapping, never null, maybe empty.
      */
-    public List<ImportMapping> getImportMappings() {
-        return importMappings;
+    public Collection<ImportMapping> getImportMappings() throws Exception {
+        return persistence.getMappings();
     }
     
     public String toString(){
@@ -53,8 +56,12 @@ public class ImportMappings {
     public void writeXML(XMLWriter writer) throws IOException {
         writer.startEntity("Import");
         
-        for(ImportMapping mapping : importMappings) {
-            mapping.writeXML(writer);
+        try {
+	        for(ImportMapping mapping : persistence.getMappings()) {
+	            mapping.writeXML(writer);
+	        }
+        } catch (Exception e) {
+        	throw new IOException("Unable to write import mappings", e);
         }
         
         writer.stopEntity();
@@ -63,8 +70,8 @@ public class ImportMappings {
     /**
      * Deletes all the import mappings. 
      */
-    public void deleteContents() {
-       importMappings.clear();
+    public void deleteContents() throws Exception {
+       persistence.deleteAll();
        fireUpdated();
     }
 
@@ -72,20 +79,47 @@ public class ImportMappings {
      * Adds a mapping to the import mappings.
      * @param mapping is the ImportMapping to add.
      */
-    public void add(ImportMapping mapping) {
+    public void add(ImportMapping mapping) throws Exception{
         if(mapping == null){
             throw new NullPointerException("Can't add null mapping to ImportMappings");
         }
-        importMappings.add(mapping);
+		String user = System.getProperty("user.name");
+		mapping.getVersion().createBy(user);
+        persistence.addMapping(mapping);
         fireMappingAdded(mapping);
+    }
+
+    /**
+     * Adds a mapping to the import mappings.
+     * @param mapping is the ImportMapping to add.
+     */
+    public void _add(ImportMapping mapping) throws Exception {
+        if(mapping == null){
+            throw new NullPointerException("Can't add null mapping to ImportMappings");
+        }
+        persistence.addMapping(mapping);
+    }
+
+    /**
+     * Updates a mapping to the import mappings.
+     * @param mapping is the ImportMapping to add.
+     */
+    public void update(ImportMapping mapping) throws Exception {
+        if(mapping == null){
+            throw new NullPointerException("Can't add null mapping to ImportMappings");
+        }
+		String user = System.getProperty("user.name");
+		mapping.getVersion().modifyBy(user);
+        persistence.updateMapping(mapping);
+        fireMappingChanged(mapping);
     }
 
     /**
      * Removes a given ImportMapping from the list.
      * @param mapping is the ImportMapping to remove.
      */
-    public void remove(ImportMapping mapping) {
-        importMappings.remove(mapping);
+    public void remove(ImportMapping mapping) throws Exception {
+        persistence.deleteMapping(mapping.getKey());
         fireMappingDeleted(mapping);
     }
 
@@ -122,11 +156,11 @@ public class ImportMappings {
      * Gets the possible parsers for an import mapping.
      * @return an array of parser names.
      */
-    public Object[] getParserNames(){
+    public String[] getParserNames(){
         if(parsers == null){
             throw new IllegalStateException("Parsers not initialised");
         }
-        return parsers.keySet().toArray();
+        return parsers.keySet().toArray(new String[parsers.size()]);
     }
 
     /**
@@ -180,7 +214,6 @@ public class ImportMappings {
     private void loadParsers(SettingsManager settings) {
         parsers = new LinkedHashMap<String,ParserDescription>();
         SettingsManager.Element root = settings.getElement("/ImportParsers");
-        List<String> names = new LinkedList<String>(); 
         for(SettingsManager.Element parser : root.getChildren()){
             String name = parser.attributeRequired("name");
             String parserClass = parser.attributeRequired("class");
@@ -206,7 +239,7 @@ public class ImportMappings {
      * Signals to any change listeners that an import mapping has been added. 
      * @param mapping is the ImportMapping that has been added.
      */
-    public void fireMappingAdded(ImportMapping mapping){
+    private void fireMappingAdded(ImportMapping mapping){
         MappingChangeEvent e = new MappingChangeEvent(mapping);
         for(ImportMappingChangeListener listener : listeners){
             listener.MappingAdded(e);
@@ -217,7 +250,7 @@ public class ImportMappings {
      * Signals to any change listeners that an import mapping has been edited. 
      * @param mapping is the ImportMapping that has been added.
      */
-    public void fireMappingEdited(ImportMapping mapping){
+    private void fireMappingChanged(ImportMapping mapping){
         MappingChangeEvent e = new MappingChangeEvent(mapping);
         for(ImportMappingChangeListener listener : listeners){
             listener.MappingEdited(e);
@@ -228,7 +261,7 @@ public class ImportMappings {
      * Signals to any change listeners that an import mapping has been deleted.
      * @param mapping is the ImportMapping that has been deleted.
      */
-    public void fireMappingDeleted(ImportMapping mapping){
+    private void fireMappingDeleted(ImportMapping mapping){
         MappingChangeEvent e = new MappingChangeEvent(mapping);
         for(ImportMappingChangeListener listener : listeners){
             listener.MappingDeleted(e);

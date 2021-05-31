@@ -10,7 +10,7 @@ import alvahouse.eatool.util.UUID;
  * @author bruce_porteous
  *
  */
-class MetaEntityProxy {
+public class MetaEntityProxy {
 
 	private boolean isNull = true;
 	private UUID key = UUID.NULL;
@@ -28,7 +28,7 @@ class MetaEntityProxy {
 	 * so mark it as null for future loading.
 	 * @param key
 	 */
-	void setKey(UUID key) {
+	public void setKey(UUID key) {
 		isNull = false;
 		this.key = key;
 		metaEntity = null;
@@ -38,7 +38,7 @@ class MetaEntityProxy {
 	 * Attaches a given meta entity to this proxy.
 	 * @param me
 	 */
-	void set(MetaEntity me) {
+	public void set(MetaEntity me) {
 		if(me == null) {
 			isNull = true;
 			key = UUID.NULL;
@@ -55,7 +55,7 @@ class MetaEntityProxy {
 	 * to fetch the object.
 	 * @return true if object is null (i.e. there is no attached meta entity.
 	 */
-	boolean isNull() {
+	public boolean isNull() {
 		return isNull;
 	}
 	
@@ -67,7 +67,7 @@ class MetaEntityProxy {
 	 * @return
 	 * @throws Exception
 	 */
-	MetaEntity get(MetaModel model) throws Exception{
+	public MetaEntity get(MetaModel model) throws Exception{
 		if(isNull) {
 			return null;
 		} else {
@@ -83,7 +83,7 @@ class MetaEntityProxy {
 	 * It's an error to try to get the key of a null meta entity.
 	 * @return the key.
 	 */
-	UUID getKey() {
+	public UUID getKey() {
 		if(isNull) {
 			throw new IllegalStateException("Can't get key of null MetaEntity");
 		}

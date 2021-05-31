@@ -13,6 +13,7 @@ import org.xml.sax.Attributes;
 
 import alvahouse.eatool.repository.exception.InputException;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
+import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.metamodel.MetaRole;
 import alvahouse.eatool.repository.model.Entity;
 import alvahouse.eatool.repository.model.Model;
@@ -34,6 +35,9 @@ public class RelationshipImportFactory implements IXMLContentHandler, ModelChang
 
 	/** Model to add relationships to */
     private Model model;
+    
+    /** Meta model to fetch meta relationships from */
+    MetaModel metaModel;
     
     /** Current relationship being defined */
     private Relationship currentRelationship = null;
@@ -63,8 +67,9 @@ public class RelationshipImportFactory implements IXMLContentHandler, ModelChang
      * transConfig is the configuration element that defines the relationship
      * translations to be used in this import.
      */
-    public RelationshipImportFactory(ImportMapping mapping, Model m) {
+    public RelationshipImportFactory(ImportMapping mapping, Model m, MetaModel meta) {
         model = m;
+        metaModel = meta;
 
         for(RelationshipTranslation rt : mapping.getRelationshipTranslations()){
             translations.put(rt.getTypeName(), rt);
@@ -155,7 +160,7 @@ public class RelationshipImportFactory implements IXMLContentHandler, ModelChang
                 throw new InputException("Relationship type " + type + " not recognised importing XML");
             
             try {
-            	currentRelationship = new Relationship(new UUID(), currentRelationshipTranslation.getMeta()); // default position is to assume it's a new relationship
+            	currentRelationship = new Relationship(new UUID(), currentRelationshipTranslation.getMeta(metaModel)); // default position is to assume it's a new relationship
             }catch(Exception e) {
             	throw new InputException("Unable to create new relationship during import",e);
             }

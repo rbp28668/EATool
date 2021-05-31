@@ -97,4 +97,16 @@ public class RoleTranslation extends PropertyTranslationCollection{
         writer.stopEntity();
     }
 
+    @Override
+    public Object clone() {
+    	RoleTranslation copy = new RoleTranslation();
+    	cloneTo(copy);
+    	return copy;
+    }
+    
+    protected void cloneTo(RoleTranslation copy) {
+    	super.cloneTo(copy);
+    	copy.type = type;
+    	copy.meta = (MetaRole) meta.clone();
+    }
 }

@@ -39,7 +39,8 @@ import alvahouse.eatool.repository.mapping.ExportMapping;
  */
 public class ExportMappingDialog extends BasicDialog {
 
-    private MainPanel panel;
+	private static final long serialVersionUID = 1L;
+	private MainPanel panel;
     private ExportMapping mapping;
     
     /**
@@ -101,6 +102,7 @@ public class ExportMappingDialog extends BasicDialog {
     }
 
     private class MainPanel extends JPanel {
+    	private static final long serialVersionUID = 1L;
         
         private JTextField txtName;
         private JTextArea txtDescription;

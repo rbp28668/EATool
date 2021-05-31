@@ -6,9 +6,6 @@
  */
 package alvahouse.eatool.gui.mappings;
 
-import java.util.Iterator;
-
-import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
 
@@ -25,15 +22,16 @@ import alvahouse.eatool.repository.mapping.MappingChangeEvent;
  */
 public class ExportMappingTreeModel extends ExplorerTreeModel implements
         ExportMappingChangeListener {
+	private static final long serialVersionUID = 1L;
 
 	private MutableTreeNode root = null;
-	private JTree tree = null;
+//	private JTree tree = null;
 	private ExportMappings mappings;
 
     /**
      * @param rootTitle
      */
-    public ExportMappingTreeModel(String rootTitle, ExportMappings mappings) {
+    public ExportMappingTreeModel(String rootTitle, ExportMappings mappings) throws Exception {
         super(rootTitle);
         this.mappings = mappings;
         root = (MutableTreeNode)getRoot();
@@ -48,17 +46,16 @@ public class ExportMappingTreeModel extends ExplorerTreeModel implements
         }
     }
     
-    public void setMappings(ExportMappings mappings){
+    public void setMappings(ExportMappings mappings) throws Exception{
         this.mappings = mappings;
         initModel();
     }
 	/**
 	 * Method initModel builds the tree model from the mappings.
 	 */
-    private void initModel() {
+    private void initModel() throws Exception {
         int idx = 0;
-        for(Iterator iter = mappings.getExportMappings().iterator();iter.hasNext();){
-            ExportMapping mapping = (ExportMapping)iter.next();
+        for(ExportMapping mapping : mappings.getExportMappings()){
             addExportMappingNode((MutableTreeNode)getRoot(),mapping,idx++);
         }
     }

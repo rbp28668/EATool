@@ -110,7 +110,14 @@ public class PropertyTranslation {
         writer.stopEntity();
     }
 
-
+    @Override
+    public Object clone() {
+    	PropertyTranslation copy = new PropertyTranslation();
+        copy.type = type;
+        copy.meta = (MetaProperty) meta.clone();
+        copy.isKey = isKey;
+        return copy;
+    }
  
 }
 

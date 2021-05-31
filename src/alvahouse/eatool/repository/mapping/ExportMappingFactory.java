@@ -11,6 +11,7 @@ import org.xml.sax.Attributes;
 import alvahouse.eatool.repository.ProgressCounter;
 import alvahouse.eatool.repository.base.FactoryBase;
 import alvahouse.eatool.repository.exception.InputException;
+import alvahouse.eatool.repository.version.VersionImpl;
 import alvahouse.eatool.util.IXMLContentHandler;
 
 /**
@@ -61,6 +62,11 @@ public class ExportMappingFactory extends FactoryBase implements
                 throw new InputException("Missing name attribute on ExportTranslation");
             }
             currentMapping.setName(attr);
+            
+            attr = attrs.getValue("description");
+            if(attr != null) {
+            	currentMapping.setDescription(attr);
+            }
 
             attr = attrs.getValue("components");
             if(attr == null) {
@@ -75,6 +81,8 @@ public class ExportMappingFactory extends FactoryBase implements
 	    } else if (local.equals("Transform")) {
 	        transform.delete(0,transform.length());
 	        currentText = transform;
+	    } else if (local.equals("Version")) {
+	    	VersionImpl.readXML(attrs, currentMapping);
 	    }
 
     }
@@ -84,7 +92,11 @@ public class ExportMappingFactory extends FactoryBase implements
      */
     public void endElement(String uri, String local) throws InputException {
         if(local.equals("ExportTranslation")){
-            mappings.add(currentMapping);
+        	try {
+        		mappings._add(currentMapping);
+        	} catch (Exception e) {
+        		throw new InputException("Unable to load export mapping", e);
+        	}
             currentMapping = null;
             counter.count("Export Mapping");
         } else if (local.equals("Description")) {

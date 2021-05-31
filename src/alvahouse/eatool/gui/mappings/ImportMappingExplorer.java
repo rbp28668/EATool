@@ -20,7 +20,6 @@ import alvahouse.eatool.gui.ExplorerTree;
 import alvahouse.eatool.gui.GUIBuilder;
 import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.mapping.ImportMappings;
-import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.util.SettingsManager;
 
 /**
@@ -42,7 +41,7 @@ public class ImportMappingExplorer extends JInternalFrame {
 	/**
 	 * Constructor for ImportMappingExplorer.
 	 */
-	public ImportMappingExplorer(Application app, Repository repository) {
+	public ImportMappingExplorer(Application app, Repository repository) throws Exception {
 		super();
 		thisFrame = this;
 		this.app = app;
@@ -57,7 +56,7 @@ public class ImportMappingExplorer extends JInternalFrame {
 
         
         // Magic up ImportMappings from settings.
-        MetaModel metaModel = repository.getMetaModel();
+        //MetaModel metaModel = repository.getMetaModel();
         ImportMappings mappings = repository.getImportMappings();
 
         treeModel = new ImportMappingTreeModel("Mappings",mappings);
@@ -78,7 +77,7 @@ public class ImportMappingExplorer extends JInternalFrame {
 						DefaultMutableTreeNode node = tree.getSelectedNode();
 						if(node != null){
 							try{
-								Object thingy = node.getUserObject();
+//								Object thingy = node.getUserObject();
 //								if(thingy instanceof Diagram){
 //									Action action = actions.getAction("DiagramEdit");
 //									action.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "edit"));

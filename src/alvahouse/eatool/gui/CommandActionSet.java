@@ -403,20 +403,23 @@ public class CommandActionSet extends ActionSet {
 
         ImportMappings mappings = repository.getImportMappings();
         SettingsManager settings = app.getSettings();
-        
-        // Doesn't make sense to continue if no translations
-        if(mappings.getImportMappings().size() == 0) {
-            JOptionPane.showMessageDialog(null, "No input translations defined", "EATool Import", JOptionPane.ERROR_MESSAGE);
-            return false;
+        ImportMapping selected = null;
+        try {
+	        // Doesn't make sense to continue if no translations
+	        if(mappings.getImportMappings().size() == 0) {
+	            JOptionPane.showMessageDialog(null, "No input translations defined", "EATool Import", JOptionPane.ERROR_MESSAGE);
+	            return false;
+	        }
+	            
+	        Object[] translations = mappings.getImportMappings().toArray();
+	        selected = (ImportMapping)JOptionPane.showInputDialog(null, 
+	            "Select input translation", "EATool Import", 
+	            JOptionPane.QUESTION_MESSAGE,null,translations,translations[0]);
+	        if(selected == null)
+	            return false;
+        } catch (Exception e) {
+        	throw new InputException("Unable to get input translations from repository",e);
         }
-            
-        Object[] translations = mappings.getImportMappings().toArray();
-        ImportMapping selected = (ImportMapping)JOptionPane.showInputDialog(null, 
-            "Select input translation", "EATool Import", 
-            JOptionPane.QUESTION_MESSAGE,null,translations,translations[0]);
-        if(selected == null)
-            return false;
-        
         // Get default of where to import from
         SettingsManager.Element cfg = settings.getOrCreateElement("/Files/XMLImport");
         String path = cfg.attribute("path");
