@@ -8,6 +8,11 @@ package alvahouse.eatool.repository.mapping;
 
 import java.io.IOException;
 
+import alvahouse.eatool.repository.base.NamedRepositoryItem;
+import alvahouse.eatool.repository.version.Version;
+import alvahouse.eatool.repository.version.VersionImpl;
+import alvahouse.eatool.repository.version.Versionable;
+import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
 /**
@@ -15,18 +20,17 @@ import alvahouse.eatool.util.XMLWriter;
  * 
  * @author rbp28668
  */
-public class ExportMapping {
+public class ExportMapping  extends NamedRepositoryItem implements Versionable {
 
-    private String name = "";
-    private String description = "";
     private int components = 0;
     private String transformPath = null;
+    private VersionImpl version = new VersionImpl();
     
     /**
      * Creates an empty export mapping.
      */
     public ExportMapping() {
-        super();
+        super(new UUID());
     }
 
 
@@ -53,36 +57,6 @@ public class ExportMapping {
     }
 
     /**
-     * Gets the description of the export mapping.
-     * @return Returns the description.
-     */
-    public String getDescription() {
-        return description;
-    }
-    /**
-     * Sets the description of the export mapping.
-     * @param description The description to set.
-     */
-    public void setDescription(String description) {
-        this.description = description;
-    }
-    
-    /**
-     * Gets the name of the export mapping - used to identify the mapping
-     * to the user.
-     * @return Returns the name.
-     */
-    public String getName() {
-        return name;
-    }
-    /**
-     * Sets the name of the export mapping.
-     * @param name The name to set.
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-    /**
      * Gets the transform path.  This should refer to an XSLT transform that
      * transforms the output XML. Null if no transform path is set.
      * @return Returns the transformPath or <code>null</code> if none set.
@@ -105,10 +79,9 @@ public class ExportMapping {
      */
     public void writeXML(XMLWriter writer) throws IOException {
         writer.startEntity("ExportTranslation");
-        writer.addAttribute("name",getName());
+        super.writeAttributesXML(writer);
         writer.addAttribute("components",components);
         
-        writer.textEntity("Description",description);
         if(transformPath != null){
             writer.textEntity("Transform",transformPath);
         }
@@ -130,4 +103,25 @@ public class ExportMapping {
     public String toString(){
         return getName();
     }
+
+    @Override
+    public Object clone() {
+    	ExportMapping copy = new ExportMapping();
+    	cloneTo(copy);
+    	return copy;
+    }
+    
+    protected void cloneTo(ExportMapping copy) {
+    	super.cloneTo(copy);
+    	copy.components = components;
+    	copy.transformPath = transformPath;
+    	version.cloneTo(copy.version);
+    }
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.version.Versionable#getVersion()
+	 */
+	@Override
+	public Version getVersion() {
+		return version;
+	}
 }

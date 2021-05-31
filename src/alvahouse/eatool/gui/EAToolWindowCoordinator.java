@@ -99,13 +99,13 @@ public class EAToolWindowCoordinator extends WindowCoordinator {
         },"MetaDiagramExplorer");
         
         addFactory( new WindowFactory () {
-            public JInternalFrame createFrame() {
+            public JInternalFrame createFrame() throws Exception {
                 return new ImportMappingExplorer(app, rep);
             }
         },"ImportMappingExplorer");
 
         addFactory( new WindowFactory () {
-            public JInternalFrame createFrame() {
+            public JInternalFrame createFrame() throws Exception {
                 return new ExportMappingExplorer(app, rep);
             }
         },"ExportMappingExplorer");

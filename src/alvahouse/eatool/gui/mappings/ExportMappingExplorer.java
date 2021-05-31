@@ -40,7 +40,7 @@ public class ExportMappingExplorer extends JInternalFrame {
     /**
      * 
      */
-    public ExportMappingExplorer(Application app, Repository repository) {
+    public ExportMappingExplorer(Application app, Repository repository) throws Exception {
         super();
 		thisFrame = this;
 		this.app = app;
@@ -75,7 +75,7 @@ public class ExportMappingExplorer extends JInternalFrame {
 						DefaultMutableTreeNode node = tree.getSelectedNode();
 						if(node != null){
 							try{
-								Object thingy = node.getUserObject();
+//								Object thingy = node.getUserObject();
 //								if(thingy instanceof Diagram){
 //									Action action = actions.getAction("DiagramEdit");
 //									action.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "edit"));

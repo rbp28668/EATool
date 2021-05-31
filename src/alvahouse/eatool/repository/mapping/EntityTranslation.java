@@ -9,6 +9,8 @@ package alvahouse.eatool.repository.mapping;
 import java.io.IOException;
 
 import alvahouse.eatool.repository.metamodel.MetaEntity;
+import alvahouse.eatool.repository.metamodel.MetaEntityProxy;
+import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.util.XMLWriter;
 
 
@@ -30,7 +32,7 @@ import alvahouse.eatool.util.XMLWriter;
 public class EntityTranslation extends PropertyTranslationCollection{
 
     private String type="";                // what the "type" attribute of the input record is
-    private MetaEntity meta = null;        // maps to this meta entity 
+    private MetaEntityProxy meta = new MetaEntityProxy();   // maps to this meta entity 
     
 
     /**
@@ -52,15 +54,15 @@ public class EntityTranslation extends PropertyTranslationCollection{
      * type name will be mapped to.
      * @return the target MetaEntity.
      */
-    public MetaEntity getMeta() {
-        return meta;
+    public MetaEntity getMeta(MetaModel metaModel) throws Exception{
+        return meta.get(metaModel);
     }
     
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */
     public String toString() {
-        return "Entity " + type + " to " + meta.getName();
+        return "Entity " + type + " to " + meta.getKey();
     }
 
     /**
@@ -80,7 +82,7 @@ public class EntityTranslation extends PropertyTranslationCollection{
         if(meta == null){
             throw new NullPointerException("Can't tie a mapping to a null MetaEntity");
         }
-        this.meta = meta;
+        this.meta.set(meta);
     }
 
     /**
@@ -91,7 +93,7 @@ public class EntityTranslation extends PropertyTranslationCollection{
     public void writeXML(XMLWriter writer) throws IOException {
         writer.startEntity("EntityTranslation");
         writer.addAttribute("type",getTypeName());
-        writer.addAttribute("uuid",getMeta().getKey().toString());
+        writer.addAttribute("uuid",meta.getKey().toString());
 
         for(PropertyTranslation pt : getPropertyTranslations()){
             pt.writeXML(writer);
@@ -100,5 +102,15 @@ public class EntityTranslation extends PropertyTranslationCollection{
         writer.stopEntity();
     }
 
- 
+    public EntityTranslation clone() {
+    	EntityTranslation copy = new EntityTranslation();
+    	cloneTo(copy);
+    	return copy;
+    }
+    
+    protected void cloneTo(EntityTranslation copy) {
+    	super.cloneTo(copy);
+    	copy.type = type;
+    	copy.meta = (MetaEntityProxy)meta.clone();
+    }
 }

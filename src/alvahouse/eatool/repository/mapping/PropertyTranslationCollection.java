@@ -99,4 +99,12 @@ public class PropertyTranslationCollection {
         return props.size();
     }
     
+    protected void cloneTo(PropertyTranslationCollection copy) {
+        for(PropertyTranslation pt : props) {
+        	copy.addProperty( (PropertyTranslation) pt.clone());
+        }
+
+    }
+
+    
 }

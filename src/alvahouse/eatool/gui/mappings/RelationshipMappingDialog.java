@@ -108,7 +108,7 @@ public class RelationshipMappingDialog extends BasicDialog {
 
         private static final long serialVersionUID = 1L;
         private JTextField txtName;
-        private JComboBox relationshipSel;
+        private JComboBox<MetaRelationship> relationshipSel;
         private JLabel startLabel;
         private JLabel finishLabel;
         private JTextField txtStart;
@@ -140,8 +140,8 @@ public class RelationshipMappingDialog extends BasicDialog {
             gridbag.setConstraints(label,c);
             add(label);
 
-            relationshipSel = new JComboBox(metaModel.getMetaRelationshipsAsArray());
-            relationshipSel.setSelectedItem(mapping.getMeta());
+            relationshipSel = new JComboBox<MetaRelationship>(metaModel.getMetaRelationshipsAsArray());
+            relationshipSel.setSelectedItem(mapping.getMeta(metaModel));
             c.gridwidth = GridBagConstraints.REMAINDER;
             gridbag.setConstraints(relationshipSel,c);
             add(relationshipSel);

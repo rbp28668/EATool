@@ -103,8 +103,8 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     private final Diagrams diagrams = new Diagrams();
     private final Diagrams metaModelDiagrams = new Diagrams();
     private final DiagramTypes diagramTypes = new DiagramTypes();
-    private final ImportMappings importMappings = new ImportMappings();
-    private final ExportMappings exportMappings = new ExportMappings();
+    private final ImportMappings importMappings = new ImportMappings(persistence.getImportMappingPersistence());
+    private final ExportMappings exportMappings = new ExportMappings(persistence.getExportMappingPersistence());
     private final Scripts scripts = new Scripts(persistence.getScriptPersistence());
     //private final EventMap events = new EventMap(scripts);
     //private final RepositoryProperties properties = new RepositoryProperties();
@@ -410,10 +410,10 @@ public class RepositoryImpl implements TypeEventListener, Repository{
         }
         XMLLoader loader = new XMLLoader(parserClass, mapping.getTransformPath());
         
-        EntityImportFactory ef = new EntityImportFactory(mapping,model);
+        EntityImportFactory ef = new EntityImportFactory(mapping,model, metaModel);
         loader.registerContent("Entity",ef);
         
-        RelationshipImportFactory rf = new RelationshipImportFactory(mapping, model);
+        RelationshipImportFactory rf = new RelationshipImportFactory(mapping, model, metaModel);
         loader.registerContent("Relationship",rf);
 
         try {

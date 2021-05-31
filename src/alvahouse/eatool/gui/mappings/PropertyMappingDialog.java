@@ -96,7 +96,7 @@ public class PropertyMappingDialog extends BasicDialog {
         private static final long serialVersionUID = 1L;
         private JTextField txtName;
         private JCheckBox keySel;
-        private JComboBox propertySel;
+        private JComboBox<MetaProperty> propertySel;
 
         /**
          * Create a new MainPanel.

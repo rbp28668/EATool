@@ -46,7 +46,7 @@ public class ImportMappingDialog extends BasicDialog {
     //private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea txtDescription;
     private JTextField transformPath;
-    private JComboBox parser;
+    private JComboBox<String> parser;
     private ImportMapping mapping;
     
     /**
@@ -193,8 +193,8 @@ public class ImportMappingDialog extends BasicDialog {
         ImportMappings mappings = repository.getImportMappings();
         mappings.setParsers(app.getSettings());
         
-        Object[] parsers = mappings.getParserNames();
-        parser = new JComboBox(parsers);
+        String[] parsers = mappings.getParserNames();
+        parser = new JComboBox<String>(parsers);
         parser.setSelectedItem(mapping.getParserName());
         c.gridwidth = GridBagConstraints.REMAINDER;
         layout.setConstraints(parser,c);

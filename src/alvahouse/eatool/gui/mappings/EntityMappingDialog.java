@@ -103,7 +103,7 @@ public class EntityMappingDialog extends BasicDialog {
 
         private static final long serialVersionUID = 1L;
         private JTextField txtName;
-        private JComboBox entitySel;
+        private JComboBox<MetaEntity> entitySel;
 
         /**
          * Create a new MainPanel.
@@ -135,8 +135,8 @@ public class EntityMappingDialog extends BasicDialog {
             add(label);
 
             Collection<MetaEntity> mes = metaModel.getMetaEntities();
-            entitySel = new JComboBox(mes.toArray(new MetaEntity[mes.size()]));
-            entitySel.setSelectedItem(mapping.getMeta());
+            entitySel = new JComboBox<MetaEntity>(mes.toArray(new MetaEntity[mes.size()]));
+            entitySel.setSelectedItem(mapping.getMeta(metaModel));
             c.gridwidth = GridBagConstraints.REMAINDER;
             gridbag.setConstraints(entitySel,c);
             add(entitySel);

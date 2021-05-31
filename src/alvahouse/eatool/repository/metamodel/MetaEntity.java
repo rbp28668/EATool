@@ -152,6 +152,7 @@ public class MetaEntity extends MetaPropertyContainer implements  Versionable{
     public void writeXML(XMLWriter out) throws IOException {
         out.startEntity("MetaEntity");
         super.writeAttributesXML(out);
+        version.writeXML(out);
         if(isAbstract()) out.addAttribute("abstract","true");
         if(!base.isNull()) out.addAttribute("extends",base.getKey().toString());
         version.writeXML(out);
