@@ -200,8 +200,8 @@ public class TimeDiagram extends Diagram {
     /**
      * @param uuid
      */
-    public TimeDiagram(DiagramType type, UUID key, Scripts scripts) {
-        super(type,key, scripts);
+    public TimeDiagram(DiagramType type, UUID key) {
+        super(type,key);
         this.type = (TimeDiagramType)type;
 		font = new Font("SansSerif", Font.PLAIN,10);
     }

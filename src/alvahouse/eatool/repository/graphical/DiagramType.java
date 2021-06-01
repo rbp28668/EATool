@@ -13,7 +13,6 @@ import alvahouse.eatool.repository.graphical.standard.StandardDiagram;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.repository.scripting.EventMap;
-import alvahouse.eatool.repository.scripting.Scripts;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
@@ -31,9 +30,9 @@ public abstract class DiagramType extends NamedRepositoryItem {
 	/**
 	 * @param key
 	 */
-	public DiagramType(UUID key, Scripts scripts) {
+	public DiagramType(UUID key) {
 		super(key);
-		init(scripts);
+		init();
 	}
 
 	/**
@@ -42,14 +41,14 @@ public abstract class DiagramType extends NamedRepositoryItem {
 	 * @param name is the name of the diagram type.
 	 * @param uuid is the unique ID of the diagram type.
 	 */
-	public DiagramType(String name, UUID uuid, Scripts scripts) {
+	public DiagramType(String name, UUID uuid) {
 		super(uuid);
 		setName(name);
-		init(scripts);
+		init();
 	}
 
-	private void init(Scripts scripts) {
-		eventMap = new EventMap(scripts);
+	private void init() {
+		eventMap = new EventMap();
 		eventMap.ensureEvent(StandardDiagram.ON_DISPLAY_EVENT);
 		eventMap.ensureEvent(StandardDiagram.ON_CLOSE_EVENT);
 		eventMap.ensureEvent("Entity");

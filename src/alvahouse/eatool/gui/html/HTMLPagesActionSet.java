@@ -10,7 +10,6 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.JOptionPane;
 
 import alvahouse.eatool.Application;
 import alvahouse.eatool.gui.ActionSet;
@@ -33,7 +32,6 @@ public class HTMLPagesActionSet extends ActionSet {
 
     private HTMLPagesExplorer explorer;
     private HTMLPages pages;
-    private Repository repository;
     private Application app;
     
     HTMLPagesActionSet(HTMLPagesExplorer explorer, HTMLPages pages, Application app, Repository repository){
@@ -41,7 +39,6 @@ public class HTMLPagesActionSet extends ActionSet {
         this.explorer = explorer;
         this.pages = pages;
         this.app = app;
-        this.repository = repository;
         
 		addAction("PageNew",actionPageNew);
 		addAction("PageEdit",actionPageEdit);
@@ -60,16 +57,24 @@ public class HTMLPagesActionSet extends ActionSet {
 
         public void actionPerformed(ActionEvent e) {
 			try {
-			    HTMLPage page = new HTMLPage(new UUID(), repository.getScripts());
+			    HTMLPage page = new HTMLPage(new UUID());
 		        HTMLPagePropertiesEditor propertiesDialog = new HTMLPagePropertiesEditor(explorer,page);
 		        propertiesDialog.setVisible(true);
 		        if(propertiesDialog.wasEdited()) {
-				    pages.add(page);
-				    explorer.pageAdded(new PageChangeEvent(page));
-				    
 				    // and edit it...
 			        HTMLEditor editor = (HTMLEditor)app.getWindowCoordinator().getFrame("HTMLEditor");
 			        editor.setPage(page);
+			        editor.onCompletion(new HTMLEditor.Completion() {
+						@Override
+						public void onCompletion(HTMLPage page) {
+							try {
+								pages.add(page);
+							    explorer.pageAdded(new PageChangeEvent(page));
+							} catch (Exception e) {
+								new ExceptionDisplay(explorer,e);
+							}
+						}
+					});
 			        editor.show();
        				}
 
@@ -90,6 +95,16 @@ public class HTMLPagesActionSet extends ActionSet {
 			    if(page != null){
 			        HTMLEditor editor = (HTMLEditor)app.getWindowCoordinator().getFrame("HTMLEditor");
 			        editor.setPage(page);
+			        editor.onCompletion(new HTMLEditor.Completion() {
+						@Override
+						public void onCompletion(HTMLPage page) {
+							try {
+								pages.update(page);
+							} catch (Exception e) {
+								new ExceptionDisplay(explorer,e);
+							}
+						}
+					});
 			        editor.show();
 			    }
 			} catch(Throwable t) {

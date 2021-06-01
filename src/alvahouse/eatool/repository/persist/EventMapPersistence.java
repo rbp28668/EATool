@@ -16,7 +16,7 @@ public interface EventMapPersistence {
 	 * Gets the event map
 	 * @return the event map.
 	 */
-	public EventMap get(Scripts scripts) throws Exception;
+	public EventMap get() throws Exception;
 	
 	/**
 	 * Sets the event map.

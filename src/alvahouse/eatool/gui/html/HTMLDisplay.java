@@ -117,7 +117,7 @@ public class HTMLDisplay extends JInternalFrame {
     private void  fireDisplayEvent(HTMLPage page) throws Exception {
     	EventMap eventMap = page.getEventMap();
     	if(eventMap.hasHandler(HTMLPage.ON_DISPLAY_EVENT)) {
-    		ScriptContext context = page.getEventMap().getContextFor(HTMLPage.ON_DISPLAY_EVENT);
+    		ScriptContext context = page.getEventMap().getContextFor(HTMLPage.ON_DISPLAY_EVENT, repository.getScripts());
 			Object proxy = ScriptWrapper.wrap(page);
 		    context.addObject("page", proxy, proxy.getClass());
 		    

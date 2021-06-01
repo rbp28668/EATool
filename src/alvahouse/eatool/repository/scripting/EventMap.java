@@ -36,15 +36,13 @@ public class EventMap implements Versionable{
 
     private final Map<String,ScriptProxy> handlers = new HashMap<String,ScriptProxy>(); // keyed by event name.
     private final VersionImpl version = new VersionImpl();
-    private final Scripts scripts;
     /**
      * Creates a new, empty event handler.
      * @param scripts is the scripts collection used to look up any scripts if an event is fired
      * or script accessed.
      */
-    public EventMap(Scripts scripts) {
+    public EventMap() {
         super();
-        this.scripts = scripts;
     }
 
     /**
@@ -121,12 +119,12 @@ public class EventMap implements Versionable{
     	return !proxy.isNull();
     }
     /**
-     * Gets a script proxy for the given event.
+     * Gets a script for the given event.
      * @param event
      * @return
      * @throws Exception
      */
-    public Script get(String event) throws Exception {
+    public Script get(String event, Scripts scripts) throws Exception {
     	ScriptProxy proxy = handlers.get(event);
 
     	if(proxy == null){
@@ -142,7 +140,7 @@ public class EventMap implements Versionable{
      * @param event is the event that is being fired.
      * @return a ScriptContext for the event or null if no handler registered.
      */
-    public ScriptContext getContextFor(String event) throws Exception{
+    public ScriptContext getContextFor(String event, Scripts scripts) throws Exception{
 
     	ScriptProxy proxy = handlers.get(event);
 
@@ -165,7 +163,7 @@ public class EventMap implements Versionable{
      * @throws BSFException if there is an error in the script.
      * @throws IllegalStateException if the event map does not contain the given event.
      */
-    public void fireEvent(String event) throws Exception{
+    public void fireEvent(String event, Scripts scripts) throws Exception{
         ScriptProxy proxy = handlers.get(event);
     	
     	if(proxy == null){
@@ -212,6 +210,28 @@ public class EventMap implements Versionable{
     }
 
     /**
+     * Writes the EventMap out as XML using the given tag but without version
+     * information for when the event map is embedded in another versioned component.
+     * @param out is the XMLWriterDirect to write the XML to
+     * @param tag is the element name to use.
+     */
+    public void writeXMLUnversioned(XMLWriter out, String tag) throws IOException {
+        out.startEntity(tag);
+        
+        for(Map.Entry<String,ScriptProxy> entry : handlers.entrySet()){
+            ScriptProxy handler = entry.getValue();
+            if(handler != null){
+                out.startEntity("Event");
+                out.addAttribute("name",(String)entry.getKey());
+                out.addAttribute("handler", handler.getKey().toString());
+                out.stopEntity();
+            }
+        }
+
+        out.stopEntity();
+    }
+
+    /**
      * Gets a count of the number of events.
      * @return an event count.
      */
@@ -240,8 +260,9 @@ public class EventMap implements Versionable{
      * @param scripts will be the source of any scripts if an event is fired or script accessed.
      * @return a clone of the event map bound to the given scripts collection.
      */
-    public EventMap clone(Scripts scripts) {
-    	EventMap copy = new EventMap(scripts);
+    @Override
+    public Object clone() {
+    	EventMap copy = new EventMap();
     	cloneTo(copy);
     	return copy;
     }

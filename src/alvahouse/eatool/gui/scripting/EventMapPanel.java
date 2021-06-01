@@ -44,7 +44,7 @@ public class EventMapPanel extends JPanel implements ItemListener {
         super();
         this.eventMap = eventMap;
         NONE.setName("--NONE--");
-        table = new JTable( new EventMapTableModel());
+        table = new JTable( new EventMapTableModel(scripts));
         table.setDefaultEditor(Script.class, new HandlerCellEditor(scripts,this));
         JScrollPane scroll = new JScrollPane(table);
         add(scroll,BorderLayout.CENTER);
@@ -95,7 +95,7 @@ public class EventMapPanel extends JPanel implements ItemListener {
         private  String[] events;
         private Script[] handlers; 
 
-        EventMapTableModel() throws Exception{
+        EventMapTableModel(Scripts scripts) throws Exception{
             int count = eventMap.getEventCount();
             events = new String[count];
             handlers = new Script[count];
@@ -103,7 +103,7 @@ public class EventMapPanel extends JPanel implements ItemListener {
             int idx = 0;
             for(String event : eventMap.getEvents()){
                 events[idx] = event;
-                handlers[idx] = eventMap.hasHandler(event) ? null : eventMap.get(event);
+                handlers[idx] = eventMap.hasHandler(event) ? null : eventMap.get(event, scripts);
                 ++idx;
             }
         }

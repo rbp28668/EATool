@@ -18,7 +18,6 @@ import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.repository.scripting.EventMap;
-import alvahouse.eatool.repository.scripting.Scripts;
 import alvahouse.eatool.util.UUID;
 
 /**
@@ -33,8 +32,8 @@ public class ModelDiagramType extends StandardDiagramType {
     /**
      * 
      */
-    public ModelDiagramType(MetaModel metaModel, Scripts scripts)  throws Exception{
-        super(scripts);
+    public ModelDiagramType(MetaModel metaModel)  throws Exception{
+        super();
         init(metaModel);
     }
 
@@ -42,8 +41,8 @@ public class ModelDiagramType extends StandardDiagramType {
      * @param name
      * @param uuid
      */
-    public ModelDiagramType(MetaModel metaModel, String name, UUID uuid, Scripts scripts)  throws Exception{
-        super(name, uuid, scripts);
+    public ModelDiagramType(MetaModel metaModel, String name, UUID uuid)  throws Exception{
+        super(name, uuid);
         init(metaModel);
     }
 

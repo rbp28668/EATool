@@ -360,7 +360,7 @@ public class WebExport {
     		
     		EventMap eventMap = page.getEventMap();
     		if(eventMap.hasHandler(HTMLPage.ON_DISPLAY_EVENT)) {
-    			ScriptContext context = page.getEventMap().getContextFor(HTMLPage.ON_DISPLAY_EVENT);
+    			ScriptContext context = page.getEventMap().getContextFor(HTMLPage.ON_DISPLAY_EVENT, repository.getScripts());
     			try {
     				proxy.setDestination(pageDir, file);
     				Object wrapped = ScriptWrapper.wrap(page);

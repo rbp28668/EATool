@@ -39,6 +39,7 @@ import alvahouse.eatool.repository.graphical.standard.Symbol;
 import alvahouse.eatool.repository.scripting.EventMap;
 import alvahouse.eatool.repository.scripting.ScriptContext;
 import alvahouse.eatool.repository.scripting.ScriptManager;
+import alvahouse.eatool.repository.scripting.Scripts;
 import alvahouse.eatool.scripting.proxy.ScriptWrapper;
 import alvahouse.eatool.util.SettingsManager;
 
@@ -104,6 +105,15 @@ public abstract class StandardDiagramViewer extends DiagramViewer {
 	}
 
 	/**
+	 * Allow mouse handler etc to get access to the repository's scripts.
+	 * @return
+	 * @throws Exception
+	 */
+	Scripts getScripts() throws Exception {
+		return repository.getScripts();
+	}
+	
+	/**
 	 * @param diagram
 	 * @param repository
 	 * @param context
@@ -112,7 +122,7 @@ public abstract class StandardDiagramViewer extends DiagramViewer {
 	private void fireEvent(StandardDiagram diagram, Repository repository, String event) throws Exception {
 		EventMap eventMap = diagram.getEventMap();
 		if(eventMap.hasHandler(event)) {
-			ScriptContext context = eventMap.getContextFor(event);
+			ScriptContext context = eventMap.getContextFor(event, repository.getScripts());
 			Object proxy = ScriptWrapper.wrap(diagram);
 			context.addObject("diagram", proxy, proxy.getClass());
 

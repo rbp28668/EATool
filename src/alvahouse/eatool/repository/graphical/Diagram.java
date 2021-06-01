@@ -21,7 +21,6 @@ import javax.imageio.ImageIO;
 import alvahouse.eatool.repository.base.KeyedItem;
 import alvahouse.eatool.repository.base.NamedRepositoryItem;
 import alvahouse.eatool.repository.scripting.EventMap;
-import alvahouse.eatool.repository.scripting.Scripts;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
@@ -43,10 +42,10 @@ public abstract class Diagram extends NamedRepositoryItem {
 	public final static String ON_DISPLAY_EVENT = "OnDisplay";
 	public final static String ON_CLOSE_EVENT = "OnClose";
 
-	public Diagram(DiagramType type, UUID key, Scripts scripts) {
+	public Diagram(DiagramType type, UUID key) {
 		super(key);
 		this.type = type;
-		eventMap = new EventMap(scripts);
+		eventMap = new EventMap();
 		type.getEventMap().cloneTo(eventMap);
 	}
 

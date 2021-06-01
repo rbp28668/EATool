@@ -76,9 +76,8 @@ public abstract class DiagramTypeFamily {
      * @throws InvocationTargetException 
      * @throws IllegalArgumentException 
      */
-    public DiagramType newDiagramType(Scripts scripts) throws InstantiationException, IllegalAccessException, NoSuchMethodException, SecurityException, IllegalArgumentException, InvocationTargetException{
-    	Constructor<? extends DiagramType> cons = createdClass.getConstructor(Scripts.class);
-        DiagramType created = cons.newInstance(scripts); //createdClass.newInstance();
+    public DiagramType newDiagramType() throws InstantiationException, IllegalAccessException, NoSuchMethodException, SecurityException, IllegalArgumentException, InvocationTargetException{
+        DiagramType created = createdClass.newInstance();
         created.setFamily(this);
         return created;
     }

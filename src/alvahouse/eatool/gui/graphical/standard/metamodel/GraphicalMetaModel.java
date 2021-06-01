@@ -32,7 +32,7 @@ public class GraphicalMetaModel extends StandardDiagram {
 
     /** Creates new GraphicalMetaModel */
     public GraphicalMetaModel(Repository rep, MetaModel mm, StandardDiagramType diagramType, UUID key) throws Exception {
-    	super(diagramType, key, rep.getScripts());
+    	super(diagramType, key);
         repository = rep;
         metaModel = mm;
         setDynamic(true);

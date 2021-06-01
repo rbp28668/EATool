@@ -25,11 +25,11 @@ public class EventMapPersistenceMemory implements EventMapPersistence {
 	 * @see alvahouse.eatool.repository.persist.EventMapPersistence#get()
 	 */
 	@Override
-	public EventMap get(Scripts scripts) throws Exception {
+	public EventMap get() throws Exception {
 		if(eventMap == null) {
 			throw new NullPointerException("EventMap was never set");
 		}
-		return eventMap.clone(scripts);
+		return (EventMap)eventMap.clone();
 	}
 
 	/* (non-Javadoc)
@@ -37,7 +37,7 @@ public class EventMapPersistenceMemory implements EventMapPersistence {
 	 */
 	@Override
 	public void set(EventMap eventMap) throws Exception {
-		this.eventMap = eventMap.clone(null); // disconnect from scripts
+		this.eventMap = (EventMap)eventMap.clone(); // disconnect from scripts
 	}
 
 }

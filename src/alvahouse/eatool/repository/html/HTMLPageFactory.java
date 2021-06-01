@@ -16,6 +16,7 @@ import alvahouse.eatool.repository.base.NamedRepositoryItemFactory;
 import alvahouse.eatool.repository.exception.InputException;
 import alvahouse.eatool.repository.scripting.EventMapFactory;
 import alvahouse.eatool.repository.scripting.Scripts;
+import alvahouse.eatool.repository.version.VersionImpl;
 import alvahouse.eatool.util.IXMLContentHandler;
 import alvahouse.eatool.util.UUID;
 
@@ -56,11 +57,13 @@ public class HTMLPageFactory extends NamedRepositoryItemFactory implements IXMLC
                 throw new IllegalStateException("Nested Page elements in input");
             }
             UUID uuid = getUUID(attrs);
-            currentPage = new HTMLPage(uuid, scripts);
+            currentPage = new HTMLPage(uuid);
             getCommonFields(currentPage,attrs);
             text.delete(0, text.length());
             
             eventMapFactory = new EventMapFactory(counter, currentPage.getEventMap(), scripts);
+        } else if(local.equals("Version")){
+        	VersionImpl.readXML(attrs, currentPage);
         } else {
         	if(eventMapFactory != null) {
         		eventMapFactory.startElement(uri, local, attrs);
@@ -77,7 +80,7 @@ public class HTMLPageFactory extends NamedRepositoryItemFactory implements IXMLC
 			if(local.equals("Page")){
 			    byte[] decoded = Base64.decodeBase64(text.toString().getBytes("UTF-8"));
 			    currentPage.setHtml(new String(decoded));
-			    pages.add(currentPage);
+			    pages._add(currentPage);
 			    currentPage = null;
 			    eventMapFactory = null;
 			} else {
@@ -87,6 +90,8 @@ public class HTMLPageFactory extends NamedRepositoryItemFactory implements IXMLC
 			}
 		} catch (UnsupportedEncodingException e) {
 			throw new InputException("Unable to handle UTF-8 content");
+		} catch (Exception e) {
+			throw new InputException("Unable to load HTML pages from XML", e);
 		}
     }
 

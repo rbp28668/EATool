@@ -60,7 +60,8 @@ public class HTMLEditor extends JInternalFrame {
     private HTMLPage page;
     private Application app;
     private Images images;
-    
+    private boolean edited = false;
+    private Completion completion;
     private final static String WINDOW_SETTINGS = "/Windows/HTMLEditor";
 	private static final String MENU_CONFIG = "/HTMLEditor/menus";
     
@@ -118,6 +119,15 @@ public class HTMLEditor extends JInternalFrame {
     public void dispose() {
         GUIBuilder.saveBounds(this,WINDOW_SETTINGS, app);
         app.getWindowCoordinator().removeFrame(this);
+        
+        if(edited && completion != null) {
+        	try {
+        		completion.onCompletion(page);
+        	} catch (Exception e) {
+        		new ExceptionDisplay(app.getCommandFrame(),e);
+        	}
+        }
+
         super.dispose();
     }
 
@@ -130,6 +140,18 @@ public class HTMLEditor extends JInternalFrame {
     public void setText(String html) throws IOException{
         display.setText(html);
     }
+    
+    /**
+     * Sets a handler to be called when editing is complete.
+     * @param completion
+     */
+    public void onCompletion(Completion completion) {
+    	if(completion == null) {
+    		throw new NullPointerException("Can't have a null completion");
+    	}
+    	this.completion = completion;
+    }
+    
     
     /**
      * @param editor
@@ -393,6 +415,31 @@ public class HTMLEditor extends JInternalFrame {
      */
     public void updatePage() {
         page.setHtml(editor.getText());
+        edited = true;
     }
+    
+    /**
+     * @return
+     */
+    public boolean wasEdited() {
+    	return edited;
+    }
+    
+    /**
+     * Callback interface to allow caller to specify what to do when the HTML Page is saved.
+     * @author bruce_porteous
+     *
+     */
+    public interface Completion {
+    	void onCompletion(HTMLPage page);
+    }
+
+	/**
+	 * Marks the page as edited.
+	 */
+	public void setModified() {
+		edited = true;
+	}
+
  
 }
