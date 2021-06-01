@@ -70,6 +70,7 @@ public class HTMLEditorActionSet extends ActionSet {
 			        dlg.setVisible(true);
 			        if(dlg.wasEdited()){
 			            editor.updateTitle();
+			            editor.setModified();
 			        }
 			    }
 			} catch(Throwable t) {

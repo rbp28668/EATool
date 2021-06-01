@@ -47,14 +47,13 @@ public class TimeDiagramType extends DiagramType {
      */
     private Map<MetaProperty,TypeEntry> typeLookup = new HashMap<MetaProperty,TypeEntry>();
     
-    private Scripts scripts;
+    //private Scripts scripts;
     
     /**
      * Default constructor for instantiation using Class.newInstance().
      */
-    public TimeDiagramType(Scripts scripts){
-        super(new UUID(), scripts);
-        this.scripts = scripts;
+    public TimeDiagramType(){
+        super(new UUID());
     }
     
     /**
@@ -62,8 +61,7 @@ public class TimeDiagramType extends DiagramType {
      * @param uuid
      */
     public TimeDiagramType(UUID uuid, Scripts scripts) {
-        super(uuid, scripts);
-        this.scripts = scripts;
+        super(uuid);
     }
 
     /**
@@ -116,7 +114,7 @@ public class TimeDiagramType extends DiagramType {
      * @see alvahouse.eatool.gui.graphical.DiagramType#newDiagram(alvahouse.eatool.util.UUID)
      */
     public Diagram newDiagram(UUID key) {
-        TimeDiagram diagram = new TimeDiagram(this,key, scripts);
+        TimeDiagram diagram = new TimeDiagram(this,key);
         return diagram;
     }
 

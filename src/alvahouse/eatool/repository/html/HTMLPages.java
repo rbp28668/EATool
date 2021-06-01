@@ -8,12 +8,10 @@ package alvahouse.eatool.repository.html;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
+import alvahouse.eatool.repository.persist.HTMLPagePersistence;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
@@ -24,34 +22,64 @@ import alvahouse.eatool.util.XMLWriter;
  */
 public class HTMLPages {
 
-    private Map<UUID,HTMLPage> pages = new HashMap<UUID,HTMLPage>();
-    private List<PagesChangeListener> listeners = new LinkedList<PagesChangeListener>();
+	private final HTMLPagePersistence persistence;
+    private final List<PagesChangeListener> listeners = new LinkedList<PagesChangeListener>();
     
     /**
      * Creates an empty page collection. 
      */
-    public HTMLPages() {
+    public HTMLPages(HTMLPagePersistence persistence) {
         super();
+        this.persistence = persistence;
     }
 
     /**
      * Adds a new HTMLPage.
      * @param page is the page to be added. Must not be null.
      */
-    public void add(HTMLPage page){
+    public void add(HTMLPage page) throws Exception{
         if(page == null){
             throw new NullPointerException("Can't add null HTMLProxy page");
         }
-        pages.put(page.getKey(),page);
+ 		String user = System.getProperty("user.name");
+		page.getVersion().createBy(user);
+        persistence.addHTMLPage(page);
+        firePageAdded(page);
+    }
+
+    /**
+     * Adds a page but without changing version info or firing events.  Used for importing
+     * a repository.
+     * @param page is the page to be added. Must not be null.
+     */
+    public void _add(HTMLPage page) throws Exception{
+        if(page == null){
+            throw new NullPointerException("Can't add null HTMLProxy page");
+        }
+        persistence.addHTMLPage(page);
     }
     
+    /**
+     * Adds a new HTMLPage.
+     * @param page is the page to be added. Must not be null.
+     */
+    public void update(HTMLPage page) throws Exception{
+        if(page == null){
+            throw new NullPointerException("Can't update null HTMLProxy page");
+        }
+ 		String user = System.getProperty("user.name");
+		page.getVersion().modifyBy(user);
+        persistence.updateHTMLPage(page);
+        firePageUpdated(page);
+    }
+
     /**
      * Looks up a page by its key.
      * @param uuid is the key of the page to look up.
      * @return the corresponding HTMLPage or null if not found.
      */
-    public HTMLPage lookup(UUID uuid){
-        HTMLPage page = (HTMLPage)pages.get(uuid);
+    public HTMLPage lookup(UUID uuid) throws Exception{
+        HTMLPage page = persistence.getHTMLPage(uuid);
         return page;
     }
     
@@ -59,24 +87,24 @@ public class HTMLPages {
      * Gets a read-only collection of pages.
      * @return Collection of HTMLPage.
      */
-    public Collection<HTMLPage> getPages(){
-        return Collections.unmodifiableCollection(pages.values());
+    public Collection<HTMLPage> getPages() throws Exception{
+        return persistence.getHTMLPages();
     }
 
     /**
      * Removes an individual page.
      * @param page is the page to remove.
      */
-    public void delete(HTMLPage page) {
-        pages.remove(page.getKey());
-        
+    public void delete(HTMLPage page) throws Exception{
+        persistence.deleteHTMLPage(page.getKey());
+        firePageRemoved(page);
     }
 
     /**
      * Clears all the HTMLProxy pages.
      */
-    public void reset(){
-        pages.clear();
+    public void reset() throws Exception {
+        persistence.dispose();
     }
     
     /* (non-Javadoc)
@@ -132,7 +160,7 @@ public class HTMLPages {
      * Signals that an page has been edited.
      * @param page is the page that has been edited.
      */
-    public void firePageEdited(HTMLPage page){
+    private void firePageUpdated(HTMLPage page){
         PageChangeEvent event = new PageChangeEvent(page);
         for(PagesChangeListener listener : listeners){
             listener.pageEdited(event);
@@ -146,9 +174,13 @@ public class HTMLPages {
     public void writeXML(XMLWriter out) throws IOException {
         out.startEntity("Pages");
         
-        for(HTMLPage page : pages.values()){
-            page.writeXML(out);
-        }
+        try {
+			for(HTMLPage page : getPages()){
+			    page.writeXML(out);
+			}
+		} catch (Exception e) {
+			throw new IOException("Unable to write HTML pages",e);
+		}
         out.stopEntity();
     }
 

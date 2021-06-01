@@ -69,7 +69,7 @@ public class TimeDiagramViewer extends DiagramViewer {
 		this.repository = repository;
  
 		try {
-            diagram.getEventMap().fireEvent(Diagram.ON_DISPLAY_EVENT);
+            diagram.getEventMap().fireEvent(Diagram.ON_DISPLAY_EVENT, repository.getScripts());
         } catch (BSFException e) {
             new ExceptionDisplay(app.getCommandFrame(),e);
         }
@@ -195,7 +195,7 @@ public class TimeDiagramViewer extends DiagramViewer {
 
     public void dispose() {
  		try {
-            diagram.getEventMap().fireEvent(Diagram.ON_CLOSE_EVENT);
+            diagram.getEventMap().fireEvent(Diagram.ON_CLOSE_EVENT, repository.getScripts());
         } catch (Exception e) {
             new ExceptionDisplay(app.getCommandFrame(),e);
         }

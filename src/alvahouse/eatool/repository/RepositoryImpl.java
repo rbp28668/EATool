@@ -109,7 +109,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     //private final EventMap events = new EventMap(scripts);
     //private final RepositoryProperties properties = new RepositoryProperties();
     private final ExtensibleTypes extensibleTypes = new ExtensibleTypes(persistence.getMetaModelPersistence());
-    private final HTMLPages pages = new HTMLPages();
+    private final HTMLPages pages = new HTMLPages(persistence.getHTMLPagePeristence());
     private final Images images = new Images(persistence.getImagePersistence());
     //private final EventMap modelEvents = new EventMap(scripts);
     //private final EventMap metaModelEvents = new EventMap(scripts);
@@ -152,15 +152,15 @@ public class RepositoryImpl implements TypeEventListener, Repository{
         try {
 	        // Event maps need to be initialised with the allowable events
 	        // even if no handlers defined.
-	        EventMap events = new EventMap(scripts);
+	        EventMap events = new EventMap();
 	        ensureEvents(events);
 	        persistence.getRepositoryEventMapPersistence().set(events);
 
-	        EventMap modelEvents = new EventMap(scripts);
+	        EventMap modelEvents = new EventMap();
 	        ModelDiagramType.defineEventMap(modelEvents);
 	        persistence.getModelViewerEventMapPersistence().set(modelEvents);
 	        
-	        EventMap metaModelEvents = new EventMap(scripts);
+	        EventMap metaModelEvents = new EventMap();
 	        MetaModelDiagramType.defineEventMap(metaModelEvents);
 	        persistence.getMetaModelViewerEventMapPersistence().set(metaModelEvents);
 	        
@@ -212,7 +212,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
 		loader.registerContent(NAMESPACE,"RepositoryProperties",propsf);
 		loader.registerContent(OLD_NAMESPACE,"RepositoryProperties",propsf);
 
-		EventMap events = new EventMap(null); // basic empty map to load into
+		EventMap events = new EventMap(); // basic empty map to load into
 		ensureEvents(events);
         EventMapFactory eventsmf = new EventMapFactory(counter,events,scripts);
 		loader.registerContent(NAMESPACE,"EventMap",eventsmf);
@@ -273,12 +273,12 @@ public class RepositoryImpl implements TypeEventListener, Repository{
 		loader.registerContent(NAMESPACE,"Images",
 				new ImageFactory(counter, images));
 
-		EventMap metaModelEvents = new EventMap(null);
+		EventMap metaModelEvents = new EventMap();
         MetaModelDiagramType.defineEventMap(metaModelEvents);
 		loader.registerContent(NAMESPACE,"MetaModelEventMap", 
 				new EventMapFactory(counter,metaModelEvents,scripts));
 
-		EventMap modelEvents = new EventMap(null);
+		EventMap modelEvents = new EventMap();
         ModelDiagramType.defineEventMap(modelEvents);
 		loader.registerContent(NAMESPACE,"ModelEventMap",
 				new EventMapFactory(counter,modelEvents,scripts));
@@ -325,7 +325,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
         }
 
         try {
-            getEventMap().fireEvent(POST_LOAD_EVENT);
+            getEventMap().fireEvent(POST_LOAD_EVENT, scripts);
         } catch (Exception ex) {
             throw new InputException("Problem running post-load event script: " + ex.getMessage());
         }
@@ -340,7 +340,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     public void saveXML(String uri) throws OutputException {
         try {
 
-            getEventMap().fireEvent(PRE_SAVE_EVENT);
+            getEventMap().fireEvent(PRE_SAVE_EVENT, scripts);
             
             XMLWriter writer = new XMLWriterSAX(new FileOutputStream(uri));
             try{
@@ -573,7 +573,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
      */
  	@Override
  	public EventMap getEventMap() throws Exception{
- 	    return persistence.getRepositoryEventMapPersistence().get(getScripts());
+ 	    return persistence.getRepositoryEventMapPersistence().get();
  	}
 
 	/* (non-Javadoc)
@@ -589,7 +589,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
 	 */
 	@Override
 	public EventMap getMetaModelViewerEvents() throws Exception{
-		return persistence.getMetaModelViewerEventMapPersistence().get(getScripts());
+		return persistence.getMetaModelViewerEventMapPersistence().get();
 	}
 	
 	/* (non-Javadoc)
@@ -605,7 +605,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
 	 */
 	@Override
 	public EventMap getModelViewerEvents() throws Exception{
-		return persistence.getModelViewerEventMapPersistence().get(getScripts());
+		return persistence.getModelViewerEventMapPersistence().get();
 	}
 
  	/* (non-Javadoc)

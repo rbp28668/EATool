@@ -6,8 +6,6 @@
  */
 package alvahouse.eatool.gui.html;
 
-import java.util.Iterator;
-
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
 
@@ -31,7 +29,7 @@ public class HTMLPagesTreeModel extends ExplorerTreeModel implements PagesChange
 
     /**
      */
-    public HTMLPagesTreeModel(String rootTitle,HTMLPages pages) {
+    public HTMLPagesTreeModel(String rootTitle,HTMLPages pages) throws Exception {
         super(rootTitle);
         this.pages = pages;
         
@@ -53,7 +51,7 @@ public class HTMLPagesTreeModel extends ExplorerTreeModel implements PagesChange
     /**
 	 * Method initModel builds the tree model from the pages.
 	 */
-    private void initModel() {
+    private void initModel() throws Exception {
         int idx = 0;
         for(HTMLPage page : pages.getPages()){
             addPageNode((MutableTreeNode)getRoot(),page,idx++);

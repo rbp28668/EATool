@@ -25,7 +25,6 @@ import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.html.HTMLPage;
 import alvahouse.eatool.repository.html.HTMLPages;
 import alvahouse.eatool.repository.html.PageChangeEvent;
-import alvahouse.eatool.repository.scripting.Scripts;
 import alvahouse.eatool.util.SettingsManager;
 
 /**
@@ -48,7 +47,7 @@ public class HTMLPagesExplorer extends JInternalFrame implements Explorer{
     /**
      * 
      */
-    public HTMLPagesExplorer(HTMLPages pages, Application app, Repository repository) {
+    public HTMLPagesExplorer(HTMLPages pages, Application app, Repository repository) throws Exception {
         super();
         setTitle("Framework Pages");
         init(pages,app, repository);
@@ -57,7 +56,7 @@ public class HTMLPagesExplorer extends JInternalFrame implements Explorer{
     /**
      * 
      */
-    private void init(HTMLPages pages, Application app, Repository repository){
+    private void init(HTMLPages pages, Application app, Repository repository) throws Exception{
 		thisFrame = this;
 		this.app = app;
         
@@ -70,7 +69,7 @@ public class HTMLPagesExplorer extends JInternalFrame implements Explorer{
 
         
         // Magic up ImportMappings from settings.
-        Scripts scripts = repository.getScripts();
+        //Scripts scripts = repository.getScripts();
 
         treeModel = new HTMLPagesTreeModel("Pages",pages);
         
