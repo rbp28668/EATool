@@ -5,6 +5,7 @@ package alvahouse.eatool.repository.persist.memory;
 
 import alvahouse.eatool.repository.persist.EventMapPersistence;
 import alvahouse.eatool.repository.persist.ExportMappingPersistence;
+import alvahouse.eatool.repository.persist.HTMLPagePersistence;
 import alvahouse.eatool.repository.persist.ImagePersistence;
 import alvahouse.eatool.repository.persist.ImportMappingPersistence;
 import alvahouse.eatool.repository.persist.MetaModelPersistence;
@@ -31,6 +32,7 @@ public class RepositoryPersistenceMemory implements RepositoryPersistence {
 	ImagePersistence imagePersistence = new ImagePersistenceMemory();
 	ImportMappingPersistence importMappingPersistence = new ImportMappingPersistenceMemory();
 	ExportMappingPersistence exportMappingPersistence = new ExportMappingPersistenceMemory();
+	HTMLPagePersistence htmlPagePersistence = new HTMLPagePersistenceMemory();
 	
 	/**
 	 * 
@@ -116,6 +118,14 @@ public class RepositoryPersistenceMemory implements RepositoryPersistence {
 	@Override
 	public ExportMappingPersistence getExportMappingPersistence() {
 		return exportMappingPersistence;
+	}
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.persist.RepositoryPersistence#getHTMLPagePeristence()
+	 */
+	@Override
+	public HTMLPagePersistence getHTMLPagePeristence() {
+		return htmlPagePersistence;
 	}
 
 }

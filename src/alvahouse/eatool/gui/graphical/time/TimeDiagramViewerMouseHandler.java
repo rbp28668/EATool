@@ -78,11 +78,9 @@ public class TimeDiagramViewerMouseHandler extends MouseInputAdapter {
 						    Object target = ScriptWrapper.wrapObject(item);
 						    Object diagram = ScriptWrapper.wrap(viewer.getDiagram());
 						    
-						    ScriptManager manager = ScriptManager.getInstance();
-						    
 						    EventMap eventMap = viewer.getDiagram().getEventMap();
 						    if(eventMap.hasHandler(event)) {
-						    	ScriptContext context = eventMap.getContextFor(event);
+						    	ScriptContext context = eventMap.getContextFor(event, repository.getScripts());
 						        context.addObject("target",target,target.getClass());
 							    context.addObject("diagram", diagram, diagram.getClass());
 

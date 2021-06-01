@@ -71,7 +71,7 @@ public class DiagramTypeFactory extends FactoryBase implements IXMLContentHandle
                 }
                 
                 currentFamily = types.lookupFamily(familyKey);
-                currentDiagramType = currentFamily.newDiagramType(scripts);
+                currentDiagramType = currentFamily.newDiagramType();
             } catch (Exception e) {
                 throw new InputException("Unable to create diagram type: " + e.getMessage(), e);
             }

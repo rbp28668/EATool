@@ -29,13 +29,16 @@ public class PageListExportProxy implements ExportProxy {
 	@Override
 	public void export(XMLWriter out) throws IOException {
         out.startEntity("HTMLPageList");
-        
-        for(HTMLPage page : pages.getPages()) {
-        	out.startEntity("HTMLPage");
-	        out.textEntity("Name",page.getName());
-	        out.textEntity("UUID",page.getKey().toString());
-	        out.textEntity("Description",page.getDescription());
-	        out.stopEntity();
+        try {
+	        for(HTMLPage page : pages.getPages()) {
+	        	out.startEntity("HTMLPage");
+		        out.textEntity("Name",page.getName());
+		        out.textEntity("UUID",page.getKey().toString());
+		        out.textEntity("Description",page.getDescription());
+		        out.stopEntity();
+	        }
+        } catch (Exception e){
+        	throw new IOException("Unable to export HTML Pages",e); 
         }
         
         out.stopEntity();

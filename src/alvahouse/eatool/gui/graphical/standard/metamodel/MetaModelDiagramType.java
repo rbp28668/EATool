@@ -35,8 +35,8 @@ public class MetaModelDiagramType extends StandardDiagramType {
     /**
      * 
      */
-    private MetaModelDiagramType(Scripts scripts) {
-        super(scripts);
+    private MetaModelDiagramType() {
+        super();
         init();
     }
 
@@ -44,8 +44,8 @@ public class MetaModelDiagramType extends StandardDiagramType {
      * @param name
      * @param uuid
      */
-    private MetaModelDiagramType(String name, UUID uuid, Scripts scripts) {
-        super(name, uuid, scripts);
+    private MetaModelDiagramType(String name, UUID uuid) {
+        super(name, uuid);
         init();
     }
 
@@ -55,7 +55,7 @@ public class MetaModelDiagramType extends StandardDiagramType {
      */
     public static MetaModelDiagramType getInstance(Scripts scripts){
         if(instance == null){
-            instance = new MetaModelDiagramType("Meta-Model Diagrams", new UUID(),scripts);
+            instance = new MetaModelDiagramType("Meta-Model Diagrams", new UUID());
         }
         return instance;
     }

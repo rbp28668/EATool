@@ -12,7 +12,9 @@ import org.apache.commons.codec.binary.Base64;
 
 import alvahouse.eatool.repository.base.NamedRepositoryItem;
 import alvahouse.eatool.repository.scripting.EventMap;
-import alvahouse.eatool.repository.scripting.Scripts;
+import alvahouse.eatool.repository.version.Version;
+import alvahouse.eatool.repository.version.VersionImpl;
+import alvahouse.eatool.repository.version.Versionable;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
@@ -21,11 +23,12 @@ import alvahouse.eatool.util.XMLWriter;
  * 
  * @author rbp28668
  */
-public class HTMLPage extends NamedRepositoryItem {
+public class HTMLPage extends NamedRepositoryItem implements Versionable {
 
     private String html;
     private boolean isDynamic;
-    private final EventMap eventMap;
+    private EventMap eventMap;
+    private VersionImpl version = new VersionImpl();
     
     public final static String ON_DISPLAY_EVENT = "OnDisplay";
     public final static String ON_CLOSE_EVENT = "OnClose";
@@ -33,14 +36,13 @@ public class HTMLPage extends NamedRepositoryItem {
     /**
      * @param uuid
      */
-    public HTMLPage(UUID uuid, Scripts scripts) {
+    public HTMLPage(UUID uuid) {
         super(uuid);
-        eventMap = new EventMap(scripts);
+        eventMap = new EventMap();
         eventMap.ensureEvent(ON_DISPLAY_EVENT);
         eventMap.ensureEvent(ON_CLOSE_EVENT);
     }
     
-
     /**
      * Shows that the page is dynamic - dynamic pages are created
      * by attached script and should not be saved.
@@ -87,9 +89,10 @@ public class HTMLPage extends NamedRepositoryItem {
     public void writeXML(XMLWriter out) throws IOException {
         out.startEntity("Page");
         
-        writeAttributesXML(out);        
+        writeAttributesXML(out);
+        version.writeXML(out);
 
-        eventMap.writeXML(out, "PageEvents");
+        eventMap.writeXMLUnversioned(out, "PageEvents");
         
         if(!isDynamic()) {
 	        byte[] raw = html.getBytes();
@@ -108,5 +111,27 @@ public class HTMLPage extends NamedRepositoryItem {
 	}
 
 
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.version.Versionable#getVersion()
+	 */
+	@Override
+	public Version getVersion() {
+		return version;
+	}
+
+	@Override
+	public Object clone() {
+		HTMLPage copy = new HTMLPage(getKey());
+		cloneTo(copy);
+		return copy;
+	}
+	
+	protected void cloneTo(HTMLPage copy) {
+		super.cloneTo(copy);
+		copy.eventMap = (EventMap)eventMap.clone();
+		copy.html = html;
+		copy.isDynamic = isDynamic;
+		version.cloneTo(copy.version);
+	}
 
 }

@@ -87,7 +87,7 @@ public class DiagramExplorerActionSet extends ActionSet {
 				DiagramTypes diagramTypes = repository.getDiagramTypes();
 
 				DiagramTypeFamily family = (DiagramTypeFamily)explorer.getSelectedNode().getUserObject();
-                DiagramType diagramType = family.newDiagramType(repository.getScripts());
+                DiagramType diagramType = family.newDiagramType();
                 DiagramTypeEditor editor = getTypeEditor(metaModel, diagramTypes, diagramType);
                 editor.setVisible(true);
                 if(editor.wasEdited()) {

@@ -51,5 +51,10 @@ public interface RepositoryPersistence {
 	 * @return
 	 */
 	ExportMappingPersistence getExportMappingPersistence();
+
+	/**
+	 * @return
+	 */
+	HTMLPagePersistence getHTMLPagePeristence();
 	
 }
