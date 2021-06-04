@@ -46,8 +46,8 @@ public class ImageDisplay extends RepositoryItem implements GraphicalObject {
    
     public void setImage(Image image){
         this.image = image;
-        int width = image.getImage().getWidth(null);
-        int height = image.getImage().getHeight(null);
+        width = image.getImage().getWidth(null);
+        height = image.getImage().getHeight(null);
     }
     
     /* (non-Javadoc)
@@ -188,4 +188,24 @@ public class ImageDisplay extends RepositoryItem implements GraphicalObject {
         out.stopEntity();
     }
 
+	protected void cloneTo(ImageDisplay copy) {
+		super.cloneTo(copy);
+		copy.x = x;
+		copy.y = y;
+		copy.width = width;
+		copy.height = height;
+		copy.image = image;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	protected Object clone() {
+		ImageDisplay copy = new ImageDisplay(getKey());
+		cloneTo(copy);
+		return copy;
+	}
+
+    
 }

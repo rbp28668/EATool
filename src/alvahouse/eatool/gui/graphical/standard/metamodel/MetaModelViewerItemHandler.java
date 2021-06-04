@@ -20,7 +20,6 @@ import alvahouse.eatool.gui.ItemSelectionDialog;
 import alvahouse.eatool.gui.MetaEntityEditor;
 import alvahouse.eatool.gui.MetaRelationshipEditor;
 import alvahouse.eatool.gui.PositionalPopup;
-import alvahouse.eatool.gui.graphical.layout.Arc;
 import alvahouse.eatool.gui.graphical.standard.ItemHandler;
 import alvahouse.eatool.gui.graphical.standard.StandardDiagramViewer;
 import alvahouse.eatool.repository.Repository;
@@ -82,7 +81,7 @@ public class MetaModelViewerItemHandler implements ItemHandler {
     public Symbol[] addSymbolsAt(Component parent, int x, int y) throws Exception {
         Symbol[] symbols = null;
         
-		ItemSelectionDialog dlg = new ItemSelectionDialog(parent, "Select Meta-Entities", repository.getMetaModel().getMetaEntities());
+		ItemSelectionDialog<MetaEntity> dlg = new ItemSelectionDialog<>(parent, "Select Meta-Entities", repository.getMetaModel().getMetaEntities());
 		dlg.setVisible(true);
 		
 		if(dlg.wasEdited()){
@@ -93,7 +92,7 @@ public class MetaModelViewerItemHandler implements ItemHandler {
 		    int inRow = 0;
 		    int startX = x;
 		    int idx = 0;
-		    MetaModelDiagramType type = MetaModelDiagramType.getInstance(repository.getScripts());
+		    MetaModelDiagramType type = MetaModelDiagramType.getInstance();
 		    
 		    for(MetaEntity metaEntity : selected){
 				
@@ -124,6 +123,7 @@ public class MetaModelViewerItemHandler implements ItemHandler {
         MetaEntity meFirst = (MetaEntity)first.getItem();
         MetaEntity meSecond = (MetaEntity)second.getItem();
         
+        // Figure out the set of MetaRelationships that can join the MetaEntities identified by the 2 symbols.
         Set<MetaRelationship> cmrFirst = repository.getMetaModel().getMetaRelationshipsFor(meFirst);
         Set<MetaRelationship> cmrSecond = repository.getMetaModel().getMetaRelationshipsFor(meSecond);
         Set<MetaRelationship> allowed = new HashSet<MetaRelationship>();
@@ -132,11 +132,13 @@ public class MetaModelViewerItemHandler implements ItemHandler {
         
         // remove any meta-relationships already connecting these
         // 2 meta-entities.
-        Set<Arc> existing = new HashSet<Arc>();
-        existing.addAll(first.getArcs());
-        existing.retainAll(second.getArcs());
+        Set<Connector> existing = new HashSet<>();
+        existing.addAll(first.getConnectors());
+        existing.retainAll(second.getConnectors());
+        for(Connector c : existing) {
+        	allowed.remove(c.getItem());
+        }
         
-        allowed.removeAll(existing);
         
         // intersection should now contain all the MetaRelationships that
         // can join the 2 meta-entities.
@@ -192,7 +194,7 @@ public class MetaModelViewerItemHandler implements ItemHandler {
 			selected = mr;
 		} 
 
-		ConnectorType ct = MetaModelDiagramType.getInstance(repository.getScripts()).getConnectorType();
+		ConnectorType ct = MetaModelDiagramType.getInstance().getConnectorType();
 		Connector con = ct.newConnector(new UUID());
 		con.setItem(selected);
 		return con;
@@ -229,7 +231,7 @@ public class MetaModelViewerItemHandler implements ItemHandler {
         Symbol symbol = null;
         if(edited){
 			// Need to get the correct symbol type for this entity.
-		    MetaModelDiagramType type = MetaModelDiagramType.getInstance(repository.getScripts());
+		    MetaModelDiagramType type = MetaModelDiagramType.getInstance();
 			SymbolType st = type.getSymbolType();
 			symbol = st.newSymbol(metaEntity, x, y);
 			

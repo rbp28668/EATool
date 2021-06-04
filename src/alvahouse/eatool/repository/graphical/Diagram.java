@@ -21,6 +21,10 @@ import javax.imageio.ImageIO;
 import alvahouse.eatool.repository.base.KeyedItem;
 import alvahouse.eatool.repository.base.NamedRepositoryItem;
 import alvahouse.eatool.repository.scripting.EventMap;
+import alvahouse.eatool.repository.scripting.Script;
+import alvahouse.eatool.repository.version.Version;
+import alvahouse.eatool.repository.version.VersionImpl;
+import alvahouse.eatool.repository.version.Versionable;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
@@ -29,7 +33,7 @@ import alvahouse.eatool.util.XMLWriter;
  * 
  * @author rbp28668
  */
-public abstract class Diagram extends NamedRepositoryItem {
+public abstract class Diagram extends NamedRepositoryItem implements Versionable{
 
 	private DiagramType type;
 	private boolean isDynamic = false; // True if content script generated so don't save.
@@ -37,7 +41,8 @@ public abstract class Diagram extends NamedRepositoryItem {
 	private List<DiagramsChangeListener> diagramsListeners = new LinkedList<DiagramsChangeListener>();
 	private List<DiagramChangeListener> diagramListeners = new LinkedList<DiagramChangeListener>();
 	private EventMap eventMap;
-	private boolean mustDoLayout = false;
+	private transient boolean mustDoLayout = false;
+	private VersionImpl version = new VersionImpl();
 
 	public final static String ON_DISPLAY_EVENT = "OnDisplay";
 	public final static String ON_CLOSE_EVENT = "OnClose";
@@ -372,8 +377,8 @@ public abstract class Diagram extends NamedRepositoryItem {
 		out.addAttribute("name", getName());
 		out.addAttribute("uuid", getKey().toString());
 		out.addAttribute("ofType", getType().getKey().toString());
-
-		eventMap.writeXML(out);
+		version.writeXML(out);
+		eventMap.writeXMLUnversioned(out);
 	}
 
 	/**
@@ -385,5 +390,28 @@ public abstract class Diagram extends NamedRepositoryItem {
 	 */
 	public void scriptsUpdated() throws Exception {
 	}
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.version.Versionable#getVersion()
+	 */
+	@Override
+	public Version getVersion() {
+		return version;
+	}
+
+	// Make clone visible but child objects must over-ride
+	@Override
+	public abstract Object clone() ;
+	
+	protected void cloneTo(Diagram copy) {
+		super.cloneTo(copy);
+		copy.type = (DiagramType) type.clone();
+		copy.isDynamic = isDynamic;
+		copy.backColour = backColour;
+		// Disconnect from change listeners
+		copy.eventMap = (EventMap) eventMap.clone();
+		version.cloneTo(copy.version);
+	}
+	
 
 }

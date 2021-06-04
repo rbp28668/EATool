@@ -162,13 +162,25 @@ public class DiagramExplorerActionSet extends ActionSet {
 				
 				String inputValue = JOptionPane.showInputDialog(explorer, "Diagram Name");
 				if(inputValue != null) {
-					Diagrams diagrams = repository.getMetaModelDiagrams();
-					Diagram diagram = diagrams.newDiagramOfType(diagramType);
+					final Diagrams diagrams = repository.getMetaModelDiagrams();
+					final Diagram diagram = diagrams.newDiagramOfType(diagramType);
 					diagram.setName(inputValue); 
 
 					WindowCoordinator wc = app.getWindowCoordinator();
 					WindowFactory factory = new MetaModelViewer.WindowFactory(diagram,app, repository);
-					StandardDiagramViewer editor = (StandardDiagramViewer)wc.getFrame(diagram.getKey().toString(), factory);				
+					StandardDiagramViewer editor = (StandardDiagramViewer)wc.getFrame(diagram.getKey().toString(), factory);
+					editor.onCompletion(new DiagramViewer.Completion() {
+						
+						@Override
+						public void onCompletion(Diagram d) {
+							try {
+								diagrams.add(diagram);
+							} catch (Exception e) {
+								new ExceptionDisplay(explorer, e);
+							}
+						}
+					});
+					
 					editor.refresh();
 					editor.show();
 				}
@@ -190,8 +202,8 @@ public class DiagramExplorerActionSet extends ActionSet {
 				
 				String inputValue = JOptionPane.showInputDialog(explorer, "Diagram Name");
 				if(inputValue != null) {
-					Diagrams diagrams = repository.getDiagrams();
-					Diagram diagram = diagrams.newDiagramOfType(diagramType);
+					final Diagrams diagrams = repository.getDiagrams();
+					final Diagram diagram = diagrams.newDiagramOfType(diagramType);
 					diagram.setName(inputValue); 
 
 					WindowCoordinator wc = app.getWindowCoordinator();
@@ -200,6 +212,17 @@ public class DiagramExplorerActionSet extends ActionSet {
 					windowFactory.init(diagram, app, repository);
 					
 					DiagramViewer editor = (DiagramViewer)wc.getFrame(diagram.getKey().toString(), windowFactory);
+					editor.onCompletion(new DiagramViewer.Completion() {
+						
+						@Override
+						public void onCompletion(Diagram d) {
+							try {
+								diagrams.add(diagram);
+							} catch (Exception e) {
+								new ExceptionDisplay(explorer, e);
+							}
+						}
+					});
 					editor.refresh();
 					editor.show();
 				}
@@ -214,13 +237,25 @@ public class DiagramExplorerActionSet extends ActionSet {
         private static final long serialVersionUID = 1L;
         public void actionPerformed(ActionEvent e) {
 			 try {
-                Diagram diagram = (Diagram)explorer.getSelectedNode().getUserObject();
+				final Diagrams diagrams = repository.getDiagrams();
+                final Diagram diagram = (Diagram)explorer.getSelectedNode().getUserObject();
 				WindowCoordinator wc = app.getWindowCoordinator();
 				
 				DiagramViewerWindowFactory windowFactory = DiagramViewer.getWindowFactory(diagram.getType());
 				windowFactory.init(diagram, app, repository);
 				
 				DiagramViewer editor = (DiagramViewer)wc.getFrame(diagram.getKey().toString(), windowFactory);
+				editor.onCompletion(new DiagramViewer.Completion() {
+					
+					@Override
+					public void onCompletion(Diagram d) {
+						try {
+							diagrams.update(diagram);
+						} catch (Exception e) {
+							new ExceptionDisplay(explorer, e);
+						}
+					}
+				});
 				editor.refresh();
 				editor.show();
 
@@ -254,12 +289,24 @@ public class DiagramExplorerActionSet extends ActionSet {
         private static final long serialVersionUID = 1L;
         public void actionPerformed(ActionEvent e) {
 			 try {
-                Diagram diagram = (Diagram)explorer.getSelectedNode().getUserObject();
+				final Diagrams diagrams = repository.getMetaModelDiagrams();
+                final Diagram diagram = (Diagram)explorer.getSelectedNode().getUserObject();
 				WindowCoordinator wc = app.getWindowCoordinator();
 				
 				MetaModelViewer.WindowFactory windowFactory = new MetaModelViewer.WindowFactory(diagram, app, repository);
 
 				DiagramViewer editor = (DiagramViewer)wc.getFrame(diagram.getKey().toString(), windowFactory);
+				editor.onCompletion(new DiagramViewer.Completion() {
+					
+					@Override
+					public void onCompletion(Diagram d) {
+						try {
+							diagrams.update(diagram);
+						} catch (Exception e) {
+							new ExceptionDisplay(explorer, e);
+						}
+					}
+				});
 				editor.refresh();
 				editor.show();
 

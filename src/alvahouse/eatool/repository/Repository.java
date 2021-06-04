@@ -9,6 +9,7 @@ package alvahouse.eatool.repository;
 import java.io.IOException;
 import java.util.Set;
 
+import alvahouse.eatool.gui.graphical.standard.metamodel.MetaModelDiagramTypes;
 import alvahouse.eatool.repository.base.DeleteDependenciesList;
 import alvahouse.eatool.repository.base.KeyedItem;
 import alvahouse.eatool.repository.exception.InputException;
@@ -89,6 +90,12 @@ public interface Repository extends KeyedItem {
     public abstract MetaModel getMetaModel();
 
     public abstract Diagrams getMetaModelDiagrams();
+    
+	/**
+	 * @return
+	 */
+	public abstract MetaModelDiagramTypes getMetaModelDiagramTypes();
+
 
     /**
      * Gets the repository's diagrams.
@@ -253,6 +260,7 @@ public interface Repository extends KeyedItem {
 
     public abstract Set<Entity> searchForEntitiesOfType(String query,
             Set<MetaEntity> contents) throws RepositoryException;
+
 
 
 }

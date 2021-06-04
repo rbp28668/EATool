@@ -625,4 +625,14 @@ public abstract class AbstractConnector extends RepositoryItem implements Connec
     public float getY() {
         return (nodes[0].getY() + nodes[nodes.length-1].getY())/2;
     }
+    
+    public abstract Object clone();
+    
+    protected void cloneTo(AbstractConnector copy) {
+    	super.cloneTo(copy);
+    	copy.type = type;
+    	copy.item = item;
+    	copy.start = start;
+    	copy.finish = finish;
+    }
 }

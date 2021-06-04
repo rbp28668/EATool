@@ -63,6 +63,7 @@ public abstract class StandardDiagramViewer extends DiagramViewer {
 	private ItemHandler itemHandler;
 	private Application app;
 	private Repository repository;
+	
 	private static final String WINDOW_SETTINGS = "Windows/StandardDiagramViewer";
 
 	/**
@@ -168,10 +169,22 @@ public abstract class StandardDiagramViewer extends DiagramViewer {
 			new ExceptionDisplay(app.getCommandFrame(), e);
 		}
 
+		complete();
+
 		GUIBuilder.saveBounds(this, WINDOW_SETTINGS, app);
 		app.getWindowCoordinator().removeFrame(this);
 		viewPane.dispose();
+		
 		super.dispose();
+	}
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.gui.graphical.DiagramViewer#complete()
+	 */
+	@Override
+	protected void complete() {
+		runCompletion();
+		
 	}
 
 	/*
@@ -577,5 +590,7 @@ public abstract class StandardDiagramViewer extends DiagramViewer {
 		}
 
 	}
+	
+
 
 }

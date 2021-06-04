@@ -14,6 +14,7 @@ import alvahouse.eatool.repository.model.ModelChangeAdapter;
 import alvahouse.eatool.repository.model.ModelChangeEvent;
 import alvahouse.eatool.repository.model.Relationship;
 import alvahouse.eatool.repository.model.Role;
+import alvahouse.eatool.repository.persist.DiagramPersistence;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
@@ -26,8 +27,7 @@ import alvahouse.eatool.util.XMLWriter;
  */
 public class Diagrams extends ModelChangeAdapter {
 
-	private List<Diagram> allDiagrams = new LinkedList<Diagram>();
-	private Map<DiagramType,List<Diagram>> diagramsByType = new HashMap<DiagramType,List<Diagram>>(); // map of lists of diagram, keyed by diagram type
+	private final DiagramPersistence persistence;
 	private List<DiagramsChangeListener> changeListeners = new LinkedList<DiagramsChangeListener>(); // of DiagramsChangeListener
 	
 	/**
@@ -37,54 +37,33 @@ public class Diagrams extends ModelChangeAdapter {
 	 * @param type is the diagram type to get the associated diagrams for.
 	 * @return List of diagrams: never null, may be empty.
 	 */
-	private List<Diagram> getDiagramList(DiagramType type) {
-		List<Diagram> diagrams = diagramsByType.get(type);
-		if(diagrams == null) {
-			diagrams = new LinkedList<Diagram>();
-			diagramsByType.put(type,diagrams);
-		}
-		return diagrams;
+	private Collection<Diagram> getDiagramList(DiagramType type) throws Exception {
+		return persistence.getDiagramsByType(type);
 	}
 	
-	private Collection<Diagram> getDiagrams(){
-		return Collections.unmodifiableCollection(allDiagrams);
+	private Collection<Diagram> getDiagrams() throws Exception {
+		return persistence.getDiagrams();
 	}
 	
 	
-	private void fireDiagramsUpdated() throws Exception{
-		DiagramsChangeEvent event = new DiagramsChangeEvent(null);
-		for(DiagramsChangeListener listener : changeListeners){
-			listener.diagramsUpdated(event);
-		}
-	}
-
-	private void fireDiagramAdded(Diagram diag) throws Exception{
-		DiagramsChangeEvent event = new DiagramsChangeEvent(diag);
-		for(DiagramsChangeListener listener : changeListeners){
-			listener.diagramAdded(event);
-		}
-	}
-	
-//	private void fireDiagramChanged(Diagram diag){
-//		DiagramsChangeEvent event = new DiagramsChangeEvent(diag);
-//		for(DiagramsChangeListener listener : changeListeners){
-//			listener.diagramChanged(event);
-//		}
-//	}
-	
-	private void fireDiagramDeleted(Diagram diag) throws Exception{
-		DiagramsChangeEvent event = new DiagramsChangeEvent(diag);
-		for(DiagramsChangeListener listener : changeListeners){
-			listener.diagramDeleted(event);
-		}
-	}
 
 	/**
 	 * Constructor for Diagrams.
+	 * @param diagramPersistence 
 	 */
-	public Diagrams() {
+	public Diagrams(DiagramPersistence diagramPersistence) {
 		super();
+		this.persistence = diagramPersistence;
 	}
+
+    /**
+     * Does a simple lookup of a diagram by key.  Note that this is
+     * a simple linear search.
+     * @param uuid is the key to use for lookup.
+     */
+    public Diagram lookup(UUID uuid) throws Exception {
+        return persistence.lookup(uuid);
+    }
 
 	/**
 	 * This adds a diagram to the diagrams collection.
@@ -94,12 +73,39 @@ public class Diagrams extends ModelChangeAdapter {
 	    if(diagram == null){
 	        throw new NullPointerException("Can't add null diagram to diagrams");
 	    }
-		allDiagrams.add(diagram);
-		List<Diagram> diagrams = getDiagramList(diagram.getType());
-		diagrams.add(diagram);
+ 		String user = System.getProperty("user.name");
+		diagram.getVersion().createBy(user);
+
+		persistence.addDiagram(diagram);
 		fireDiagramAdded(diagram);
 	}
-	
+
+	/**
+	 * This adds a diagram to the diagrams collection.
+	 * @param diagram is the diagram to add.
+	 */
+	public void _add(Diagram diagram) throws Exception{
+	    if(diagram == null){
+	        throw new NullPointerException("Can't add null diagram to diagrams");
+	    }
+		persistence.addDiagram(diagram);
+	}
+
+	/**
+	 * This adds a diagram to the diagrams collection.
+	 * @param diagram is the diagram to add.
+	 */
+	public void update(Diagram diagram) throws Exception{
+	    if(diagram == null){
+	        throw new NullPointerException("Can't update null diagram to diagrams");
+	    }
+ 		String user = System.getProperty("user.name");
+		diagram.getVersion().modifyBy(user);
+
+		persistence.updateDiagram(diagram);
+		fireDiagramChanged(diagram);
+	}
+
 	/**
 	 * Creates a new diagram of the given type.
 	 * @param dt is the type of diagram to create.
@@ -107,7 +113,6 @@ public class Diagrams extends ModelChangeAdapter {
 	 */
 	public Diagram newDiagramOfType(DiagramType dt) throws Exception{
 		Diagram diagram = dt.newDiagram(new UUID());
-		add(diagram);
 		return diagram;
 	}
 	
@@ -116,14 +121,8 @@ public class Diagrams extends ModelChangeAdapter {
 	 * @param diagram
 	 */
 	public void removeDiagram(Diagram diagram) throws Exception{
-	    boolean removed = allDiagrams.remove(diagram);
-		List<Diagram> diagrams = getDiagramList(diagram.getType());
-		if(diagrams != null){
-		    diagrams.remove(diagram);
-		}
-		if(removed){
-		    fireDiagramDeleted(diagram);
-		}
+	    persistence.deleteDiagram(diagram.getKey());
+	    fireDiagramDeleted(diagram);
 	}
 	
 	/**
@@ -131,7 +130,7 @@ public class Diagrams extends ModelChangeAdapter {
 	 * @param type is the DiagramType of the diagrams to be returned.
 	 * @return Collection of diagrams.  May be empty, never null.
 	 */
-	public Collection<Diagram> getDiagramsOfType(DiagramType type) {
+	public Collection<Diagram> getDiagramsOfType(DiagramType type) throws Exception {
 		return getDiagramList(type);
 	}
 
@@ -146,8 +145,7 @@ public class Diagrams extends ModelChangeAdapter {
 	
 	
 	public void deleteContents() throws Exception{
-		allDiagrams.clear();
-		diagramsByType.clear();
+		persistence.dispose();
 		fireDiagramsUpdated();
 	}
 	
@@ -159,12 +157,45 @@ public class Diagrams extends ModelChangeAdapter {
 	 */
 	public void writeXML(XMLWriter out, String entityName) throws IOException {
 		out.startEntity(entityName);
-		for( Diagram diagram : getDiagrams()) {
-			diagram.writeXML(out);
+		try {
+			for( Diagram diagram : getDiagrams()) {
+				diagram.writeXML(out);
+			}
+		} catch (Exception e) {
+			throw new IOException("Unable to write diagrams to XML",e);
 		}
 		out.stopEntity();
 	}
 
+	private void fireDiagramsUpdated() throws Exception{
+		DiagramsChangeEvent event = new DiagramsChangeEvent(null);
+		for(DiagramsChangeListener listener : changeListeners){
+			listener.diagramsUpdated(event);
+		}
+	}
+
+	private void fireDiagramAdded(Diagram diag) throws Exception{
+		DiagramsChangeEvent event = new DiagramsChangeEvent(diag);
+		for(DiagramsChangeListener listener : changeListeners){
+			listener.diagramAdded(event);
+		}
+	}
+	
+	private void fireDiagramChanged(Diagram diag) throws Exception{
+		DiagramsChangeEvent event = new DiagramsChangeEvent(diag);
+		for(DiagramsChangeListener listener : changeListeners){
+			listener.diagramChanged(event);
+		}
+	}
+	
+	private void fireDiagramDeleted(Diagram diag) throws Exception{
+		DiagramsChangeEvent event = new DiagramsChangeEvent(diag);
+		for(DiagramsChangeListener listener : changeListeners){
+			listener.diagramDeleted(event);
+		}
+	}
+
+	
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.model.ModelChangeListener#modelUpdated(alvahouse.eatool.repository.model.ModelChangeEvent)
      */
@@ -189,12 +220,14 @@ public class Diagrams extends ModelChangeAdapter {
      * @see alvahouse.eatool.repository.model.ModelChangeListener#EntityDeleted(alvahouse.eatool.repository.model.ModelChangeEvent)
      */
     public void EntityDeleted(ModelChangeEvent e) {
-        Entity entity = (Entity)e.getSource();
-
-        // Remove any corresponding symbols from the diagram
-        for(Diagram diagram : allDiagrams) {
-            diagram.removeNodeForObject(entity);
-        }
+    	// TODO approach needs to be reviewed as not really appropriate for remote repository
+    	// Possibly system of "tombstone" entities
+//        Entity entity = (Entity)e.getSource();
+//
+//        // Remove any corresponding symbols from the diagram
+//        for(Diagram diagram : allDiagrams) {
+//            diagram.removeNodeForObject(entity);
+//        }
     }
 
 
@@ -212,26 +245,27 @@ public class Diagrams extends ModelChangeAdapter {
      * @param rel is the Relationship to validate.
      */
     private void validateRelationship(Relationship rel) throws Exception{
-        Entity start = rel.start().connectsTo();
-        Entity finish = rel.finish().connectsTo();
-
-        // Validate on diagram from the diagram
-        for(Diagram diagram : allDiagrams){
-            diagram.validate(rel,start,finish);
-        }
+//        Entity start = rel.start().connectsTo();
+//        Entity finish = rel.finish().connectsTo();
+//
+//        // Validate on diagram from the diagram
+//        for(Diagram diagram : allDiagrams){
+//            diagram.validate(rel,start,finish);
+//        }
     }
 
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.model.ModelChangeListener#RelationshipDeleted(alvahouse.eatool.repository.model.ModelChangeEvent)
      */
     public void RelationshipDeleted(ModelChangeEvent e) {
-        // Delete corresponding connectors
-        Relationship rel = (Relationship)e.getSource();
-
-        // Remove any corresponding symbols from the diagram
-        for(Diagram diagram : allDiagrams){
-            diagram.removeArcForObject(rel);
-        }
+    	// TODO - review as for entities
+//        // Delete corresponding connectors
+//        Relationship rel = (Relationship)e.getSource();
+//
+//        // Remove any corresponding symbols from the diagram
+//        for(Diagram diagram : allDiagrams){
+//            diagram.removeArcForObject(rel);
+//        }
         
     }
 
@@ -244,20 +278,5 @@ public class Diagrams extends ModelChangeAdapter {
         validateRelationship(role.getRelationship());
     }
 
-    /**
-     * Does a simple lookup of a diagram by key.  Note that this is
-     * a simple linear search.
-     * @param uuid is the key to use for lookup.
-     */
-    public Diagram lookup(UUID uuid) {
-        Diagram diagram = null;
-        for(Diagram d : allDiagrams){
-            if(d.getKey().equals(uuid)){
-                diagram = d;
-                break;
-            }
-        }
-        return diagram;
-    }
 
 }

@@ -13,7 +13,6 @@ import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 import alvahouse.eatool.gui.graphical.layout.Arc;
@@ -32,7 +31,7 @@ public class AbstractSymbol extends TextualObject implements Symbol  {
 
 	private int index;
 	private KeyedItem item;
-	private LinkedList<Arc> arcs = new LinkedList<Arc>();
+	private LinkedList<Connector> connectors = new LinkedList<>();
 	private SymbolType type;
 
 
@@ -69,7 +68,10 @@ public class AbstractSymbol extends TextualObject implements Symbol  {
      */
     @Override
     public void addArc(Arc a) {
-        arcs.addLast(a);
+    	if(!(a instanceof Connector)) {
+    		throw new IllegalArgumentException("Arc must be a connector");
+    	}
+        connectors.addLast((Connector) a );
     }
     
     /* (non-Javadoc)
@@ -77,7 +79,7 @@ public class AbstractSymbol extends TextualObject implements Symbol  {
      */
     @Override
     public void deleteArc(Arc a) {
-        arcs.remove(a);
+        connectors.remove(a);
     }
     
     /* (non-Javadoc)
@@ -112,16 +114,17 @@ public class AbstractSymbol extends TextualObject implements Symbol  {
      * @see alvahouse.eatool.gui.graphical.Node#getArcs()
      */
     @Override
-    public Collection<Arc> getArcs() {
-        return Collections.unmodifiableCollection(arcs);
+    public Collection<? extends Arc> getArcs() {
+        return Collections.unmodifiableCollection(connectors);
     }
+    
     
     /* (non-Javadoc)
      * @see alvahouse.eatool.gui.graphical.Node#arcCount()
      */
     @Override
     public int arcCount() {
-        return arcs.size();
+        return connectors.size();
     }
     
     /* (non-Javadoc)
@@ -140,6 +143,13 @@ public class AbstractSymbol extends TextualObject implements Symbol  {
         this.type = type;
     }
     
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.graphical.standard.Symbol#getConnectors()
+	 */
+	@Override
+	public Collection<Connector> getConnectors() {
+		return Collections.unmodifiableCollection(connectors);
+	}
 
 	
 	/**
@@ -147,8 +157,7 @@ public class AbstractSymbol extends TextualObject implements Symbol  {
 	 * should be called whenever the symbol is moved.
 	 */
 	private void updateConnectorPositions(){
-		for(Iterator<Arc> iter = arcs.iterator(); iter.hasNext(); ){
-			Connector c = (Connector)iter.next();
+		for(Connector c : connectors){
 			c.endMoved(this);
 		}
 	}
@@ -263,6 +272,17 @@ public class AbstractSymbol extends TextualObject implements Symbol  {
 		return index;
 	}
 
-		
+	public Object clone() {
+		AbstractSymbol copy = new AbstractSymbol(getKey(), getItem(), getType());
+		cloneTo(copy);
+		return copy;
+	}
+	
+	protected void cloneTo(AbstractSymbol copy) {
+		super.cloneTo(copy);
+		copy.index = index;
+		copy.connectors.addAll(connectors);
+	}
+
 
 }

@@ -13,6 +13,9 @@ import alvahouse.eatool.repository.graphical.standard.StandardDiagram;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.repository.scripting.EventMap;
+import alvahouse.eatool.repository.version.Version;
+import alvahouse.eatool.repository.version.VersionImpl;
+import alvahouse.eatool.repository.version.Versionable;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
@@ -22,10 +25,11 @@ import alvahouse.eatool.util.XMLWriter;
  * 
  * @author rbp28668
  */
-public abstract class DiagramType extends NamedRepositoryItem {
+public abstract class DiagramType extends NamedRepositoryItem implements Versionable{
 
 	private EventMap eventMap;
 	private DiagramTypeFamily family = null;
+	private VersionImpl version = new VersionImpl();
 
 	/**
 	 * @param key
@@ -93,7 +97,8 @@ public abstract class DiagramType extends NamedRepositoryItem {
 		out.startEntity("DiagramType");
 		super.writeAttributesXML(out);
 		out.addAttribute("family", getFamilyKey().toString());
-		eventMap.writeXML(out);
+		version.writeXML(out);
+		eventMap.writeXMLUnversioned(out);
 	}
 
 	public abstract void writeXML(XMLWriter out) throws IOException;
@@ -142,4 +147,24 @@ public abstract class DiagramType extends NamedRepositoryItem {
 	public void setFamily(DiagramTypeFamily family) {
 		this.family = family;
 	}
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.version.Versionable#getVersion()
+	 */
+	@Override
+	public Version getVersion() {
+		return version;
+	}
+	
+	// Make clone visible but child objects must over-ride
+	@Override
+	public abstract Object clone() ;
+	
+	protected void cloneTo(DiagramType copy) {
+		super.cloneTo(copy);
+		copy.eventMap = (EventMap)eventMap.clone();
+		copy.family = family; // No clone as these are fixed and can be shared.
+		version.cloneTo(copy.version);
+	}
+
 }
