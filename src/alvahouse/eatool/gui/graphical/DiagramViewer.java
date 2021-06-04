@@ -38,6 +38,7 @@ public abstract class DiagramViewer extends JInternalFrame {
 	private static final long serialVersionUID = 1L;
 
 	private Diagram diagram;
+	private Completion completion;
 
     private static final Map<Class<? extends DiagramType>, Class<? extends DiagramTypeEditor>> editorClasses = new HashMap<>();
     private static final Map<Class<? extends DiagramType>, Class<? extends DiagramViewerWindowFactory>> windowFactoryClasses = new HashMap<>();
@@ -73,6 +74,21 @@ public abstract class DiagramViewer extends JInternalFrame {
 	    refresh();
 	}
 
+	public void onCompletion(Completion c) {
+		completion = c;
+	}
+	
+	protected void runCompletion() {
+		if(completion != null) {
+			completion.onCompletion(diagram);
+		}
+	}
+	
+	/**
+	 * Should call 
+	 */
+	protected abstract void complete();
+	
     /**
 	 * 
 	 */
@@ -84,6 +100,7 @@ public abstract class DiagramViewer extends JInternalFrame {
 	
 	public abstract void fitDiagramToWindow();
 
+	
 	/**
 	 * Given a diagram type magics up an appropriate window factory to create
 	 * viewers for diagrams of that type.
@@ -118,4 +135,14 @@ public abstract class DiagramViewer extends JInternalFrame {
         DiagramTypeEditor editor = cons.newInstance(args);
         return editor;
 	}
+	
+    /**
+     * Callback interface to allow caller to specify what to do when the diagram is saved.
+     * @author bruce_porteous
+     *
+     */
+    public interface Completion {
+    	void onCompletion(Diagram d);
+    }
+
 }

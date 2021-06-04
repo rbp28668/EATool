@@ -3,6 +3,7 @@ package alvahouse.eatool.gui;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
 
+import alvahouse.eatool.Main;
 import alvahouse.eatool.repository.graphical.Diagram;
 import alvahouse.eatool.repository.graphical.DiagramType;
 import alvahouse.eatool.repository.graphical.DiagramTypeFamily;
@@ -58,7 +59,7 @@ implements DiagramsChangeListener{
     /** Call when the diagram types or set of diagrams changes to get the explorer to re-build
      * it's internal representation
      */
-    public void refresh() {
+    public void refresh() throws Exception {
        ((DefaultMutableTreeNode)getRoot()).removeAllChildren();
        reload();
        initModel();
@@ -68,7 +69,7 @@ implements DiagramsChangeListener{
 	 * Method initModel builds the tree model from the current set of
 	 * diagram types and diagrams.
 	 */
-    private void initModel() {
+    private void initModel() throws Exception {
  
         int idx = 0;
         for(DiagramTypeFamily dtf : diagramTypes.getDiagramTypeFamilies()) {
@@ -83,7 +84,7 @@ implements DiagramsChangeListener{
      * @param dtf is the DiagramTypeFactory to insert.
      * @param idx is the child position of the parent to insert the DiagramTypeFactory node at.
      */
-    private void addDiagramTypeFamilyNode(MutableTreeNode parent, DiagramTypeFamily dtf, int idx) {
+    private void addDiagramTypeFamilyNode(MutableTreeNode parent, DiagramTypeFamily dtf, int idx) throws Exception{
         DefaultMutableTreeNode tnFamily = new DefaultMutableTreeNode(dtf);
         insertNodeInto(tnFamily,parent,idx);
         tnFamily.setUserObject(dtf);
@@ -96,7 +97,7 @@ implements DiagramsChangeListener{
 	 * @param parent is the parent node to add the children to.
 	 * @param dtf is the parent DiagramTypeFactory.
 	 */
-	private void setFamilyNodeChildren(MutableTreeNode parent, DiagramTypeFamily dtf) {
+	private void setFamilyNodeChildren(MutableTreeNode parent, DiagramTypeFamily dtf) throws Exception{
         int idx = 0;
         
         for(DiagramType dt : dtf.getDiagramTypes()) {
@@ -112,7 +113,7 @@ implements DiagramsChangeListener{
      * @param dt is the DiagramType to add.
      * @param idxType is the position where this child node should be inserted in the parent.
      */
-    private void addDiagramTypeNode(MutableTreeNode parent, DiagramType dt, int idxType) {
+    private void addDiagramTypeNode(MutableTreeNode parent, DiagramType dt, int idxType) throws Exception{
         DefaultMutableTreeNode tnDiagramType = new DefaultMutableTreeNode(dt);
         insertNodeInto(tnDiagramType,parent,idxType);
         tnDiagramType.setUserObject(dt);
@@ -126,7 +127,7 @@ implements DiagramsChangeListener{
 	 * the parent DiagramType.
 	 * @param dt is the DiagramType whose children should be added.
 	 */
-	private void setDiagramTypeNodeChildren(MutableTreeNode parent, DiagramType dt) {
+	private void setDiagramTypeNodeChildren(MutableTreeNode parent, DiagramType dt) throws Exception{
         int idx = 0;
         
         String description = dt.getDescription();
@@ -172,7 +173,7 @@ implements DiagramsChangeListener{
 	 * @param node is the node corresponding to the given DiagramType.
 	 * @param dt is the DiagramType that has been changed.
 	 */
-	private void refreshNode(DefaultMutableTreeNode node, DiagramType dt) {
+	private void refreshNode(DefaultMutableTreeNode node, DiagramType dt) throws Exception{
 		node.removeAllChildren();
 		setDiagramTypeNodeChildren(node, dt);
 		nodeStructureChanged(node);
@@ -204,7 +205,11 @@ implements DiagramsChangeListener{
 	 * @see alvahouse.eatool.gui.graphical.DiagramsChangeListener#typesUpdated(alvahouse.eatool.gui.graphical.DiagramsChangeEvent)
 	 */
 	public void typesUpdated(DiagramsChangeEvent e) {
-		refresh();
+		try {
+			refresh();
+		} catch (Exception e1) {
+			new ExceptionDisplay(Main.getAppFrame(),e1);
+		}
 	}
 
 	/* (non-Javadoc)
@@ -216,7 +221,11 @@ implements DiagramsChangeListener{
 		DefaultMutableTreeNode parent = lookupNodeOf(family);
 		if(parent != null) {
 			int idxType = parent.getChildCount();
-			addDiagramTypeNode(parent, dt, idxType); 
+			try {
+				addDiagramTypeNode(parent, dt, idxType);
+			} catch (Exception e1) {
+				new ExceptionDisplay(Main.getAppFrame(),e1);
+			} 
 		}
 		
 	}
@@ -228,7 +237,11 @@ implements DiagramsChangeListener{
 		DiagramType dt = (DiagramType)e.getSource();
 		DefaultMutableTreeNode tn = lookupNodeOf(dt);
 		if(dt != null) {
-		    refreshNode(tn,dt);
+		    try {
+				refreshNode(tn,dt);
+			} catch (Exception e1) {
+				new ExceptionDisplay(Main.getAppFrame(),e1);
+			}
 		}
 	}
 
@@ -248,7 +261,11 @@ implements DiagramsChangeListener{
 	 * @see alvahouse.eatool.gui.graphical.DiagramsChangeListener#diagramsUpdated(alvahouse.eatool.gui.graphical.DiagramsChangeEvent)
 	 */
 	public void diagramsUpdated(DiagramsChangeEvent e) {
-		refresh();
+		try {
+			refresh();
+		} catch (Exception e1) {
+			new ExceptionDisplay(Main.getAppFrame(),e1);
+		}
 	}
 
 	/* (non-Javadoc)

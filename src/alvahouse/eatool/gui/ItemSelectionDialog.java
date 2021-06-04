@@ -9,11 +9,11 @@ package alvahouse.eatool.gui;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JDialog;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
@@ -27,9 +27,13 @@ import javax.swing.ListSelectionModel;
  * 
  * @author rbp28668
  */
-public class ItemSelectionDialog extends BasicDialog {
+public class ItemSelectionDialog<T> extends BasicDialog {
 
-    private JList list = new JList();
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private JList<T> list = new JList<>();
     
     /**
      * Creates an ItemSelectionDialog
@@ -37,7 +41,7 @@ public class ItemSelectionDialog extends BasicDialog {
      * @param title is the dialog title.
      * @param items is the collection of things to select from.
      */
-    public ItemSelectionDialog(JDialog parent, String title, Collection items) {
+    public ItemSelectionDialog(JDialog parent, String title, Collection<T> items) {
         super(parent, title);
         init(items);
     }
@@ -48,14 +52,17 @@ public class ItemSelectionDialog extends BasicDialog {
      * @param title is the dialog title.
      * @param items is the collection of things to select from.
      */
-    public ItemSelectionDialog(Component parent, String title, Collection items) {
+    public ItemSelectionDialog(Component parent, String title, Collection<T> items) {
         super(parent, title);
         init(items);
     }
 
-    private void init(Collection items){
-        
-        list.setListData(items.toArray());
+	private void init(Collection<T> items){
+		DefaultListModel<T> model = new DefaultListModel<>();
+		for(T item : items) {
+			model.addElement(item);
+		}
+		list.setModel(model);
         list.setEnabled(true); 
         list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         JScrollPane scroll = new JScrollPane(list);
@@ -77,15 +84,13 @@ public class ItemSelectionDialog extends BasicDialog {
         return !list.isSelectionEmpty();
     }
 
-    public Collection getSelectedItems(){
-        LinkedList values =  new LinkedList();;
-        Collections.addAll(values, list.getSelectedValues());
+    public Collection<T> getSelectedItems(){
+        LinkedList<T> values =  new LinkedList<>(list.getSelectedValuesList());
         return values;
     }
     
-    public Set getSelectedSet(){
-        HashSet values = new HashSet();
-        Collections.addAll(values, list.getSelectedValues());
+    public Set<T> getSelectedSet(){
+        HashSet<T> values = new HashSet<>(list.getSelectedValuesList());
         return values;
     }
 }

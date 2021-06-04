@@ -6,19 +6,15 @@
  */
 package alvahouse.eatool.repository.graphical;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
 
-import alvahouse.eatool.repository.scripting.Scripts;
 import alvahouse.eatool.util.UUID;
 
 /**
  * DiagramTypeFamily is a container class for different diagram types of the same class. DiagramTypes
- * describe all the different types for a given family or DiagramTypeFamily
+ * describe all the different types for a given family or DiagramTypeFamily.
+ * Note that in practice this delegates much of its functionality to the underlying DiagramTypes collection.
  * 
  * @author rbp28668
  */
@@ -28,7 +24,7 @@ public abstract class DiagramTypeFamily {
     private DiagramTypes allTypes; 
     
     /** Diagram types of this family */
-    private List<DiagramType> diagramTypes = new LinkedList<DiagramType>();
+    //private List<DiagramType> diagramTypes = new LinkedList<DiagramType>();
     
     /** Name of this family */
     private String name;
@@ -126,32 +122,64 @@ public abstract class DiagramTypeFamily {
      * @param dt is the DiagramType to add.
      */
     public void add(DiagramType dt) throws Exception{
-        diagramTypes.add(dt);
-        allTypes.registerType(dt);
+    	if(dt == null) {
+    		throw new NullPointerException("Can't add null diagram type to type family");
+    	}
+    	if(allTypes == null) {
+    		throw new IllegalStateException("No underlying DiagramTypes in DiagramTypeFamily");
+    	}
+    	dt.setFamily(this);
+        allTypes.add(dt);
     }
-    
+
+    /**
+     * Adds a DiagramType to this family without updating version, firing events etc.
+     * @param dt is the DiagramType to add.
+     */
+    public void _add(DiagramType dt) throws Exception{
+    	if(dt == null) {
+    		throw new NullPointerException("Can't add null diagram type to type family");
+    	}
+    	if(allTypes == null) {
+    		throw new IllegalStateException("No underlying DiagramTypes in DiagramTypeFamily");
+    	}
+    	dt.setFamily(this);
+        allTypes._add(dt);
+    }
+
     /**
      * removes a diagram type from this family.
      * @param dt is the DiagramType to remove.
      */
-    public void remove(DiagramType dt) throws Exception{
-        diagramTypes.remove(dt);
-        allTypes.unregisterType(dt);
+    public void delete(DiagramType dt) throws Exception{
+    	if(dt == null) {
+    		throw new NullPointerException("Can't delete null diagram type from type family");
+    	}
+    	if(allTypes == null) {
+    		throw new IllegalStateException("No underlying DiagramTypes in DiagramTypeFamily");
+    	}
+        allTypes.delete(dt);
     }
     
     /**
      * Gets the collection of DiagramTypes in this family.
      * @return a read-only Collection of DiagramTypes.
      */
-    public Collection<DiagramType> getDiagramTypes(){
-        return Collections.unmodifiableCollection(diagramTypes);
+    public Collection<DiagramType> getDiagramTypes() throws Exception{
+    	if(allTypes == null) {
+    		throw new IllegalStateException("No underlying DiagramTypes in DiagramTypeFamily");
+    	}
+        return allTypes.getDiagramTypesOfFamily(this);
     }
 
     /**
      * Removes any child DiagramType. 
      */
-    public void deleteContents() {
-        diagramTypes.clear();
+    public void deleteContents() throws Exception {
+    	if(allTypes == null) {
+    		throw new IllegalStateException("No underlying DiagramTypes in DiagramTypeFamily");
+    	}
+        allTypes.deleteDiagramTypesOfFamily(this);
     }
     
     

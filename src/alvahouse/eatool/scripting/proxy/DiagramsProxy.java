@@ -41,7 +41,7 @@ public class DiagramsProxy {
      * @return the corresponding diagram.
      */
     @Scripted(description = "Gets a diagram associated with the given key.")
-    public StandardDiagramProxy getStandardDiagram(String key){
+    public StandardDiagramProxy getStandardDiagram(String key) throws Exception{
         return new StandardDiagramProxy( (StandardDiagram)diagrams.lookup(new UUID(key)) );
     }
     
@@ -52,7 +52,7 @@ public class DiagramsProxy {
      * @return the corresponding diagram.
      */
     @Scripted(description="Creates a new standard diagram of the time given by the type key.")
-    public StandardDiagramProxy newStandardDiagram(String type){
+    public StandardDiagramProxy newStandardDiagram(String type) throws Exception{
         DiagramTypes types = repository.getDiagramTypes();
         DiagramType dt = types.get(new UUID(type));
         return new StandardDiagramProxy((StandardDiagram)dt.newDiagram(new UUID()));

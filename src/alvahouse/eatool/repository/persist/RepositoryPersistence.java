@@ -57,4 +57,19 @@ public interface RepositoryPersistence {
 	 */
 	HTMLPagePersistence getHTMLPagePeristence();
 	
+	/**
+	 * @return
+	 */
+	DiagramPersistence getDiagramPersistence();
+	
+	/**
+	 * @return
+	 */
+	DiagramPersistence getMetaModelDiagramPersistence();
+	
+	/**
+	 * @return
+	 */
+	DiagramTypePersistence getDiagramTypePersistence();
+	
 }

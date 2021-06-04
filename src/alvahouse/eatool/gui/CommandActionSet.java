@@ -21,7 +21,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
 import alvahouse.eatool.Application;
-import alvahouse.eatool.gui.graphical.standard.metamodel.MetaModelDiagramTypes;
 import alvahouse.eatool.gui.graphical.standard.metamodel.MetaModelViewer;
 import alvahouse.eatool.gui.graphical.standard.model.ModelViewer;
 import alvahouse.eatool.gui.html.HTMLEditor;
@@ -603,8 +602,7 @@ public class CommandActionSet extends ActionSet {
     public void showMetaModelDiagrams(){
         try {
 			DiagramExplorer dex = (DiagramExplorer) app.getWindowCoordinator().getFrame("MetaDiagramExplorer");
-			dex.setRepository(MetaModelDiagramTypes.getInstance(repository.getScripts()),
-					repository.getMetaModelDiagrams());
+			dex.setRepository(repository.getMetaModelDiagramTypes(),repository.getMetaModelDiagrams());
 			dex.refresh();
 			dex.show();
         } catch(Throwable t) {

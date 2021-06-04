@@ -684,5 +684,38 @@ public class StandardDiagram extends Diagram implements NodeGraph{
         images.remove(image);
     }
 
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.graphical.Diagram#clone()
+	 */
+	@Override
+	public Object clone() {
+		StandardDiagram copy = new StandardDiagram(getType(),getKey());
+		cloneTo(copy);
+		return copy;
+	}
+	
+	protected void cloneTo(StandardDiagram copy) {
+		super.cloneTo(copy);
+		for(Symbol s : symbols) {
+			s = (Symbol)s.clone();
+			copy.symbols.add(s);
+			copy.nodeMap.put(s.getItem(), s);   // allow node lookup by user object
+			copy.symbolsByUUID.put(s.getKey(),s);
+		}
+		for(Connector c : connectors) {
+			c = (Connector) c.clone();
+			copy.connectors.add(c);
+			copy.arcMap.put(c.getItem(),c);
+			copy.connectorsByUUID.put(c.getKey(),c);
+		}
+		for(TextBox t : textBoxes) {
+			copy.textBoxes.add((TextBox) t.clone());
+		}
+		for(ImageDisplay id : images) {
+			copy.images.add((ImageDisplay) id.clone());
+		}
+		
+	}
+
      
 }

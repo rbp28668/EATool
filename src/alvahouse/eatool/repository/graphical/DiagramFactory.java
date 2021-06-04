@@ -20,12 +20,12 @@ import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.model.Model;
 import alvahouse.eatool.repository.scripting.EventMap;
 import alvahouse.eatool.repository.scripting.EventMapFactory;
-import alvahouse.eatool.repository.scripting.Scripts;
+import alvahouse.eatool.repository.version.VersionImpl;
 import alvahouse.eatool.util.IXMLContentHandler;
 import alvahouse.eatool.util.UUID;
 
 /**
- * DiagramFactory is a andler to deserialise diagrams (and their sub objects such as
+ * DiagramFactory is a handler to deserialise diagrams (and their sub objects such as
  * symbols and connectors).  Diagrams are added to the supplied diagrams as needed.
  * @author Bruce.Porteous
  *
@@ -39,7 +39,6 @@ public class DiagramFactory extends FactoryBase implements IXMLContentHandler {
     private Images images;
     private EventMapFactory eventMapFactory;
     private EventMap savedEventMap;
-    private Scripts scripts;
     private Map<DiagramType, DiagramDetailFactory> detailFactories = new HashMap<>(); // DiagramDetailFactory keyed by DiagramType
     
     private Diagram currentDiagram = null;
@@ -54,7 +53,7 @@ public class DiagramFactory extends FactoryBase implements IXMLContentHandler {
 	 * @param diagramTypes provides the types of any diagram.
 	 * @param metaModel is the meta-model that the digrams belong to.
 	 */
-	public DiagramFactory(ProgressCounter counter, Diagrams diagrams, DiagramTypes diagramTypes, MetaModel metaModel, Model model, Images images, EventMapFactory eventMapFactory, Scripts scripts) {
+	public DiagramFactory(ProgressCounter counter, Diagrams diagrams, DiagramTypes diagramTypes, MetaModel metaModel, Model model, Images images, EventMapFactory eventMapFactory) {
 		super();
 		this.diagrams = diagrams;
 		this.diagramTypes = diagramTypes;
@@ -62,7 +61,6 @@ public class DiagramFactory extends FactoryBase implements IXMLContentHandler {
 		this.model = model;
 		this.images = images;
 		this.eventMapFactory = eventMapFactory;
-		this.scripts = scripts;
 		this.counter = counter;
 	}
 
@@ -84,9 +82,14 @@ public class DiagramFactory extends FactoryBase implements IXMLContentHandler {
 			}
 			UUID typeID = new UUID(attr);
 			
-			DiagramType type = diagramTypes.get(typeID);
-			if(type == null){
-			    type = MetaModelDiagramType.getInstance(scripts);
+			DiagramType type = null;
+			try {
+				type = diagramTypes.get(typeID);
+				if(type == null){
+				    type = MetaModelDiagramType.getInstance();
+				}
+			} catch (Exception e) {
+				throw new InputException("Unable to get diagram types whilst loading XML",e);
 			}
 			
 			currentDiagram = type.newDiagram(uuid);
@@ -98,8 +101,9 @@ public class DiagramFactory extends FactoryBase implements IXMLContentHandler {
             }
 			savedEventMap = eventMapFactory.getEventMap();
 			eventMapFactory.setEventMap(currentDiagram.getEventMap());
-
  			
+		} else if(local.equals("Version")){
+			VersionImpl.readXML(attrs, currentDiagram);
 		} else {
 		    if(currentHandler != null){
 		        currentHandler.startElement(uri,local,attrs);
@@ -126,7 +130,7 @@ public class DiagramFactory extends FactoryBase implements IXMLContentHandler {
 	public void endElement(String uri, String local) throws InputException {
 		if(local.equals("Diagram")) {
 			try {
-				diagrams.add(currentDiagram);
+				diagrams._add(currentDiagram);
 				currentDiagram.deferLayout(false);
 				currentDiagram = null;
 				eventMapFactory.setEventMap(savedEventMap);

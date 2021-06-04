@@ -514,5 +514,15 @@ public abstract class TextualObject extends RepositoryItem implements GraphicalO
 		this.font = font;
 	}
     
+	protected void cloneTo(TextualObject copy) {
+		super.cloneTo(copy);
+	    copy.x = x;
+	    copy.y = y;
+		copy.size = new DimensionFloat(size.getWidth(), size.getHeight());
+		copy.textColour = textColour;
+		copy.backColour = backColour;
+		copy.borderColour = borderColour;
+		copy.font = font;
+	}
 	
 }

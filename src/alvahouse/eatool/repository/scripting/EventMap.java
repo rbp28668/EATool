@@ -210,6 +210,14 @@ public class EventMap implements Versionable{
     }
 
     /**
+     * Writes the EventMap out as XML
+     * @param out is the XMLWriterDirect to write the XML to
+     */
+    public void writeXMLUnversioned(XMLWriter out) throws IOException {
+        writeXMLUnversioned(out,"EventMap");
+    }
+
+    /**
      * Writes the EventMap out as XML using the given tag but without version
      * information for when the event map is embedded in another versioned component.
      * @param out is the XMLWriterDirect to write the XML to

@@ -55,5 +55,10 @@ public class BasicConnector extends AbstractConnector {
 		
 	}
 
+	public Object clone() {
+		BasicConnector copy = new BasicConnector(getKey(), getItem(), getType());
+		cloneTo(copy);
+		return copy;
+	}
 
 }

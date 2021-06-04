@@ -26,6 +26,7 @@ import org.xml.sax.SAXParseException;
 
 import alvahouse.eatool.gui.graphical.standard.AllowableElements;
 import alvahouse.eatool.gui.graphical.standard.metamodel.MetaModelDiagramType;
+import alvahouse.eatool.gui.graphical.standard.metamodel.MetaModelDiagramTypes;
 import alvahouse.eatool.gui.graphical.standard.model.ModelDiagramType;
 import alvahouse.eatool.repository.base.DeleteDependenciesList;
 import alvahouse.eatool.repository.exception.InputException;
@@ -100,9 +101,10 @@ public class RepositoryImpl implements TypeEventListener, Repository{
 	
     private final MetaModel metaModel = new MetaModel(persistence.getMetaModelPersistence());
     private final Model model = new Model(metaModel, persistence.getModelPersistence());
-    private final Diagrams diagrams = new Diagrams();
-    private final Diagrams metaModelDiagrams = new Diagrams();
-    private final DiagramTypes diagramTypes = new DiagramTypes();
+    private final Diagrams diagrams = new Diagrams(persistence.getDiagramPersistence());
+    private final Diagrams metaModelDiagrams = new Diagrams(persistence.getMetaModelDiagramPersistence());
+    private final DiagramTypes diagramTypes = new DiagramTypes(persistence.getDiagramTypePersistence());
+    private final MetaModelDiagramTypes metaModelDiagramTypes = new MetaModelDiagramTypes(persistence.getDiagramTypePersistence());
     private final ImportMappings importMappings = new ImportMappings(persistence.getImportMappingPersistence());
     private final ExportMappings exportMappings = new ExportMappings(persistence.getExportMappingPersistence());
     private final Scripts scripts = new Scripts(persistence.getScriptPersistence());
@@ -131,7 +133,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
         try {
             AllowableElements.initInstance(config);
         } catch (ClassNotFoundException e) {
-            throw new RepositoryException("Unable to initialse diagram elements from config", e);
+            throw new RepositoryException("Unable to initialise diagram elements from config", e);
         }
         
 		MetaPropertyTypes.extendTypesFromConfig(config);
@@ -148,6 +150,12 @@ public class RepositoryImpl implements TypeEventListener, Repository{
         // Repository needs to know if the types change and so does
         // the master types list.
         extensibleTypes.addListener(this);
+        
+        try {
+			metaModelDiagramTypes.addDefaultType();
+		} catch (Exception e1) {
+			throw new RepositoryException("Unable to set default diagram type for metamodel",e1);
+		}
         
         try {
 	        // Event maps need to be initialised with the allowable events
@@ -247,11 +255,11 @@ public class RepositoryImpl implements TypeEventListener, Repository{
         loader.registerContent(NAMESPACE,"DiagramType",dtf);
         loader.registerContent(OLD_NAMESPACE,"DiagramType",dtf);
 
-		DiagramFactory metadf = new DiagramFactory(counter,diagrams,diagramTypes, metaModel, model, images, eventsmf, scripts);
+		DiagramFactory metadf = new DiagramFactory(counter,diagrams,diagramTypes, metaModel, model, images, eventsmf);
 		loader.registerContent(NAMESPACE,"MetaDiagrams",metadf);
 		loader.registerContent(OLD_NAMESPACE,"MetaDiagrams",metadf);
         
-		DiagramFactory df = new DiagramFactory(counter,diagrams,diagramTypes, metaModel, model, images,  eventsmf, scripts);
+		DiagramFactory df = new DiagramFactory(counter,diagrams,diagramTypes, metaModel, model, images,  eventsmf);
 		loader.registerContent(NAMESPACE,"Diagrams",df);
 		loader.registerContent(OLD_NAMESPACE,"Diagrams",df);
 
@@ -528,7 +536,18 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     public Diagrams getMetaModelDiagrams(){
         return metaModelDiagrams;
     }
+    
+    
+    
  	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.Repository#getMetaModelDiagramTypes()
+	 */
+	@Override
+	public MetaModelDiagramTypes getMetaModelDiagramTypes() {
+		return metaModelDiagramTypes;
+	}
+
+	/* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#getDiagrams()
      */
     @Override
