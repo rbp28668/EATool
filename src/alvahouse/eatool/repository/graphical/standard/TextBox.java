@@ -70,6 +70,22 @@ public class TextBox extends TextualObject {
 		out.stopEntity();
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	protected Object clone() {
+		TextBox copy = new TextBox(getKey());
+		cloneTo(copy);
+		return copy;
+	}
+	
+	protected void cloneTo(TextBox copy) {
+		super.cloneTo(copy);
+		copy.text = text;
+		copy.url = url;
+	}
+
 	
 
 }

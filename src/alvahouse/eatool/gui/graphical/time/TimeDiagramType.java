@@ -60,7 +60,7 @@ public class TimeDiagramType extends DiagramType {
      * Create a TimeDiagramType from a persisted state where the UUID is known.
      * @param uuid
      */
-    public TimeDiagramType(UUID uuid, Scripts scripts) {
+    public TimeDiagramType(UUID uuid) {
         super(uuid);
     }
 
@@ -69,13 +69,11 @@ public class TimeDiagramType extends DiagramType {
      * the diagram type.
      * @param entry is the TypeEntry to add.
      */
-    public void addTarget(TypeEntry entry) throws Exception{
+    public void addTarget(TypeEntry entry) {
         assert(entry != null);
         assert(entry.getTargetType() != null);
         assert(entry.getTargetProperty() != null);
-        assert(entry.getTargetType().getMetaProperty(entry.getTargetProperty().getKey()) != null);
-        assert(entry.getTargetProperty().getMetaPropertyType() instanceof TimeSeriesType);
-
+ 
         for(TypeEntry existing : targets){
             if(existing.getTargetProperty().equals(entry.getTargetProperty())){
                 throw new IllegalArgumentException("Can only specify a property once on time diagram");
@@ -176,6 +174,24 @@ public class TimeDiagramType extends DiagramType {
         // NOP - as above;
     }
 
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.graphical.DiagramType#clone()
+	 */
+	@Override
+	public Object clone() {
+		TimeDiagramType copy = new TimeDiagramType(getKey());
+		cloneTo(copy);
+		return copy;
+	}
+
+	protected void cloneTo(TimeDiagramType copy) {
+		super.cloneTo(copy);
+		for(TypeEntry target : targets) {
+			addTarget((TypeEntry) target.clone()); 
+		}
+	}
+
+    
     /**
      * TypeEntry describes a MetaEntity/MetaProperty pair and colours needed to display 
      * that (time series) property.  The type of the meta property must be a TimeSeriesType.
@@ -192,10 +208,9 @@ public class TimeDiagramType extends DiagramType {
          * @param targetType is the MetaEntity containing the targetProperty.
          * @param targetProperty is the MetaProperty to display.
          */
-        TypeEntry( MetaEntity targetType, MetaProperty targetProperty) throws Exception{
+        TypeEntry( MetaEntity targetType, MetaProperty targetProperty) {
             assert(targetType != null);
             assert(targetProperty != null);
-            assert(targetType.getMetaProperty(targetProperty.getKey()) != null);
             assert(targetProperty.getMetaPropertyType() instanceof TimeSeriesType);
             this.targetType = targetType; 
             this.targetProperty = targetProperty;
@@ -278,9 +293,14 @@ public class TimeDiagramType extends DiagramType {
             
             out.stopEntity();
         }
+        
+        @Override
+        protected Object clone() {
+        	TypeEntry copy = new TypeEntry(targetType, targetProperty);
+        	copy.colours.addAll(colours);
+        	return copy;
+        }
 
     }
-
-
 
 }

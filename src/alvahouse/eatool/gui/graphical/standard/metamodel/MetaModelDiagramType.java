@@ -17,7 +17,6 @@ import alvahouse.eatool.repository.graphical.symbols.RectangularSymbol;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.repository.scripting.EventMap;
-import alvahouse.eatool.repository.scripting.Scripts;
 import alvahouse.eatool.util.UUID;
 
 /**
@@ -53,7 +52,7 @@ public class MetaModelDiagramType extends StandardDiagramType {
      * Singleton accessor.
      * @return the singleton instance of MetaModelDiagramType.
      */
-    public static MetaModelDiagramType getInstance(Scripts scripts){
+    public static MetaModelDiagramType getInstance(){
         if(instance == null){
             instance = new MetaModelDiagramType("Meta-Model Diagrams", new UUID());
         }
@@ -140,4 +139,10 @@ public class MetaModelDiagramType extends StandardDiagramType {
         return me == null;
     }
 
+    // Note that as this is immutable we just return this.
+    @Override
+    public Object clone() {
+    	return this;
+    }
+    
 }

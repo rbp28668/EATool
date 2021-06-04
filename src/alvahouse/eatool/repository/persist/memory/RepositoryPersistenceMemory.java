@@ -3,6 +3,8 @@
  */
 package alvahouse.eatool.repository.persist.memory;
 
+import alvahouse.eatool.repository.persist.DiagramPersistence;
+import alvahouse.eatool.repository.persist.DiagramTypePersistence;
 import alvahouse.eatool.repository.persist.EventMapPersistence;
 import alvahouse.eatool.repository.persist.ExportMappingPersistence;
 import alvahouse.eatool.repository.persist.HTMLPagePersistence;
@@ -33,6 +35,9 @@ public class RepositoryPersistenceMemory implements RepositoryPersistence {
 	ImportMappingPersistence importMappingPersistence = new ImportMappingPersistenceMemory();
 	ExportMappingPersistence exportMappingPersistence = new ExportMappingPersistenceMemory();
 	HTMLPagePersistence htmlPagePersistence = new HTMLPagePersistenceMemory();
+	DiagramPersistence diagramPersistence = new DiagramPersistenceMemory();
+	DiagramPersistence diagramMetaModelPersistence = new DiagramPersistenceMemory();
+	DiagramTypePersistence diagramTypePersistence = new DiagramTypePersistenceMemory();
 	
 	/**
 	 * 
@@ -126,6 +131,30 @@ public class RepositoryPersistenceMemory implements RepositoryPersistence {
 	@Override
 	public HTMLPagePersistence getHTMLPagePeristence() {
 		return htmlPagePersistence;
+	}
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.persist.RepositoryPersistence#getDiagramPersistence()
+	 */
+	@Override
+	public DiagramPersistence getDiagramPersistence() {
+		return diagramPersistence;
+	}
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.persist.RepositoryPersistence#getMetaModelDiagramPersistence()
+	 */
+	@Override
+	public DiagramPersistence getMetaModelDiagramPersistence() {
+		return diagramMetaModelPersistence;
+	}
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.persist.RepositoryPersistence#getDiagramTypePersistence()
+	 */
+	@Override
+	public DiagramTypePersistence getDiagramTypePersistence() {
+		return diagramTypePersistence;
 	}
 
 }

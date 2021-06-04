@@ -58,7 +58,7 @@ public class EAToolWindowCoordinator extends WindowCoordinator {
         
         addFactory( new WindowFactory () {
             public JInternalFrame createFrame()  throws Exception{
-                StandardDiagramType diagramType = MetaModelDiagramType.getInstance(rep.getScripts());
+                StandardDiagramType diagramType = MetaModelDiagramType.getInstance();
                 GraphicalMetaModel gmm = new GraphicalMetaModel(rep, rep.getMetaModel(),diagramType, new UUID());
                 rep.getMetaModelViewerEvents().cloneTo(gmm.getEventMap());
                 return new MetaModelViewer(gmm, app, rep);

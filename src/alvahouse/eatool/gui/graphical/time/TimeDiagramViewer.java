@@ -200,13 +200,24 @@ public class TimeDiagramViewer extends DiagramViewer {
             new ExceptionDisplay(app.getCommandFrame(),e);
         }
 
+ 		complete();
+ 		
 	    GUIBuilder.saveBounds(this,WINDOW_SETTINGS,app);
         app.getWindowCoordinator().removeFrame(this);
         viewPane.dispose();
         labelPane.dispose();
     }
     
-    /** internal pane to hold the view of a model
+    /* (non-Javadoc)
+	 * @see alvahouse.eatool.gui.graphical.DiagramViewer#complete()
+	 */
+	@Override
+	protected void complete() {
+		runCompletion();
+		
+	}
+
+	/** internal pane to hold the view of a model
      */
     class ViewerPane extends JPanel {
         private static final long serialVersionUID = 1L;

@@ -83,4 +83,6 @@ public interface Connector extends Arc, GraphicalObject, GraphicalProxy, KeyedIt
      */
     public abstract UUID getKey();
 	
+    
+    public Object clone();
 }

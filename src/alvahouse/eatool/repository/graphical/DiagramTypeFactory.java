@@ -10,6 +10,7 @@ import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.scripting.EventMap;
 import alvahouse.eatool.repository.scripting.EventMapFactory;
 import alvahouse.eatool.repository.scripting.Scripts;
+import alvahouse.eatool.repository.version.VersionImpl;
 import alvahouse.eatool.util.IXMLContentHandler;
 import alvahouse.eatool.util.UUID;
 
@@ -25,7 +26,6 @@ public class DiagramTypeFactory extends FactoryBase implements IXMLContentHandle
 	private MetaModel metaModel;
 	private DiagramTypes types;
 	private EventMapFactory eventMapFactory;
-	private Scripts scripts;
 	private EventMap savedEventMap = null;
 	private DiagramType currentDiagramType = null;
 	private DiagramTypeFamily currentFamily = null;
@@ -42,7 +42,6 @@ public class DiagramTypeFactory extends FactoryBase implements IXMLContentHandle
 		types = diagramTypes;
         metaModel = mm; 
         this.eventMapFactory = eventMapFactory;
-        this.scripts = scripts;
         this.counter = counter;
 	}
 
@@ -86,7 +85,9 @@ public class DiagramTypeFactory extends FactoryBase implements IXMLContentHandle
 			
 			currentHandler = currentDiagramType.getTypeDetailFactory();
 			currentHandler.init(currentDiagramType,metaModel);
-		} else{
+		} else if(local.equals("Version")){
+			VersionImpl.readXML(attrs, currentDiagramType);
+		} else {
 		    currentHandler.startElement(uri,local,attrs);
 		}
 	}
@@ -97,7 +98,7 @@ public class DiagramTypeFactory extends FactoryBase implements IXMLContentHandle
 	public void endElement(String uri, String local) throws InputException {
 		if(local.equals("DiagramType")) {
 			try {
-				currentFamily.add(currentDiagramType);
+				currentFamily._add(currentDiagramType);
 				currentDiagramType = null;
 				eventMapFactory.setEventMap(savedEventMap);
 				savedEventMap = null;

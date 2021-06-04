@@ -33,7 +33,7 @@ public class MetaModelViewer extends StandardDiagramViewer {
     /** Creates new form MetaModelViewer */
     public MetaModelViewer(StandardDiagram diagram, Application app, Repository repository) throws Exception {
         super(diagram, 
-                new MetaModelViewerItemHandler(MetaModelDiagramType.getInstance(repository.getScripts()), 
+                new MetaModelViewerItemHandler(MetaModelDiagramType.getInstance(), 
                 		app, repository),
                 app,
                 repository
