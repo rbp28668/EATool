@@ -10,6 +10,7 @@ package alvahouse.eatool.repository.metamodel;
 import java.io.IOException;
 
 import alvahouse.eatool.repository.base.NamedRepositoryItem;
+import alvahouse.eatool.repository.dao.metamodel.MetaPropertyDao;
 import alvahouse.eatool.repository.metamodel.types.MetaPropertyType;
 import alvahouse.eatool.repository.metamodel.types.MetaPropertyTypes;
 import alvahouse.eatool.util.UUID;
@@ -36,7 +37,26 @@ public class MetaProperty  extends NamedRepositoryItem  {
         m_type = MetaPropertyTypes.getBuiltInType("string"); // use string as default type.
     }
 
-    /* (non-Javadoc)
+    /**
+	 * @param mpdao
+	 */
+	public MetaProperty(MetaPropertyDao mpdao, MetaPropertyTypes types) {
+		super(mpdao);
+		m_type = types.typeFromName(mpdao.getTypeKey().toString());
+		m_default = mpdao.getDefaultValue();
+		m_mandatory = mpdao.isMandatory();
+		readOnly = mpdao.isReadOnly();
+		summary = mpdao.isSummary();
+	}
+
+	public MetaPropertyDao toDao() {
+		MetaPropertyDao dao = new MetaPropertyDao();
+		copyTo(dao);
+		return dao;
+	}
+	
+	
+	/* (non-Javadoc)
      * @see java.lang.Object#clone()
      */
     public Object clone() {
@@ -173,6 +193,15 @@ public class MetaProperty  extends NamedRepositoryItem  {
         copy.container = null;
     }
 
+    protected void copyTo(MetaPropertyDao dao) {
+        super.copyTo(dao);
+        dao.setTypeKey(m_type.getKey());
+        dao.setMandatory(m_mandatory);
+        dao.setReadOnly(readOnly);
+        dao.setDefaultValue(m_default);
+    }
+
+    
     /** sets the parent meta entity / meta relationship for this property
      * @param me is the parent meta-entity for this meta-property
      */

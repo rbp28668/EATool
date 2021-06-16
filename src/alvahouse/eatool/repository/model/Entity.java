@@ -269,7 +269,7 @@ public class Entity extends PropertyContainer implements Versionable {
     
 
     /**
-     * Compare is a Comparator class to allow sorting etc of Entities. 
+     * CompareByName is a Comparator class to allow sorting etc of Entities. 
      * 
      * @author rbp28668
      */

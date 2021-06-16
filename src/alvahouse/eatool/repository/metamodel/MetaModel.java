@@ -358,6 +358,15 @@ public class MetaModel implements KeyedItem {
 	}
 
 	/**
+	 * Determines whether a given MetaModelChangeListener is included
+	 * 
+	 * @param listener is the MetaModelChangeListener to check.
+	 */
+	public boolean isActive(MetaModelChangeListener listener) {
+		return listeners.contains(listener);
+	}
+
+	/**
 	 * Signals a major change in the model to any registered listeners
 	 * 
 	 * @throws Exception
@@ -374,7 +383,7 @@ public class MetaModel implements KeyedItem {
 	 * 
 	 * @param me is the new MetaEntity.
 	 */
-	public void fireMetaEntityAdded(MetaEntity me) throws Exception {
+	private void fireMetaEntityAdded(MetaEntity me) throws Exception {
 		MetaModelChangeEvent evt = new MetaModelChangeEvent(me);
 		for (MetaModelChangeListener l : listeners) {
 			l.metaEntityAdded(evt);
@@ -386,7 +395,7 @@ public class MetaModel implements KeyedItem {
 	 * 
 	 * @param me is the changed MetaEntity.
 	 */
-	public void fireMetaEntityChanged(MetaEntity me) throws Exception {
+	private void fireMetaEntityChanged(MetaEntity me) throws Exception {
 		MetaModelChangeEvent evt = new MetaModelChangeEvent(me);
 		for (MetaModelChangeListener l : listeners) {
 			l.metaEntityChanged(evt);
@@ -398,7 +407,7 @@ public class MetaModel implements KeyedItem {
 	 * 
 	 * @param me is the deleted MetaEntity.
 	 */
-	public void fireMetaEntityDeleted(MetaEntity me) throws Exception {
+	private void fireMetaEntityDeleted(MetaEntity me) throws Exception {
 		MetaModelChangeEvent evt = new MetaModelChangeEvent(me);
 		for (MetaModelChangeListener l : listeners) {
 			l.metaEntityDeleted(evt);
@@ -410,7 +419,7 @@ public class MetaModel implements KeyedItem {
 	 * 
 	 * @param mr is the added MetaRelationship.
 	 */
-	public void fireMetaRelationshipAdded(MetaRelationship mr) throws Exception {
+	private void fireMetaRelationshipAdded(MetaRelationship mr) throws Exception {
 		MetaModelChangeEvent evt = new MetaModelChangeEvent(mr);
 		for (MetaModelChangeListener l : listeners) {
 			l.metaRelationshipAdded(evt);
@@ -422,7 +431,7 @@ public class MetaModel implements KeyedItem {
 	 * 
 	 * @param mr is the changed MetaRelationship.
 	 */
-	public void fireMetaRelationshipChanged(MetaRelationship mr) throws Exception {
+	private void fireMetaRelationshipChanged(MetaRelationship mr) throws Exception {
 		MetaModelChangeEvent evt = new MetaModelChangeEvent(mr);
 		for (MetaModelChangeListener l : listeners) {
 			l.metaRelationshipChanged(evt);
@@ -434,7 +443,7 @@ public class MetaModel implements KeyedItem {
 	 * 
 	 * @param mr is the deleted MetaRelationship.
 	 */
-	public void fireMetaRelationshipDeleted(MetaRelationship mr) throws Exception {
+	private void fireMetaRelationshipDeleted(MetaRelationship mr) throws Exception {
 		MetaModelChangeEvent evt = new MetaModelChangeEvent(mr);
 		for (MetaModelChangeListener l : listeners) {
 			l.metaRelationshipDeleted(evt);
@@ -473,6 +482,7 @@ public class MetaModel implements KeyedItem {
 	@Override
 	public void setKey(UUID uuid) {
 		assert (uuid != null);
+		persistence.setKey(uuid);
 	}
 
 }

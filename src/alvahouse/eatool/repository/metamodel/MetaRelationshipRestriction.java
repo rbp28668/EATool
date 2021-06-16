@@ -6,8 +6,12 @@
  */
 package alvahouse.eatool.repository.metamodel;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+
+import alvahouse.eatool.repository.dao.metamodel.MetaRelationshipRestrictionDao;
 
 //import alvahouse.eatool.repository.model.Entity;
 
@@ -22,8 +26,28 @@ import java.util.List;
  */
 public abstract class MetaRelationshipRestriction {
 
+	private final static Map<String, MetaRelationshipRestriction> restrictions = new HashMap<>();
+	
     /** This restriction adds no extra restrictions to a relationship and is the default*/
     public final static MetaRelationshipRestriction NONE = new NullRestriction();
+
+    static {
+    	restrictions.put(NONE.getName(), NONE);
+    }
+    
+    public static MetaRelationshipRestriction fromName(String name) {
+    	return restrictions.get(name);
+    }
+    
+    public static MetaRelationshipRestriction fromDao(MetaRelationshipRestrictionDao dao) {
+    	return MetaRelationshipRestriction.fromName(dao.getName());
+    }
+    
+    public MetaRelationshipRestrictionDao toDao() {
+    	MetaRelationshipRestrictionDao dao = new MetaRelationshipRestrictionDao();
+    	dao.setName(getName());
+    	return dao;
+    }
     
     /**
      * Each restriction is named for reporting purposes.

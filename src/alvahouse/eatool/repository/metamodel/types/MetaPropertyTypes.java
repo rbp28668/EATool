@@ -13,6 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import alvahouse.eatool.util.SettingsManager;
+import alvahouse.eatool.util.UUID;
 
 /**
  * MetaPropertyTypes is a container class for MetaPropertyTypes (the
@@ -31,24 +32,25 @@ public class MetaPropertyTypes {
 
     private final static List<MetaPropertyType> builtinTypes = new LinkedList<MetaPropertyType>();
     private final static HashMap<String,MetaPropertyType> builtinLookup = new HashMap<String,MetaPropertyType>();
+    private final static HashMap<String,String> oldKeyConcordance = new HashMap<>();
     
     static {
-        addNativeType(new MetaPropertyType.TypeBoolean());
-        addNativeType(new MetaPropertyType.TypeChar());
-        addNativeType(new MetaPropertyType.TypeByte());
-        addNativeType(new MetaPropertyType.TypeShort());
-        addNativeType(new MetaPropertyType.TypeInt());
-        addNativeType(new MetaPropertyType.TypeLong());
-        addNativeType(new MetaPropertyType.TypeFloat());
-        addNativeType(new MetaPropertyType.TypeDouble());
-        addNativeType(new MetaPropertyType.TypeString());
-        addNativeType(new MetaPropertyType.TypeUUID());
-        addNativeType(new MetaPropertyType.TypeDate());
-        addNativeType(new MetaPropertyType.TypeTime());
-        addNativeType(new MetaPropertyType.TypeTimeStamp());
-        addNativeType(new MetaPropertyType.TypeInterval());
-        addNativeType(new MetaPropertyType.TypeURL());
-        addNativeType(new MetaPropertyType.TypeText());
+        addNativeType(new MetaPropertyType.TypeBoolean(), Keys.OLD_TYPE_BOOLEAN);
+        addNativeType(new MetaPropertyType.TypeChar(), Keys.OLD_TYPE_CHAR);
+        addNativeType(new MetaPropertyType.TypeByte(), Keys.OLD_TYPE_BYTE);
+        addNativeType(new MetaPropertyType.TypeShort(), Keys.OLD_TYPE_SHORT);
+        addNativeType(new MetaPropertyType.TypeInt(), Keys.OLD_TYPE_INT);
+        addNativeType(new MetaPropertyType.TypeLong(), Keys.OLD_TYPE_LONG);
+        addNativeType(new MetaPropertyType.TypeFloat(), Keys.OLD_TYPE_FLOAT);
+        addNativeType(new MetaPropertyType.TypeDouble(), Keys.OLD_TYPE_DOUBLE);
+        addNativeType(new MetaPropertyType.TypeString(), Keys.OLD_TYPE_STRING);
+        addNativeType(new MetaPropertyType.TypeUUID(), Keys.OLD_TYPE_UUID);
+        addNativeType(new MetaPropertyType.TypeDate(), Keys.OLD_TYPE_DATE);
+        addNativeType(new MetaPropertyType.TypeTime(), Keys.OLD_TYPE_TIME);
+        addNativeType(new MetaPropertyType.TypeTimeStamp(), Keys.OLD_TYPE_TIMESTAMP);
+        addNativeType(new MetaPropertyType.TypeInterval(), Keys.OLD_TYPE_INTERVAL);
+        addNativeType(new MetaPropertyType.TypeURL(), Keys.OLD_TYPE_URL);
+        addNativeType(new MetaPropertyType.TypeText(), Keys.OLD_TYPE_TEXT);
     }
     
     /**
@@ -64,9 +66,18 @@ public class MetaPropertyTypes {
         metaList.clear();
         
         for(MetaPropertyType mpt : builtinTypes){
+        	String key = mpt.getKey().toString().toLowerCase();
             metaProperties.put(mpt.getTypeName(), mpt);
-            metaProperties.put(mpt.getKey().toString().toLowerCase(),mpt);
+            metaProperties.put(key,mpt);
             metaList.add(mpt);
+            
+            // Original keys for built-in types were incorrect but still want to be able to use them 
+            // when reading an old repository
+            String oldKey = oldKeyConcordance.get(key);
+            if(oldKey != null) {
+            	metaProperties.put(oldKey, mpt);
+            }
+
         }
         
         for(ExtensibleTypeList list : extensibleTypes.getTypes()) {
@@ -83,7 +94,7 @@ public class MetaPropertyTypes {
      * @return the MetaPropertyType corresponding to the given type name */    
     public MetaPropertyType typeFromName(String typename) throws IllegalArgumentException {
         typename = typename.toLowerCase();
-        MetaPropertyType mpt = (MetaPropertyType) metaProperties.get(typename);
+        MetaPropertyType mpt = metaProperties.get(typename);
         if(mpt == null)
             throw new IllegalArgumentException("Unrecognised type " + typename);
         return mpt;
@@ -96,7 +107,7 @@ public class MetaPropertyTypes {
      * @return the MetaPropertyType corresponding to the given type name */    
     public static MetaPropertyType getBuiltInType(String typename) throws IllegalArgumentException {
         typename = typename.toLowerCase();
-        MetaPropertyType mpt = (MetaPropertyType) builtinLookup.get(typename);
+        MetaPropertyType mpt = builtinLookup.get(typename);
         if(mpt == null)
             throw new IllegalArgumentException("Unrecognised type " + typename);
         return mpt;
@@ -121,7 +132,7 @@ public class MetaPropertyTypes {
                 throw new IllegalArgumentException("Unable to create new MetaPropertyType: " + typeClass);
             }
             if(o instanceof MetaPropertyType) {
-                addNativeType((MetaPropertyType)o);
+                addNativeType((MetaPropertyType)o, null);
             } else {
                 throw new IllegalArgumentException(typeClass + " does not extend MetaPropertyType");
             }
@@ -133,14 +144,18 @@ public class MetaPropertyTypes {
 	    return Collections.unmodifiableCollection(metaList);
 	}
 	
-    private static void addNativeType(MetaPropertyType mpt) {
+    private static void addNativeType(MetaPropertyType mpt, UUID oldKey) {
         builtinTypes.add(mpt);
         builtinLookup.put(mpt.getTypeName(),mpt);
+        if(oldKey != null) {
+        	oldKeyConcordance.put(mpt.getKey().toString().toLowerCase(), oldKey.toString().toLowerCase());
+        }
     }
 
 
 	private void addType(MetaPropertyType mpt){
-        metaProperties.put(mpt.getKey().toString().toLowerCase(),mpt);
+		String key = mpt.getKey().toString().toLowerCase();
+        metaProperties.put(key,mpt);
         metaList.add(mpt);
 	}
 

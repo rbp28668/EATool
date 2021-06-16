@@ -12,6 +12,7 @@ package alvahouse.eatool.repository.base;
  */
 import java.io.IOException;
 
+import alvahouse.eatool.repository.dao.NamedRepositoryItemDao;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
@@ -24,7 +25,14 @@ public class NamedRepositoryItem extends RepositoryItem implements  Comparable<N
     public NamedRepositoryItem(UUID uuid) {
         super(uuid);
     }
-    
+
+    /** Creates new NamedRespositoryItem from a DAO */
+    public NamedRepositoryItem(NamedRepositoryItemDao dao) {
+        super(dao);
+        m_name = dao.getName();
+        m_description = dao.getDescription();
+    }
+
     protected void writeAttributesXML(XMLWriter out) throws IOException {
         if(getName().length() > 0) 
             out.addAttribute("name",getName());
@@ -39,7 +47,13 @@ public class NamedRepositoryItem extends RepositoryItem implements  Comparable<N
         copy.m_name = new String(m_name);
         copy.m_description = new String(m_description);
     }
-    
+
+    protected void copyTo(NamedRepositoryItemDao dao) {
+        super.copyTo(dao);
+        dao.setName(m_name);
+        dao.setDescription(m_description);
+    }
+
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.base.NamedItem#getName()
      */

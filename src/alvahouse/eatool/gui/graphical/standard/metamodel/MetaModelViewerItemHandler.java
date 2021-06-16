@@ -42,7 +42,7 @@ import alvahouse.eatool.util.UUID;
  */
 public class MetaModelViewerItemHandler implements ItemHandler {
 
-    private  StandardDiagramType diagramType;
+    //private  StandardDiagramType diagramType;
     private SettingsManager.Element cfg;
     private Application app;
     private Repository repository;
@@ -52,7 +52,7 @@ public class MetaModelViewerItemHandler implements ItemHandler {
      */
     public MetaModelViewerItemHandler(StandardDiagramType diagramType, Application app, Repository repository) {
         super();
-        this.diagramType = diagramType;
+        //this.diagramType = diagramType;
         this.app = app;
         this.repository = repository;
         
@@ -68,7 +68,7 @@ public class MetaModelViewerItemHandler implements ItemHandler {
 		editor.setVisible(true);
         boolean edited = editor.wasEdited();
         if(edited) {
-        	repository.getMetaModel().fireMetaEntityChanged(me);
+        	repository.getMetaModel().updateMetaEntity(me);
         }
 
         editor.dispose();
