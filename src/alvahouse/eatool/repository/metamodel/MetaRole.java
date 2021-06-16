@@ -8,6 +8,8 @@ package alvahouse.eatool.repository.metamodel;
 
 import java.io.IOException;
 
+import alvahouse.eatool.repository.dao.metamodel.MetaRoleDao;
+import alvahouse.eatool.repository.metamodel.types.MetaPropertyTypes;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
@@ -45,6 +47,22 @@ public class MetaRole extends MetaPropertyContainer {
 			throw new NullPointerException("Can't create MetaRole with a null MetaRelationship");
 		}
 		metaRelationship = mr;
+	}
+
+	public MetaRole(MetaRelationship parent, MetaRoleDao dao, MetaPropertyTypes types) {
+		super(dao, types);
+		connection.setKey(dao.getConnects());
+		multiplicity = Multiplicity.fromString(dao.getMultiplicity());
+		metaRelationship = parent;
+	}
+
+	/**
+	 * @return
+	 */
+	public MetaRoleDao toDao() {
+		MetaRoleDao dao = new MetaRoleDao();
+		copyTo(dao);
+		return dao;
 	}
 
 	/*
@@ -159,6 +177,12 @@ public class MetaRole extends MetaPropertyContainer {
 		copy.connection = (MetaEntityProxy) connection.clone();
 	}
 
+	protected void copyTo(MetaRoleDao dao) {
+		super.copyTo(dao);
+		dao.setMultiplicity(multiplicity.toString());
+		dao.setConnects(connection.getKey());
+	}
+
 	/**
 	 * Gets the MetaRelationship this MetaRole belongs to.
 	 * 
@@ -179,5 +203,6 @@ public class MetaRole extends MetaPropertyContainer {
 		}
 		metaRelationship = mr;
 	}
+
 
 }

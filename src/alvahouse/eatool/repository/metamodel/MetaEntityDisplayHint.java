@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import alvahouse.eatool.repository.dao.metamodel.MetaEntityDisplayHintDao;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 /**
@@ -26,7 +27,21 @@ public class MetaEntityDisplayHint {
     	this.target = target;
     }
 
-    /** Creates a copy of the MetaEntityDisplayHint
+    /**
+	 * @param medhDao
+	 */
+	public MetaEntityDisplayHint(MetaEntity target, MetaEntityDisplayHintDao medhDao) {
+		this.target = target;
+		keys.addAll(medhDao.getKeys());
+	}
+
+	public MetaEntityDisplayHintDao toDao() {
+		MetaEntityDisplayHintDao medhDao = new MetaEntityDisplayHintDao();
+		medhDao.getKeys().addAll(keys);
+		return medhDao;
+	}
+
+	/** Creates a copy of the MetaEntityDisplayHint
      * @return a new MetaEntityDisplayHint 
      */
     public Object clone() {

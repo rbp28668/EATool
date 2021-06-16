@@ -3,6 +3,7 @@
 
 package alvahouse.eatool.util;
 
+import java.math.BigInteger;
 import java.util.Date;
 import java.util.StringTokenizer;
 
@@ -15,7 +16,19 @@ import java.util.StringTokenizer;
  */
 public class UUID implements Cloneable, Comparable<UUID> {
 
-    public static final UUID NULL = new UUID("00000000-0000-0000-8000-00000000");
+    public static final UUID NULL = new UUID("00000000-0000-0000-8000-000000000000");
+    private static String translate = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$_";
+    private static byte[] invertTranslate = new byte[256];
+    
+    static {
+    	for(int i=0; i<invertTranslate.length; ++i) {
+    		invertTranslate[i] = -1;
+    	}
+    	for(int i=0; i<translate.length(); ++i) {
+    		invertTranslate[ translate.codePointAt(i)] = (byte)i;
+    	}
+    	
+    }
     
     /** Creates new UUID  */
     public UUID() {
@@ -71,7 +84,95 @@ public class UUID implements Cloneable, Comparable<UUID> {
     public int compareTo(UUID rhs) {
         return m_value.compareTo(rhs.m_value);
     }
+    
+    /**
+     * Presents the UUID as a compressed string that is also a valid
+     * JSON identifier.  Effectively the dashes are removed, it's 
+     * treated as a hex number which is then generated as a base64 number
+     * but with the guarantee that the leading character will always
+     * be a lower case letter.  So one base 26 character followed by
+     * 21 base 64 ones.
+     * @return compressed version of the UUID.
+     */
+    public String asJsonId() {
+    	
+    	// Remove the - chars
+    	StringBuilder builder = new StringBuilder(32);
+    	for(int i=0; i<m_value.length(); ++i) {
+    		char ch = m_value.charAt(i);
+    		if(ch != '-') builder.append(ch);
+    	}
+    	// Now parse it as a hex number
+    	BigInteger val = new BigInteger(builder.toString(), 16);
+    	int bits = 128;				  // with this number of bits 
+    	BigInteger sixtyFour = BigInteger.valueOf(64);// 
+    	char result[] = new char[22]; // Need this number of chars (2 + 6*21)
+    	
+    	int idx = 0;
 
+    	// Convert to what are effectively base64 digits, least significant first.
+    	// Make sure the first value is a lower case letter
+		BigInteger[] acc = val.divideAndRemainder(BigInteger.valueOf(26));
+		int digit = acc[1].intValue();
+		result[idx++] = translate.charAt(digit);
+		val = acc[0];
+		bits -= 4; // slightly more actually.
+		
+		// Now do the rest
+    	while(bits > 0) {
+    		acc = val.divideAndRemainder(sixtyFour);
+    		digit = acc[1].intValue();
+    		result[idx++] = translate.charAt(digit);
+    		val = acc[0];
+    		bits -= 6;  // as divided by 64
+    	}
+    	return new String(result);
+    }
+
+    /**
+     * Creates a UUID from the compressed version.
+     * @param id is the ID created by asJsonId()
+     * @return a normal UUID.
+     */
+    public static UUID fromJsonId(String id) {
+    	if(id.length() != 22) {
+    		throw new IllegalArgumentException("Invalid length for UUID identifier");
+    	}
+    	
+    	BigInteger sixtyFour = BigInteger.valueOf(64);
+    	BigInteger acc = BigInteger.valueOf(0);
+    	
+    	int idx = 22;
+    	BigInteger mult = BigInteger.valueOf(26);
+    	while(--idx > 0 ) {
+    		int ch = id.codePointAt(idx);
+    		if(ch >= invertTranslate.length) {
+    			throw new IllegalArgumentException("Invalid character in UUID identifier");
+    		}
+    		byte digit = invertTranslate[ch]; // Convert char to byte in range 0..63
+    		acc = acc.multiply(mult);
+    		acc = acc.add(BigInteger.valueOf(digit));
+    		mult = sixtyFour;
+    	}
+		int ch = id.codePointAt(idx);
+		if(ch < 'a' || ch > 'z') {
+			throw new IllegalArgumentException("Invalid character in UUID identifier");
+		}
+		byte digit = invertTranslate[ch]; // Convert char to byte in range 0..63
+		acc = acc.multiply(BigInteger.valueOf(26));
+		acc = acc.add(BigInteger.valueOf(digit));
+		
+		// Convert to 32 digit hex number ensuring leading zeros are included.
+    	String value = "00000000000000000000000000000000" + acc.toString(16).toLowerCase();
+    	value = value.substring(value.length() - 32);
+    	
+    	value = value.substring(0,8) + "-" + 
+    			value.substring(8,12) + "-" +
+    			value.substring(12,16) + "-" + 
+    			value.substring(16,20) + "-" +
+    			value.substring(20);
+    	return new UUID(value);
+    }
 	/**
 	 * Method initialise initialises the state of the UUID generator.
 	 * @param hostMAC is the 48 bit host adapter MAC address in the format 00-00-00-00-00-00,

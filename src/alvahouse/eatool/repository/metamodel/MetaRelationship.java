@@ -9,6 +9,9 @@ package alvahouse.eatool.repository.metamodel;
 import java.io.IOException;
 import java.util.Comparator;
 
+import alvahouse.eatool.repository.dao.metamodel.MetaEntityDao;
+import alvahouse.eatool.repository.dao.metamodel.MetaRelationshipDao;
+import alvahouse.eatool.repository.metamodel.types.MetaPropertyTypes;
 import alvahouse.eatool.repository.version.Version;
 import alvahouse.eatool.repository.version.VersionImpl;
 import alvahouse.eatool.repository.version.Versionable;
@@ -35,6 +38,19 @@ public class MetaRelationship extends MetaPropertyContainer implements Versionab
         m_ends[0] = null;
         m_ends[1] = null;
     }
+
+    public MetaRelationship(MetaRelationshipDao dao, MetaPropertyTypes types) {
+    	super(dao, types);
+    	m_ends[0] = new MetaRole(this, dao.getStart(), types);
+    	m_ends[1] = new MetaRole(this, dao.getFinish(), types);
+    	restriction = MetaRelationshipRestriction.fromDao(dao.getRestriction());
+    }
+    
+	public MetaRelationshipDao toDao() {
+		MetaRelationshipDao dao = new MetaRelationshipDao();
+		copyTo(dao);
+		return dao;
+	}
 
     /* (non-Javadoc)
      * @see java.lang.Object#clone()
@@ -136,6 +152,15 @@ public class MetaRelationship extends MetaPropertyContainer implements Versionab
 
     }
 
+    protected void copyTo(MetaRelationshipDao dao) {
+        super.copyTo(dao);
+        dao.setStart(m_ends[0].toDao());
+        dao.setFinish(m_ends[1].toDao());
+        dao.setRestriction(restriction.toDao());
+        dao.setVersion(version.toDao());
+
+    }
+
     /**
      * Sets the MetaModel this MetaRelationship belongs to.
      * @param m is the parent MetaModel.
@@ -161,11 +186,11 @@ public class MetaRelationship extends MetaPropertyContainer implements Versionab
     }
     
     /**
-     * Compare allows comparing of 2 meta relationships for sorting (by name).
+     * CompareByName allows comparing of 2 meta relationships for sorting (by name).
      * 
      * @author rbp28668
      */
-    public static class Compare implements Comparator<MetaRelationship> {
+    public static class CompareByName implements Comparator<MetaRelationship> {
 
         /* (non-Javadoc)
          * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)

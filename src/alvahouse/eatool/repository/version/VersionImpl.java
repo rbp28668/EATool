@@ -13,6 +13,7 @@ import java.util.Date;
 
 import org.xml.sax.Attributes;
 
+import alvahouse.eatool.repository.dao.VersionDao;
 import alvahouse.eatool.repository.exception.InputException;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
@@ -39,7 +40,33 @@ public class VersionImpl implements Version {
     private static SimpleDateFormat TIME_FORMAT = new SimpleDateFormat(TIME_FORMAT_STR);
     
     
-    /* (non-Javadoc)
+    public VersionImpl() {
+    }
+
+    /**
+	 * @param dao
+	 */
+	public VersionImpl(VersionDao dao) {
+		createDate = dao.getCreateDate();
+		createUser = dao.getCreateUser();
+		modifyDate = dao.getModifyDate();
+		modifyUser = dao.getModifyUser();
+		version = dao.getVersion();
+		originalVersion = dao.getOriginalVersion();
+	}
+	
+	public VersionDao toDao() {
+		VersionDao dao = new VersionDao();
+		dao.setCreateDate(createDate);
+		dao.setCreateUser(createUser);
+		dao.setModifyDate(modifyDate);
+		dao.setModifyUser(modifyUser);
+		dao.setVersion(version);
+		dao.setOriginalVersion(originalVersion);
+		return dao;
+	}
+
+	/* (non-Javadoc)
      * @see alvahouse.eatool.repository.version.Versionable#getCreateDate()
      */
     public Date getCreateDate() {
