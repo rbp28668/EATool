@@ -12,6 +12,9 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import alvahouse.eatool.repository.base.NamedRepositoryItem;
+import alvahouse.eatool.repository.dao.metamodel.MetaPropertyContainerDao;
+import alvahouse.eatool.repository.dao.metamodel.MetaPropertyDao;
+import alvahouse.eatool.repository.metamodel.types.MetaPropertyTypes;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
@@ -30,6 +33,16 @@ public abstract class MetaPropertyContainer extends NamedRepositoryItem {
         super(uuid);
     }
 
+    public MetaPropertyContainer(MetaPropertyContainerDao dao, MetaPropertyTypes types) {
+    	super(dao);
+        for(MetaPropertyDao mpdao : dao.getProperties()) {
+            MetaProperty mp = new MetaProperty(mpdao, types);
+            propertyList.addLast(mp);
+            m_properties.put(mp.getKey(), mp);
+            mp.setContainer(this);
+        }
+    	
+    }
     /** This adds a new MetaProperty to the MetaEntity. If an existing meta
      * property with the same UUID already exists then it is replaced.
      * @param mp is the meta-property to be added.
@@ -158,6 +171,14 @@ public abstract class MetaPropertyContainer extends NamedRepositoryItem {
             copy.propertyList.addLast(mp);
             copy.m_properties.put(mp.getKey(), mp);
             mp.setContainer(copy);
+        }
+    }
+
+    protected void copyTo(MetaPropertyContainerDao dao) {
+        super.copyTo(dao);
+        for(MetaProperty sourcemp : propertyList) {
+            MetaPropertyDao mpdao = sourcemp.toDao();
+            dao.getProperties().add(mpdao);
         }
     }
 

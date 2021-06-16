@@ -11,6 +11,9 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedList;
 
+import alvahouse.eatool.repository.dao.metamodel.MetaEntityDao;
+import alvahouse.eatool.repository.dao.metamodel.MetaEntityDisplayHintDao;
+import alvahouse.eatool.repository.metamodel.types.MetaPropertyTypes;
 import alvahouse.eatool.repository.version.Version;
 import alvahouse.eatool.repository.version.VersionImpl;
 import alvahouse.eatool.repository.version.Versionable;
@@ -36,6 +39,21 @@ public class MetaEntity extends MetaPropertyContainer implements  Versionable{
     public MetaEntity(UUID uuid) {
         super(uuid);
     }
+
+    public MetaEntity(MetaEntityDao dao, MetaPropertyTypes types) {
+    	super(dao, types);
+    	base.setKey(dao.getBase());
+    	m_isAbstract = dao.isAbstract();
+    	MetaEntityDisplayHintDao medhDao = dao.getDisplayHint();
+    	displayHint = medhDao == null ? null : new MetaEntityDisplayHint(this, medhDao);
+    	version = new VersionImpl(dao.getVersion());
+    }
+    
+	public MetaEntityDao toDao() {
+		MetaEntityDao dao = new MetaEntityDao();
+		copyTo(dao);
+		return dao;
+	}
 
     /** Creates a copy of the meta-entity
      * @return a new meta-entity (with the same key)
@@ -182,6 +200,13 @@ public class MetaEntity extends MetaPropertyContainer implements  Versionable{
         copy.setModel(null); // disconnect it
     }
 
+    protected void copyTo(MetaEntityDao dao) {
+        super.copyTo(dao);
+        dao.setBase(base.isNull() ? null :  base.getKey());
+        dao.setAbstract(m_isAbstract);
+        dao.setDisplayHint( (displayHint == null) ? null : displayHint.toDao()); 
+    }
+
     /** Sets the parent meta-model
      * @param m is the meta model to set
      */
@@ -202,8 +227,6 @@ public class MetaEntity extends MetaPropertyContainer implements  Versionable{
      */
     public MetaProperty addMetaProperty(MetaProperty mp)  throws Exception {
         super.addMetaProperty(mp);
-        if(model != null)
-            model.fireMetaEntityChanged(this);
         return mp;
     }
 
@@ -227,8 +250,6 @@ public class MetaEntity extends MetaPropertyContainer implements  Versionable{
      */
     public MetaProperty deleteMetaProperty(UUID uuid) throws Exception {
         MetaProperty mp = super.deleteMetaProperty(uuid);
-        if(model != null && mp != null)
-            model.fireMetaEntityChanged(this);
         return mp;
     }
     
@@ -245,7 +266,7 @@ public class MetaEntity extends MetaPropertyContainer implements  Versionable{
     }
 
     /**
-     * Compare allows comparison of meta-entities for sorting.
+     * CompareByName allows comparison of meta-entities for sorting.
      */
     public static class Compare implements Comparator<MetaEntity> {
 

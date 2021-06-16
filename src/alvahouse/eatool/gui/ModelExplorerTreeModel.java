@@ -95,7 +95,7 @@ public class ModelExplorerTreeModel extends ExplorerTreeModel
         idx=0;
         List<MetaRelationship> metaRelationships = new LinkedList<>();
         metaRelationships.addAll(metaModel.getMetaRelationships());
-        Collections.sort(metaRelationships,new MetaRelationship.Compare());
+        Collections.sort(metaRelationships,new MetaRelationship.CompareByName());
         for(MetaRelationship mr : metaRelationships) {
             idx = addMetaRelationshipNode(mrtn,mr,idx);
         }
