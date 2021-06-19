@@ -6,12 +6,10 @@ package alvahouse.eatool.repository.persist;
 import java.util.Collection;
 import java.util.Set;
 
-import alvahouse.eatool.repository.base.DeleteDependenciesList;
-import alvahouse.eatool.repository.metamodel.MetaEntity;
-import alvahouse.eatool.repository.metamodel.MetaModel;
-import alvahouse.eatool.repository.metamodel.MetaRelationship;
+import alvahouse.eatool.repository.dao.DeleteDependenciesListDao;
+import alvahouse.eatool.repository.dao.metamodel.MetaEntityDao;
+import alvahouse.eatool.repository.dao.metamodel.MetaRelationshipDao;
 import alvahouse.eatool.repository.metamodel.types.ExtensibleMetaPropertyType;
-import alvahouse.eatool.repository.metamodel.types.MetaPropertyType;
 import alvahouse.eatool.util.UUID;
 
 /**
@@ -38,19 +36,19 @@ public interface MetaModelPersistence {
      * @param uuid is the key for the existing (or new) MetaEntity
      * @return the MetaEntity keyed by uuid
      */
-    public MetaEntity getMetaEntity(UUID uuid) throws Exception;
+    public MetaEntityDao getMetaEntity(UUID uuid) throws Exception;
     
     /** adds a new meta-entity to the collection
      * @param me is the meta-entity to add
      * @return the added meta-entity (to allow chaining)
      * @throws Exception 
      */
-    public MetaEntity addMetaEntity(MetaEntity me) throws Exception;
+    public void addMetaEntity(MetaEntityDao me) throws Exception;
     
     /** Gets a Collection of all the MetaEntities in the meta-model.
      * @return Collection of MetaEntity.
      */
-    public Collection<MetaEntity> getMetaEntities() throws Exception;
+    public Collection<MetaEntityDao> getMetaEntities() throws Exception;
     /**
      * Gets the count of the number of MetaEntities in the meta model.
      * @return meta entity count.
@@ -62,14 +60,14 @@ public interface MetaModelPersistence {
      * @return the updated meta-entity (to allow chaining)
      * @throws Exception 
      */
-    public MetaEntity updateMetaEntity(MetaEntity me) throws Exception;
+    public void updateMetaEntity(MetaEntityDao me) throws Exception;
 
     
     /** deletes a meta-entity from the meta-model
      * @param uuid is the identifier of the meta-entity to delete
      * @throws Exception 
      */
-    public MetaEntity deleteMetaEntity(UUID uuid) throws Exception;
+    public MetaEntityDao deleteMetaEntity(UUID uuid) throws Exception;
     
     /**
      * Gets a MetaRelationship from the meta model, creating a new one if there
@@ -77,32 +75,32 @@ public interface MetaModelPersistence {
      * @param uuid is the key for the existing (or new) MetaRelationship
      * @return the MetaRelationship keyed by uuid
      */
-    public MetaRelationship getMetaRelationship(UUID uuid) throws Exception;
+    public MetaRelationshipDao getMetaRelationship(UUID uuid) throws Exception;
     
     /** adds a new meta-relationship to the collection
      * @param mr is the meta-relationship to add
      * @return the added meta-relationship (to allow chaining)
      * @throws Exception 
      */
-    public MetaRelationship addMetaRelationship(MetaRelationship mr) throws Exception;
+    public void addMetaRelationship(MetaRelationshipDao mr) throws Exception;
     
     /** updates a meta relationship in the collection
      * @param mr is the meta-relationship to update
      * @return the updated meta relationship (to allow chaining)
      * @throws Exception 
      */
-    public MetaRelationship updateMetaRelationship(MetaRelationship mr) throws Exception;
+    public void updateMetaRelationship(MetaRelationshipDao mr) throws Exception;
 
     /** deletes a meta-relationship from the meta-model
      * @param uuid is the key for the meta-relationship to delete
      * @throws Exception 
      */
-    public MetaRelationship deleteMetaRelationship(UUID uuid) throws Exception;
+    public MetaRelationshipDao deleteMetaRelationship(UUID uuid) throws Exception;
     
     /** Get the collection of MetaRelationships in the meta-model.
      * @return a Collection containing MetaRelationship.
      */
-    public Collection<MetaRelationship> getMetaRelationships() throws Exception;
+    public Collection<MetaRelationshipDao> getMetaRelationships() throws Exception;
 
     /**
      * Gets the count of MetaRelationships.
@@ -116,7 +114,7 @@ public interface MetaModelPersistence {
      * @param me is the MetaEntity to connect to.
      * @return a Set of MetaRelationship. Maybe empty, never null.
      */
-    public Set<MetaRelationship> getMetaRelationshipsFor(MetaEntity me) throws Exception;
+    public Set<MetaRelationshipDao> getMetaRelationshipsFor(UUID metaEntityKey) throws Exception;
 
     /**
      * Gets a collection of MetaRelationships that are declared to connect to a given
@@ -126,18 +124,19 @@ public interface MetaModelPersistence {
      * @param me is the MetaEntity to connect to.
      * @return a Set of MetaRelationship. Maybe empty, never null.
      */
-    public Set<MetaRelationship> getDeclaredMetaRelationshipsFor(MetaEntity me) throws Exception;
-    
-    /** This gets gets the list of dependent objects that
-     * are dependent on the object who's key is given.
-     * This allows the user to be presented with a list of
-     * all the objects that have to be deleted if any given
-     * object is deleted and also collects the information
-     * needed to do the delete
-     * @param dependencies is the list of dependencies to add to.
-     * @param mr is the meta-relationship to find the dependencies of.
-     */
-   public void getDeleteDependencies(MetaModel metaModel, DeleteDependenciesList dependencies, MetaRelationship mr) throws Exception ;
+    public Set<MetaRelationshipDao> getDeclaredMetaRelationshipsFor(UUID metaEntityKey) throws Exception;
+
+    // Nothing needed here as nothing else in the metamodel depends on a meta relationship
+//    /** This gets gets the list of dependent objects that
+//     * are dependent on the object who's key is given.
+//     * This allows the user to be presented with a list of
+//     * all the objects that have to be deleted if any given
+//     * object is deleted and also collects the information
+//     * needed to do the delete
+//     * @param dependencies is the list of dependencies to add to.
+//     * @param mr is the meta-relationship to find the dependencies of.
+//     */
+//   public void getDeleteDependencies(MetaModel metaModel, DeleteDependenciesList dependencies, MetaRelationshipDao mr) throws Exception ;
 
    /** This gets gets the list of dependent objects that
     * are dependent on the object who's key is given.
@@ -148,7 +147,7 @@ public interface MetaModelPersistence {
     * @param dependencies is the list of dependencies to add to.
     * @param target is the meta-entity to find the dependencies of.
     */
-    public void getDeleteDependencies(MetaModel metaModel, DeleteDependenciesList dependencies, MetaEntity target) throws Exception;
+    public DeleteDependenciesListDao getDeleteDependencies( UUID metaEntityKey) throws Exception;
     
     /**
      * Deletes the contents of the meta model.
@@ -164,7 +163,7 @@ public interface MetaModelPersistence {
      * @param meta is the MetaEntity to get derived MetaEntities for.
      * @return Collection of MetaEntity.  Collection may be empty, never null.
      */
-    public Collection<MetaEntity> getDerivedMetaEntities(MetaEntity meta) throws Exception ;
+    public Collection<MetaEntityDao> getDerivedMetaEntities(UUID metaEntityKey) throws Exception ;
     
     /**
      * getDefinedTypes gets the list of extensible meta property types that are known

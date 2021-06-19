@@ -32,9 +32,15 @@ public class ScriptProxy {
 	 * @param key
 	 */
 	void setKey(UUID key) {
-		isNull = false;
-		this.key = key;
-		script = null;
+		if(key == null || key == UUID.NULL) {
+			isNull = true;
+			key = UUID.NULL;
+			script = null;
+		} else {
+			isNull = false;
+			this.key = key;
+			script = null;
+		}
 	}
 	
 	/**

@@ -33,7 +33,7 @@ public abstract class MetaPropertyContainer extends NamedRepositoryItem {
         super(uuid);
     }
 
-    public MetaPropertyContainer(MetaPropertyContainerDao dao, MetaPropertyTypes types) {
+    public MetaPropertyContainer(MetaPropertyContainerDao dao, MetaPropertyTypes types) throws Exception {
     	super(dao);
         for(MetaPropertyDao mpdao : dao.getProperties()) {
             MetaProperty mp = new MetaProperty(mpdao, types);

@@ -26,6 +26,7 @@ class TestMetaRelationship {
 	 */
 	@BeforeEach
 	void setUp() throws Exception {
+		UUID.initialise(UUID.findMACAddress(), null);
 	}
 
 	/**

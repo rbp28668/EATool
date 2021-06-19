@@ -40,7 +40,7 @@ public class MetaProperty  extends NamedRepositoryItem  {
     /**
 	 * @param mpdao
 	 */
-	public MetaProperty(MetaPropertyDao mpdao, MetaPropertyTypes types) {
+	public MetaProperty(MetaPropertyDao mpdao, MetaPropertyTypes types) throws Exception {
 		super(mpdao);
 		m_type = types.typeFromName(mpdao.getTypeKey().toString());
 		m_default = mpdao.getDefaultValue();

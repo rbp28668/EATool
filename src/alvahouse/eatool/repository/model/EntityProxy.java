@@ -30,9 +30,15 @@ public class EntityProxy {
 	 * @param key
 	 */
 	void setKey(UUID key) {
-		isNull = false;
-		this.key = key;
-		entity = null;
+		if(key == null || key == UUID.NULL) {
+			isNull = true;
+			key = UUID.NULL;
+			entity = null;
+		} else {
+			isNull = false;
+			this.key = key;
+			entity = null;
+		}
 	}
 	
 	/**

@@ -26,6 +26,7 @@ public class TestMetaEntity {
 	 */
 	@Before
 	public void setUp() throws Exception {
+		UUID.initialise(UUID.findMACAddress(), null);
 	}
 
 	/**
@@ -125,5 +126,17 @@ public class TestMetaEntity {
 		assertFalse(me.getDeclaredMetaProperties().contains(mpBase));
 	}
 
+	/*
+	 * Given a meta entity, when I set a null base key, the meta entity
+	 * knows it has a null base and will return the NULL UUID as the base key.
+	 */
+	@Test
+	public void testNullBaseKey() throws Exception{
+		UUID key = new UUID();
+		MetaEntity me = new MetaEntity(key);
+		me.setBaseKey(null);;
+		
+		assertFalse(me.hasBase());
+	}
 
 }

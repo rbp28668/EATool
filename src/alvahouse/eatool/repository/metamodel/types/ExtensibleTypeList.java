@@ -9,8 +9,10 @@ package alvahouse.eatool.repository.metamodel.types;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import alvahouse.eatool.util.XMLWriter;
 
@@ -24,6 +26,8 @@ import alvahouse.eatool.util.XMLWriter;
 public class ExtensibleTypeList {
 
     private List<ExtensibleMetaPropertyType> types = new LinkedList<ExtensibleMetaPropertyType>();
+    private Map<String, ExtensibleMetaPropertyType> lookup = new HashMap<>();
+    
     private Class<? extends ExtensibleMetaPropertyType> implementingClass;
     private String name;
     /**
@@ -51,6 +55,10 @@ public class ExtensibleTypeList {
             throw new IllegalArgumentException("Adding invalid type to extensible type list " + name);
         }
         types.add(mpt);
+        lookup.put(mpt.getTypeName().toLowerCase(), mpt);
+   		String key = mpt.getKey().toString().toLowerCase();
+        lookup.put(key,mpt);
+
     }
 
     public void update(ExtensibleMetaPropertyType mpt){
@@ -58,10 +66,20 @@ public class ExtensibleTypeList {
             throw new IllegalArgumentException("Updating invalid type in extensible type list " + name);
         }
         // assume edit in place at the moment
+        lookup.put(mpt.getTypeName().toLowerCase(), mpt);
+   		String key = mpt.getKey().toString().toLowerCase();
+        lookup.put(key,mpt);
+    }
+    
+    public ExtensibleMetaPropertyType get(String typeName) {
+    	return lookup.get(typeName);
     }
 
     public void remove(ExtensibleMetaPropertyType mpt){
         types.remove(mpt);
+        lookup.remove(mpt.getTypeName().toLowerCase());
+   		String key = mpt.getKey().toString().toLowerCase();
+        lookup.remove(key);
     }
     
     public Collection<ExtensibleMetaPropertyType> getTypes(){
