@@ -53,10 +53,15 @@ public class DisplayHintFactory implements IXMLContentHandler {
 	 */
     public void endElement(String uri, String local) throws InputException {
         if(local.compareTo("DisplayHint") == 0) {
-            targetMetaEntity.setDisplayHint(currentHint);
-            targetMetaEntity = null;
-            currentHint = null;
-            counter.count("Display Hint");
+            try {
+				targetMetaEntity.setDisplayHint(currentHint);
+				metaModel._update(targetMetaEntity);
+				targetMetaEntity = null;
+				currentHint = null;
+				counter.count("Display Hint");
+			} catch (Exception e) {
+				throw new InputException("Unable to update meta entity with display hint",e);
+			}
         }
     }
     
@@ -76,8 +81,9 @@ public class DisplayHintFactory implements IXMLContentHandler {
             try {
             	targetMetaEntity = metaModel.getMetaEntity(new UUID(attr));
             } catch (Exception e) {
-            	// NOP
+            	throw new InputException("Unable to find target meta-entity for display hint", e);
             }
+            
             if(targetMetaEntity == null)
                 throw new InputException("unable to find target meta-entity for display hint - key: "
                 + attr);

@@ -15,7 +15,7 @@ import alvahouse.eatool.repository.metamodel.MetaPropertyContainer;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.repository.metamodel.MetaRole;
 import alvahouse.eatool.repository.metamodel.Multiplicity;
-import alvahouse.eatool.repository.metamodel.types.ExtensibleTypes;
+import alvahouse.eatool.repository.metamodel.types.MetaPropertyTypes;
 import alvahouse.eatool.repository.version.VersionImpl;
 import alvahouse.eatool.util.IXMLContentHandler;
 import alvahouse.eatool.util.UUID;
@@ -48,8 +48,8 @@ public class MetaRelationshipFactory extends MetaPropertyContainerFactory implem
 	 * @param counter
 	 * @param mm      is the MetaModel to add any new MetaRelationships to.
 	 */
-	public MetaRelationshipFactory(ProgressCounter counter, ExtensibleTypes extensibleTypes, MetaModel mm) {
-		super(extensibleTypes);
+	public MetaRelationshipFactory(ProgressCounter counter, MetaPropertyTypes types, MetaModel mm) {
+		super(types);
 		m_metaModel = mm;
 		this.counter = counter;
 	}

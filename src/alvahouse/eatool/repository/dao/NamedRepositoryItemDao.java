@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlElement;
  *
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class NamedRepositoryItemDao extends RepositoryItemDao{
+public class NamedRepositoryItemDao extends RepositoryItemDao implements Comparable<NamedRepositoryItemDao>{
 	private String name;
 	private String description;
 	/**
@@ -42,5 +42,18 @@ public class NamedRepositoryItemDao extends RepositoryItemDao{
 		this.description = description;
 	}
 	
-	
+	/* (non-Javadoc)
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
+	@Override
+	public int compareTo(NamedRepositoryItemDao o) {
+		if(getName() == null || o.getName() == null) {
+			return getKey().compareTo(o.getKey());
+		}
+		if(getName().isEmpty() && o.getName().isEmpty()){
+			return getKey().compareTo(o.getKey());
+		}
+		return getName().compareTo(o.getName());
+	}
+
 }

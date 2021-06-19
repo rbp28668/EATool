@@ -18,7 +18,7 @@ import alvahouse.eatool.repository.dao.VersionDao;
 @XmlRootElement(name = "metaRelationship")
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(propOrder = { "start", "finish", "restriction", "version"})
-public class MetaRelationshipDao extends MetaPropertyContainerDao{
+public class MetaRelationshipDao extends MetaPropertyContainerDao {
 	private MetaRoleDao start;
 	private MetaRoleDao finish;
 	private MetaRelationshipRestrictionDao restriction;
@@ -77,8 +77,5 @@ public class MetaRelationshipDao extends MetaPropertyContainerDao{
 	public void setVersion(VersionDao version) {
 		this.version = version;
 	}
-	
-	
-	
 	
 }

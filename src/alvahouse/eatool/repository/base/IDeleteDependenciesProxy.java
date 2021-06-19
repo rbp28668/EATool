@@ -6,6 +6,8 @@
 
 package alvahouse.eatool.repository.base;
 
+import alvahouse.eatool.util.UUID;
+
 /**
  * IDeleteDependenciesProxy should be implemented by objects
  * that may be deleted as a consequence of a parent object
@@ -18,6 +20,6 @@ public interface IDeleteDependenciesProxy {
 
     public String toString();
     public void delete() throws Exception;
-    public Object getTarget();
+    public UUID getTargetKey();
 }
 

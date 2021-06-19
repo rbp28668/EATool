@@ -98,8 +98,9 @@ public class RepositoryImpl implements TypeEventListener, Repository{
 	// For the time being we'll keep the persistence mechanism as in memory.
 	private final RepositoryPersistence persistence = new RepositoryPersistenceMemory();
 	
-	
-    private final MetaModel metaModel = new MetaModel(persistence.getMetaModelPersistence());
+    private final ExtensibleTypes extensibleTypes = new ExtensibleTypes(persistence.getMetaModelPersistence());
+	private final MetaPropertyTypes types = new MetaPropertyTypes();
+    private final MetaModel metaModel = new MetaModel(persistence.getMetaModelPersistence(), types );
     private final Model model = new Model(metaModel, persistence.getModelPersistence());
     private final Diagrams diagrams = new Diagrams(persistence.getDiagramPersistence());
     private final Diagrams metaModelDiagrams = new Diagrams(persistence.getMetaModelDiagramPersistence());
@@ -110,7 +111,6 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     private final Scripts scripts = new Scripts(persistence.getScriptPersistence());
     //private final EventMap events = new EventMap(scripts);
     //private final RepositoryProperties properties = new RepositoryProperties();
-    private final ExtensibleTypes extensibleTypes = new ExtensibleTypes(persistence.getMetaModelPersistence());
     private final HTMLPages pages = new HTMLPages(persistence.getHTMLPagePeristence());
     private final Images images = new Images(persistence.getImagePersistence());
     //private final EventMap modelEvents = new EventMap(scripts);
@@ -137,6 +137,8 @@ public class RepositoryImpl implements TypeEventListener, Repository{
         }
         
 		MetaPropertyTypes.extendTypesFromConfig(config);
+		types.extend(extensibleTypes);
+		
 		getImportMappings().setParsers(config);
 		diagramTypes.setFamilies(config);
 		
@@ -231,11 +233,11 @@ public class RepositoryImpl implements TypeEventListener, Repository{
 		loader.registerContent(OLD_NAMESPACE,"Script",sf);
 
      
-        MetaEntityFactory mef = new MetaEntityFactory(counter,extensibleTypes, metaModel);
+        MetaEntityFactory mef = new MetaEntityFactory(counter,types, metaModel);
         loader.registerContent(NAMESPACE,"MetaEntity",mef);
         loader.registerContent(OLD_NAMESPACE,"MetaEntity",mef);
         
-        MetaRelationshipFactory mrf = new MetaRelationshipFactory(counter,extensibleTypes, metaModel);
+        MetaRelationshipFactory mrf = new MetaRelationshipFactory(counter,types, metaModel);
         loader.registerContent(NAMESPACE,"MetaRelationship",mrf);
         loader.registerContent(OLD_NAMESPACE,"MetaRelationship",mrf);
         
@@ -710,7 +712,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     @Override
     public DeleteDependenciesList getDeleteDependencies(MetaEntity me)  throws Exception{
         DeleteDependenciesList dependencies = new DeleteDependenciesList();
-        getMetaModel().getDeleteDependencies(dependencies,me);
+        getMetaModel().getDeleteDependencies(dependencies,me, this);
         
         // Need to delete all the entities that belong to this meta-entity
         for(Entity e : getModel().getEntities()){

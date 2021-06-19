@@ -29,9 +29,15 @@ public class MetaEntityProxy {
 	 * @param key
 	 */
 	public void setKey(UUID key) {
-		isNull = false;
-		this.key = key;
-		metaEntity = null;
+		if(key == null || key == UUID.NULL) {
+			isNull = true;
+			key = UUID.NULL;
+			metaEntity = null;
+		} else {
+			isNull = false;
+			this.key = key;
+			metaEntity = null;
+		}
 	}
 	
 	/**

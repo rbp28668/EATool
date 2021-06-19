@@ -36,9 +36,10 @@ public class AllowableElements {
 	private AllowableElements(SettingsManager config)
 	throws ClassNotFoundException {
 		SettingsManager.Element root = config.getElement("/DiagramClasses");
-		
-		processList(root, allowableSymbols,"Symbols", AbstractSymbol.class);
-		processList(root, allowableConnectors,"Connectors", Connector.class);
+		if(root != null) {
+			processList(root, allowableSymbols,"Symbols", AbstractSymbol.class);
+			processList(root, allowableConnectors,"Connectors", Connector.class);
+		}
 	}
 	
 	public static void initInstance(SettingsManager config) throws ClassNotFoundException{

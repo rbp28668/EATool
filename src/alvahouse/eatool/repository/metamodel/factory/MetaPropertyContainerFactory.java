@@ -12,7 +12,6 @@ import alvahouse.eatool.repository.base.NamedRepositoryItemFactory;
 import alvahouse.eatool.repository.exception.InputException;
 import alvahouse.eatool.repository.metamodel.MetaProperty;
 import alvahouse.eatool.repository.metamodel.MetaPropertyContainer;
-import alvahouse.eatool.repository.metamodel.types.ExtensibleTypes;
 import alvahouse.eatool.repository.metamodel.types.MetaPropertyType;
 import alvahouse.eatool.repository.metamodel.types.MetaPropertyTypes;
 import alvahouse.eatool.util.UUID;
@@ -33,22 +32,16 @@ public class MetaPropertyContainerFactory extends NamedRepositoryItemFactory{
     private MetaPropertyTypes types = null;
 
     /**
-     * Extensible types known to the repository.  Used to create the full list
-     * of types when needed.
-     */
-    private ExtensibleTypes extensibleTypes;
-    
-    /**
      * Constructor to create the meta property container factory.
      * @param extensibleTypes provides the basis for the meta property type system and 
      * is used to create the collection of MetaPropertyTypes when needed.
      */
-    public MetaPropertyContainerFactory(ExtensibleTypes extensibleTypes) {
+    public MetaPropertyContainerFactory(MetaPropertyTypes types) {
         super();
-        if(extensibleTypes == null){
+        if(types == null){
             throw new NullPointerException("Can't use Null types in meta property factory");
         }
-        this.extensibleTypes = extensibleTypes;
+        this.types = types;
     }
 
     /**
@@ -113,13 +106,10 @@ public class MetaPropertyContainerFactory extends NamedRepositoryItemFactory{
     }
     
     /**
-     * Create the MetaPropertyTypes on demand.
+     * Gets the MetaPropertyTypes.
 	 * @return
 	 */
 	private MetaPropertyTypes getTypes() throws Exception{
-		if(types == null) {
-			types = new MetaPropertyTypes(extensibleTypes);
-		}
 		return types;
 	}
 
