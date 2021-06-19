@@ -27,9 +27,9 @@ import alvahouse.eatool.util.UUID;
 public class MetaPropertyTypes {
 
     // Note that these are keyed by both the type name and the string representation of the UUID.
-    private final HashMap<String,MetaPropertyType> metaProperties = new HashMap<String,MetaPropertyType>();
-    private final List<MetaPropertyType> metaList = new LinkedList<MetaPropertyType>();
-
+    private final HashMap<String,MetaPropertyType> typeLookup = new HashMap<String,MetaPropertyType>();
+    private ExtensibleTypes extensibleTypes = null;
+    
     private final static List<MetaPropertyType> builtinTypes = new LinkedList<MetaPropertyType>();
     private final static HashMap<String,MetaPropertyType> builtinLookup = new HashMap<String,MetaPropertyType>();
     private final static HashMap<String,String> oldKeyConcordance = new HashMap<>();
@@ -54,37 +54,68 @@ public class MetaPropertyTypes {
     }
     
     /**
-     * 
+     * Constructor to produce a set of MetaPropertyTypes that just consists of
+     * the built-in types.  Call extend(ExtensibleTypes) to extend with 
+     * user defined types.
+     * @throws Exception
+     */
+    public MetaPropertyTypes(){
+        super();
+        init();
+    }
+    
+    /**
+     * All in one constructor to initialise and extend with user defined types.
+     * @param extensibleTypes
+     * @throws Exception
      */
     public MetaPropertyTypes(ExtensibleTypes extensibleTypes) throws Exception{
         super();
-        init(extensibleTypes);
+        init();
+        this.extensibleTypes = extensibleTypes;
     }
 
-    private void init(ExtensibleTypes extensibleTypes) throws Exception{
-        metaProperties.clear();
-        metaList.clear();
+    private void init() {
+        typeLookup.clear();
         
         for(MetaPropertyType mpt : builtinTypes){
         	String key = mpt.getKey().toString().toLowerCase();
-            metaProperties.put(mpt.getTypeName(), mpt);
-            metaProperties.put(key,mpt);
-            metaList.add(mpt);
+            typeLookup.put(mpt.getTypeName(), mpt);
+            typeLookup.put(key,mpt);
             
             // Original keys for built-in types were incorrect but still want to be able to use them 
             // when reading an old repository
             String oldKey = oldKeyConcordance.get(key);
             if(oldKey != null) {
-            	metaProperties.put(oldKey, mpt);
+            	typeLookup.put(oldKey, mpt);
             }
 
         }
         
+    }
+
+    public void extend(ExtensibleTypes extensibleTypes){
+        this.extensibleTypes = extensibleTypes;
+    }
+
+    /**
+     * Extends the list of types with some extensible (user defined) types.
+     * @param extensibleTypes
+     * @throws Exception
+     */
+    private ExtensibleMetaPropertyType lookupExtensible(String typeName) throws Exception{
+    	if(extensibleTypes == null) {
+    		return null;
+    	}
+    	
         for(ExtensibleTypeList list : extensibleTypes.getTypes()) {
-        	for(ExtensibleMetaPropertyType type : list.getTypes()) {
-        		addType(type);
+        	ExtensibleMetaPropertyType type  = list.get(typeName);
+        	if(type != null) {
+        		return type;
         	}
         }
+        
+        return null;
     }
     
     /**
@@ -92,9 +123,12 @@ public class MetaPropertyTypes {
      * @param typename
      * @throws IllegalArgumentException
      * @return the MetaPropertyType corresponding to the given type name */    
-    public MetaPropertyType typeFromName(String typename) throws IllegalArgumentException {
+    public MetaPropertyType typeFromName(String typename) throws Exception {
         typename = typename.toLowerCase();
-        MetaPropertyType mpt = metaProperties.get(typename);
+        MetaPropertyType mpt = typeLookup.get(typename);
+        if(mpt == null) {
+        	mpt = lookupExtensible(typename);
+        }
         if(mpt == null)
             throw new IllegalArgumentException("Unrecognised type " + typename);
         return mpt;
@@ -140,8 +174,15 @@ public class MetaPropertyTypes {
         }
     }
     
-	public Collection<MetaPropertyType> getTypes() {
-	    return Collections.unmodifiableCollection(metaList);
+	public Collection<MetaPropertyType> getTypes() throws Exception {
+		List<MetaPropertyType> types = new LinkedList<>();
+		types.addAll(builtinTypes);
+
+        for(ExtensibleTypeList list : extensibleTypes.getTypes()) {
+        	types.addAll(list.getTypes());
+        }
+ 
+		return types;
 	}
 	
     private static void addNativeType(MetaPropertyType mpt, UUID oldKey) {
@@ -151,13 +192,4 @@ public class MetaPropertyTypes {
         	oldKeyConcordance.put(mpt.getKey().toString().toLowerCase(), oldKey.toString().toLowerCase());
         }
     }
-
-
-	private void addType(MetaPropertyType mpt){
-		String key = mpt.getKey().toString().toLowerCase();
-        metaProperties.put(key,mpt);
-        metaList.add(mpt);
-	}
-
-
 }

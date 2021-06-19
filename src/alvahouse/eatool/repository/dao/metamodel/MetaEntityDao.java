@@ -23,7 +23,7 @@ import alvahouse.eatool.util.UUID;
 @XmlRootElement(name = "metaEntity")
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(propOrder = { "baseJson", "displayHint", "version"})
-public class MetaEntityDao extends MetaPropertyContainerDao{
+public class MetaEntityDao extends MetaPropertyContainerDao {
     private UUID base;
     private boolean isAbstract;
     private MetaEntityDisplayHintDao displayHint;
@@ -108,6 +108,5 @@ public class MetaEntityDao extends MetaPropertyContainerDao{
 	public void setVersion(VersionDao version) {
 		this.version = version;
 	}
-    
     
 }

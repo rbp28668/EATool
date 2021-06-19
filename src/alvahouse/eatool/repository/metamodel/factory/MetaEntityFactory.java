@@ -12,7 +12,7 @@ import alvahouse.eatool.repository.ProgressCounter;
 import alvahouse.eatool.repository.exception.InputException;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaModel;
-import alvahouse.eatool.repository.metamodel.types.ExtensibleTypes;
+import alvahouse.eatool.repository.metamodel.types.MetaPropertyTypes;
 import alvahouse.eatool.repository.version.VersionImpl;
 import alvahouse.eatool.util.IXMLContentHandler;
 import alvahouse.eatool.util.UUID;
@@ -42,8 +42,8 @@ public class MetaEntityFactory extends MetaPropertyContainerFactory implements I
 	 * @param counter
 	 * @param mm      is the MetaModel to add new MetaEntities to.
 	 */
-	public MetaEntityFactory(ProgressCounter counter, ExtensibleTypes extensibleTypes, MetaModel mm) {
-		super(extensibleTypes);
+	public MetaEntityFactory(ProgressCounter counter, MetaPropertyTypes types, MetaModel mm) {
+		super(types);
 		m_metaModel = mm;
 		this.counter = counter;
 	}

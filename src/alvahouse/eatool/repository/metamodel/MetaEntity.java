@@ -40,7 +40,7 @@ public class MetaEntity extends MetaPropertyContainer implements  Versionable{
         super(uuid);
     }
 
-    public MetaEntity(MetaEntityDao dao, MetaPropertyTypes types) {
+    public MetaEntity(MetaEntityDao dao, MetaPropertyTypes types) throws Exception {
     	super(dao, types);
     	base.setKey(dao.getBase());
     	m_isAbstract = dao.isAbstract();
@@ -204,7 +204,8 @@ public class MetaEntity extends MetaPropertyContainer implements  Versionable{
         super.copyTo(dao);
         dao.setBase(base.isNull() ? null :  base.getKey());
         dao.setAbstract(m_isAbstract);
-        dao.setDisplayHint( (displayHint == null) ? null : displayHint.toDao()); 
+        dao.setDisplayHint( (displayHint == null) ? null : displayHint.toDao());
+        dao.setVersion(version.toDao());
     }
 
     /** Sets the parent meta-model

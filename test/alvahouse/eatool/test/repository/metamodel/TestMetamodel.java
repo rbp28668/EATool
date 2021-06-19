@@ -10,6 +10,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.Collection;
 import java.util.Set;
@@ -18,6 +19,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.base.DeleteDependenciesList;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaModel;
@@ -39,6 +41,7 @@ import alvahouse.eatool.util.UUID;
  */
 public class TestMetamodel {
 
+	Repository repository;
 	MetaPropertyTypes types;
 	MetaModelPersistence persistence;
 	MetaModel meta;
@@ -51,11 +54,17 @@ public class TestMetamodel {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		persistence = new MetaModelPersistenceMemory();
-		meta = new MetaModel(persistence);
 		
+		UUID.initialise(UUID.findMACAddress(), null);
+
+		persistence = new MetaModelPersistenceMemory();
 		ExtensibleTypes extensibleTypes = new ExtensibleTypes(persistence);
-		types = new MetaPropertyTypes(extensibleTypes);
+		MetaPropertyTypes types = new MetaPropertyTypes(extensibleTypes);
+		meta = new MetaModel(persistence, types);
+		
+		repository = mock(Repository.class);
+		when(repository.getTypes()).thenReturn(types);
+		when(repository.getMetaModel()).thenReturn(meta);
 		
 		meKey1 = new UUID();
 		meKey2 = new UUID();
@@ -132,7 +141,7 @@ public class TestMetamodel {
 		meta.addMetaEntity(me2);
 		
 		Collection<MetaEntity> retrieved = meta.getMetaEntities();
-		assertEquals(retrieved.size() , 2);
+		assertEquals(2, retrieved.size());
 		assertTrue(retrieved.contains(me1));
 		assertTrue(retrieved.contains(me2));
 	}
@@ -149,7 +158,7 @@ public class TestMetamodel {
 		meta.addMetaEntity(me1);
 		meta.addMetaEntity(me2);
 		
-		assertEquals(meta.getMetaEntityCount(),2);
+		assertEquals(2, meta.getMetaEntityCount());
 	}
 
 	/**
@@ -505,7 +514,7 @@ public class TestMetamodel {
 		// Derived meta entity should have 2 meta relationships, one through the
 		// derived class, one through the base class
 		Set<MetaRelationship> retrieved = meta.getMetaRelationshipsFor(derived);
-		assertEquals(retrieved.size(),2);
+		assertEquals(2,retrieved.size());
 		assertTrue(retrieved.contains(mr));
 		assertTrue(retrieved.contains(mrForBase));
 
@@ -543,9 +552,9 @@ public class TestMetamodel {
 		DeleteDependenciesList dependencies = new DeleteDependenciesList();
 		meta.getDeleteDependencies(dependencies, mr);
 		
-		assertTrue(dependencies.containsTarget(mr)); 
-		assertFalse(dependencies.containsTarget(sme));
-		assertFalse(dependencies.containsTarget(fme)); 
+		assertTrue(dependencies.containsTarget(mr.getKey())); 
+		assertFalse(dependencies.containsTarget(sme.getKey()));
+		assertFalse(dependencies.containsTarget(fme.getKey())); 
 	}
 
 	/**
@@ -570,11 +579,11 @@ public class TestMetamodel {
 		meta.addMetaRelationship(mr);
 		
 		DeleteDependenciesList dependencies = new DeleteDependenciesList();
-		meta.getDeleteDependencies(dependencies, sme);
+		meta.getDeleteDependencies(dependencies, sme, repository);
 		
-		assertTrue(dependencies.containsTarget(sme)); // the item we're deleting
-		assertFalse(dependencies.containsTarget(fme)); // independent now but no reason to delete. 
-		assertTrue(dependencies.containsTarget(mr)); // can't have relationship to missing meta entity.
+		assertTrue(dependencies.containsTarget(sme.getKey())); // the item we're deleting
+		assertFalse(dependencies.containsTarget(fme.getKey())); // independent now but no reason to delete. 
+		assertTrue(dependencies.containsTarget(mr.getKey())); // can't have relationship to missing meta entity.
 	}
 
 	@Test
@@ -587,10 +596,10 @@ public class TestMetamodel {
 		meta.addMetaEntity(derived);
 		
 		DeleteDependenciesList dependencies = new DeleteDependenciesList();
-		meta.getDeleteDependencies(dependencies, base);
+		meta.getDeleteDependencies(dependencies, base, repository);
 		
-		assertTrue(dependencies.containsTarget(base)); // the item we're deleting
-		assertTrue(dependencies.containsTarget(derived)); // and the one derived from it
+		assertTrue(dependencies.containsTarget(base.getKey())); // the item we're deleting
+		assertTrue(dependencies.containsTarget(derived.getKey())); // and the one derived from it
 	}
 
 

@@ -5,12 +5,16 @@ package alvahouse.eatool.test.repository.dao;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.samePropertyValuesAs;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.samePropertyValuesAs;
+import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.Charset;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import alvahouse.eatool.repository.dao.Serialise;
 import alvahouse.eatool.repository.dao.VersionDao;
 import alvahouse.eatool.repository.dao.metamodel.MetaEntityDao;
+import alvahouse.eatool.repository.dao.metamodel.MetaEntityDisplayHintDao;
 import alvahouse.eatool.repository.dao.metamodel.MetaPropertyContainerDao;
 import alvahouse.eatool.repository.dao.metamodel.MetaPropertyDao;
 import alvahouse.eatool.repository.dao.metamodel.MetaRelationshipDao;
@@ -54,7 +59,7 @@ class TestMetaModelDao {
 		MetaEntityDao dao = createMetaEntityDao();
 		
 		String asXml = Serialise.marshalToXML(dao);
-		System.out.println(asXml);
+		//System.out.println(asXml);
 		MetaEntityDao copy = (MetaEntityDao) Serialise.marshalFromXML(new ByteArrayInputStream(asXml.getBytes(Charset.forName("UTF-8"))));
 		
 		assertThat( copy, samePropertyValuesAs(dao, "version"));
@@ -67,7 +72,7 @@ class TestMetaModelDao {
 		MetaEntityDao dao = createMetaEntityDao();
 		
 		String asJson = Serialise.marshalToJSON(dao);
-		System.out.println(asJson);
+		//System.out.println(asJson);
 		MetaEntityDao copy = (MetaEntityDao) Serialise.unmarshalFromJson(asJson, MetaEntityDao.class);
 
 		assertThat( copy, samePropertyValuesAs(dao, "version"));
@@ -81,7 +86,7 @@ class TestMetaModelDao {
 		MetaEntityDao dao = createMetaEntityDao();
 		addProperties(dao);
 		String asXml = Serialise.marshalToXML(dao);
-		System.out.println(asXml);
+		//System.out.println(asXml);
 		MetaEntityDao copy = (MetaEntityDao) Serialise.marshalFromXML(new ByteArrayInputStream(asXml.getBytes(Charset.forName("UTF-8"))));
 		
 		assertThat( copy.getProperties(), hasSize(2));
@@ -96,7 +101,7 @@ class TestMetaModelDao {
 		addProperties(dao);
 		
 		String asJson = Serialise.marshalToJSON(dao);
-		System.out.println(asJson);
+		//System.out.println(asJson);
 		MetaEntityDao copy = (MetaEntityDao) Serialise.unmarshalFromJson(asJson, MetaEntityDao.class);
 
 		assertThat( copy.getProperties(), hasSize(2));
@@ -111,7 +116,7 @@ class TestMetaModelDao {
 		MetaRelationshipDao dao = createMetaRelationshipDao();
 		
 		String asXml = Serialise.marshalToXML(dao);
-		System.out.println(asXml);
+		//System.out.println(asXml);
 		MetaRelationshipDao copy = (MetaRelationshipDao) Serialise.marshalFromXML(new ByteArrayInputStream(asXml.getBytes(Charset.forName("UTF-8"))));
 		
 		assertThat( copy, samePropertyValuesAs(dao, "version", "start", "finish", "restriction"));
@@ -129,7 +134,7 @@ class TestMetaModelDao {
 		MetaRelationshipDao dao = createMetaRelationshipDao();
 		
 		String asJson = Serialise.marshalToJSON(dao);
-		System.out.println(asJson);
+		//System.out.println(asJson);
 		MetaRelationshipDao copy = (MetaRelationshipDao) Serialise.unmarshalFromJson(asJson, MetaRelationshipDao.class);
 
 		assertThat( copy, samePropertyValuesAs(dao, "version", "start", "finish", "restriction"));
@@ -150,7 +155,7 @@ class TestMetaModelDao {
 		addProperties(dao.getFinish());
 		
 		String asXml = Serialise.marshalToXML(dao);
-		System.out.println(asXml);
+		//System.out.println(asXml);
 		MetaRelationshipDao copy = (MetaRelationshipDao) Serialise.marshalFromXML(new ByteArrayInputStream(asXml.getBytes(Charset.forName("UTF-8"))));
 
 		assertThat( copy.getProperties(), hasSize(2));
@@ -176,7 +181,7 @@ class TestMetaModelDao {
 		addProperties(dao.getFinish());
 		
 		String asJson = Serialise.marshalToJSON(dao);
-		System.out.println(asJson);
+		//System.out.println(asJson);
 		MetaRelationshipDao copy = (MetaRelationshipDao) Serialise.unmarshalFromJson(asJson, MetaRelationshipDao.class);
 
 		assertThat( copy.getProperties(), hasSize(2));
@@ -191,6 +196,56 @@ class TestMetaModelDao {
 		assertThat( copy.getFinish().getProperties().get(0), samePropertyValuesAs(dao.getFinish().getProperties().get(0)));
 		assertThat( copy.getFinish().getProperties().get(1), samePropertyValuesAs(dao.getFinish().getProperties().get(1)));
 
+	}
+
+	@Test
+	void testMetaEntityDisplayHintAsJson() throws Exception{
+		
+		MetaEntityDao dao = createMetaEntityDao();
+		addProperties(dao);
+		MetaEntityDisplayHintDao dhd = new MetaEntityDisplayHintDao();
+		List<UUID> propertyKeys = new LinkedList<>();
+		
+		for(MetaPropertyDao mpd : dao.getProperties()) {
+			dhd.getKeys().add(mpd.getKey());
+			propertyKeys.add(mpd.getKey());
+		}
+		dao.setDisplayHint(dhd);
+
+		propertyKeys.forEach( pk -> assertTrue(dhd.getKeys().contains(pk)));
+		//assertThat( dhd.getKeys(), containsInAnyOrder(propertyKeys));
+
+		String asJson = Serialise.marshalToJSON(dao);
+		System.out.println(asJson);
+		MetaEntityDao copy = (MetaEntityDao) Serialise.unmarshalFromJson(asJson, MetaEntityDao.class);
+
+		assertThat( copy.getDisplayHint(), notNullValue());
+		propertyKeys.forEach( pk -> assertTrue(copy.getDisplayHint().getKeys().contains(pk)));
+		
+	}
+
+	@Test
+	void testMetaEntityDisplayHintAsXML() throws Exception{
+		
+		MetaEntityDao dao = createMetaEntityDao();
+		addProperties(dao);
+		MetaEntityDisplayHintDao dhd = new MetaEntityDisplayHintDao();
+		List<UUID> propertyKeys = new LinkedList<>();
+		
+		for(MetaPropertyDao mpd : dao.getProperties()) {
+			dhd.getKeys().add(mpd.getKey());
+			propertyKeys.add(mpd.getKey());
+		}
+		dao.setDisplayHint(dhd);
+
+		propertyKeys.forEach( pk -> assertTrue(dhd.getKeys().contains(pk)));
+		
+		String asXml = Serialise.marshalToXML(dao);
+		System.out.println(asXml);
+		MetaEntityDao copy = (MetaEntityDao) Serialise.marshalFromXML(new ByteArrayInputStream(asXml.getBytes(Charset.forName("UTF-8"))));
+		
+		assertThat( copy.getDisplayHint(), notNullValue());
+		propertyKeys.forEach( pk -> assertTrue(copy.getDisplayHint().getKeys().contains(pk)));
 	}
 
 	

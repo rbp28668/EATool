@@ -49,7 +49,7 @@ public class MetaRole extends MetaPropertyContainer {
 		metaRelationship = mr;
 	}
 
-	public MetaRole(MetaRelationship parent, MetaRoleDao dao, MetaPropertyTypes types) {
+	public MetaRole(MetaRelationship parent, MetaRoleDao dao, MetaPropertyTypes types) throws Exception {
 		super(dao, types);
 		connection.setKey(dao.getConnects());
 		multiplicity = Multiplicity.fromString(dao.getMultiplicity());

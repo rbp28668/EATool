@@ -336,7 +336,7 @@ public class ModelPersistenceMemory implements ModelPersistence {
 	 */
 	@Override
 	public void getDeleteDependencies(Model model, DeleteDependenciesList dependencies, Relationship r) {
-		dependencies.addDependency(new RelationshipDeleteProxy(model, r));
+		dependencies.addDependency(new RelationshipDeleteProxy(model, r.getKey(), r.toString()));
 	}
 
 	/*
@@ -349,13 +349,13 @@ public class ModelPersistenceMemory implements ModelPersistence {
 	 */
 	@Override
 	public void getDeleteDependencies(Model model, DeleteDependenciesList dependencies, Entity e) throws Exception {
-		dependencies.addDependency(new EntityDeleteProxy(model, e));
+		dependencies.addDependency(new EntityDeleteProxy(model, e.getKey(), e.toString()));
 
 		// Mark any relationships that depend on this entity for deletion
 		for (Relationship r : getRelationships()) {
 			if (r.start().connectsTo().equals(e) || r.finish().connectsTo().equals(e)) {
-				if (!dependencies.containsTarget(r))
-					dependencies.addDependency(new RelationshipDeleteProxy(model, r));
+				if (!dependencies.containsTarget(r.getKey()))
+					dependencies.addDependency(new RelationshipDeleteProxy(model, r.getKey(), r.toString()));
 			}
 		}
 	}

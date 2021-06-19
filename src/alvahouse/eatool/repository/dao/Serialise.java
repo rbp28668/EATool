@@ -35,6 +35,7 @@ public class Serialise {
     public static void marshalToXML(Object value, OutputStream outputStream) throws JAXBException {
         JAXBContext jc = createContext();
         Marshaller m = jc.createMarshaller();
+        m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
         m.marshal(value, outputStream);
 
     }
@@ -49,6 +50,7 @@ public class Serialise {
         JAXBContext jc = createContext();
         Marshaller m = jc.createMarshaller();
         StringWriter writer = new StringWriter();
+        m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
         m.marshal(value, writer);
         return writer.toString();
     }

@@ -39,7 +39,7 @@ public class MetaRelationship extends MetaPropertyContainer implements Versionab
         m_ends[1] = null;
     }
 
-    public MetaRelationship(MetaRelationshipDao dao, MetaPropertyTypes types) {
+    public MetaRelationship(MetaRelationshipDao dao, MetaPropertyTypes types) throws Exception {
     	super(dao, types);
     	m_ends[0] = new MetaRole(this, dao.getStart(), types);
     	m_ends[1] = new MetaRole(this, dao.getFinish(), types);

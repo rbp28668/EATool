@@ -29,9 +29,15 @@ public class MetaRelationshipProxy {
 	 * @param key
 	 */
 	public void setKey(UUID key) {
-		isNull = false;
-		this.key = key;
-		metaRelationship = null;
+		if(key == null || key == UUID.NULL) {
+			isNull = true;
+			key = UUID.NULL;
+			metaRelationship = null;
+		} else {
+			isNull = false;
+			this.key = key;
+			metaRelationship = null;
+		}
 	}
 	
 	/**

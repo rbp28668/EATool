@@ -15,9 +15,6 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 
 import alvahouse.eatool.repository.base.NamedRepositoryItem;
-import alvahouse.eatool.repository.version.Version;
-import alvahouse.eatool.repository.version.VersionImpl;
-import alvahouse.eatool.repository.version.Versionable;
 import alvahouse.eatool.util.UUID;
 
 /* Use basic Java types
