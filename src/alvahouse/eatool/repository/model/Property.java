@@ -9,7 +9,9 @@ package alvahouse.eatool.repository.model;
 import java.io.IOException;
 
 import alvahouse.eatool.repository.base.RepositoryItem;
+import alvahouse.eatool.repository.dao.model.PropertyDao;
 import alvahouse.eatool.repository.metamodel.MetaProperty;
+import alvahouse.eatool.repository.metamodel.MetaPropertyContainer;
 import alvahouse.eatool.repository.metamodel.types.MetaPropertyType;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
@@ -30,6 +32,23 @@ public class Property extends RepositoryItem  implements Cloneable  {
         meta = mp;
         value = mp.getMetaPropertyType().initialise();
     }
+
+    /** Creates new Property */
+    public Property(PropertyDao dao, PropertyContainer container, MetaPropertyContainer meta) throws Exception {
+        super(dao);
+        this.meta = meta.getMetaProperty(dao.getMetaPropertyKey());
+        this.value = dao.getValue();
+        this.container = container;
+    }
+
+	/**
+	 * @return
+	 */
+	public PropertyDao toDao() {
+		PropertyDao dao = new PropertyDao();
+		copyTo(dao);
+		return dao;
+	}
 
     /* (non-Javadoc)
      * @see java.lang.Object#clone()
@@ -133,6 +152,16 @@ public class Property extends RepositoryItem  implements Cloneable  {
         copy.meta = meta;
         copy.value = value; // no clone as strings immutable
      }
+    
+    /**
+     * Copies the property to a corresponding DAO.
+     * @param dao receives the values from property.
+     */
+    protected void copyTo(PropertyDao dao) {
+    	super.copyTo(dao);
+    	dao.setMetaPropertyKey(meta.getKey());
+    	dao.setValue(value);
+    }
     
     /**
      * Process this property assuming the data type has changed.
