@@ -79,7 +79,7 @@ public class Serialise {
      */
     private static JAXBContext createContext() throws JAXBException {
         String contextPath = alvahouse.eatool.repository.dao.metamodel.ObjectFactory.class.getPackage().getName()
-        		; //+ ":" + alvahouse.eatool.repository.dao.model.ObjectFactory.class.getPackage().getName();
+        		+ ":" + alvahouse.eatool.repository.dao.model.ObjectFactory.class.getPackage().getName();
 
         JAXBContext jc = JAXBContext.newInstance(contextPath);
         return jc;
