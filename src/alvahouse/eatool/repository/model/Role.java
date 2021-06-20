@@ -8,7 +8,7 @@ package alvahouse.eatool.repository.model;
 
 import java.io.IOException;
 
-import alvahouse.eatool.repository.dao.model.RoleDao;
+import alvahouse.eatool.repository.dto.model.RoleDto;
 import alvahouse.eatool.repository.metamodel.MetaRole;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
@@ -53,7 +53,7 @@ public class Role extends PropertyContainer implements Cloneable{
 	 * @param r
 	 * @param meta
 	 */
-	public Role(RoleDao dto, Relationship r, MetaRole meta) throws Exception {
+	public Role(RoleDto dto, Relationship r, MetaRole meta) throws Exception {
 		super(dto, meta);
 		this.relationship = r;
 		this.connection.setKey(dto.getConnects());
@@ -63,8 +63,8 @@ public class Role extends PropertyContainer implements Cloneable{
 	/**
 	 * @return
 	 */
-	public RoleDao toDao() {
-		RoleDao dao = new RoleDao();
+	public RoleDto toDao() {
+		RoleDto dao = new RoleDto();
 		copyTo(dao);
 		return dao;
 	}
@@ -165,7 +165,7 @@ public class Role extends PropertyContainer implements Cloneable{
         copy.relationship = null;   // possible different parent.
     }
 
-    protected void copyTo(RoleDao dao) {
+    protected void copyTo(RoleDto dao) {
     	super.copyTo(dao);
     	dao.setConnects(connection.getKey());
     }

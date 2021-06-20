@@ -11,8 +11,8 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedList;
 
-import alvahouse.eatool.repository.dao.metamodel.MetaEntityDao;
-import alvahouse.eatool.repository.dao.metamodel.MetaEntityDisplayHintDao;
+import alvahouse.eatool.repository.dto.metamodel.MetaEntityDto;
+import alvahouse.eatool.repository.dto.metamodel.MetaEntityDisplayHintDto;
 import alvahouse.eatool.repository.metamodel.types.MetaPropertyTypes;
 import alvahouse.eatool.repository.version.Version;
 import alvahouse.eatool.repository.version.VersionImpl;
@@ -40,17 +40,17 @@ public class MetaEntity extends MetaPropertyContainer implements  Versionable{
         super(uuid);
     }
 
-    public MetaEntity(MetaEntityDao dao, MetaPropertyTypes types) throws Exception {
+    public MetaEntity(MetaEntityDto dao, MetaPropertyTypes types) throws Exception {
     	super(dao, types);
     	base.setKey(dao.getBase());
     	m_isAbstract = dao.isAbstract();
-    	MetaEntityDisplayHintDao medhDao = dao.getDisplayHint();
+    	MetaEntityDisplayHintDto medhDao = dao.getDisplayHint();
     	displayHint = medhDao == null ? null : new MetaEntityDisplayHint(this, medhDao);
     	version = new VersionImpl(dao.getVersion());
     }
     
-	public MetaEntityDao toDao() {
-		MetaEntityDao dao = new MetaEntityDao();
+	public MetaEntityDto toDao() {
+		MetaEntityDto dao = new MetaEntityDto();
 		copyTo(dao);
 		return dao;
 	}
@@ -200,7 +200,7 @@ public class MetaEntity extends MetaPropertyContainer implements  Versionable{
         copy.setModel(null); // disconnect it
     }
 
-    protected void copyTo(MetaEntityDao dao) {
+    protected void copyTo(MetaEntityDto dao) {
         super.copyTo(dao);
         dao.setBase(base.isNull() ? null :  base.getKey());
         dao.setAbstract(m_isAbstract);

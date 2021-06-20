@@ -1,7 +1,7 @@
 /**
  * 
  */
-package alvahouse.eatool.repository.dao.model;
+package alvahouse.eatool.repository.dto.model;
 
 import javax.xml.bind.annotation.XmlRegistry;
 
@@ -16,6 +16,6 @@ public class ObjectFactory {
 	public ObjectFactory() {
 	}
 	
-	public EntityDao createEntityDao() { return new EntityDao(); }
-	public RelationshipDao createRelationshipDao() { return new RelationshipDao(); }
+	public EntityDto createEntityDao() { return new EntityDto(); }
+	public RelationshipDto createRelationshipDao() { return new RelationshipDto(); }
 }

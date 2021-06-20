@@ -9,8 +9,8 @@ package alvahouse.eatool.repository.metamodel;
 import java.io.IOException;
 import java.util.Comparator;
 
-import alvahouse.eatool.repository.dao.metamodel.MetaEntityDao;
-import alvahouse.eatool.repository.dao.metamodel.MetaRelationshipDao;
+import alvahouse.eatool.repository.dto.metamodel.MetaEntityDto;
+import alvahouse.eatool.repository.dto.metamodel.MetaRelationshipDto;
 import alvahouse.eatool.repository.metamodel.types.MetaPropertyTypes;
 import alvahouse.eatool.repository.version.Version;
 import alvahouse.eatool.repository.version.VersionImpl;
@@ -39,15 +39,15 @@ public class MetaRelationship extends MetaPropertyContainer implements Versionab
         m_ends[1] = null;
     }
 
-    public MetaRelationship(MetaRelationshipDao dao, MetaPropertyTypes types) throws Exception {
+    public MetaRelationship(MetaRelationshipDto dao, MetaPropertyTypes types) throws Exception {
     	super(dao, types);
     	m_ends[0] = new MetaRole(this, dao.getStart(), types);
     	m_ends[1] = new MetaRole(this, dao.getFinish(), types);
     	restriction = MetaRelationshipRestriction.fromDao(dao.getRestriction());
     }
     
-	public MetaRelationshipDao toDao() {
-		MetaRelationshipDao dao = new MetaRelationshipDao();
+	public MetaRelationshipDto toDao() {
+		MetaRelationshipDto dao = new MetaRelationshipDto();
 		copyTo(dao);
 		return dao;
 	}
@@ -152,7 +152,7 @@ public class MetaRelationship extends MetaPropertyContainer implements Versionab
 
     }
 
-    protected void copyTo(MetaRelationshipDao dao) {
+    protected void copyTo(MetaRelationshipDto dao) {
         super.copyTo(dao);
         dao.setStart(m_ends[0].toDao());
         dao.setFinish(m_ends[1].toDao());

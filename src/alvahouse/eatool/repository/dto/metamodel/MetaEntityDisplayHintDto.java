@@ -1,7 +1,7 @@
 /**
  * 
  */
-package alvahouse.eatool.repository.dao.metamodel;
+package alvahouse.eatool.repository.dto.metamodel;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -26,7 +26,7 @@ import alvahouse.eatool.util.UUID;
 @XmlRootElement(name = "displayHint")
 @XmlAccessorType(XmlAccessType.NONE)
 
-public class MetaEntityDisplayHintDao {
+public class MetaEntityDisplayHintDto {
 	private ArrayList<UUID> keys;
 	/**
 	 * @return the keys

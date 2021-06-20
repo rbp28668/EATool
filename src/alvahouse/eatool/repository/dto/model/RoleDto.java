@@ -1,7 +1,7 @@
 /**
  * 
  */
-package alvahouse.eatool.repository.dao.metamodel;
+package alvahouse.eatool.repository.dto.model;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -17,11 +17,11 @@ import alvahouse.eatool.util.UUID;
  * @author bruce_porteous
  *
  */
-@XmlRootElement(name = "metaRole")
+@XmlRootElement(name = "role")
 @XmlAccessorType(XmlAccessType.NONE)
-public class MetaRoleDao  extends MetaPropertyContainerDao{
+public class RoleDto extends PropertyContainerDto {
+
 	private UUID connects;
-	private String multiplicity;
 	
 	/**
 	 * @return the connects
@@ -45,6 +45,7 @@ public class MetaRoleDao  extends MetaPropertyContainerDao{
 	public String getConnectsJson() {
 		return connects.asJsonId();
 	}
+	
 	/**
 	 * @param connects the connects to set
 	 */
@@ -52,19 +53,5 @@ public class MetaRoleDao  extends MetaPropertyContainerDao{
 		this.connects = UUID.fromJsonId(connects);
 	}
 	
-	/**
-	 * @return the multiplicity
-	 */
-	@XmlAttribute(required = true)
-	public String getMultiplicity() {
-		return multiplicity;
-	}
-	/**
-	 * @param multiplicity the multiplicity to set
-	 */
-	public void setMultiplicity(String multiplicity) {
-		this.multiplicity = multiplicity;
-	}
-	
-	
+
 }

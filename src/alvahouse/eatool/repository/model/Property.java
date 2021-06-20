@@ -9,7 +9,7 @@ package alvahouse.eatool.repository.model;
 import java.io.IOException;
 
 import alvahouse.eatool.repository.base.RepositoryItem;
-import alvahouse.eatool.repository.dao.model.PropertyDao;
+import alvahouse.eatool.repository.dto.model.PropertyDto;
 import alvahouse.eatool.repository.metamodel.MetaProperty;
 import alvahouse.eatool.repository.metamodel.MetaPropertyContainer;
 import alvahouse.eatool.repository.metamodel.types.MetaPropertyType;
@@ -34,7 +34,7 @@ public class Property extends RepositoryItem  implements Cloneable  {
     }
 
     /** Creates new Property */
-    public Property(PropertyDao dao, PropertyContainer container, MetaPropertyContainer meta) throws Exception {
+    public Property(PropertyDto dao, PropertyContainer container, MetaPropertyContainer meta) throws Exception {
         super(dao);
         this.meta = meta.getMetaProperty(dao.getMetaPropertyKey());
         this.value = dao.getValue();
@@ -44,8 +44,8 @@ public class Property extends RepositoryItem  implements Cloneable  {
 	/**
 	 * @return
 	 */
-	public PropertyDao toDao() {
-		PropertyDao dao = new PropertyDao();
+	public PropertyDto toDao() {
+		PropertyDto dao = new PropertyDto();
 		copyTo(dao);
 		return dao;
 	}
@@ -157,7 +157,7 @@ public class Property extends RepositoryItem  implements Cloneable  {
      * Copies the property to a corresponding DAO.
      * @param dao receives the values from property.
      */
-    protected void copyTo(PropertyDao dao) {
+    protected void copyTo(PropertyDto dao) {
     	super.copyTo(dao);
     	dao.setMetaPropertyKey(meta.getKey());
     	dao.setValue(value);

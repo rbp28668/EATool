@@ -12,8 +12,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import alvahouse.eatool.repository.base.NamedRepositoryItem;
-import alvahouse.eatool.repository.dao.metamodel.MetaPropertyContainerDao;
-import alvahouse.eatool.repository.dao.metamodel.MetaPropertyDao;
+import alvahouse.eatool.repository.dto.metamodel.MetaPropertyContainerDto;
+import alvahouse.eatool.repository.dto.metamodel.MetaPropertyDto;
 import alvahouse.eatool.repository.metamodel.types.MetaPropertyTypes;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
@@ -33,9 +33,9 @@ public abstract class MetaPropertyContainer extends NamedRepositoryItem {
         super(uuid);
     }
 
-    public MetaPropertyContainer(MetaPropertyContainerDao dao, MetaPropertyTypes types) throws Exception {
+    public MetaPropertyContainer(MetaPropertyContainerDto dao, MetaPropertyTypes types) throws Exception {
     	super(dao);
-        for(MetaPropertyDao mpdao : dao.getProperties()) {
+        for(MetaPropertyDto mpdao : dao.getProperties()) {
             MetaProperty mp = new MetaProperty(mpdao, types);
             propertyList.addLast(mp);
             m_properties.put(mp.getKey(), mp);
@@ -174,10 +174,10 @@ public abstract class MetaPropertyContainer extends NamedRepositoryItem {
         }
     }
 
-    protected void copyTo(MetaPropertyContainerDao dao) {
+    protected void copyTo(MetaPropertyContainerDto dao) {
         super.copyTo(dao);
         for(MetaProperty sourcemp : propertyList) {
-            MetaPropertyDao mpdao = sourcemp.toDao();
+            MetaPropertyDto mpdao = sourcemp.toDao();
             dao.getProperties().add(mpdao);
         }
     }
