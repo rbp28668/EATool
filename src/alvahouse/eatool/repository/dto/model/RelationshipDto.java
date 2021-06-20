@@ -1,7 +1,7 @@
 /**
  * 
  */
-package alvahouse.eatool.repository.dao.model;
+package alvahouse.eatool.repository.dto.model;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import alvahouse.eatool.repository.dao.VersionDao;
+import alvahouse.eatool.repository.dto.VersionDto;
 import alvahouse.eatool.util.UUID;
 
 /**
@@ -21,11 +21,11 @@ import alvahouse.eatool.util.UUID;
 @XmlRootElement(name = "relationship")
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(propOrder = { "metaRelationshipKeyJson", "start", "finish", "version"})
-public class RelationshipDao extends PropertyContainerDao {
+public class RelationshipDto extends PropertyContainerDto {
 	private UUID metaRelationshipKey;
-	private RoleDao start;
-	private RoleDao finish;
-	private VersionDao version;
+	private RoleDto start;
+	private RoleDto finish;
+	private VersionDto version;
 	/**
 	 * @return the metaRelationshipKey
 	 */
@@ -59,39 +59,39 @@ public class RelationshipDao extends PropertyContainerDao {
 	 * @return the start
 	 */
 	@XmlElement(required=true)
-	public RoleDao getStart() {
+	public RoleDto getStart() {
 		return start;
 	}
 	/**
 	 * @param start the start to set
 	 */
-	public void setStart(RoleDao start) {
+	public void setStart(RoleDto start) {
 		this.start = start;
 	}
 	/**
 	 * @return the finish
 	 */
 	@XmlElement(required=true)
-	public RoleDao getFinish() {
+	public RoleDto getFinish() {
 		return finish;
 	}
 	/**
 	 * @param finish the finish to set
 	 */
-	public void setFinish(RoleDao finish) {
+	public void setFinish(RoleDto finish) {
 		this.finish = finish;
 	}
 	/**
 	 * @return the version
 	 */
 	@XmlElement(required=true)
-	public VersionDao getVersion() {
+	public VersionDto getVersion() {
 		return version;
 	}
 	/**
 	 * @param version the version to set
 	 */
-	public void setVersion(VersionDao version) {
+	public void setVersion(VersionDto version) {
 		this.version = version;
 	}
 	

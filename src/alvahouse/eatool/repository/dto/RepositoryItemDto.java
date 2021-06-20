@@ -1,7 +1,7 @@
 /**
  * 
  */
-package alvahouse.eatool.repository.dao;
+package alvahouse.eatool.repository.dto;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -17,7 +17,7 @@ import alvahouse.eatool.util.UUID;
  *
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class RepositoryItemDao {
+public class RepositoryItemDto {
 	private UUID key;
 
 	/**
@@ -73,7 +73,7 @@ public class RepositoryItemDao {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		RepositoryItemDao other = (RepositoryItemDao) obj;
+		RepositoryItemDto other = (RepositoryItemDto) obj;
 		if (key == null) {
 			if (other.key != null)
 				return false;

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package alvahouse.eatool.repository.dao;
+package alvahouse.eatool.repository.dto;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

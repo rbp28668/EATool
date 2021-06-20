@@ -16,10 +16,10 @@ import java.util.Set;
 import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.base.DeleteDependenciesList;
 import alvahouse.eatool.repository.base.KeyedItem;
-import alvahouse.eatool.repository.dao.DeleteDependenciesListDao;
-import alvahouse.eatool.repository.dao.DeleteProxyDao;
-import alvahouse.eatool.repository.dao.metamodel.MetaEntityDao;
-import alvahouse.eatool.repository.dao.metamodel.MetaRelationshipDao;
+import alvahouse.eatool.repository.dto.DeleteDependenciesListDto;
+import alvahouse.eatool.repository.dto.DeleteProxyDto;
+import alvahouse.eatool.repository.dto.metamodel.MetaEntityDto;
+import alvahouse.eatool.repository.dto.metamodel.MetaRelationshipDto;
 import alvahouse.eatool.repository.metamodel.types.MetaPropertyTypes;
 import alvahouse.eatool.repository.persist.MetaModelPersistence;
 import alvahouse.eatool.util.UUID;
@@ -51,7 +51,7 @@ public class MetaModel implements KeyedItem {
 	 * @return the MetaEntity keyed by uuid
 	 */
 	public MetaEntity getMetaEntity(UUID uuid) throws Exception {
-		MetaEntityDao dao =  persistence.getMetaEntity(uuid);
+		MetaEntityDto dao =  persistence.getMetaEntity(uuid);
 		MetaEntity me = new MetaEntity(dao,types);
 		me.setModel(this);
 		return me;
@@ -69,7 +69,7 @@ public class MetaModel implements KeyedItem {
 		String user = System.getProperty("user.name");
 		me.getVersion().createBy(user);
 		
-		MetaEntityDao dao = me.toDao();
+		MetaEntityDto dao = me.toDao();
 		persistence.addMetaEntity(dao);
 		
 		fireMetaEntityAdded(me);
@@ -85,7 +85,7 @@ public class MetaModel implements KeyedItem {
 	 */
 	public void _add(MetaEntity me) throws Exception {
 		me.setModel(this);
-		MetaEntityDao dao = me.toDao();
+		MetaEntityDto dao = me.toDao();
 		persistence.addMetaEntity(dao);
 	}
 
@@ -95,9 +95,9 @@ public class MetaModel implements KeyedItem {
 	 * @return Collection of MetaEntity.
 	 */
 	public Collection<MetaEntity> getMetaEntities()  throws Exception{
-		Collection<MetaEntityDao> daos = persistence.getMetaEntities();
+		Collection<MetaEntityDto> daos = persistence.getMetaEntities();
 		Collection<MetaEntity> mes = new LinkedList<>();
-		for(MetaEntityDao dao : daos) {
+		for(MetaEntityDto dao : daos) {
 			MetaEntity me = new MetaEntity(dao, types);
 			me.setModel(this);
 			mes.add(me);
@@ -126,7 +126,7 @@ public class MetaModel implements KeyedItem {
 		String user = System.getProperty("user.name");
 		me.getVersion().modifyBy(user);
 		
-		MetaEntityDao dao = me.toDao();
+		MetaEntityDto dao = me.toDao();
 		persistence.updateMetaEntity(dao);
 		
 		fireMetaEntityChanged(me);
@@ -141,7 +141,7 @@ public class MetaModel implements KeyedItem {
 		if(me.getModel() != this) {
 			throw new IllegalArgumentException("Cannot move meta-entities across models");
 		}
-		MetaEntityDao dao = me.toDao();
+		MetaEntityDto dao = me.toDao();
 		persistence.updateMetaEntity(dao);
 	}
 
@@ -152,7 +152,7 @@ public class MetaModel implements KeyedItem {
 	 * @throws Exception
 	 */
 	public void deleteMetaEntity(UUID uuid) throws Exception {
-		MetaEntityDao dao = persistence.deleteMetaEntity(uuid);
+		MetaEntityDto dao = persistence.deleteMetaEntity(uuid);
 		MetaEntity me = new MetaEntity(dao, types);
 		fireMetaEntityDeleted(me);
 	}
@@ -165,7 +165,7 @@ public class MetaModel implements KeyedItem {
 	 * @return the MetaRelationship keyed by uuid
 	 */
 	public MetaRelationship getMetaRelationship(UUID uuid)  throws Exception{
-		MetaRelationshipDao dao = persistence.getMetaRelationship(uuid);
+		MetaRelationshipDto dao = persistence.getMetaRelationship(uuid);
 		MetaRelationship mr = new MetaRelationship(dao, types);
 		mr.setModel(this);
 		return mr;
@@ -183,7 +183,7 @@ public class MetaModel implements KeyedItem {
 		String user = System.getProperty("user.name");
 		mr.getVersion().createBy(user);
 		
-		MetaRelationshipDao dao = mr.toDao();
+		MetaRelationshipDto dao = mr.toDao();
 		persistence.addMetaRelationship(dao);
 		
 		fireMetaRelationshipAdded(mr);
@@ -199,7 +199,7 @@ public class MetaModel implements KeyedItem {
 	 */
 	public void _add(MetaRelationship mr) throws Exception {
 		mr.setModel(this);
-		MetaRelationshipDao dao = mr.toDao();
+		MetaRelationshipDto dao = mr.toDao();
 		persistence.addMetaRelationship(dao);
 	}
 
@@ -213,7 +213,7 @@ public class MetaModel implements KeyedItem {
 		String user = System.getProperty("user.name");
 		mr.getVersion().modifyBy(user);
 
-		MetaRelationshipDao dao = mr.toDao();
+		MetaRelationshipDto dao = mr.toDao();
 		persistence.updateMetaRelationship(dao);
 		
 		fireMetaRelationshipChanged(mr);
@@ -228,7 +228,7 @@ public class MetaModel implements KeyedItem {
 	 * @throws Exception
 	 */
 	public void deleteMetaRelationship(UUID uuid) throws Exception {
-		MetaRelationshipDao dao = persistence.deleteMetaRelationship(uuid);
+		MetaRelationshipDto dao = persistence.deleteMetaRelationship(uuid);
 		MetaRelationship mr = new MetaRelationship(dao, types);
 		fireMetaRelationshipDeleted(mr);
 	}
@@ -239,9 +239,9 @@ public class MetaModel implements KeyedItem {
 	 * @return a Collection containing MetaRelationship.
 	 */
 	public Collection<MetaRelationship> getMetaRelationships()  throws Exception{
-		Collection<MetaRelationshipDao> daos = persistence.getMetaRelationships();
+		Collection<MetaRelationshipDto> daos = persistence.getMetaRelationships();
 		List<MetaRelationship> mrs = new LinkedList<>();
-		for(MetaRelationshipDao dao : daos) {
+		for(MetaRelationshipDto dao : daos) {
 			MetaRelationship mr = new MetaRelationship(dao, types);
 			mr.setModel(this);
 			mrs.add(mr);
@@ -277,9 +277,9 @@ public class MetaModel implements KeyedItem {
 	 * @return a Set of MetaRelationship. Maybe empty, never null.
 	 */
 	public Set<MetaRelationship> getMetaRelationshipsFor(MetaEntity me)  throws Exception{
-		Set<MetaRelationshipDao> daos = persistence.getMetaRelationshipsFor(me.getKey());
+		Set<MetaRelationshipDto> daos = persistence.getMetaRelationshipsFor(me.getKey());
 		Set<MetaRelationship> relationships = new HashSet<>();
-		for(MetaRelationshipDao dao : daos) {
+		for(MetaRelationshipDto dao : daos) {
 			MetaRelationship mr = new MetaRelationship(dao, types);
 			mr.setModel(this);
 			relationships.add(mr);
@@ -297,9 +297,9 @@ public class MetaModel implements KeyedItem {
 	 * @return a Set of MetaRelationship. Maybe empty, never null.
 	 */
 	public Set<MetaRelationship> getDeclaredMetaRelationshipsFor(MetaEntity me)  throws Exception{
-		Set<MetaRelationshipDao> daos = persistence.getDeclaredMetaRelationshipsFor(me.getKey());
+		Set<MetaRelationshipDto> daos = persistence.getDeclaredMetaRelationshipsFor(me.getKey());
 		Set<MetaRelationship> relationships = new HashSet<>();
-		for(MetaRelationshipDao dao : daos) {
+		for(MetaRelationshipDto dao : daos) {
 			MetaRelationship mr = new MetaRelationship(dao, types);
 			mr.setModel(this);
 			relationships.add(mr);
@@ -331,8 +331,8 @@ public class MetaModel implements KeyedItem {
 	 * @param target       is the meta-entity to find the dependencies of.
 	 */
 	public void getDeleteDependencies(DeleteDependenciesList dependencies, MetaEntity target, Repository repository)  throws Exception{
-		DeleteDependenciesListDao dao = persistence.getDeleteDependencies(target.getKey());
-		for(DeleteProxyDao proxyDao : dao.getProperties()) {
+		DeleteDependenciesListDto dao = persistence.getDeleteDependencies(target.getKey());
+		for(DeleteProxyDto proxyDao : dao.getProperties()) {
 			dependencies.addDependency(proxyDao, repository);
 		}
 	}
@@ -515,9 +515,9 @@ public class MetaModel implements KeyedItem {
 	public Collection<MetaEntity> getDerivedMetaEntities(MetaEntity meta)  throws Exception{
 		
 		
-		Collection<MetaEntityDao> daos = persistence.getDerivedMetaEntities(meta.getKey());
+		Collection<MetaEntityDto> daos = persistence.getDerivedMetaEntities(meta.getKey());
 		List<MetaEntity> derived = new LinkedList<>();
-		for(MetaEntityDao dao : daos) {
+		for(MetaEntityDto dao : daos) {
 			MetaEntity me = new MetaEntity(dao, types);
 			me.setModel(this);
 			derived.add(me);

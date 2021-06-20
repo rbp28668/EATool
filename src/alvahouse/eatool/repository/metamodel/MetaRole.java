@@ -8,7 +8,7 @@ package alvahouse.eatool.repository.metamodel;
 
 import java.io.IOException;
 
-import alvahouse.eatool.repository.dao.metamodel.MetaRoleDao;
+import alvahouse.eatool.repository.dto.metamodel.MetaRoleDto;
 import alvahouse.eatool.repository.metamodel.types.MetaPropertyTypes;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
@@ -49,7 +49,7 @@ public class MetaRole extends MetaPropertyContainer {
 		metaRelationship = mr;
 	}
 
-	public MetaRole(MetaRelationship parent, MetaRoleDao dao, MetaPropertyTypes types) throws Exception {
+	public MetaRole(MetaRelationship parent, MetaRoleDto dao, MetaPropertyTypes types) throws Exception {
 		super(dao, types);
 		connection.setKey(dao.getConnects());
 		multiplicity = Multiplicity.fromString(dao.getMultiplicity());
@@ -59,8 +59,8 @@ public class MetaRole extends MetaPropertyContainer {
 	/**
 	 * @return
 	 */
-	public MetaRoleDao toDao() {
-		MetaRoleDao dao = new MetaRoleDao();
+	public MetaRoleDto toDao() {
+		MetaRoleDto dao = new MetaRoleDto();
 		copyTo(dao);
 		return dao;
 	}
@@ -177,7 +177,7 @@ public class MetaRole extends MetaPropertyContainer {
 		copy.connection = (MetaEntityProxy) connection.clone();
 	}
 
-	protected void copyTo(MetaRoleDao dao) {
+	protected void copyTo(MetaRoleDto dao) {
 		super.copyTo(dao);
 		dao.setMultiplicity(multiplicity.toString());
 		dao.setConnects(connection.getKey());

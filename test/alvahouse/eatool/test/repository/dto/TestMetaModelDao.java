@@ -1,7 +1,7 @@
 /**
  * 
  */
-package alvahouse.eatool.test.repository.dao;
+package alvahouse.eatool.test.repository.dto;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
@@ -20,15 +20,15 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import alvahouse.eatool.repository.dao.Serialise;
-import alvahouse.eatool.repository.dao.VersionDao;
-import alvahouse.eatool.repository.dao.metamodel.MetaEntityDao;
-import alvahouse.eatool.repository.dao.metamodel.MetaEntityDisplayHintDao;
-import alvahouse.eatool.repository.dao.metamodel.MetaPropertyContainerDao;
-import alvahouse.eatool.repository.dao.metamodel.MetaPropertyDao;
-import alvahouse.eatool.repository.dao.metamodel.MetaRelationshipDao;
-import alvahouse.eatool.repository.dao.metamodel.MetaRelationshipRestrictionDao;
-import alvahouse.eatool.repository.dao.metamodel.MetaRoleDao;
+import alvahouse.eatool.repository.dto.Serialise;
+import alvahouse.eatool.repository.dto.VersionDto;
+import alvahouse.eatool.repository.dto.metamodel.MetaEntityDto;
+import alvahouse.eatool.repository.dto.metamodel.MetaEntityDisplayHintDto;
+import alvahouse.eatool.repository.dto.metamodel.MetaPropertyContainerDto;
+import alvahouse.eatool.repository.dto.metamodel.MetaPropertyDto;
+import alvahouse.eatool.repository.dto.metamodel.MetaRelationshipDto;
+import alvahouse.eatool.repository.dto.metamodel.MetaRelationshipRestrictionDto;
+import alvahouse.eatool.repository.dto.metamodel.MetaRoleDto;
 import alvahouse.eatool.repository.metamodel.types.MetaPropertyTypes;
 import alvahouse.eatool.util.UUID;
 
@@ -56,11 +56,11 @@ class TestMetaModelDao {
 	@Test
 	void testMetaEntityAsXML() throws Exception{
 		
-		MetaEntityDao dao = createMetaEntityDao();
+		MetaEntityDto dao = createMetaEntityDao();
 		
 		String asXml = Serialise.marshalToXML(dao);
 		//System.out.println(asXml);
-		MetaEntityDao copy = (MetaEntityDao) Serialise.marshalFromXML(new ByteArrayInputStream(asXml.getBytes(Charset.forName("UTF-8"))));
+		MetaEntityDto copy = (MetaEntityDto) Serialise.marshalFromXML(new ByteArrayInputStream(asXml.getBytes(Charset.forName("UTF-8"))));
 		
 		assertThat( copy, samePropertyValuesAs(dao, "version"));
 		assertThat( copy.getVersion(), samePropertyValuesAs(dao.getVersion()));
@@ -69,11 +69,11 @@ class TestMetaModelDao {
 	@Test
 	void testMetaEntityAsJson() throws Exception{
 		
-		MetaEntityDao dao = createMetaEntityDao();
+		MetaEntityDto dao = createMetaEntityDao();
 		
 		String asJson = Serialise.marshalToJSON(dao);
 		//System.out.println(asJson);
-		MetaEntityDao copy = (MetaEntityDao) Serialise.unmarshalFromJson(asJson, MetaEntityDao.class);
+		MetaEntityDto copy = (MetaEntityDto) Serialise.unmarshalFromJson(asJson, MetaEntityDto.class);
 
 		assertThat( copy, samePropertyValuesAs(dao, "version"));
 		assertThat( copy.getVersion(), samePropertyValuesAs(dao.getVersion()));
@@ -83,11 +83,11 @@ class TestMetaModelDao {
 	@Test
 	void testMetaEntityWithPropertiesAsXML() throws Exception{
 		
-		MetaEntityDao dao = createMetaEntityDao();
+		MetaEntityDto dao = createMetaEntityDao();
 		addProperties(dao);
 		String asXml = Serialise.marshalToXML(dao);
 		//System.out.println(asXml);
-		MetaEntityDao copy = (MetaEntityDao) Serialise.marshalFromXML(new ByteArrayInputStream(asXml.getBytes(Charset.forName("UTF-8"))));
+		MetaEntityDto copy = (MetaEntityDto) Serialise.marshalFromXML(new ByteArrayInputStream(asXml.getBytes(Charset.forName("UTF-8"))));
 		
 		assertThat( copy.getProperties(), hasSize(2));
 		assertThat( copy.getProperties().get(0), samePropertyValuesAs(dao.getProperties().get(0)));
@@ -97,12 +97,12 @@ class TestMetaModelDao {
 	@Test
 	void testMetaEntityWithPropertiesAsJson() throws Exception{
 		
-		MetaEntityDao dao = createMetaEntityDao();
+		MetaEntityDto dao = createMetaEntityDao();
 		addProperties(dao);
 		
 		String asJson = Serialise.marshalToJSON(dao);
 		//System.out.println(asJson);
-		MetaEntityDao copy = (MetaEntityDao) Serialise.unmarshalFromJson(asJson, MetaEntityDao.class);
+		MetaEntityDto copy = (MetaEntityDto) Serialise.unmarshalFromJson(asJson, MetaEntityDto.class);
 
 		assertThat( copy.getProperties(), hasSize(2));
 		assertThat( copy.getProperties().get(0), samePropertyValuesAs(dao.getProperties().get(0)));
@@ -113,11 +113,11 @@ class TestMetaModelDao {
 	@Test
 	void testMetaRelationshipAsXML() throws Exception{
 		
-		MetaRelationshipDao dao = createMetaRelationshipDao();
+		MetaRelationshipDto dao = createMetaRelationshipDao();
 		
 		String asXml = Serialise.marshalToXML(dao);
 		//System.out.println(asXml);
-		MetaRelationshipDao copy = (MetaRelationshipDao) Serialise.marshalFromXML(new ByteArrayInputStream(asXml.getBytes(Charset.forName("UTF-8"))));
+		MetaRelationshipDto copy = (MetaRelationshipDto) Serialise.marshalFromXML(new ByteArrayInputStream(asXml.getBytes(Charset.forName("UTF-8"))));
 		
 		assertThat( copy, samePropertyValuesAs(dao, "version", "start", "finish", "restriction"));
 		assertThat( copy.getStart(), notNullValue());
@@ -131,11 +131,11 @@ class TestMetaModelDao {
 	@Test
 	void testMetaRelationshipAsJson() throws Exception{
 		
-		MetaRelationshipDao dao = createMetaRelationshipDao();
+		MetaRelationshipDto dao = createMetaRelationshipDao();
 		
 		String asJson = Serialise.marshalToJSON(dao);
 		//System.out.println(asJson);
-		MetaRelationshipDao copy = (MetaRelationshipDao) Serialise.unmarshalFromJson(asJson, MetaRelationshipDao.class);
+		MetaRelationshipDto copy = (MetaRelationshipDto) Serialise.unmarshalFromJson(asJson, MetaRelationshipDto.class);
 
 		assertThat( copy, samePropertyValuesAs(dao, "version", "start", "finish", "restriction"));
 		assertThat( copy.getStart(), notNullValue());
@@ -149,14 +149,14 @@ class TestMetaModelDao {
 	@Test
 	void testMetaRelationshipWithPropertiesAsXML() throws Exception{
 		
-		MetaRelationshipDao dao = createMetaRelationshipDao();
+		MetaRelationshipDto dao = createMetaRelationshipDao();
 		addProperties(dao);
 		addProperties(dao.getStart());
 		addProperties(dao.getFinish());
 		
 		String asXml = Serialise.marshalToXML(dao);
 		//System.out.println(asXml);
-		MetaRelationshipDao copy = (MetaRelationshipDao) Serialise.marshalFromXML(new ByteArrayInputStream(asXml.getBytes(Charset.forName("UTF-8"))));
+		MetaRelationshipDto copy = (MetaRelationshipDto) Serialise.marshalFromXML(new ByteArrayInputStream(asXml.getBytes(Charset.forName("UTF-8"))));
 
 		assertThat( copy.getProperties(), hasSize(2));
 		assertThat( copy.getProperties().get(0), samePropertyValuesAs(dao.getProperties().get(0)));
@@ -175,14 +175,14 @@ class TestMetaModelDao {
 	@Test
 	void testMetaRelationshipWithPropertiesAsJson() throws Exception{
 		
-		MetaRelationshipDao dao = createMetaRelationshipDao();
+		MetaRelationshipDto dao = createMetaRelationshipDao();
 		addProperties(dao);
 		addProperties(dao.getStart());
 		addProperties(dao.getFinish());
 		
 		String asJson = Serialise.marshalToJSON(dao);
 		//System.out.println(asJson);
-		MetaRelationshipDao copy = (MetaRelationshipDao) Serialise.unmarshalFromJson(asJson, MetaRelationshipDao.class);
+		MetaRelationshipDto copy = (MetaRelationshipDto) Serialise.unmarshalFromJson(asJson, MetaRelationshipDto.class);
 
 		assertThat( copy.getProperties(), hasSize(2));
 		assertThat( copy.getProperties().get(0), samePropertyValuesAs(dao.getProperties().get(0)));
@@ -201,12 +201,12 @@ class TestMetaModelDao {
 	@Test
 	void testMetaEntityDisplayHintAsJson() throws Exception{
 		
-		MetaEntityDao dao = createMetaEntityDao();
+		MetaEntityDto dao = createMetaEntityDao();
 		addProperties(dao);
-		MetaEntityDisplayHintDao dhd = new MetaEntityDisplayHintDao();
+		MetaEntityDisplayHintDto dhd = new MetaEntityDisplayHintDto();
 		List<UUID> propertyKeys = new LinkedList<>();
 		
-		for(MetaPropertyDao mpd : dao.getProperties()) {
+		for(MetaPropertyDto mpd : dao.getProperties()) {
 			dhd.getKeys().add(mpd.getKey());
 			propertyKeys.add(mpd.getKey());
 		}
@@ -217,7 +217,7 @@ class TestMetaModelDao {
 
 		String asJson = Serialise.marshalToJSON(dao);
 		System.out.println(asJson);
-		MetaEntityDao copy = (MetaEntityDao) Serialise.unmarshalFromJson(asJson, MetaEntityDao.class);
+		MetaEntityDto copy = (MetaEntityDto) Serialise.unmarshalFromJson(asJson, MetaEntityDto.class);
 
 		assertThat( copy.getDisplayHint(), notNullValue());
 		propertyKeys.forEach( pk -> assertTrue(copy.getDisplayHint().getKeys().contains(pk)));
@@ -227,12 +227,12 @@ class TestMetaModelDao {
 	@Test
 	void testMetaEntityDisplayHintAsXML() throws Exception{
 		
-		MetaEntityDao dao = createMetaEntityDao();
+		MetaEntityDto dao = createMetaEntityDao();
 		addProperties(dao);
-		MetaEntityDisplayHintDao dhd = new MetaEntityDisplayHintDao();
+		MetaEntityDisplayHintDto dhd = new MetaEntityDisplayHintDto();
 		List<UUID> propertyKeys = new LinkedList<>();
 		
-		for(MetaPropertyDao mpd : dao.getProperties()) {
+		for(MetaPropertyDto mpd : dao.getProperties()) {
 			dhd.getKeys().add(mpd.getKey());
 			propertyKeys.add(mpd.getKey());
 		}
@@ -242,7 +242,7 @@ class TestMetaModelDao {
 		
 		String asXml = Serialise.marshalToXML(dao);
 		System.out.println(asXml);
-		MetaEntityDao copy = (MetaEntityDao) Serialise.marshalFromXML(new ByteArrayInputStream(asXml.getBytes(Charset.forName("UTF-8"))));
+		MetaEntityDto copy = (MetaEntityDto) Serialise.marshalFromXML(new ByteArrayInputStream(asXml.getBytes(Charset.forName("UTF-8"))));
 		
 		assertThat( copy.getDisplayHint(), notNullValue());
 		propertyKeys.forEach( pk -> assertTrue(copy.getDisplayHint().getKeys().contains(pk)));
@@ -252,8 +252,8 @@ class TestMetaModelDao {
 	/**
 	 * @param dao
 	 */
-	private void addProperties(MetaPropertyContainerDao dao) {
-		MetaPropertyDao prop = new MetaPropertyDao();
+	private void addProperties(MetaPropertyContainerDto dao) {
+		MetaPropertyDto prop = new MetaPropertyDto();
 		prop.setKey(new UUID());
 		prop.setName("value");
 		prop.setDescription("A value in the model");
@@ -263,7 +263,7 @@ class TestMetaModelDao {
 		
 		dao.getProperties().add(prop);
 
-		MetaPropertyDao prop2 = new MetaPropertyDao();
+		MetaPropertyDto prop2 = new MetaPropertyDto();
 		prop2.setKey(new UUID());
 		prop2.setName("int value");
 		prop2.setDescription("An integer value in the model");
@@ -278,15 +278,15 @@ class TestMetaModelDao {
 	/**
 	 * @return
 	 */
-	private MetaEntityDao createMetaEntityDao() {
-		MetaEntityDao dao = new MetaEntityDao();
+	private MetaEntityDto createMetaEntityDao() {
+		MetaEntityDto dao = new MetaEntityDto();
 		dao.setKey(new UUID());
 		dao.setBase(new UUID());
 		dao.setName("metaEntity");
 		dao.setDescription("metaEntityDescription");
 		dao.setAbstract(false);
 		
-		VersionDao version = createVersion();
+		VersionDto version = createVersion();
 		dao.setVersion(version);
 		return dao;
 	}
@@ -294,17 +294,17 @@ class TestMetaModelDao {
 	/**
 	 * @return
 	 */
-	private MetaRelationshipDao createMetaRelationshipDao() {
-		MetaRelationshipDao dao = new MetaRelationshipDao();
+	private MetaRelationshipDto createMetaRelationshipDao() {
+		MetaRelationshipDto dao = new MetaRelationshipDto();
 		dao.setKey(new UUID());
 		dao.setName("metaRelationship");
 		dao.setDescription("metaRelationshipDescription");
 		
-		MetaRelationshipRestrictionDao restriction = new MetaRelationshipRestrictionDao();
+		MetaRelationshipRestrictionDto restriction = new MetaRelationshipRestrictionDto();
 		restriction.setName("NONE");
 		dao.setRestriction(restriction);
 		
-		MetaRoleDao start = new MetaRoleDao();
+		MetaRoleDto start = new MetaRoleDto();
 		start.setKey(new UUID());
 		start.setName("start");
 		start.setDescription("start description");
@@ -312,7 +312,7 @@ class TestMetaModelDao {
 		start.setMultiplicity("zero one or many");
 		dao.setStart(start);
 
-		MetaRoleDao finish = new MetaRoleDao();
+		MetaRoleDto finish = new MetaRoleDto();
 		finish.setKey(new UUID());
 		finish.setName("finish");
 		finish.setDescription("finish description");
@@ -320,7 +320,7 @@ class TestMetaModelDao {
 		finish.setMultiplicity("zero one or many");
 		dao.setFinish(finish);
 
-		VersionDao version = createVersion();
+		VersionDto version = createVersion();
 		dao.setVersion(version);
 		return dao;
 	}
@@ -328,8 +328,8 @@ class TestMetaModelDao {
 	/**
 	 * @return
 	 */
-	private VersionDao createVersion() {
-		VersionDao version = new VersionDao();
+	private VersionDto createVersion() {
+		VersionDto version = new VersionDto();
 		version.setCreateDate(new Date());
 		version.setCreateUser("fred");
 		version.setOriginalVersion(new UUID());

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package alvahouse.eatool.repository.dao;
+package alvahouse.eatool.repository.dto;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -78,8 +78,8 @@ public class Serialise {
      * @throws JAXBException
      */
     private static JAXBContext createContext() throws JAXBException {
-        String contextPath = alvahouse.eatool.repository.dao.metamodel.ObjectFactory.class.getPackage().getName()
-        		+ ":" + alvahouse.eatool.repository.dao.model.ObjectFactory.class.getPackage().getName();
+        String contextPath = alvahouse.eatool.repository.dto.metamodel.ObjectFactory.class.getPackage().getName()
+        		+ ":" + alvahouse.eatool.repository.dto.model.ObjectFactory.class.getPackage().getName();
 
         JAXBContext jc = JAXBContext.newInstance(contextPath);
         return jc;

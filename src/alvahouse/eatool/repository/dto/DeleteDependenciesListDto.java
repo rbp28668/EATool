@@ -1,7 +1,7 @@
 /**
  * 
  */
-package alvahouse.eatool.repository.dao;
+package alvahouse.eatool.repository.dto;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -20,9 +20,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 @XmlRootElement(name = "deleteDependencies")
 @XmlAccessorType(XmlAccessType.NONE)
-public class DeleteDependenciesListDao {
+public class DeleteDependenciesListDto {
 
-	private List<DeleteProxyDao> dependencies = new LinkedList<>();
+	private List<DeleteProxyDto> dependencies = new LinkedList<>();
 	
 	/**
 	 * @return the dependencies
@@ -30,9 +30,9 @@ public class DeleteDependenciesListDao {
 	@XmlElementRef
 	@XmlElementWrapper(name = "dependencies")
 	@JsonProperty(value = "dependencies")
-	public List<DeleteProxyDao> getProperties() {
+	public List<DeleteProxyDto> getProperties() {
 		if (dependencies == null) {
-			dependencies = new LinkedList<DeleteProxyDao>();
+			dependencies = new LinkedList<DeleteProxyDto>();
 		}
 		return dependencies;
 	}
@@ -40,7 +40,7 @@ public class DeleteDependenciesListDao {
 	/**
 	 * @param dependencies the dependencies to set
 	 */
-	public void setProperties(List<DeleteProxyDao> dependencies) {
+	public void setProperties(List<DeleteProxyDto> dependencies) {
 		this.dependencies = dependencies;
 	}
 }

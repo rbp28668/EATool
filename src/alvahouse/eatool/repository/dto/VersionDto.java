@@ -1,7 +1,7 @@
 /**
  * 
  */
-package alvahouse.eatool.repository.dao;
+package alvahouse.eatool.repository.dto;
 
 import java.text.ParseException;
 import java.util.Date;
@@ -22,7 +22,7 @@ import alvahouse.eatool.util.UUID;
  */
 @XmlRootElement(name = "version")
 @XmlAccessorType(XmlAccessType.NONE)
-public class VersionDao {
+public class VersionDto {
 
 	private Date createDate;
     private String createUser;

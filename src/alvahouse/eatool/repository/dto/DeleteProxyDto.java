@@ -1,7 +1,7 @@
 /**
  * 
  */
-package alvahouse.eatool.repository.dao;
+package alvahouse.eatool.repository.dto;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -17,7 +17,7 @@ import alvahouse.eatool.util.UUID;
 @XmlRootElement(name = "deleteProxy")
 @XmlAccessorType(XmlAccessType.NONE)
 
-public class DeleteProxyDao {
+public class DeleteProxyDto {
 	private String itemType;
 	private String name;
 	private UUID itemKey;

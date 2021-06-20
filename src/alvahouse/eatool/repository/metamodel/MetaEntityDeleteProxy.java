@@ -4,7 +4,7 @@
 package alvahouse.eatool.repository.metamodel;
 
 import alvahouse.eatool.repository.base.IDeleteDependenciesProxy;
-import alvahouse.eatool.repository.dao.DeleteProxyDao;
+import alvahouse.eatool.repository.dto.DeleteProxyDto;
 import alvahouse.eatool.util.UUID;
 
 /** Proxy class for recording dependent meta-entities. This allows 
@@ -30,7 +30,7 @@ public class MetaEntityDeleteProxy implements IDeleteDependenciesProxy {
 		this.name = name;
     }
     
-    public MetaEntityDeleteProxy(MetaModel metaModel, DeleteProxyDao dao) {
+    public MetaEntityDeleteProxy(MetaModel metaModel, DeleteProxyDto dao) {
     	if(!NAME.equals(dao.getItemType())){
     		throw new IllegalArgumentException("Invalid Delete proxy, expected " + NAME + " was " + dao.getItemType());
     	}

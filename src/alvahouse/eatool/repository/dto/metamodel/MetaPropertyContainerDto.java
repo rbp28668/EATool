@@ -1,7 +1,7 @@
 /**
  * 
  */
-package alvahouse.eatool.repository.dao.metamodel;
+package alvahouse.eatool.repository.dto.metamodel;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -11,15 +11,15 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import alvahouse.eatool.repository.dao.NamedRepositoryItemDao;
+import alvahouse.eatool.repository.dto.NamedRepositoryItemDto;
 
 /**
  * @author bruce_porteous
  *
  */
-public abstract class MetaPropertyContainerDao extends NamedRepositoryItemDao {
+public abstract class MetaPropertyContainerDto extends NamedRepositoryItemDto {
 
-	private List<MetaPropertyDao> properties;
+	private List<MetaPropertyDto> properties;
 
 	/**
 	 * @return the properties
@@ -27,9 +27,9 @@ public abstract class MetaPropertyContainerDao extends NamedRepositoryItemDao {
 	@XmlElementRef
 	@XmlElementWrapper(name = "properties")
 	@JsonProperty(value = "properties")
-	public List<MetaPropertyDao> getProperties() {
+	public List<MetaPropertyDto> getProperties() {
 		if (properties == null) {
-			properties = new LinkedList<MetaPropertyDao>();
+			properties = new LinkedList<MetaPropertyDto>();
 		}
 		return properties;
 	}
@@ -37,7 +37,7 @@ public abstract class MetaPropertyContainerDao extends NamedRepositoryItemDao {
 	/**
 	 * @param properties the properties to set
 	 */
-	public void setProperties(List<MetaPropertyDao> properties) {
+	public void setProperties(List<MetaPropertyDto> properties) {
 		this.properties = properties;
 	}
 }

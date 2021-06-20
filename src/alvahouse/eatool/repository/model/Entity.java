@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.Set;
 
-import alvahouse.eatool.repository.dao.model.EntityDao;
+import alvahouse.eatool.repository.dto.model.EntityDto;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaEntityDisplayHint;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
@@ -65,14 +65,14 @@ public class Entity extends PropertyContainer implements Versionable {
 		source.cloneTo(this);
 	}
 	
-	public Entity(EntityDao dao, MetaEntity me) throws Exception {
+	public Entity(EntityDto dao, MetaEntity me) throws Exception {
 		super(dao, me);
 		this.meta = me;
 		this.version = new VersionImpl(dao.getVersion());
 	}
 	
-	public EntityDao toDao() {
-		EntityDao dao = new EntityDao();
+	public EntityDto toDao() {
+		EntityDto dao = new EntityDto();
 		copyTo(dao);
 		return dao;
 	}
@@ -198,7 +198,7 @@ public class Entity extends PropertyContainer implements Versionable {
     /** copies this entity to a DAO.
     * @param copy is the entity dao to copy to.
     */
-   protected void copyTo(EntityDao dao) {
+   protected void copyTo(EntityDto dao) {
 	   super.copyTo(dao);
        dao.setMetaEntityKey(meta.getKey());
        dao.setVersion(version.toDao());

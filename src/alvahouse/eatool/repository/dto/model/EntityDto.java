@@ -1,7 +1,7 @@
 /**
  * 
  */
-package alvahouse.eatool.repository.dao.model;
+package alvahouse.eatool.repository.dto.model;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import alvahouse.eatool.repository.dao.VersionDao;
+import alvahouse.eatool.repository.dto.VersionDto;
 import alvahouse.eatool.util.UUID;
 
 /**
@@ -21,10 +21,10 @@ import alvahouse.eatool.util.UUID;
 @XmlRootElement(name = "entity")
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(propOrder = { "metaEntityKeyJson", "version"})
-public class EntityDao extends PropertyContainerDao {
+public class EntityDto extends PropertyContainerDto {
 
 	private UUID metaEntityKey;
-	private VersionDao version;
+	private VersionDto version;
 	
 	/**
 	 * @return the metaKey
@@ -58,13 +58,13 @@ public class EntityDao extends PropertyContainerDao {
 	 * @return the version
 	 */
 	@XmlElement(name = "version", required=true)
-	public VersionDao getVersion() {
+	public VersionDto getVersion() {
 		return version;
 	}
 	/**
 	 * @param version the version to set
 	 */
-	public void setVersion(VersionDao version) {
+	public void setVersion(VersionDto version) {
 		this.version = version;
 	}
 	
