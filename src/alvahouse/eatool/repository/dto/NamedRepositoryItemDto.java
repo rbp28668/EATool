@@ -1,7 +1,7 @@
 /**
  * 
  */
-package alvahouse.eatool.repository.dao;
+package alvahouse.eatool.repository.dto;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlElement;
  *
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class NamedRepositoryItemDao extends RepositoryItemDao implements Comparable<NamedRepositoryItemDao>{
+public class NamedRepositoryItemDto extends RepositoryItemDto implements Comparable<NamedRepositoryItemDto>{
 	private String name;
 	private String description;
 	/**
@@ -46,7 +46,7 @@ public class NamedRepositoryItemDao extends RepositoryItemDao implements Compara
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
 	@Override
-	public int compareTo(NamedRepositoryItemDao o) {
+	public int compareTo(NamedRepositoryItemDto o) {
 		if(getName() == null || o.getName() == null) {
 			return getKey().compareTo(o.getKey());
 		}

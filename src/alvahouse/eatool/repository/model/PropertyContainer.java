@@ -15,8 +15,8 @@ import java.util.LinkedList;
 import java.util.Set;
 
 import alvahouse.eatool.repository.base.RepositoryItem;
-import alvahouse.eatool.repository.dao.model.PropertyContainerDao;
-import alvahouse.eatool.repository.dao.model.PropertyDao;
+import alvahouse.eatool.repository.dto.model.PropertyContainerDto;
+import alvahouse.eatool.repository.dto.model.PropertyDto;
 import alvahouse.eatool.repository.metamodel.MetaProperty;
 import alvahouse.eatool.repository.metamodel.MetaPropertyContainer;
 import alvahouse.eatool.util.UUID;
@@ -40,9 +40,9 @@ public abstract class PropertyContainer extends RepositoryItem{
         super(uuid);
     }
     
-    public PropertyContainer(PropertyContainerDao dao, MetaPropertyContainer meta) throws Exception{
+    public PropertyContainer(PropertyContainerDto dao, MetaPropertyContainer meta) throws Exception{
     	super(dao);
-    	for(PropertyDao pdao : dao.getProperties()) {
+    	for(PropertyDto pdao : dao.getProperties()) {
     		addProperty(new Property(pdao, this, meta));
     	}
     }
@@ -128,7 +128,7 @@ public abstract class PropertyContainer extends RepositoryItem{
      * Copies the property container to its corresponding DAO
      * @param dao is the corresponding DAO to initialise from this container.
      */
-    protected void copyTo(PropertyContainerDao dao) {
+    protected void copyTo(PropertyContainerDto dao) {
  	   super.copyTo(dao);
        for(Property property : propertyList) {
     	   dao.getProperties().add( property.toDao());

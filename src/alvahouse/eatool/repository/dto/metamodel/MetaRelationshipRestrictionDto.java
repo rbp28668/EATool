@@ -1,7 +1,7 @@
 /**
  * 
  */
-package alvahouse.eatool.repository.dao.metamodel;
+package alvahouse.eatool.repository.dto.metamodel;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -15,7 +15,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "restriction")
 @XmlAccessorType(XmlAccessType.NONE)
 
-public class MetaRelationshipRestrictionDao {
+public class MetaRelationshipRestrictionDto {
 	
 	private String name;
 

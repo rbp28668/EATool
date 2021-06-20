@@ -9,7 +9,7 @@ package alvahouse.eatool.repository.model;
 import java.io.IOException;
 
 import alvahouse.eatool.repository.base.TooltipProvider;
-import alvahouse.eatool.repository.dao.model.RelationshipDao;
+import alvahouse.eatool.repository.dto.model.RelationshipDto;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.repository.version.Version;
 import alvahouse.eatool.repository.version.VersionImpl;
@@ -72,15 +72,15 @@ public class Relationship extends PropertyContainer implements TooltipProvider, 
 	 * @param dao is the DAO to initialise the relationship from.
 	 * @param mr is the corresponding meta-relationship.
 	 */
-	public Relationship(RelationshipDao dao, MetaRelationship mr) throws Exception {
+	public Relationship(RelationshipDto dao, MetaRelationship mr) throws Exception {
 		super(dao, mr);
 		meta = mr;
 		ends[0] = new Role(dao.getStart(), this,  meta.start());
 		ends[1] = new Role(dao.getFinish(), this,  meta.finish());
 	}
 	
-	public RelationshipDao toDao() {
-		RelationshipDao dao = new RelationshipDao();
+	public RelationshipDto toDao() {
+		RelationshipDto dao = new RelationshipDto();
 		copyTo(dao);
 		return dao;
 	}
@@ -295,7 +295,7 @@ public class Relationship extends PropertyContainer implements TooltipProvider, 
 		version.cloneTo(copy.version);
 	}
 
-	protected void copyTo(RelationshipDao dao) {
+	protected void copyTo(RelationshipDto dao) {
 		super.copyTo(dao);
 		dao.setMetaRelationshipKey(meta.getKey());
 		dao.setStart(ends[0].toDao());

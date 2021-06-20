@@ -12,10 +12,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import alvahouse.eatool.repository.dao.DeleteDependenciesListDao;
-import alvahouse.eatool.repository.dao.DeleteProxyDao;
-import alvahouse.eatool.repository.dao.metamodel.MetaEntityDao;
-import alvahouse.eatool.repository.dao.metamodel.MetaRelationshipDao;
+import alvahouse.eatool.repository.dto.DeleteDependenciesListDto;
+import alvahouse.eatool.repository.dto.DeleteProxyDto;
+import alvahouse.eatool.repository.dto.metamodel.MetaEntityDto;
+import alvahouse.eatool.repository.dto.metamodel.MetaRelationshipDto;
 import alvahouse.eatool.repository.metamodel.types.ExtensibleMetaPropertyType;
 import alvahouse.eatool.repository.persist.MetaModelPersistence;
 import alvahouse.eatool.util.UUID;
@@ -28,17 +28,17 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 
 	private UUID uuid; // Uniquely identify this meta model
 
-	/** Map of MetaEntityDao keyed by UUID for fast lookup */
-	private Map<UUID, MetaEntityDao> metaEntities = new HashMap<UUID, MetaEntityDao>();
+	/** Map of MetaEntityDto keyed by UUID for fast lookup */
+	private Map<UUID, MetaEntityDto> metaEntities = new HashMap<UUID, MetaEntityDto>();
 
-	/** Map of MetaRelationshipDao keyed by UUID for fast lookup */
-	private Map<UUID, MetaRelationshipDao> metaRelationships = new HashMap<UUID, MetaRelationshipDao>();
+	/** Map of MetaRelationshipDto keyed by UUID for fast lookup */
+	private Map<UUID, MetaRelationshipDto> metaRelationships = new HashMap<UUID, MetaRelationshipDto>();
 
-	/** Set of MetaEntityDao kept in sorted order */
-	private Set<MetaEntityDao> sortedEntities = new TreeSet<MetaEntityDao>();
+	/** Set of MetaEntityDto kept in sorted order */
+	private Set<MetaEntityDto> sortedEntities = new TreeSet<MetaEntityDto>();
 
-	/** Set of MetaRelationshipDao kept in sorted order */
-	private Set<MetaRelationshipDao> sortedRelationships = new TreeSet<MetaRelationshipDao>();
+	/** Set of MetaRelationshipDto kept in sorted order */
+	private Set<MetaRelationshipDto> sortedRelationships = new TreeSet<MetaRelationshipDto>();
 
 	/** Map of MetaPropertyType keyed by their key for the user defined (i.e. not predefined/built-in) types. */
 	private Map<UUID, ExtensibleMetaPropertyType> userDefinedTypes = new HashMap<UUID, ExtensibleMetaPropertyType>();
@@ -56,8 +56,8 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 	 * alvahouse.eatool.util.UUID)
 	 */
 	@Override
-	public MetaEntityDao getMetaEntity(UUID uuid) throws Exception{
-		MetaEntityDao me = metaEntities.get(uuid);
+	public MetaEntityDto getMetaEntity(UUID uuid) throws Exception{
+		MetaEntityDto me = metaEntities.get(uuid);
 		if (me == null) {
 			throw new IllegalArgumentException("No meta entity with key " + uuid + " in the meta-model");
 		}
@@ -72,7 +72,7 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 	 * alvahouse.eatool.repository.metamodel.MetaEntityDao)
 	 */
 	@Override
-	public void addMetaEntity(MetaEntityDao me) throws Exception {
+	public void addMetaEntity(MetaEntityDto me) throws Exception {
 		if (metaEntities.containsKey(me.getKey()))
 			throw new IllegalStateException("Meta Entity already exists in meta-model");
 
@@ -87,8 +87,8 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 	 * alvahouse.eatool.repository.persist.MetaModelPersistence#getMetaEntities()
 	 */
 	@Override
-	public Collection<MetaEntityDao> getMetaEntities() {
-		Set<MetaEntityDao> result = new TreeSet<MetaEntityDao>();
+	public Collection<MetaEntityDto> getMetaEntities() {
+		Set<MetaEntityDto> result = new TreeSet<MetaEntityDto>();
 		result.addAll(sortedEntities);
 		return result;
 	}
@@ -108,9 +108,9 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 	 * @see alvahouse.eatool.repository.persist.MetaModelPersistence#updateMetaEntityDao(alvahouse.eatool.repository.metamodel.MetaEntityDao)
 	 */
 	@Override
-	public void updateMetaEntity(MetaEntityDao me) throws Exception {
+	public void updateMetaEntity(MetaEntityDto me) throws Exception {
 		UUID key = me.getKey();
-		MetaEntityDao existing = metaEntities.get(key);
+		MetaEntityDto existing = metaEntities.get(key);
 		if(existing == null) {
 			throw new IllegalArgumentException("Trying to update a meta entity that is not in the repository");
 		}
@@ -127,8 +127,8 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 	 * alvahouse.eatool.util.UUID)
 	 */
 	@Override
-	public MetaEntityDao deleteMetaEntity(UUID uuid) throws Exception {
-		MetaEntityDao me = metaEntities.remove(uuid);
+	public MetaEntityDto deleteMetaEntity(UUID uuid) throws Exception {
+		MetaEntityDto me = metaEntities.remove(uuid);
 		if (me == null) {
 			throw new IllegalArgumentException(
 					"Can't delete meta entity with key " + uuid + " not found in repository");
@@ -145,8 +145,8 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 	 * alvahouse.eatool.util.UUID)
 	 */
 	@Override
-	public MetaRelationshipDao getMetaRelationship(UUID uuid) throws Exception {
-		MetaRelationshipDao mr = metaRelationships.get(uuid);
+	public MetaRelationshipDto getMetaRelationship(UUID uuid) throws Exception {
+		MetaRelationshipDto mr = metaRelationships.get(uuid);
 		if (mr == null) {
 			throw new IllegalArgumentException("Meta relationship with key " + uuid + " not found in repository");
 		}
@@ -161,7 +161,7 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 	 * alvahouse.eatool.repository.metamodel.MetaRelationshipDao)
 	 */
 	@Override
-	public void addMetaRelationship(MetaRelationshipDao mr) throws Exception {
+	public void addMetaRelationship(MetaRelationshipDto mr) throws Exception {
 
 		// This meta relationship should reference meta entities already in the store.
 		UUID startKey = mr.getStart().getConnects();
@@ -180,7 +180,7 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 	 * @see alvahouse.eatool.repository.persist.MetaModelPersistence#updateMetaRelationshipDao(alvahouse.eatool.repository.metamodel.MetaRelationshipDao)
 	 */
 	@Override
-	public void updateMetaRelationship(MetaRelationshipDao mr) throws Exception {
+	public void updateMetaRelationship(MetaRelationshipDto mr) throws Exception {
 		// This meta relationship should reference meta entities already in the store.
 		UUID startKey = mr.getStart().getConnects();
 		UUID finishKey = mr.getFinish().getConnects();
@@ -189,7 +189,7 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 			throw new IllegalStateException("Updating meta relationship that references meta-entities not in the model");
 		}
 
-		MetaRelationshipDao original = metaRelationships.remove(mr.getKey());
+		MetaRelationshipDto original = metaRelationships.remove(mr.getKey());
 		sortedRelationships.remove(original);
 		
 		// And save
@@ -204,8 +204,8 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 	 * deleteMetaRelationshipDao(alvahouse.eatool.util.UUID)
 	 */
 	@Override
-	public MetaRelationshipDao deleteMetaRelationship(UUID uuid) throws Exception {
-		MetaRelationshipDao mr = (MetaRelationshipDao) metaRelationships.remove(uuid);
+	public MetaRelationshipDto deleteMetaRelationship(UUID uuid) throws Exception {
+		MetaRelationshipDto mr = (MetaRelationshipDto) metaRelationships.remove(uuid);
 		if (mr == null) {
 			throw new IllegalArgumentException("Trying to delete a meta relationship not in the repository");
 		}
@@ -221,8 +221,8 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 	 * ()
 	 */
 	@Override
-	public Collection<MetaRelationshipDao> getMetaRelationships() {
-		Set<MetaRelationshipDao> result = new TreeSet<MetaRelationshipDao>();
+	public Collection<MetaRelationshipDto> getMetaRelationships() {
+		Set<MetaRelationshipDto> result = new TreeSet<MetaRelationshipDto>();
 		result.addAll(sortedRelationships);
 		return result;
 	}
@@ -245,10 +245,10 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 	 * getMetaRelationshipDaosFor(alvahouse.eatool.repository.metamodel.MetaEntityDao)
 	 */
 	@Override
-	public Set<MetaRelationshipDao> getMetaRelationshipsFor(UUID metaEntityKey) throws Exception {
-		Set<MetaRelationshipDao> valid = new HashSet<MetaRelationshipDao>();
+	public Set<MetaRelationshipDto> getMetaRelationshipsFor(UUID metaEntityKey) throws Exception {
+		Set<MetaRelationshipDto> valid = new HashSet<MetaRelationshipDto>();
 		
-		MetaEntityDao me = metaEntities.get(metaEntityKey);
+		MetaEntityDto me = metaEntities.get(metaEntityKey);
 		while(me != null) {
 			valid.addAll(getDeclaredMetaRelationshipsFor(me.getKey()));
 			UUID baseKey = me.getBase();
@@ -262,12 +262,12 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 	 * 
 	 * @see alvahouse.eatool.repository.persist.MetaModelPersistence#
 	 * getDeclaredMetaRelationshipDaosFor(alvahouse.eatool.repository.metamodel.
-	 * MetaEntityDao)
+	 * MetaEntityDto)
 	 */
 	@Override
-	public Set<MetaRelationshipDao> getDeclaredMetaRelationshipsFor(UUID metaEntityKey) throws Exception{
-		Set<MetaRelationshipDao> valid = new HashSet<MetaRelationshipDao>();
-		for (MetaRelationshipDao mr : sortedRelationships) {
+	public Set<MetaRelationshipDto> getDeclaredMetaRelationshipsFor(UUID metaEntityKey) throws Exception{
+		Set<MetaRelationshipDto> valid = new HashSet<MetaRelationshipDto>();
+		for (MetaRelationshipDto mr : sortedRelationships) {
 			if (mr.getStart().getConnects().equals(metaEntityKey) || mr.getFinish().getConnects().equals(metaEntityKey)) {
 				valid.add(mr);
 			}
@@ -284,7 +284,7 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 //	 * alvahouse.eatool.repository.metamodel.MetaRelationshipDao)
 //	 */
 //	@Override
-//	public void getDeleteDependencies(MetaModel metaModel, DeleteDependenciesList dependencies, MetaRelationshipDao mr) {
+//	public void getDeleteDependencies(MetaModel metaModel, DeleteDependenciesList dependencies, MetaRelationshipDto mr) {
 //		dependencies.addDependency(new MetaRelationshipDeleteProxy(metaModel, mr));
 //	}
 
@@ -296,22 +296,22 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 	 * DeleteDependenciesList, alvahouse.eatool.repository.metamodel.MetaEntityDao)
 	 */
 	@Override
-	public DeleteDependenciesListDao getDeleteDependencies( UUID metaEntityKey) throws Exception {
-		DeleteDependenciesListDao dependencies = new DeleteDependenciesListDao();
+	public DeleteDependenciesListDto getDeleteDependencies( UUID metaEntityKey) throws Exception {
+		DeleteDependenciesListDto dependencies = new DeleteDependenciesListDto();
 		getDeleteDependencies(dependencies, metaEntityKey);
 		return dependencies;
 	}
 
-	private  void getDeleteDependencies( DeleteDependenciesListDao dependencies, UUID metaEntityKey) throws Exception {
+	private  void getDeleteDependencies( DeleteDependenciesListDto dependencies, UUID metaEntityKey) throws Exception {
 		
-		DeleteProxyDao proxy = new DeleteProxyDao();
+		DeleteProxyDto proxy = new DeleteProxyDto();
 		proxy.setItemType("metaEntity");
 		proxy.setItemKey(metaEntityKey);
 		dependencies.getProperties().add(proxy);
 
 	
 		// Look for any meta-entities that are derived from the one being deleted.
-		for (MetaEntityDao derived : sortedEntities) {
+		for (MetaEntityDto derived : sortedEntities) {
 			if (derived.getBase() != null) {
 				if (derived.getBase().equals(metaEntityKey)) {
 					getDeleteDependencies(dependencies, derived.getKey());
@@ -320,9 +320,9 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 		}
 
 		// Mark any relationships that depend on this meta entity for deletion
-		for (MetaRelationshipDao mr : sortedRelationships) {
+		for (MetaRelationshipDto mr : sortedRelationships) {
 			if (mr.getStart().getConnects().equals(metaEntityKey) || mr.getFinish().getConnects().equals(metaEntityKey)) {
-				proxy = new DeleteProxyDao();
+				proxy = new DeleteProxyDto();
 				proxy.setItemType("metaRelationship");
 				proxy.setItemKey(mr.getKey());
 				dependencies.getProperties().add(proxy);
@@ -351,15 +351,15 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 	 * getDerivedMetaEntities(alvahouse.eatool.repository.metamodel.MetaEntityDao)
 	 */
 	@Override
-	public Collection<MetaEntityDao> getDerivedMetaEntities(UUID metaEntityKey) throws Exception {
-		List<MetaEntityDao> derived = new LinkedList<MetaEntityDao>();
+	public Collection<MetaEntityDto> getDerivedMetaEntities(UUID metaEntityKey) throws Exception {
+		List<MetaEntityDto> derived = new LinkedList<MetaEntityDto>();
 		
-		for (MetaEntityDao me : sortedEntities) {
+		for (MetaEntityDto me : sortedEntities) {
 
 			// Trundle up the inheritance hierarchy looking for "meta"
 			boolean isDerived = false;
 			
-			MetaEntityDao current = me;
+			MetaEntityDto current = me;
 			while(current.getBase() != null) {
 				UUID baseKey = me.getBase();
 				if (baseKey.equals(metaEntityKey)) {

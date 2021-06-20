@@ -1,7 +1,7 @@
 /**
  * 
  */
-package alvahouse.eatool.repository.dao.metamodel;
+package alvahouse.eatool.repository.dto.metamodel;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.XmlType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import alvahouse.eatool.repository.dao.VersionDao;
+import alvahouse.eatool.repository.dto.VersionDto;
 import alvahouse.eatool.util.UUID;
 
 /**
@@ -23,13 +23,13 @@ import alvahouse.eatool.util.UUID;
 @XmlRootElement(name = "metaEntity")
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(propOrder = { "baseJson", "displayHint", "version"})
-public class MetaEntityDao extends MetaPropertyContainerDao {
+public class MetaEntityDto extends MetaPropertyContainerDto {
     private UUID base;
     private boolean isAbstract;
-    private MetaEntityDisplayHintDao displayHint;
-    private VersionDao version;
+    private MetaEntityDisplayHintDto displayHint;
+    private VersionDto version;
 
-    public MetaEntityDao(){
+    public MetaEntityDto(){
     }
 
 	/**
@@ -83,14 +83,14 @@ public class MetaEntityDao extends MetaPropertyContainerDao {
 	 * @return the displayHint
 	 */
 	@XmlElement(required = false)
-	public MetaEntityDisplayHintDao getDisplayHint() {
+	public MetaEntityDisplayHintDto getDisplayHint() {
 		return displayHint;
 	}
 
 	/**
 	 * @param displayHint the displayHint to set
 	 */
-	public void setDisplayHint(MetaEntityDisplayHintDao displayHint) {
+	public void setDisplayHint(MetaEntityDisplayHintDto displayHint) {
 		this.displayHint = displayHint;
 	}
 
@@ -98,14 +98,14 @@ public class MetaEntityDao extends MetaPropertyContainerDao {
 	 * @return the version
 	 */
 	@XmlElement
-	public VersionDao getVersion() {
+	public VersionDto getVersion() {
 		return version;
 	}
 
 	/**
 	 * @param version the version to set
 	 */
-	public void setVersion(VersionDao version) {
+	public void setVersion(VersionDto version) {
 		this.version = version;
 	}
     

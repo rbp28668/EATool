@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 import alvahouse.eatool.repository.Repository;
-import alvahouse.eatool.repository.dao.DeleteProxyDao;
+import alvahouse.eatool.repository.dto.DeleteProxyDto;
 import alvahouse.eatool.repository.metamodel.MetaEntityDeleteProxy;
 import alvahouse.eatool.repository.metamodel.MetaRelationshipDeleteProxy;
 import alvahouse.eatool.repository.model.EntityDeleteProxy;
@@ -35,7 +35,7 @@ public class DeleteDependenciesList {
     	factories.put(MetaEntityDeleteProxy.NAME, new Factory() {
 
 			@Override
-			public IDeleteDependenciesProxy create(DeleteProxyDao dao, Repository repository) {
+			public IDeleteDependenciesProxy create(DeleteProxyDto dao, Repository repository) {
 				return new MetaEntityDeleteProxy(repository.getMetaModel(), dao );
 			}
     		
@@ -43,7 +43,7 @@ public class DeleteDependenciesList {
     	factories.put(MetaRelationshipDeleteProxy.NAME, new Factory() {
 
 			@Override
-			public IDeleteDependenciesProxy create(DeleteProxyDao dao, Repository repository) {
+			public IDeleteDependenciesProxy create(DeleteProxyDto dao, Repository repository) {
 				return new MetaRelationshipDeleteProxy(repository.getMetaModel(), dao );
 			}
     		
@@ -51,7 +51,7 @@ public class DeleteDependenciesList {
     	factories.put(EntityDeleteProxy.NAME, new Factory() {
 
 			@Override
-			public IDeleteDependenciesProxy create(DeleteProxyDao dao, Repository repository) {
+			public IDeleteDependenciesProxy create(DeleteProxyDto dao, Repository repository) {
 				return new EntityDeleteProxy(repository.getModel(), dao );
 			}
     		
@@ -59,7 +59,7 @@ public class DeleteDependenciesList {
     	factories.put(RelationshipDeleteProxy.NAME, new Factory() {
 
 			@Override
-			public IDeleteDependenciesProxy create(DeleteProxyDao dao, Repository repository) {
+			public IDeleteDependenciesProxy create(DeleteProxyDto dao, Repository repository) {
 				return new RelationshipDeleteProxy(repository.getModel(), dao );
 			}
     		
@@ -79,7 +79,7 @@ public class DeleteDependenciesList {
         targets.add(proxy.getTargetKey());
     }
 
-    public void addDependency(DeleteProxyDao proxy, Repository repository) {
+    public void addDependency(DeleteProxyDto proxy, Repository repository) {
         if(targets.contains(proxy.getItemKey()))
             throw new IllegalStateException("Delete dependency target already listed");
         
@@ -121,6 +121,6 @@ public class DeleteDependenciesList {
     }
     
     private interface Factory {
-    	IDeleteDependenciesProxy create(DeleteProxyDao dao, Repository repository);
+    	IDeleteDependenciesProxy create(DeleteProxyDto dao, Repository repository);
     }
 }

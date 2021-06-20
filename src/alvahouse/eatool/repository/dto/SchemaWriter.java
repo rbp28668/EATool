@@ -1,4 +1,4 @@
-package alvahouse.eatool.repository.dao;
+package alvahouse.eatool.repository.dto;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

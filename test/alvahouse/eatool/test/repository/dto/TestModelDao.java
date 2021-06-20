@@ -1,7 +1,7 @@
 /**
  * 
  */
-package alvahouse.eatool.test.repository.dao;
+package alvahouse.eatool.test.repository.dto;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
@@ -16,13 +16,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import alvahouse.eatool.repository.dao.Serialise;
-import alvahouse.eatool.repository.dao.VersionDao;
-import alvahouse.eatool.repository.dao.model.EntityDao;
-import alvahouse.eatool.repository.dao.model.PropertyContainerDao;
-import alvahouse.eatool.repository.dao.model.PropertyDao;
-import alvahouse.eatool.repository.dao.model.RelationshipDao;
-import alvahouse.eatool.repository.dao.model.RoleDao;
+import alvahouse.eatool.repository.dto.Serialise;
+import alvahouse.eatool.repository.dto.VersionDto;
+import alvahouse.eatool.repository.dto.model.EntityDto;
+import alvahouse.eatool.repository.dto.model.PropertyContainerDto;
+import alvahouse.eatool.repository.dto.model.PropertyDto;
+import alvahouse.eatool.repository.dto.model.RelationshipDto;
+import alvahouse.eatool.repository.dto.model.RoleDto;
 import alvahouse.eatool.util.UUID;
 
 /**
@@ -49,11 +49,11 @@ class TestModelDao {
 	@Test
 	void testEntityAsXML() throws Exception{
 		
-		EntityDao dao = createEntityDao();
+		EntityDto dao = createEntityDao();
 		
 		String asXml = Serialise.marshalToXML(dao);
 		//System.out.println(asXml);
-		EntityDao copy = (EntityDao) Serialise.marshalFromXML(new ByteArrayInputStream(asXml.getBytes(Charset.forName("UTF-8"))));
+		EntityDto copy = (EntityDto) Serialise.marshalFromXML(new ByteArrayInputStream(asXml.getBytes(Charset.forName("UTF-8"))));
 		
 		assertThat( copy, samePropertyValuesAs(dao, "version"));
 		assertThat( copy.getVersion(), samePropertyValuesAs(dao.getVersion()));
@@ -62,11 +62,11 @@ class TestModelDao {
 	@Test
 	void testEntityAsJson() throws Exception{
 		
-		EntityDao dao = createEntityDao();
+		EntityDto dao = createEntityDao();
 		
 		String asJson = Serialise.marshalToJSON(dao);
 		//System.out.println(asJson);
-		EntityDao copy = (EntityDao) Serialise.unmarshalFromJson(asJson, EntityDao.class);
+		EntityDto copy = (EntityDto) Serialise.unmarshalFromJson(asJson, EntityDto.class);
 
 		assertThat( copy, samePropertyValuesAs(dao, "version"));
 		assertThat( copy.getVersion(), samePropertyValuesAs(dao.getVersion()));
@@ -76,11 +76,11 @@ class TestModelDao {
 	@Test
 	void testEntityWithPropertiesAsXML() throws Exception{
 		
-		EntityDao dao = createEntityDao();
+		EntityDto dao = createEntityDao();
 		addProperties(dao);
 		String asXml = Serialise.marshalToXML(dao);
 		//System.out.println(asXml);
-		EntityDao copy = (EntityDao) Serialise.marshalFromXML(new ByteArrayInputStream(asXml.getBytes(Charset.forName("UTF-8"))));
+		EntityDto copy = (EntityDto) Serialise.marshalFromXML(new ByteArrayInputStream(asXml.getBytes(Charset.forName("UTF-8"))));
 		
 		assertThat( copy.getProperties(), hasSize(2));
 		assertThat( copy.getProperties().get(0), samePropertyValuesAs(dao.getProperties().get(0)));
@@ -90,12 +90,12 @@ class TestModelDao {
 	@Test
 	void testEntityWithPropertiesAsJson() throws Exception{
 		
-		EntityDao dao = createEntityDao();
+		EntityDto dao = createEntityDao();
 		addProperties(dao);
 		
 		String asJson = Serialise.marshalToJSON(dao);
 		//System.out.println(asJson);
-		EntityDao copy = (EntityDao) Serialise.unmarshalFromJson(asJson, EntityDao.class);
+		EntityDto copy = (EntityDto) Serialise.unmarshalFromJson(asJson, EntityDto.class);
 
 		assertThat( copy.getProperties(), hasSize(2));
 		assertThat( copy.getProperties().get(0), samePropertyValuesAs(dao.getProperties().get(0)));
@@ -107,11 +107,11 @@ class TestModelDao {
 	@Test
 	void testRelationshipAsXML() throws Exception{
 		
-		RelationshipDao dao = createRelationshipDao();
+		RelationshipDto dao = createRelationshipDao();
 		
 		String asXml = Serialise.marshalToXML(dao);
 		//System.out.println(asXml);
-		RelationshipDao copy = (RelationshipDao) Serialise.marshalFromXML(new ByteArrayInputStream(asXml.getBytes(Charset.forName("UTF-8"))));
+		RelationshipDto copy = (RelationshipDto) Serialise.marshalFromXML(new ByteArrayInputStream(asXml.getBytes(Charset.forName("UTF-8"))));
 		
 		assertThat( copy, samePropertyValuesAs(dao, "version", "start", "finish", "restriction"));
 		assertThat( copy.getStart(), notNullValue());
@@ -125,11 +125,11 @@ class TestModelDao {
 	@Test
 	void testRelationshipAsJson() throws Exception{
 		
-		RelationshipDao dao = createRelationshipDao();
+		RelationshipDto dao = createRelationshipDao();
 		
 		String asJson = Serialise.marshalToJSON(dao);
 		//System.out.println(asJson);
-		RelationshipDao copy = (RelationshipDao) Serialise.unmarshalFromJson(asJson, RelationshipDao.class);
+		RelationshipDto copy = (RelationshipDto) Serialise.unmarshalFromJson(asJson, RelationshipDto.class);
 
 		assertThat( copy, samePropertyValuesAs(dao, "version", "start", "finish", "restriction"));
 		assertThat( copy.getStart(), notNullValue());
@@ -142,14 +142,14 @@ class TestModelDao {
 	@Test
 	void testRelationshipWithPropertiesAsXML() throws Exception{
 		
-		RelationshipDao dao = createRelationshipDao();
+		RelationshipDto dao = createRelationshipDao();
 		addProperties(dao);
 		addProperties(dao.getStart());
 		addProperties(dao.getFinish());
 		
 		String asXml = Serialise.marshalToXML(dao);
 		//System.out.println(asXml);
-		RelationshipDao copy = (RelationshipDao) Serialise.marshalFromXML(new ByteArrayInputStream(asXml.getBytes(Charset.forName("UTF-8"))));
+		RelationshipDto copy = (RelationshipDto) Serialise.marshalFromXML(new ByteArrayInputStream(asXml.getBytes(Charset.forName("UTF-8"))));
 
 		assertThat( copy.getProperties(), hasSize(2));
 		assertThat( copy.getProperties().get(0), samePropertyValuesAs(dao.getProperties().get(0)));
@@ -168,14 +168,14 @@ class TestModelDao {
 	@Test
 	void testRelationshipWithPropertiesAsJson() throws Exception{
 		
-		RelationshipDao dao = createRelationshipDao();
+		RelationshipDto dao = createRelationshipDao();
 		addProperties(dao);
 		addProperties(dao.getStart());
 		addProperties(dao.getFinish());
 		
 		String asJson = Serialise.marshalToJSON(dao);
 		//System.out.println(asJson);
-		RelationshipDao copy = (RelationshipDao) Serialise.unmarshalFromJson(asJson, RelationshipDao.class);
+		RelationshipDto copy = (RelationshipDto) Serialise.unmarshalFromJson(asJson, RelationshipDto.class);
 
 		assertThat( copy.getProperties(), hasSize(2));
 		assertThat( copy.getProperties().get(0), samePropertyValuesAs(dao.getProperties().get(0)));
@@ -196,8 +196,8 @@ class TestModelDao {
 	/**
 	 * @return
 	 */
-	private EntityDao createEntityDao() {
-		EntityDao dao = new EntityDao();
+	private EntityDto createEntityDao() {
+		EntityDto dao = new EntityDto();
 		dao.setKey(new UUID());
 		dao.setMetaEntityKey(new UUID());
 		dao.setVersion(createVersion()); 
@@ -207,18 +207,18 @@ class TestModelDao {
 	/**
 	 * @return
 	 */
-	private RelationshipDao createRelationshipDao() {
-		RelationshipDao dao = new RelationshipDao();
+	private RelationshipDto createRelationshipDao() {
+		RelationshipDto dao = new RelationshipDto();
 		dao.setKey(new UUID());
 		dao.setMetaRelationshipKey(new UUID());
 		dao.setVersion(createVersion()); 
 		
-		RoleDao start = new RoleDao();
+		RoleDto start = new RoleDto();
 		start.setKey(new UUID());
 		start.setConnects(new UUID());
 		dao.setStart(start);
 		
-		RoleDao finish = new RoleDao();
+		RoleDto finish = new RoleDto();
 		finish.setKey(new UUID());
 		finish.setConnects(new UUID());
 		dao.setFinish(finish);
@@ -229,8 +229,8 @@ class TestModelDao {
 	/**
 	 * @return
 	 */
-	private VersionDao createVersion() {
-		VersionDao version = new VersionDao();
+	private VersionDto createVersion() {
+		VersionDto version = new VersionDto();
 		version.setCreateDate(new Date());
 		version.setCreateUser("fred");
 		version.setOriginalVersion(new UUID());
@@ -240,14 +240,14 @@ class TestModelDao {
 		return version;
 	}
 
-	private void addProperties(PropertyContainerDao container) {
-		PropertyDao p1 = new PropertyDao();
+	private void addProperties(PropertyContainerDto container) {
+		PropertyDto p1 = new PropertyDto();
 		p1.setKey(new UUID());
 		p1.setMetaPropertyKey(new UUID());
 		p1.setValue("p1-value");
 		container.getProperties().add(p1);
 
-		PropertyDao p2 = new PropertyDao();
+		PropertyDto p2 = new PropertyDto();
 		p2.setKey(new UUID());
 		p2.setMetaPropertyKey(new UUID());
 		p2.setValue("p2-value");

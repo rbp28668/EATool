@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import alvahouse.eatool.repository.dao.metamodel.MetaEntityDisplayHintDao;
+import alvahouse.eatool.repository.dto.metamodel.MetaEntityDisplayHintDto;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 /**
@@ -30,13 +30,13 @@ public class MetaEntityDisplayHint {
     /**
 	 * @param medhDao
 	 */
-	public MetaEntityDisplayHint(MetaEntity target, MetaEntityDisplayHintDao medhDao) {
+	public MetaEntityDisplayHint(MetaEntity target, MetaEntityDisplayHintDto medhDao) {
 		this.target = target;
 		keys.addAll(medhDao.getKeys());
 	}
 
-	public MetaEntityDisplayHintDao toDao() {
-		MetaEntityDisplayHintDao medhDao = new MetaEntityDisplayHintDao();
+	public MetaEntityDisplayHintDto toDao() {
+		MetaEntityDisplayHintDto medhDao = new MetaEntityDisplayHintDto();
 		medhDao.getKeys().addAll(keys);
 		return medhDao;
 	}

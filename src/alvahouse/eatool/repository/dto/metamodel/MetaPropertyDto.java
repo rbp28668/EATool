@@ -1,7 +1,7 @@
 /**
  * 
  */
-package alvahouse.eatool.repository.dao.metamodel;
+package alvahouse.eatool.repository.dto.metamodel;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import alvahouse.eatool.repository.dao.NamedRepositoryItemDao;
+import alvahouse.eatool.repository.dto.NamedRepositoryItemDto;
 import alvahouse.eatool.util.UUID;
 
 /**
@@ -21,7 +21,7 @@ import alvahouse.eatool.util.UUID;
  */
 @XmlRootElement(name = "metaProperty")
 @XmlAccessorType(XmlAccessType.NONE)
-public class MetaPropertyDao extends NamedRepositoryItemDao {
+public class MetaPropertyDto extends NamedRepositoryItemDto {
 	private UUID    typeKey;
 	private boolean isMandatory;
 	private boolean isReadOnly;

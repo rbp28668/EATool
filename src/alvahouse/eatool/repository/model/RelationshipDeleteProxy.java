@@ -4,7 +4,7 @@
 package alvahouse.eatool.repository.model;
 
 import alvahouse.eatool.repository.base.IDeleteDependenciesProxy;
-import alvahouse.eatool.repository.dao.DeleteProxyDao;
+import alvahouse.eatool.repository.dto.DeleteProxyDto;
 import alvahouse.eatool.util.UUID;
 
 /** Proxy class for recording dependent -relationship
@@ -28,7 +28,7 @@ public class RelationshipDeleteProxy implements IDeleteDependenciesProxy {
 		this.name = name;
     }
     
-    public RelationshipDeleteProxy(Model model, DeleteProxyDao dao) {
+    public RelationshipDeleteProxy(Model model, DeleteProxyDto dao) {
     	if(!NAME.equals(dao.getItemType())){
     		throw new IllegalArgumentException("Invalid Delete proxy, expected " + NAME + " was " + dao.getItemType());
     	}

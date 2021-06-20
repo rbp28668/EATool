@@ -4,7 +4,7 @@
 package alvahouse.eatool.repository.model;
 
 import alvahouse.eatool.repository.base.IDeleteDependenciesProxy;
-import alvahouse.eatool.repository.dao.DeleteProxyDao;
+import alvahouse.eatool.repository.dto.DeleteProxyDto;
 import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.util.UUID;
 
@@ -29,7 +29,7 @@ public class EntityDeleteProxy implements IDeleteDependenciesProxy {
 		this.name = name;
     }
     
-    public EntityDeleteProxy(Model model, DeleteProxyDao dao) {
+    public EntityDeleteProxy(Model model, DeleteProxyDto dao) {
     	if(!NAME.equals(dao.getItemType())){
     		throw new IllegalArgumentException("Invalid Delete proxy, expected " + NAME + " was " + dao.getItemType());
     	}

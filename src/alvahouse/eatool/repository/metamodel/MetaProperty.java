@@ -10,7 +10,7 @@ package alvahouse.eatool.repository.metamodel;
 import java.io.IOException;
 
 import alvahouse.eatool.repository.base.NamedRepositoryItem;
-import alvahouse.eatool.repository.dao.metamodel.MetaPropertyDao;
+import alvahouse.eatool.repository.dto.metamodel.MetaPropertyDto;
 import alvahouse.eatool.repository.metamodel.types.MetaPropertyType;
 import alvahouse.eatool.repository.metamodel.types.MetaPropertyTypes;
 import alvahouse.eatool.util.UUID;
@@ -40,7 +40,7 @@ public class MetaProperty  extends NamedRepositoryItem  {
     /**
 	 * @param mpdao
 	 */
-	public MetaProperty(MetaPropertyDao mpdao, MetaPropertyTypes types) throws Exception {
+	public MetaProperty(MetaPropertyDto mpdao, MetaPropertyTypes types) throws Exception {
 		super(mpdao);
 		m_type = types.typeFromName(mpdao.getTypeKey().toString());
 		m_default = mpdao.getDefaultValue();
@@ -49,8 +49,8 @@ public class MetaProperty  extends NamedRepositoryItem  {
 		summary = mpdao.isSummary();
 	}
 
-	public MetaPropertyDao toDao() {
-		MetaPropertyDao dao = new MetaPropertyDao();
+	public MetaPropertyDto toDao() {
+		MetaPropertyDto dao = new MetaPropertyDto();
 		copyTo(dao);
 		return dao;
 	}
@@ -193,7 +193,7 @@ public class MetaProperty  extends NamedRepositoryItem  {
         copy.container = null;
     }
 
-    protected void copyTo(MetaPropertyDao dao) {
+    protected void copyTo(MetaPropertyDto dao) {
         super.copyTo(dao);
         dao.setTypeKey(m_type.getKey());
         dao.setMandatory(m_mandatory);

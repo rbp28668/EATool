@@ -6,7 +6,7 @@
 
 package alvahouse.eatool.repository.base;
 
-import alvahouse.eatool.repository.dao.RepositoryItemDao;
+import alvahouse.eatool.repository.dto.RepositoryItemDto;
 import alvahouse.eatool.util.UUID;
 
 /**
@@ -26,7 +26,7 @@ public class RepositoryItem implements KeyedItem{
      * Creates a repository item from a DAO.
      * @param dao
      */
-    public RepositoryItem(RepositoryItemDao dao) {
+    public RepositoryItem(RepositoryItemDto dao) {
         m_uuid = dao.getKey();
     }
 
@@ -54,7 +54,7 @@ public class RepositoryItem implements KeyedItem{
     /** base implementation of cloneTo.
      * @param copy is the copy to be cloned to
      */
-    protected void copyTo(RepositoryItemDao dao) {
+    protected void copyTo(RepositoryItemDto dao) {
         dao.setKey(m_uuid);
     }
 

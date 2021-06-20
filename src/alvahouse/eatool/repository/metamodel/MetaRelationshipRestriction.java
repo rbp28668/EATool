@@ -11,7 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import alvahouse.eatool.repository.dao.metamodel.MetaRelationshipRestrictionDao;
+import alvahouse.eatool.repository.dto.metamodel.MetaRelationshipRestrictionDto;
 
 //import alvahouse.eatool.repository.model.Entity;
 
@@ -39,12 +39,12 @@ public abstract class MetaRelationshipRestriction {
     	return restrictions.get(name);
     }
     
-    public static MetaRelationshipRestriction fromDao(MetaRelationshipRestrictionDao dao) {
+    public static MetaRelationshipRestriction fromDao(MetaRelationshipRestrictionDto dao) {
     	return MetaRelationshipRestriction.fromName(dao.getName());
     }
     
-    public MetaRelationshipRestrictionDao toDao() {
-    	MetaRelationshipRestrictionDao dao = new MetaRelationshipRestrictionDao();
+    public MetaRelationshipRestrictionDto toDao() {
+    	MetaRelationshipRestrictionDto dao = new MetaRelationshipRestrictionDto();
     	dao.setName(getName());
     	return dao;
     }
