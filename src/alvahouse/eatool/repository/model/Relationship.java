@@ -9,6 +9,7 @@ package alvahouse.eatool.repository.model;
 import java.io.IOException;
 
 import alvahouse.eatool.repository.base.TooltipProvider;
+import alvahouse.eatool.repository.dao.model.RelationshipDao;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.repository.version.Version;
 import alvahouse.eatool.repository.version.VersionImpl;
@@ -66,6 +67,25 @@ public class Relationship extends PropertyContainer implements TooltipProvider, 
 
 	}
 
+	/**
+	 * Method Relationship creates a relationship from a DAO
+	 * @param dao is the DAO to initialise the relationship from.
+	 * @param mr is the corresponding meta-relationship.
+	 */
+	public Relationship(RelationshipDao dao, MetaRelationship mr) throws Exception {
+		super(dao, mr);
+		meta = mr;
+		ends[0] = new Role(dao.getStart(), this,  meta.start());
+		ends[1] = new Role(dao.getFinish(), this,  meta.finish());
+	}
+	
+	public RelationshipDao toDao() {
+		RelationshipDao dao = new RelationshipDao();
+		copyTo(dao);
+		return dao;
+	}
+
+	
 //    /** sets the meta Relationship that this Relationship is an instance of
 //     * @param me is the associated meta Relationship
 //     */
@@ -275,6 +295,13 @@ public class Relationship extends PropertyContainer implements TooltipProvider, 
 		version.cloneTo(copy.version);
 	}
 
+	protected void copyTo(RelationshipDao dao) {
+		super.copyTo(dao);
+		dao.setMetaRelationshipKey(meta.getKey());
+		dao.setStart(ends[0].toDao());
+		dao.setFinish(ends[1].toDao());
+		dao.setVersion(version.toDao());
+	}
 	/**
 	 * gets the tooltip for this object when displayed in a gui or diagram.
 	 * 

@@ -8,6 +8,7 @@ package alvahouse.eatool.repository.model;
 
 import java.io.IOException;
 
+import alvahouse.eatool.repository.dao.model.RoleDao;
 import alvahouse.eatool.repository.metamodel.MetaRole;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
@@ -46,20 +47,35 @@ public class Role extends PropertyContainer implements Cloneable{
     	super(uuid);
     }
     
-    public Object clone() {
+    /**
+     * Creates a role from its dto.
+	 * @param dto is the data transfer object
+	 * @param r
+	 * @param meta
+	 */
+	public Role(RoleDao dto, Relationship r, MetaRole meta) throws Exception {
+		super(dto, meta);
+		this.relationship = r;
+		this.connection.setKey(dto.getConnects());
+		this.meta = meta;
+	}
+
+	/**
+	 * @return
+	 */
+	public RoleDao toDao() {
+		RoleDao dao = new RoleDao();
+		copyTo(dao);
+		return dao;
+	}
+
+	public Object clone() {
         Role copy = new Role(getKey());
         
         cloneTo(copy);
         return copy;
     }
     
-//    public void updateFromCopy(Role copy) {
-//        // copy back maintaining same parent.
-//        Relationship parent = relationship;
-//        copy.cloneTo(this);
-//        relationship = parent;
-//    }
-
     /** sets the entity this role connects to
      * @param e is the entity to connect to
      */
@@ -148,8 +164,14 @@ public class Role extends PropertyContainer implements Cloneable{
         copy.meta = meta;               // must be same type
         copy.relationship = null;   // possible different parent.
     }
+
+    protected void copyTo(RoleDao dao) {
+    	super.copyTo(dao);
+    	dao.setConnects(connection.getKey());
+    }
     
     public String toString(){
         return meta.getName();
     }
+
 }
