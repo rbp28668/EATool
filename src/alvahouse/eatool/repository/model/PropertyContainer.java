@@ -15,6 +15,8 @@ import java.util.LinkedList;
 import java.util.Set;
 
 import alvahouse.eatool.repository.base.RepositoryItem;
+import alvahouse.eatool.repository.dao.model.PropertyContainerDao;
+import alvahouse.eatool.repository.dao.model.PropertyDao;
 import alvahouse.eatool.repository.metamodel.MetaProperty;
 import alvahouse.eatool.repository.metamodel.MetaPropertyContainer;
 import alvahouse.eatool.util.UUID;
@@ -36,6 +38,13 @@ public abstract class PropertyContainer extends RepositoryItem{
      */
     public PropertyContainer(UUID uuid) {
         super(uuid);
+    }
+    
+    public PropertyContainer(PropertyContainerDao dao, MetaPropertyContainer meta) throws Exception{
+    	super(dao);
+    	for(PropertyDao pdao : dao.getProperties()) {
+    		addProperty(new Property(pdao, this, meta));
+    	}
     }
     
     /** Gets a child property given its key (UUID)
@@ -115,6 +124,17 @@ public abstract class PropertyContainer extends RepositoryItem{
         }
     }
     
+    /**
+     * Copies the property container to its corresponding DAO
+     * @param dao is the corresponding DAO to initialise from this container.
+     */
+    protected void copyTo(PropertyContainerDao dao) {
+ 	   super.copyTo(dao);
+       for(Property property : propertyList) {
+    	   dao.getProperties().add( property.toDao());
+       }
+    }
+
     /** Method for adding default properties to a new meta-entity. Note that getMetaProperties
      * recurses through any base classes therefore this doesn't need to.
      * @param m is the meta-entity to add properties from.
