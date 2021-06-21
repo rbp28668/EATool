@@ -353,7 +353,7 @@ public class ModelPersistenceMemory implements ModelPersistence {
 
 		// Mark any relationships that depend on this entity for deletion
 		for (Relationship r : getRelationships()) {
-			if (r.start().connectsTo().equals(e) || r.finish().connectsTo().equals(e)) {
+			if (r.start().connectionKey().equals(e.getKey()) || r.finish().connectionKey().equals(e.getKey())) {
 				if (!dependencies.containsTarget(r.getKey()))
 					dependencies.addDependency(new RelationshipDeleteProxy(model, r.getKey(), r.toString()));
 			}

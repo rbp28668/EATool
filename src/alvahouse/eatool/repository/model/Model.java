@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 
 import alvahouse.eatool.repository.base.DeleteDependenciesList;
 import alvahouse.eatool.repository.base.KeyedItem;
@@ -342,6 +343,14 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
         listeners.remove(listener);
     }
 
+	/**
+	 * Determines whether a change listener is active (i.e. registered).
+	 * @param listener
+	 * @return true if active, false if not.
+	 */
+	public boolean isActive(ModelChangeListener listener) {
+		return listeners.contains(listener);
+	}
 
     /** Signals a major change in the model to any registered
      * listeners
@@ -517,5 +526,6 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
 	public void setKey(UUID uuid) {
 		this.uuid = uuid;
 	}
+
  
  }
