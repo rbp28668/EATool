@@ -78,7 +78,7 @@ public class ModelProxy {
      * @return a new EntitySet containing all the entities of the given type(s).
      */
     @Scripted(description="Get an EntitySet containing all the entities of a given type or types.")
-    public EntitySet getEntitiesOf(MetaEntitySet metaSet){
+    public EntitySet getEntitiesOf(MetaEntitySet metaSet) throws Exception{
         EntitySet set = new EntitySet();
         
         for(MetaEntity meta : metaSet.getContents()){
@@ -172,7 +172,7 @@ public class ModelProxy {
      * @return the given entity (as proxy) or null if not found.
      */
     @Scripted(description="Get an entity with the given key.")
-    public EntityProxy entity(String key) {
+    public EntityProxy entity(String key) throws Exception {
     	Entity e = repository.getModel().getEntity(new UUID(key));
     	return  (e != null) ? new EntityProxy(e) : null;
     }
@@ -183,7 +183,7 @@ public class ModelProxy {
      * @return the given relationship (as proxy) or null if not found.
      */
     @Scripted(description="Get relationship with the given key.")
-    public RelationshipProxy relationship(String key) {
+    public RelationshipProxy relationship(String key) throws Exception{
     	Relationship r = repository.getModel().getRelationship(new UUID(key));
     	return  (r != null) ? new RelationshipProxy(r) : null;
     }

@@ -415,7 +415,7 @@ public class ModelBrowser extends JInternalFrame {
             footer();
         }
 
-        private void entityList(MetaEntity me, Model model){
+        private void entityList(MetaEntity me, Model model) throws Exception{
             header();
             
             h1(me.getName());

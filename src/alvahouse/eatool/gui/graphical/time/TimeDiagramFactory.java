@@ -61,7 +61,13 @@ public class TimeDiagramFactory extends FactoryBase implements
                 throw new InputException("Missing property key in TimeDiagram Property");
             }
             
-            Entity e = model.getEntity(new UUID(entityKey));
+            Entity e;
+			try {
+				e = model.getEntity(new UUID(entityKey));
+			} catch (Exception ex) {
+				throw new InputException("Unable to fetch entity");
+			}
+			
             if(e == null){
                 throw new InputException("No entity with key " + entityKey);
             }

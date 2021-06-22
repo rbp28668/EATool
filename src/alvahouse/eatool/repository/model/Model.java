@@ -7,14 +7,20 @@
 package alvahouse.eatool.repository.model;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.function.BooleanSupplier;
 
+import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.base.DeleteDependenciesList;
 import alvahouse.eatool.repository.base.KeyedItem;
+import alvahouse.eatool.repository.dto.DeleteDependenciesListDto;
+import alvahouse.eatool.repository.dto.DeleteProxyDto;
+import alvahouse.eatool.repository.dto.model.EntityDto;
+import alvahouse.eatool.repository.dto.model.RelationshipDto;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.metamodel.MetaModelChangeAdapter;
@@ -66,8 +72,10 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
      * @param uuid is the key of the entity to get
      * @return the corresponding entity, or null if not in the model
      */
-    public Entity getEntity(UUID uuid) {
-        Entity e = persistence.getEntity(uuid);
+    public Entity getEntity(UUID uuid) throws Exception {
+        EntityDto dto = persistence.getEntity(uuid);
+        MetaEntity me = meta.getMetaEntity(dto.getMetaEntityKey());
+        Entity e = new Entity(dto,me);
         e.setModel(this);
         return e;
     }
@@ -81,7 +89,7 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
         e.setModel(this);
 		String user = System.getProperty("user.name");
 		e.getVersion().createBy(user);
-        persistence.addEntity(e);
+        persistence.addEntity(e.toDao());
         fireEntityAdded(e);
         return e;
     }
@@ -93,7 +101,7 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
      */
     public void _add(Entity e) throws Exception {
         e.setModel(this);
-        persistence.addEntity(e);
+        persistence.addEntity(e.toDao());
     }
 
     /** Updates and existing entity in the model.
@@ -105,7 +113,7 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
         e.setModel(this);
 		String user = System.getProperty("user.name");
 		e.getVersion().modifyBy(user);
-        persistence.updateEntity(e);
+        persistence.updateEntity(e.toDao());
         fireEntityChanged(e);
         return e;
     }
@@ -115,17 +123,24 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
      * @throws IllegalStateException if deleting an entity not in the model.
      */
     public void deleteEntity(UUID uuid) throws Exception {
-    	Entity e = persistence.deleteEntity(uuid);
+    	EntityDto dto = persistence.deleteEntity(uuid);
+        MetaEntity me = meta.getMetaEntity(dto.getMetaEntityKey());
+        Entity e = new Entity(dto,me);
         fireEntityDeleted(e);
     }
 
     /** Gets an iterator that iterates though all the entites.
      * @return an iterator for the entities.
      */
-    public Collection<Entity> getEntities() {
-        Collection<Entity> entities = persistence.getEntities();
-        for(Entity e : entities) {
-        	e.setModel(this);
+    public Collection<Entity> getEntities() throws Exception{
+        Collection<EntityDto> dtos = persistence.getEntities();
+        ArrayList<Entity> entities = new ArrayList<>(dtos.size());
+        
+        for(EntityDto dto : dtos) {
+            MetaEntity me = meta.getMetaEntity(dto.getMetaEntityKey());
+            Entity e = new Entity(dto,me);
+            e.setModel(this);
+        	entities.add(e);
         }
         return entities;
     }
@@ -142,10 +157,15 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
      * @param meta is the meta-entity we want the entities for.
      * @return a list of all the entities of the given type.
      */
-    public List<Entity> getEntitiesOfType(MetaEntity meta) {
-        List<Entity> entities = persistence.getEntitiesOfType(meta);
-        for(Entity e : entities) {
-        	e.setModel(this);
+    public List<Entity> getEntitiesOfType(MetaEntity metaEntity) throws Exception {
+        List<EntityDto> dtos = persistence.getEntitiesOfType(metaEntity.getKey());
+        ArrayList<Entity> entities = new ArrayList<>(dtos.size());
+        
+        for(EntityDto dto : dtos) {
+            MetaEntity me = meta.getMetaEntity(dto.getMetaEntityKey());
+            Entity e = new Entity(dto,me);
+            e.setModel(this);
+        	entities.add(e);
         }
         return entities;
    }
@@ -154,8 +174,10 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
      * @param uuid is the key for the relationship.
      * @return the relationship corresponding to uuid or null if not in the model.
      */
-    public Relationship getRelationship(UUID uuid) {
-        Relationship r =  persistence.getRelationship(uuid);
+    public Relationship getRelationship(UUID uuid) throws Exception {
+        RelationshipDto dto =  persistence.getRelationship(uuid);
+        MetaRelationship mr = meta.getMetaRelationship(dto.getMetaRelationshipKey());
+        Relationship r = new Relationship(dto,mr);
         r.setModel(this);
         return r;
     }
@@ -169,7 +191,7 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
         r.setModel(this);
 		String user = System.getProperty("user.name");
 		r.getVersion().createBy(user);
-        persistence.addRelationship(r);
+        persistence.addRelationship(r.toDao());
         fireRelationshipAdded(r);
         return r;
     }
@@ -181,7 +203,7 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
     */
    public void _add(Relationship r) throws Exception {
        r.setModel(this);
-       persistence.addRelationship(r);
+       persistence.addRelationship(r.toDao());
    }
 
     /** updates an existing relationship.
@@ -193,7 +215,7 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
         r.setModel(this);
 		String user = System.getProperty("user.name");
 		r.getVersion().modifyBy(user);
-        persistence.updateRelationship(r);
+        persistence.updateRelationship(r.toDao());
         fireRelationshipAdded(r);
         return r;
     }
@@ -204,18 +226,24 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
      * relationship in the model.
      */
     public void deleteRelationship(UUID uuid) throws Exception {
-        Relationship r = persistence.deleteRelationship(uuid);
+        RelationshipDto dto = persistence.deleteRelationship(uuid);
+        MetaRelationship mr = meta.getMetaRelationship(dto.getMetaRelationshipKey());
+        Relationship r = new Relationship(dto,mr);
         fireRelationshipDeleted(r);
     }
     
     /** Gets an iterator that iterates through all the relationships in the model.
      * @return an iterator.
      */
-    public Collection<Relationship> getRelationships() {
-    	
-        Collection<Relationship> relationships =  persistence.getRelationships();
-        for(Relationship r : relationships) {
-        	r.setModel(this);
+    public Collection<Relationship> getRelationships() throws Exception{
+        Collection<RelationshipDto> dtos =  persistence.getRelationships();
+        ArrayList<Relationship> relationships = new ArrayList<>();
+        
+        for(RelationshipDto dto : dtos) {
+            MetaRelationship mr = meta.getMetaRelationship(dto.getMetaRelationshipKey());
+            Relationship r = new Relationship(dto,mr);
+            r.setModel(this);
+            relationships.add(r);
         }
         return relationships;
     }
@@ -233,13 +261,17 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
      * @param meta is the type of relationship required.
      * @return a list of all the corresponding relationships.
      */
-    public List<Relationship> getRelationshipsOfType(MetaRelationship meta) {
-        List<Relationship> relationships =  persistence.getRelationshipsOfType(meta);
-        for(Relationship r : relationships) {
-        	r.setModel(this);
+    public List<Relationship> getRelationshipsOfType(MetaRelationship metaRelationship) throws Exception {
+        Collection<RelationshipDto> dtos =  persistence.getRelationshipsOfType(metaRelationship.getKey());
+        ArrayList<Relationship> relationships = new ArrayList<>();
+        
+        for(RelationshipDto dto : dtos) {
+            MetaRelationship mr = meta.getMetaRelationship(dto.getMetaRelationshipKey());
+            Relationship r = new Relationship(dto,mr);
+            r.setModel(this);
+            relationships.add(r);
         }
         return relationships;
-
     }
     
 	/**
@@ -250,9 +282,14 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
 	 * @return the set of connected relationships.
 	 */
 	public Set<Relationship> getConnectedRelationships(Entity e) throws Exception{
-        Set<Relationship> relationships =  persistence.getConnectedRelationships(this, e);
-        for(Relationship r : relationships) {
-        	r.setModel(this);
+        Set<RelationshipDto> dtos =  persistence.getConnectedRelationships(e.getKey());
+        Set<Relationship> relationships = new HashSet<>();
+        
+        for(RelationshipDto dto : dtos) {
+            MetaRelationship mr = meta.getMetaRelationship(dto.getMetaRelationshipKey());
+            Relationship r = new Relationship(dto,mr);
+            r.setModel(this);
+            relationships.add(r);
         }
         return relationships;
 
@@ -268,10 +305,15 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
 	 *              type.
 	 * @return the set of connected relationships.
 	 */
-	public Set<Relationship> getConnectedRelationshipsOf(Entity e, MetaRelationship meta) throws Exception{
-		Set<Relationship> relationships = persistence.getConnectedRelationshipsOf(this, e, meta);
-        for(Relationship r : relationships) {
-        	r.setModel(this);
+	public Set<Relationship> getConnectedRelationshipsOf(Entity e, MetaRelationship metaRelationship) throws Exception{
+		Set<RelationshipDto> dtos = persistence.getConnectedRelationshipsOf(e.getKey(), metaRelationship.getKey());
+        Set<Relationship> relationships = new HashSet<>();
+        
+        for(RelationshipDto dto : dtos) {
+            MetaRelationship mr = meta.getMetaRelationship(dto.getMetaRelationshipKey());
+            Relationship r = new Relationship(dto,mr);
+            r.setModel(this);
+            relationships.add(r);
         }
         return relationships;
 	}
@@ -285,13 +327,17 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
         out.startEntity("Model");
         out.addAttribute("uuid", uuid.toString());
         
-        for(Entity e : getEntities()){
-            e.writeXML(out);
-        }
-        
-        for(Relationship r : getRelationships()) {
-            r.writeXML(out);
-        }
+        try {
+			for(Entity e : getEntities()){
+			    e.writeXML(out);
+			}
+			
+			for(Relationship r : getRelationships()) {
+			    r.writeXML(out);
+			}
+		} catch (Exception e) {
+			throw new IOException("Unable to write XML",e);
+		}
         out.stopEntity();
     }
 
@@ -305,7 +351,8 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
      * @param e is the entity which will be deleted.
      */    
     public void getDeleteDependencies(DeleteDependenciesList dependencies, Relationship r) throws Exception {
-        persistence.getDeleteDependencies(this, dependencies, r);
+    	RelationshipDeleteProxy proxy = new RelationshipDeleteProxy(this, r.getKey(), r.toString());
+    	dependencies.addDependency(proxy);
     }
     
     /** This gets gets the list of dependent objects that
@@ -317,8 +364,11 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
      * @param dependencies is the list of dependencies to add to.
      * @param e is the entity which will be deleted.
      */    
-    public void getDeleteDependencies(DeleteDependenciesList dependencies, Entity e) throws Exception {
-        persistence.getDeleteDependencies(this, dependencies, e);
+    public void getDeleteDependencies(DeleteDependenciesList dependencies, Entity e, Repository repository) throws Exception {
+    	DeleteDependenciesListDto dto =  persistence.getDeleteDependencies( e.getKey());
+    	for(DeleteProxyDto proxy : dto.getDependencies()) {
+    		dependencies.addDependency(proxy, repository);
+    	}
     }
 
     /** Deletes the entire contents of the model */

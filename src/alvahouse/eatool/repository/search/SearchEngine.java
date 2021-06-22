@@ -30,7 +30,6 @@ import org.apache.lucene.store.RAMDirectory;
 
 import alvahouse.eatool.repository.ProgressCounter;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
-import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.model.Entity;
 import alvahouse.eatool.repository.model.Model;
 import alvahouse.eatool.repository.model.ModelChangeEvent;
@@ -74,18 +73,22 @@ public class SearchEngine implements ModelChangeListener{
 			throw new NullPointerException("Can't index a null repository");
 		}
 
-		directory = new RAMDirectory();
+		try {
+			directory = new RAMDirectory();
 
-		IndexWriter index = new IndexWriter(directory, analyzer, true);
-		for(Entity entity : model.getEntities()){
-			Document doc = entityToDoc(entity);
-			index.addDocument(doc);
-			if(counter != null){
-			    counter.count("Indexing");
+			IndexWriter index = new IndexWriter(directory, analyzer, true);
+			for(Entity entity : model.getEntities()){
+				Document doc = entityToDoc(entity);
+				index.addDocument(doc);
+				if(counter != null){
+				    counter.count("Indexing");
+				}
 			}
+			index.optimize();
+			index.close();
+		} catch (Exception e) {
+			throw new IOException("Unable to index model",e);
 		}
-		index.optimize();
-		index.close();
 		
 		this.model = model;
 		invalid = null;
@@ -180,14 +183,19 @@ public class SearchEngine implements ModelChangeListener{
         Searcher searcher = new IndexSearcher(directory);
 		Hits hits = searcher.search(query);	// add security filter at some point.
 		
-		Set<Entity> results = new HashSet<Entity>();
-		int nResults = hits.length();
-		for(int i=0; i<nResults; ++i){
-			Document doc = hits.doc(i);
-			Field uuidField = doc.getField("uuid");
-			UUID key = new UUID(uuidField.stringValue());
-			Entity e = model.getEntity(key);
-			results.add(e);
+		Set<Entity> results;
+		try {
+			results = new HashSet<Entity>();
+			int nResults = hits.length();
+			for(int i=0; i<nResults; ++i){
+				Document doc = hits.doc(i);
+				Field uuidField = doc.getField("uuid");
+				UUID key = new UUID(uuidField.stringValue());
+				Entity e = model.getEntity(key);
+				results.add(e);
+			}
+		} catch (Exception e) {
+			throw new IOException("Unable to run query",e);
 		}
 
 		searcher.close();

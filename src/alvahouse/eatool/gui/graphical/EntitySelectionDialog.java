@@ -39,7 +39,7 @@ public class EntitySelectionDialog extends BasicDialog {
 	public EntitySelectionDialog(
 		Component parent,
 		List<MetaEntity> allowedMetaEntities,
-		Model model) {
+		Model model) throws Exception  {
 		super(parent, "Select Entity");
 
 		// Build a tree model to display a tree
@@ -153,7 +153,7 @@ public class EntitySelectionDialog extends BasicDialog {
 	 * @param model
 	 * @return
 	 */
-	private TreeModel createTree(List<MetaEntity> allowedMetaEntities, Model model) {
+	private TreeModel createTree(List<MetaEntity> allowedMetaEntities, Model model) throws Exception {
 
 		DefaultTreeModel treeModel =
 			new DefaultTreeModel(new DefaultMutableTreeNode("Entities"));
@@ -175,7 +175,7 @@ public class EntitySelectionDialog extends BasicDialog {
 		DefaultTreeModel treeModel,
 		MetaEntity me,
 		Model model,
-		int idxEntity) {
+		int idxEntity) throws Exception {
 		List<Entity> listEntities = model.getEntitiesOfType(me);
 		if (!listEntities.isEmpty()) {
 			DefaultMutableTreeNode tnEntity = new DefaultMutableTreeNode(me);

@@ -36,7 +36,7 @@ class EntityKeyLookup {
      * @param trans is the key generator for the type of entity we
      * want to cache
      */
-    EntityKeyLookup(Model model, MetaEntity me, PropertyTranslationCollection trans) {
+    EntityKeyLookup(Model model, MetaEntity me, PropertyTranslationCollection trans) throws Exception {
     	assert(model != null);
     	assert(me != null);
     	assert(trans != null);

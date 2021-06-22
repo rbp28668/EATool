@@ -89,30 +89,34 @@ class TestModel {
 		base.setAbstract(true);
 		base.addMetaProperty(createMetaProperty("base int", "int", base));
 		base.addMetaProperty(createMetaProperty("base string", "string", base));
+		meta.addMetaEntity(base);
 		
 		derived = new MetaEntity(new UUID());
 		derived.setName("derived");
 		derived.setBase(base);
 		derived.addMetaProperty(createMetaProperty("derived int", "int", derived));
 		derived.addMetaProperty(createMetaProperty("derived string", "string", derived));
+		meta.addMetaEntity(derived);
 		
 		other = new MetaEntity(new UUID());
 		other.setName("other");
 		other.addMetaProperty(createMetaProperty("other int", "int", other));
 		other.addMetaProperty(createMetaProperty("other string", "string", other));
-
+		meta.addMetaEntity(other);
+		
 		mr = new MetaRelationship(new UUID());
 		MetaRole start = mr.getMetaRole(new UUID());
 		MetaRole finish = mr.getMetaRole(new UUID());
 		start.setConnection(derived);
 		finish.setConnection(other);
+		meta.addMetaRelationship(mr);
 		
 		mr2 = new MetaRelationship(new UUID());
 		MetaRole start2 = mr2.getMetaRole(new UUID());
 		MetaRole finish2 = mr2.getMetaRole(new UUID());
 		start2.setConnection(derived);
 		finish2.setConnection(other);
-		
+		meta.addMetaRelationship(mr2);
 	}
 
 	/**
@@ -602,7 +606,7 @@ class TestModel {
 		
 		// Take out d which also has 2 relationships
 		DeleteDependenciesList dependencies = new DeleteDependenciesList();
-		model.getDeleteDependencies(dependencies, d);
+		model.getDeleteDependencies(dependencies, d, repository);
 		
 		// The only dependency on deleting a relationship is itself.
 		UUID targets[] = dependencies.getDependencyTargets();
