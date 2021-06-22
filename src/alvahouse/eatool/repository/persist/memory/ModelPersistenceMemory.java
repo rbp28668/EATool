@@ -12,13 +12,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import alvahouse.eatool.repository.base.DeleteDependenciesList;
-import alvahouse.eatool.repository.metamodel.MetaEntity;
-import alvahouse.eatool.repository.metamodel.MetaRelationship;
-import alvahouse.eatool.repository.model.Entity;
-import alvahouse.eatool.repository.model.EntityDeleteProxy;
-import alvahouse.eatool.repository.model.Model;
-import alvahouse.eatool.repository.model.Relationship;
+import alvahouse.eatool.repository.dto.DeleteDependenciesListDto;
+import alvahouse.eatool.repository.dto.DeleteProxyDto;
+import alvahouse.eatool.repository.dto.model.EntityDto;
+import alvahouse.eatool.repository.dto.model.RelationshipDto;
 import alvahouse.eatool.repository.model.RelationshipDeleteProxy;
 import alvahouse.eatool.repository.persist.ModelPersistence;
 import alvahouse.eatool.util.UUID;
@@ -30,11 +27,10 @@ import alvahouse.eatool.util.UUID;
 public class ModelPersistenceMemory implements ModelPersistence {
 
 	private UUID uuid;
-	private Map<UUID, Entity> entities = new HashMap<UUID, Entity>();
-	private Map<UUID, Relationship> relationships = new HashMap<UUID, Relationship>();
-	private Map<UUID, List<Entity>> entityCacheByType = new HashMap<UUID, List<Entity>>(); // good candidate for weak
-																							// ref.
-	private Map<UUID, List<Relationship>> relationshipCacheByType = new HashMap<UUID, List<Relationship>>(); // ditto
+	private Map<UUID, EntityDto> entities = new HashMap<>();
+	private Map<UUID, RelationshipDto> relationships = new HashMap<>();
+	private Map<UUID, List<EntityDto>> entityCacheByType = new HashMap<>(); // good candidate for weak ref.
+	private Map<UUID, List<RelationshipDto>> relationshipCacheByType = new HashMap<>(); // ditto
 
 	/**
 	 * 
@@ -60,12 +56,12 @@ public class ModelPersistenceMemory implements ModelPersistence {
 	 * eatool.util.UUID)
 	 */
 	@Override
-	public Entity getEntity(UUID uuid) {
-		Entity e = entities.get(uuid);
+	public EntityDto getEntity(UUID uuid) {
+		EntityDto e = entities.get(uuid);
 		if(e == null) {
 			throw new IllegalArgumentException("Key " + uuid + " does not reference an entity in the model");
 		}
-		return (Entity) e.clone();
+		return e;
 	}
 
 	/*
@@ -76,12 +72,11 @@ public class ModelPersistenceMemory implements ModelPersistence {
 	 * eatool.repository.model.Entity)
 	 */
 	@Override
-	public void addEntity(Entity e) throws Exception {
+	public void addEntity(EntityDto e) throws Exception {
 		if (entities.containsKey(e.getKey()))
 			throw new IllegalStateException("Entity " + e.getKey() + " already exists in model");
-		e = (Entity) e.clone();
 		entities.put(e.getKey(), e);
-		entityCacheByType.remove(e.getMeta().getKey());
+		entityCacheByType.remove(e.getMetaEntityKey());
 		//System.out.println("Added Entity " + e.getKey() + " to model");
 	}
 
@@ -93,10 +88,9 @@ public class ModelPersistenceMemory implements ModelPersistence {
 	 * eatool.repository.model.Entity)
 	 */
 	@Override
-	public void updateEntity(Entity e) throws Exception {
-		e = (Entity) e.clone();
+	public void updateEntity(EntityDto e) throws Exception {
 		entities.put(e.getKey(), e);
-		entityCacheByType.remove(e.getMeta().getKey());
+		entityCacheByType.remove(e.getMetaEntityKey());
 	}
 
 	/*
@@ -107,13 +101,13 @@ public class ModelPersistenceMemory implements ModelPersistence {
 	 * eatool.util.UUID)
 	 */
 	@Override
-	public Entity deleteEntity(UUID uuid) throws Exception {
-		Entity e = (Entity) entities.remove(uuid);
+	public EntityDto deleteEntity(UUID uuid) throws Exception {
+		EntityDto e = entities.remove(uuid);
 		if (e == null)
 			throw new IllegalStateException("Entity " + uuid + " cannot be deleted - does not exist");
 
 		// Invalidate cache for this type.
-		entityCacheByType.remove(e.getMeta().getKey());
+		entityCacheByType.remove(e.getMetaEntityKey());
 		return e;
 	}
 
@@ -123,11 +117,9 @@ public class ModelPersistenceMemory implements ModelPersistence {
 	 * @see alvahouse.eatool.repository.persist.ModelPersistence#getEntities()
 	 */
 	@Override
-	public Collection<Entity> getEntities() {
-		ArrayList<Entity> copy = new ArrayList<>(entities.size());
-		for(Entity e : entities.values()) {
-			copy.add( (Entity) e.clone());
-		}
+	public Collection<EntityDto> getEntities() {
+		ArrayList<EntityDto> copy = new ArrayList<>(entities.size());
+		copy.addAll(entities.values());
 		return copy;
 	}
 
@@ -148,22 +140,19 @@ public class ModelPersistenceMemory implements ModelPersistence {
 	 * alvahouse.eatool.repository.metamodel.MetaEntity)
 	 */
 	@Override
-	public List<Entity> getEntitiesOfType(MetaEntity meta) {
-		UUID key = meta.getKey();
-		List<Entity> cache = entityCacheByType.get(key);
+	public List<EntityDto> getEntitiesOfType(UUID metaEntityKey) {
+		List<EntityDto> cache = entityCacheByType.get(metaEntityKey);
 		if (cache == null) { // not cached.
-			cache = new LinkedList<Entity>();
-			for (Entity e : getEntities()) {
-				if (e.getMeta().equals(meta)) {
+			cache = new LinkedList<EntityDto>();
+			for (EntityDto e : getEntities()) {
+				if (e.getMetaEntityKey().equals(metaEntityKey)) {
 					cache.add(e);
 				}
 			}
-			entityCacheByType.put(key, cache);
+			entityCacheByType.put(metaEntityKey, cache);
 		}
-		ArrayList<Entity> copy = new ArrayList<>(cache.size());
-		for(Entity e : cache) {
-			copy.add( (Entity)e.clone());
-		}
+		ArrayList<EntityDto> copy = new ArrayList<>(cache.size());
+		copy.addAll(cache);
 		return copy;
 	}
 
@@ -174,12 +163,12 @@ public class ModelPersistenceMemory implements ModelPersistence {
 	 * alvahouse.eatool.util.UUID)
 	 */
 	@Override
-	public Relationship getRelationship(UUID uuid) {
-		Relationship r = relationships.get(uuid);
+	public RelationshipDto getRelationship(UUID uuid) {
+		RelationshipDto r = relationships.get(uuid);
 		if(r == null) {
 			throw new IllegalArgumentException("Key " + uuid + " does not reference relationship in the model");
 		}
-		return (Relationship) r.clone();
+		return r;
 	}
 
 	/*
@@ -189,13 +178,12 @@ public class ModelPersistenceMemory implements ModelPersistence {
 	 * alvahouse.eatool.repository.model.Relationship)
 	 */
 	@Override
-	public void addRelationship(Relationship r) throws Exception {
+	public void addRelationship(RelationshipDto r) throws Exception {
 		if (relationships.containsKey(r.getKey()))
 			throw new IllegalStateException("Relationship " + r.getKey() + " already exists in model");
 
-		r = (Relationship) r.clone();
 		relationships.put(r.getKey(), r);
-		relationshipCacheByType.remove(r.getMeta().getKey());
+		relationshipCacheByType.remove(r.getMetaRelationshipKey());
 	}
 
 	/*
@@ -205,10 +193,9 @@ public class ModelPersistenceMemory implements ModelPersistence {
 	 * alvahouse.eatool.repository.model.Relationship)
 	 */
 	@Override
-	public void updateRelationship(Relationship r) throws Exception {
-		r = (Relationship) r.clone();
+	public void updateRelationship(RelationshipDto r) throws Exception {
 		relationships.put(r.getKey(), r);
-		relationshipCacheByType.remove(r.getMeta().getKey());
+		relationshipCacheByType.remove(r.getMetaRelationshipKey());
 	}
 
 	/*
@@ -218,13 +205,13 @@ public class ModelPersistenceMemory implements ModelPersistence {
 	 * alvahouse.eatool.util.UUID)
 	 */
 	@Override
-	public Relationship deleteRelationship(UUID uuid) throws Exception {
-		Relationship r = (Relationship) relationships.remove(uuid);
+	public RelationshipDto deleteRelationship(UUID uuid) throws Exception {
+		RelationshipDto r = relationships.remove(uuid);
 		if (r == null)
 			throw new IllegalStateException("Relationship " + uuid + " cannot be deleted - does not exist");
 
 		// Invalidate cache for this type.
-		relationshipCacheByType.remove(r.getMeta().getKey());
+		relationshipCacheByType.remove(r.getMetaRelationshipKey());
 		return r;
 	}
 
@@ -234,11 +221,9 @@ public class ModelPersistenceMemory implements ModelPersistence {
 	 * @see alvahouse.eatool.repository.persist.ModelPersistence#getRelationships()
 	 */
 	@Override
-	public Collection<Relationship> getRelationships() {
-		ArrayList<Relationship> copy = new ArrayList<>(relationships.size());
-		for(Relationship r : relationships.values()) {
-			copy.add( (Relationship) r.clone());
-		}
+	public Collection<RelationshipDto> getRelationships() {
+		ArrayList<RelationshipDto> copy = new ArrayList<>(relationships.size());
+		copy.addAll(relationships.values());
 		return copy;
 	}
 
@@ -261,21 +246,19 @@ public class ModelPersistenceMemory implements ModelPersistence {
 	 * alvahouse.eatool.repository.metamodel.MetaRelationship)
 	 */
 	@Override
-	public List<Relationship> getRelationshipsOfType(MetaRelationship meta) {
-		List<Relationship> cache = relationshipCacheByType.get(meta.getKey());
+	public List<RelationshipDto> getRelationshipsOfType(UUID metaRelationshipKey) {
+		List<RelationshipDto> cache = relationshipCacheByType.get(metaRelationshipKey);
 		if (cache == null) { // not cached.
-			cache = new LinkedList<Relationship>();
-			for (Relationship r : getRelationships()) {
-				if (r.getMeta().equals(meta))
+			cache = new LinkedList<RelationshipDto>();
+			for (RelationshipDto r : getRelationships()) {
+				if (r.getMetaRelationshipKey().equals(metaRelationshipKey))
 					cache.add(r);
 			}
 		}
-		relationshipCacheByType.put(meta.getKey(), cache);
+		relationshipCacheByType.put(metaRelationshipKey, cache);
 		
-		ArrayList<Relationship> copy = new ArrayList<>(cache.size());
-		for(Relationship r : cache) {
-			copy.add( (Relationship)r.clone());
-		}
+		ArrayList<RelationshipDto> copy = new ArrayList<>(cache.size());
+		copy.addAll(cache);
 		return copy;
 	}
 
@@ -288,15 +271,13 @@ public class ModelPersistenceMemory implements ModelPersistence {
 	 * @param e     e is the entity we want the relationships for.
 	 * @return the set of connected relationships.
 	 */
-    public Set<Relationship> getConnectedRelationships(Model model, Entity e) throws Exception{
-        if(model == null){
-            throw new IllegalStateException("Cannot get connected relationships for Entity not connected to a model");
-        }
-        Set<Relationship> rels = new HashSet<Relationship>();
-        for(Relationship rel : model.getRelationships()) {
-            if(rel.start().connectsTo().equals(e) ||
-                rel.finish().connectsTo().equals(e)) {
-                rels.add( (Relationship)rel.clone());
+	@Override
+    public Set<RelationshipDto> getConnectedRelationships(UUID entityKey) throws Exception{
+        Set<RelationshipDto> rels = new HashSet<>();
+        for(RelationshipDto rel : getRelationships()) {
+            if(rel.getStart().getConnects().equals(entityKey) ||
+                rel.getFinish().getConnects().equals(entityKey)) {
+                rels.add(rel);
             }
         }
         return rels;
@@ -310,34 +291,17 @@ public class ModelPersistenceMemory implements ModelPersistence {
      * @return the set of connected relationships.
      */
     @Override
-    public Set<Relationship> getConnectedRelationshipsOf(Model model, Entity e, MetaRelationship meta) throws Exception {
-        if(model == null){
-            throw new IllegalStateException("Cannot get connected relationships for Entity not connected to a model");
-        }
-        Set<Relationship> rels = new HashSet<Relationship>();
-        for(Relationship rel :  model.getRelationships()) {
-            if((rel.start().connectsTo().equals(e) ||
-                rel.finish().connectsTo().equals(e)) &&
-                rel.getMeta().equals(meta)) {
-                rels.add( (Relationship)rel.clone());
+    public Set<RelationshipDto> getConnectedRelationshipsOf( UUID entityKey, UUID metaRelationshipKey) throws Exception {
+        Set<RelationshipDto> rels = new HashSet<>();
+        for(RelationshipDto rel :  getRelationships()) {
+            if((rel.getStart().getConnects().equals(entityKey) ||
+                rel.getFinish().getConnects().equals(entityKey)) &&
+                rel.getMetaRelationshipKey().equals(metaRelationshipKey)) {
+                rels.add( rel);
             }
         }
         return rels;
     }
-
-	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * alvahouse.eatool.repository.persist.ModelPersistence#getDeleteDependencies(
-	 * alvahouse.eatool.repository.base.DeleteDependenciesList,
-	 * alvahouse.eatool.repository.model.Relationship)
-	 */
-	@Override
-	public void getDeleteDependencies(Model model, DeleteDependenciesList dependencies, Relationship r) {
-		dependencies.addDependency(new RelationshipDeleteProxy(model, r.getKey(), r.toString()));
-	}
 
 	/*
 	 * (non-Javadoc)
@@ -348,16 +312,31 @@ public class ModelPersistenceMemory implements ModelPersistence {
 	 * alvahouse.eatool.repository.model.Entity)
 	 */
 	@Override
-	public void getDeleteDependencies(Model model, DeleteDependenciesList dependencies, Entity e) throws Exception {
-		dependencies.addDependency(new EntityDeleteProxy(model, e.getKey(), e.toString()));
+	public DeleteDependenciesListDto getDeleteDependencies( UUID entityKey) throws Exception {
+		DeleteDependenciesListDto dependencies = new DeleteDependenciesListDto();
+		DeleteProxyDto proxy = new DeleteProxyDto();
+		proxy.setItemType("entity");
+		proxy.setItemKey(entityKey);
+		proxy.setName("entity " + entityKey.toString()); // TODO - need to get name for entity rather than just the UUID
+		dependencies.getDependencies().add(proxy);
+		
 
 		// Mark any relationships that depend on this entity for deletion
-		for (Relationship r : getRelationships()) {
-			if (r.start().connectionKey().equals(e.getKey()) || r.finish().connectionKey().equals(e.getKey())) {
-				if (!dependencies.containsTarget(r.getKey()))
-					dependencies.addDependency(new RelationshipDeleteProxy(model, r.getKey(), r.toString()));
+		Set<UUID> found = new HashSet<>(); // track what we've added to avoid duplicates
+		for (RelationshipDto r : getRelationships()) {
+			if (r.getStart().getConnects().equals(entityKey) || r.getFinish().getConnects().equals(entityKey)) {
+				UUID relationshipKey = r.getKey();
+				if (!found.contains(relationshipKey)) {
+					proxy = new DeleteProxyDto();
+					proxy.setItemType("relationship");
+					proxy.setItemKey(relationshipKey);
+					proxy.setName("relationship " + relationshipKey.toString()); // TODO - need to get name for entity rather than just the UUID
+					dependencies.getDependencies().add(proxy);
+					found.add(relationshipKey);
+				}
 			}
 		}
+		return dependencies;
 	}
 
 	/*

@@ -138,7 +138,7 @@ public class ModelExplorerTreeModel extends ExplorerTreeModel
      * @param node is the tree node corresponding to the given meta-entity
      * @param me is the meta-entity for the given tree node
      */
-    private void refreshNode(DefaultMutableTreeNode node, MetaEntity me) {
+    private void refreshNode(DefaultMutableTreeNode node, MetaEntity me) throws Exception{
         node.removeAllChildren();
         List<Entity> listEntities = model.getEntitiesOfType(me);
         if(!listEntities.isEmpty()) {
@@ -187,7 +187,7 @@ public class ModelExplorerTreeModel extends ExplorerTreeModel
      * @idxEntity is where to insert the entity-node into its parent
      * @returns the index for the next entity to be added to
      */
-    private int addMetaEntityNode(MutableTreeNode parent, MetaEntity me, int idxEntity) {
+    private int addMetaEntityNode(MutableTreeNode parent, MetaEntity me, int idxEntity) throws Exception {
         List<Entity> listEntities = model.getEntitiesOfType(me);
         if(!listEntities.isEmpty()) {
             //System.out.println("Inserting meta-entity " + me.getName());
@@ -376,7 +376,7 @@ public class ModelExplorerTreeModel extends ExplorerTreeModel
      * won't appear in the explorer.
      * @ param e is the event that references the object being changed
      */
-    public void metaEntityChanged(MetaModelChangeEvent e) {
+    public void metaEntityChanged(MetaModelChangeEvent e) throws Exception {
         MetaEntity me = (MetaEntity)e.getSource();
         DefaultMutableTreeNode tn = lookupNodeOf(me);
         if(me != null && tn != null){ 
@@ -417,7 +417,7 @@ public class ModelExplorerTreeModel extends ExplorerTreeModel
     /** signals that an entity has been added
      * @ param e is the event that references the object being changed
      */
-    public void EntityAdded(ModelChangeEvent evt) {
+    public void EntityAdded(ModelChangeEvent evt) throws Exception {
         Entity e = (Entity)evt.getSource();
         MetaEntity me = e.getMeta();
         

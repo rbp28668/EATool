@@ -94,46 +94,47 @@ public class RelationshipImportFactory implements IXMLContentHandler, ModelChang
     /* (non-Javadoc)
      * @see alvahouse.eatool.util.IXMLContentHandler#endElement(java.lang.String, java.lang.String)
      */
-    public void endElement(String uri, String local) {
+    public void endElement(String uri, String local) throws InputException{
         if(local.equals("Relationship")) {
             
-            // currentRelationship should be set up with both roles linked to
-            // entities.  Now need to find out whether this relationship already
-            // exists in the model
-            boolean duplicate = false;
-            for(Relationship other : model.getRelationships()){
-                if(currentRelationship.isDuplicate(other)) {
-                    duplicate = true;
-                    break;
-                }
-            }
-            // and if it doesn't - add it.
-            if(!duplicate) {
-                try {
-					model.addRelationship(currentRelationship);
-				} catch (Exception e) {
-					throw new InputException("Unable to add relationship");
+            try {
+				// currentRelationship should be set up with both roles linked to
+				// entities.  Now need to find out whether this relationship already
+				// exists in the model
+				boolean duplicate = false;
+				for(Relationship other : model.getRelationships()){
+				    if(currentRelationship.isDuplicate(other)) {
+				        duplicate = true;
+				        break;
+				    }
 				}
-            }
+				// and if it doesn't - add it.
+				if(!duplicate) {
+					model.addRelationship(currentRelationship);
+				}
+			} catch (Exception e) {
+				throw new InputException("Unable to add relationship", e);
+			}
             
             currentRelationship = null;
         } else if (local.equals("Role")) {
             // currentEntity should contain properties to form composite key
             // to identify actual entity to link to.
             
-            // want key lookup to allow easy lookup of target entity by
-            // natural composite key. 
-            MetaEntity me = null;
-            try {
-            	me = currentRoleTranslation.getMeta().connectsTo();
-            } catch (Exception e) {
-            	throw new InputException("Unable to get connected MetaEntity during input",e);
-            }
-            EntityKeyLookup ec = entityLookup.get(me);
-            if(ec == null) {
-                ec = new EntityKeyLookup(model, me, currentRoleTranslation);
-                entityLookup.put(me, ec);
-            }
+            EntityKeyLookup ec;
+			try {
+				// want key lookup to allow easy lookup of target entity by
+				// natural composite key. 
+				MetaEntity me = null;
+				me = currentRoleTranslation.getMeta().connectsTo();
+				ec = entityLookup.get(me);
+				if(ec == null) {
+				    ec = new EntityKeyLookup(model, me, currentRoleTranslation);
+				    entityLookup.put(me, ec);
+				}
+			} catch (Exception ex) {
+				throw new InputException("Unable to get role in import", ex);
+			}
             
             String key = currentRoleTranslation.getKeyOf(currentEntity);
             Entity e = ec.get(key); // this is the actual entity the role should connect to.

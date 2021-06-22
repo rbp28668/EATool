@@ -15,7 +15,6 @@ import alvahouse.eatool.Application;
 import alvahouse.eatool.gui.ExceptionDisplay;
 import alvahouse.eatool.gui.graphical.DiagramViewerActionSet;
 import alvahouse.eatool.repository.Repository;
-import alvahouse.eatool.repository.exception.LogicException;
 import alvahouse.eatool.repository.model.Model;
 import alvahouse.eatool.repository.model.Property;
 
@@ -235,7 +234,7 @@ public class TimeDiagramViewerActionSet extends DiagramViewerActionSet {
 	};
 
 	
-    private Property[] selectProperties(Model model) throws LogicException {
+    private Property[] selectProperties(Model model) throws Exception {
         
         	TimeDiagramViewer viewer = (TimeDiagramViewer)getViewer();
         	TimeDiagram diagram = (TimeDiagram)viewer.getDiagram();

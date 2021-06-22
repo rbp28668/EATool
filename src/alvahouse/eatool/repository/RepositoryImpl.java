@@ -692,7 +692,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     @Override
     public DeleteDependenciesList getDeleteDependencies(Entity e)  throws Exception{
         DeleteDependenciesList dependencies = new DeleteDependenciesList();
-        getModel().getDeleteDependencies(dependencies,e);
+        getModel().getDeleteDependencies(dependencies,e, this);
         return dependencies;
     }
     
@@ -717,7 +717,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
         // Need to delete all the entities that belong to this meta-entity
         for(Entity e : getModel().getEntities()){
             if(me.equals(e.getMeta()))
-                getModel().getDeleteDependencies(dependencies, e);
+                getModel().getDeleteDependencies(dependencies, e, this);
         }
         return dependencies;
     }
