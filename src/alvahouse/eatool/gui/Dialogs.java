@@ -80,7 +80,7 @@ public abstract class Dialogs {
      * @param frame is the parent frame for the dialog.
      * @return the selected Entity or null if none selected.
      */
-    public static Entity selectEntityOf(MetaEntity me, Component parent,Repository repository){
+    public static Entity selectEntityOf(MetaEntity me, Component parent,Repository repository) throws Exception{
     	Collection<Entity>entities = repository.getModel().getEntitiesOfType(me);
         Entity[] options = (Entity[])entities.toArray(new Entity[entities.size()]);
         Entity e = null;

@@ -158,8 +158,7 @@ public class MetaModel implements KeyedItem {
 	}
 
 	/**
-	 * Gets a MetaRelationship from the meta model, creating a new one if there is
-	 * not an existing MetaRelationship with the given UUID
+	 * Gets a MetaRelationship from the meta model.
 	 * 
 	 * @param uuid is the key for the existing (or new) MetaRelationship
 	 * @return the MetaRelationship keyed by uuid
@@ -332,7 +331,7 @@ public class MetaModel implements KeyedItem {
 	 */
 	public void getDeleteDependencies(DeleteDependenciesList dependencies, MetaEntity target, Repository repository)  throws Exception{
 		DeleteDependenciesListDto dao = persistence.getDeleteDependencies(target.getKey());
-		for(DeleteProxyDto proxyDao : dao.getProperties()) {
+		for(DeleteProxyDto proxyDao : dao.getDependencies()) {
 			dependencies.addDependency(proxyDao, repository);
 		}
 	}

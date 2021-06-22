@@ -30,7 +30,7 @@ public class DeleteDependenciesListDto {
 	@XmlElementRef
 	@XmlElementWrapper(name = "dependencies")
 	@JsonProperty(value = "dependencies")
-	public List<DeleteProxyDto> getProperties() {
+	public List<DeleteProxyDto> getDependencies() {
 		if (dependencies == null) {
 			dependencies = new LinkedList<DeleteProxyDto>();
 		}
@@ -40,7 +40,7 @@ public class DeleteDependenciesListDto {
 	/**
 	 * @param dependencies the dependencies to set
 	 */
-	public void setProperties(List<DeleteProxyDto> dependencies) {
+	public void setDependencies(List<DeleteProxyDto> dependencies) {
 		this.dependencies = dependencies;
 	}
 }

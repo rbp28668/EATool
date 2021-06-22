@@ -8,7 +8,9 @@ import java.util.List;
 import java.util.Set;
 
 import alvahouse.eatool.repository.base.DeleteDependenciesList;
-import alvahouse.eatool.repository.metamodel.MetaEntity;
+import alvahouse.eatool.repository.dto.DeleteDependenciesListDto;
+import alvahouse.eatool.repository.dto.model.EntityDto;
+import alvahouse.eatool.repository.dto.model.RelationshipDto;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.repository.model.Entity;
 import alvahouse.eatool.repository.model.Model;
@@ -39,7 +41,7 @@ public interface ModelPersistence {
 	 * @param uuid is the key of the entity to get
 	 * @return the corresponding entity, or null if not in the model
 	 */
-	public Entity getEntity(UUID uuid);
+	public EntityDto getEntity(UUID uuid);
 
 	/**
 	 * adds a new entity to the collection.
@@ -47,7 +49,7 @@ public interface ModelPersistence {
 	 * @param e is the entity to add.
 	 * @throws IllegalStateException if the entity already exists in the model.
 	 */
-	public void addEntity(Entity e) throws Exception;
+	public void addEntity(EntityDto e) throws Exception;
 
 	/**
 	 * Updates and existing entity in the model.
@@ -55,7 +57,7 @@ public interface ModelPersistence {
 	 * @param e is the entity to update.
 	 * @throws IllegalStateException if the entity already exists in the model.
 	 */
-	public void updateEntity(Entity e) throws Exception;
+	public void updateEntity(EntityDto e) throws Exception;
 
 	/**
 	 * Deletes an entity keyed by UUID.
@@ -64,14 +66,14 @@ public interface ModelPersistence {
 	 * @return the deleted Entity
 	 * @throws IllegalStateException if deleting an entity not in the model.
 	 */
-	public Entity deleteEntity(UUID uuid) throws Exception;
+	public EntityDto deleteEntity(UUID uuid) throws Exception;
 
 	/**
 	 * Gets an iterator that iterates though all the entites.
 	 * 
 	 * @return an iterator for the entities.
 	 */
-	public Collection<Entity> getEntities();
+	public Collection<EntityDto> getEntities();
 
 	/**
 	 * DEBUG only
@@ -86,7 +88,7 @@ public interface ModelPersistence {
 	 * @param meta is the meta-entity we want the entities for.
 	 * @return a list of all the entities of the given type.
 	 */
-	public List<Entity> getEntitiesOfType(MetaEntity meta);
+	public List<EntityDto> getEntitiesOfType(UUID metaEntityKey);
 
 	/**
 	 * Gets the relationship with the given key.
@@ -94,7 +96,7 @@ public interface ModelPersistence {
 	 * @param uuid is the key for the relationship.
 	 * @return the relationship corresponding to uuid or null if not in the model.
 	 */
-	public Relationship getRelationship(UUID uuid);
+	public RelationshipDto getRelationship(UUID uuid);
 
 	/**
 	 * adds a new relationship to the collection
@@ -102,7 +104,7 @@ public interface ModelPersistence {
 	 * @param r is the relationship to add
 	 * @throws IllegalStateException if the relationship is already in the model.
 	 */
-	public void addRelationship(Relationship r) throws Exception;
+	public void addRelationship(RelationshipDto r) throws Exception;
 
 	/**
 	 * updates an existing relationship.
@@ -110,7 +112,7 @@ public interface ModelPersistence {
 	 * @param r is the relationship to update
 	 * @throws IllegalStateException if the relationship is already in the model.
 	 */
-	public void updateRelationship(Relationship r) throws Exception;
+	public void updateRelationship(RelationshipDto r) throws Exception;
 
 	/**
 	 * Deletes the relationship for a given key.
@@ -120,14 +122,14 @@ public interface ModelPersistence {
 	 * @throws IllegalStateException if the key does not correspond to a
 	 *                               relationship in the model.
 	 */
-	public Relationship deleteRelationship(UUID uuid) throws Exception;
+	public RelationshipDto deleteRelationship(UUID uuid) throws Exception;
 
 	/**
 	 * Gets an iterator that iterates through all the relationships in the model.
 	 * 
 	 * @return an iterator.
 	 */
-	public Collection<Relationship> getRelationships();
+	public Collection<RelationshipDto> getRelationships();
 
 	/**
 	 * Gets the number of relationships in the model.
@@ -142,7 +144,7 @@ public interface ModelPersistence {
 	 * @param meta is the type of relationship required.
 	 * @return a list of all the corresponding relationships.
 	 */
-	public List<Relationship> getRelationshipsOfType(MetaRelationship meta);
+	public List<RelationshipDto> getRelationshipsOfType(UUID metaRelationshipKey);
 
 	/**
 	 * This gets the set of relationships that are connected to this entity in the
@@ -152,7 +154,7 @@ public interface ModelPersistence {
 	 * @param e     e is the entity we want the relationships for.
 	 * @return the set of connected relationships.
 	 */
-	public Set<Relationship> getConnectedRelationships(Model model, Entity e) throws Exception;
+	public Set<RelationshipDto> getConnectedRelationships(UUID entityKey) throws Exception;
 
 	/**
 	 * This gets the set of relationships that are connected to this entity in the
@@ -164,7 +166,8 @@ public interface ModelPersistence {
 	 *              type.
 	 * @return the set of connected relationships.
 	 */
-	public Set<Relationship> getConnectedRelationshipsOf(Model model, Entity e, MetaRelationship meta) throws Exception;
+	public Set<RelationshipDto> getConnectedRelationshipsOf(UUID entityKey, UUID metaRelationshipKey) throws Exception;
+
 
 	/**
 	 * This gets gets the list of dependent objects that are dependent on the object
@@ -175,18 +178,7 @@ public interface ModelPersistence {
 	 * @param dependencies is the list of dependencies to add to.
 	 * @param e            is the entity which will be deleted.
 	 */
-	public void getDeleteDependencies(Model model, DeleteDependenciesList dependencies, Relationship r) throws Exception;
-
-	/**
-	 * This gets gets the list of dependent objects that are dependent on the object
-	 * who's key is given. This allows the user to be presented with a list of all
-	 * the objects that have to be deleted if any given object is deleted and also
-	 * collects the information needed to do the delete
-	 * 
-	 * @param dependencies is the list of dependencies to add to.
-	 * @param e            is the entity which will be deleted.
-	 */
-	public void getDeleteDependencies(Model model, DeleteDependenciesList dependencies, Entity e) throws Exception;
+	public DeleteDependenciesListDto getDeleteDependencies( UUID entityKey) throws Exception;
 
 	/** Deletes the entire contents of the model */
 	public void deleteContents() throws Exception;

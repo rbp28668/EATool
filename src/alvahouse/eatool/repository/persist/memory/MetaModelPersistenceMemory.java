@@ -307,7 +307,7 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 		DeleteProxyDto proxy = new DeleteProxyDto();
 		proxy.setItemType("metaEntity");
 		proxy.setItemKey(metaEntityKey);
-		dependencies.getProperties().add(proxy);
+		dependencies.getDependencies().add(proxy);
 
 	
 		// Look for any meta-entities that are derived from the one being deleted.
@@ -325,7 +325,7 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 				proxy = new DeleteProxyDto();
 				proxy.setItemType("metaRelationship");
 				proxy.setItemKey(mr.getKey());
-				dependencies.getProperties().add(proxy);
+				dependencies.getDependencies().add(proxy);
 			}
 		}
 	}

@@ -92,40 +92,40 @@ public class ModelViewerItemHandler implements ItemHandler {
 				MetaEntity me = symbolType.getRepresents();
 				allowedMeta.add(me);
 			}
-		} catch (Exception e) {
-			throw new LogicException("Unable to add meta entity to diagram",e);
-		}
 
 		
-		EntitySelectionDialog dlg = new EntitySelectionDialog(parent, allowedMeta, repository.getModel());
-		dlg.setVisible(true);
-		
-		if(dlg.isEntitySelected()){
-		    Entity[] entities = dlg.getAllSelected();
-		    
-		    symbols = new Symbol[entities.length];
-		    int boxSize = (int)(Math.sqrt(entities.length));
-		    int inRow = 0;
-		    int startX = x;
-		    for(int i=0; i<entities.length; ++i){
-				Entity entity = entities[i];
-				
-				// Need to get the correct symbol type for this entity.
-				SymbolType st = diagramType.getSymbolTypeFor(entity.getMeta());
-				Symbol symbol = st.newSymbol(entity , x, y);
-				symbols[i] = symbol;
-				// Arbitrarily arrange multiple.
-				++inRow;
-				x += 50;
-				if(inRow > boxSize){
-				    inRow = 0;
-				    x = startX;
-				    y += 20;
-				}
-		        
-		    }
+			EntitySelectionDialog dlg = new EntitySelectionDialog(parent, allowedMeta, repository.getModel());
+			dlg.setVisible(true);
+			
+			if(dlg.isEntitySelected()){
+			    Entity[] entities = dlg.getAllSelected();
+			    
+			    symbols = new Symbol[entities.length];
+			    int boxSize = (int)(Math.sqrt(entities.length));
+			    int inRow = 0;
+			    int startX = x;
+			    for(int i=0; i<entities.length; ++i){
+					Entity entity = entities[i];
+					
+					// Need to get the correct symbol type for this entity.
+					SymbolType st = diagramType.getSymbolTypeFor(entity.getMeta());
+					Symbol symbol = st.newSymbol(entity , x, y);
+					symbols[i] = symbol;
+					// Arbitrarily arrange multiple.
+					++inRow;
+					x += 50;
+					if(inRow > boxSize){
+					    inRow = 0;
+					    x = startX;
+					    y += 20;
+					}
+			        
+			    }
+			}
+			return symbols;
+		} catch (Exception e) {
+			throw new LogicException("Unable to add symbols to diagram",e);
 		}
-		return symbols;
     }
 
 	/**

@@ -43,7 +43,7 @@ public class PropertySelectionDialog extends BasicDialog {
 		Component parent,
 		TimeDiagramType diagramType,
 		//MetaModel metaModel,
-		Model model) {
+		Model model) throws Exception {
 		super(parent, "Select Property");
 
 		// Build a tree model to display a tree
@@ -182,7 +182,7 @@ public class PropertySelectionDialog extends BasicDialog {
 	 * @param model
 	 * @return
 	 */
-	private TreeModel createTree(TimeDiagramType diagramType, Model model) {
+	private TreeModel createTree(TimeDiagramType diagramType, Model model) throws Exception {
 
 		DefaultTreeModel treeModel =
 			new DefaultTreeModel(new DefaultMutableTreeNode("Properties"));
@@ -204,7 +204,7 @@ public class PropertySelectionDialog extends BasicDialog {
 		DefaultTreeModel treeModel,
 		TimeDiagramType.TypeEntry entry,
 		Model model,
-		int idxEntity) {
+		int idxEntity) throws Exception {
 	    MetaEntity me = entry.getTargetType();
 		List<Entity> listEntities = model.getEntitiesOfType(me);
 		if (!listEntities.isEmpty()) {
