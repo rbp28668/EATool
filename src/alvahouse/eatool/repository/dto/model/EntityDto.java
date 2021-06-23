@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import alvahouse.eatool.repository.dto.VersionDto;
 import alvahouse.eatool.util.UUID;
@@ -44,6 +45,7 @@ public class EntityDto extends PropertyContainerDto {
 	 * @return the metaKey
 	 */
 	@XmlElement(name = "metaKey", required=true)
+	@JsonProperty(value="metaKey")
 	public String getMetaEntityKeyJson() {
 		return metaEntityKey.asJsonId();
 	}
