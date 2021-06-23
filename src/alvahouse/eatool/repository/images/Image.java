@@ -9,16 +9,15 @@ package alvahouse.eatool.repository.images;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 import javax.imageio.ImageIO;
-
-import org.apache.commons.codec.binary.Base64;
 
 import alvahouse.eatool.repository.base.NamedRepositoryItem;
 import alvahouse.eatool.repository.version.Version;
 import alvahouse.eatool.repository.version.VersionImpl;
 import alvahouse.eatool.repository.version.Versionable;
+import alvahouse.eatool.util.Base64InputStream;
+import alvahouse.eatool.util.Base64OutputStream;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
@@ -156,81 +155,6 @@ public class Image extends NamedRepositoryItem implements Versionable{
 		cloneTo(copy);
 		return copy;
 	}
-
-	/**
-     * Base64InputStream presents a base64 encoded string
-     * as an InputStream. 
-     * 
-     * @author rbp28668
-     */
-    private static class Base64InputStream extends InputStream{
-        private byte[] decoded;
-        int pos = 0;
-        
-        Base64InputStream(String base64){
-            decoded = Base64.decodeBase64(base64.getBytes());
-        }
-
-        /* (non-Javadoc)
-         * @see java.io.InputStream#read()
-         */
-        public int read() throws IOException {
-            if(pos >= decoded.length){
-                return -1;
-            } 
-            byte val = decoded[pos++];
-            if(val < 0){
-                return (int)val + 256;
-            }
-            return val;
-        }
-    }
-    
-    /**
-     * Base64OutputStream provides an OutputStream which collects
-     * the output and presents it as a base64 encoded string.
-     * 
-     * @author rbp28668
-     */
-    private static class Base64OutputStream extends OutputStream {
-
-        // Note output chunking in 76 character blocks.
-        static final int LIMIT = 76 * 128 * 3;  // Must be multiple of 3 to stop internal padding.
-        private byte[] buff = new byte[LIMIT];
-        private int pos = 0;
-        private StringBuffer output = new StringBuffer();
-        
-        
-        /* (non-Javadoc)
-         * @see java.io.OutputStream#write(int)
-         */
-        public void write(int val) throws IOException {
-           if(val < -128 || val >127){
-                throw new IOException("Value out of range [-128..127]: " + val);
-            }
-            buff[pos++] = (byte)val;
-            if(pos == LIMIT){
-                output.append(new String(Base64.encodeBase64Chunked(buff)));
-                pos = 0;
-            }
-        }
-        
-        /**
-         * Gets the data written to the output stream in a base64 encoded
-         * string.
-         * @return
-         */
-        public String getData(){
-            if(pos > 0) {
-                byte[] data = new byte[pos];
-                System.arraycopy(buff,0,data,0,pos);
-                output.append(new String(Base64.encodeBase64Chunked(data)));
-                pos = 0;
-            }
-            return output.toString();
-        }
-        
-    }
 
 
 }
