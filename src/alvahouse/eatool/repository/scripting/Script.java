@@ -9,6 +9,7 @@ package alvahouse.eatool.repository.scripting;
 import java.io.IOException;
 
 import alvahouse.eatool.repository.base.NamedRepositoryItem;
+import alvahouse.eatool.repository.dto.scripting.ScriptDto;
 import alvahouse.eatool.repository.version.Version;
 import alvahouse.eatool.repository.version.VersionImpl;
 import alvahouse.eatool.repository.version.Versionable;
@@ -33,6 +34,18 @@ public class Script extends NamedRepositoryItem implements Versionable {
         super(uuid);
     }
 
+    public Script(ScriptDto dto) {
+    	super(dto);
+    	language = dto.getLanguage();
+    	script = dto.getScript();
+    	version = new VersionImpl(dto.getVersion());
+    }
+    
+    public ScriptDto toDto() {
+    	ScriptDto dto = new ScriptDto();
+    	copyTo(dto);
+    	return dto;
+    }
     /**
      * Gets the language this script is written in.  Defaults to
      * "javascript" unless setLanguage has been called. The language
@@ -91,6 +104,12 @@ public class Script extends NamedRepositoryItem implements Versionable {
 		copy.script = script;
 	}
 
+	protected void copyTo(ScriptDto dto) {
+		super.copyTo(dto);
+		dto.setLanguage(language);
+		dto.setScript(script);
+		dto.setVersion(version.toDao());
+	}
 	/* (non-Javadoc)
 	 * @see java.lang.Object#clone()
 	 */

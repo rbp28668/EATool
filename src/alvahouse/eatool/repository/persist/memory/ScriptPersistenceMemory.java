@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import alvahouse.eatool.repository.dto.scripting.ScriptDto;
 import alvahouse.eatool.repository.persist.ScriptPersistence;
 import alvahouse.eatool.repository.scripting.Script;
 import alvahouse.eatool.util.UUID;
@@ -19,7 +20,7 @@ import alvahouse.eatool.util.UUID;
  */
 public class ScriptPersistenceMemory implements ScriptPersistence {
 
-	private Map<UUID, Script> scripts = new HashMap<>();
+	private Map<UUID, ScriptDto> scripts = new HashMap<>();
 	
 	/**
 	 * 
@@ -39,8 +40,8 @@ public class ScriptPersistenceMemory implements ScriptPersistence {
 	 * @see alvahouse.eatool.repository.persist.ScriptPersistence#getScript(alvahouse.eatool.util.UUID)
 	 */
 	@Override
-	public Script getScript(UUID key) throws Exception {
-		Script s = scripts.get(key);
+	public ScriptDto getScript(UUID key) throws Exception {
+		ScriptDto s = scripts.get(key);
 		if(s == null) {
 			throw new IllegalArgumentException("Script with key " + key + " not found in repository");
 		}
@@ -51,24 +52,24 @@ public class ScriptPersistenceMemory implements ScriptPersistence {
 	 * @see alvahouse.eatool.repository.persist.ScriptPersistence#addScript(alvahouse.eatool.repository.scripting.Script)
 	 */
 	@Override
-	public void addScript(Script s) throws Exception {
+	public void addScript(ScriptDto s) throws Exception {
 	   	UUID key = s.getKey();
     	if(scripts.containsKey(key)) {
     		throw new IllegalArgumentException("Duplicate script -" + s.getName());
     	} 
-    	scripts.put(key, (Script)s.clone());
+    	scripts.put(key, s);
 	}
 
 	/* (non-Javadoc)
 	 * @see alvahouse.eatool.repository.persist.ScriptPersistence#updateScript(alvahouse.eatool.repository.scripting.Script)
 	 */
 	@Override
-	public void updateScript(Script s) throws Exception {
+	public void updateScript(ScriptDto s) throws Exception {
 	   	UUID key = s.getKey();
     	if(!scripts.containsKey(key)) {
     		throw new IllegalArgumentException("Can't update a script " + s.getName() + " not in the repository.");
     	} 
-    	scripts.put(key, (Script)s.clone());
+    	scripts.put(key, s);
 	}
 
 	/* (non-Javadoc)
@@ -86,11 +87,9 @@ public class ScriptPersistenceMemory implements ScriptPersistence {
 	 * @see alvahouse.eatool.repository.persist.ScriptPersistence#getScripts()
 	 */
 	@Override
-	public Collection<Script> getScripts() {
-		List<Script> copy = new ArrayList<>(scripts.size());
-		for(Script s : scripts.values()) {
-			copy.add( (Script) s.clone());
-		}
+	public Collection<ScriptDto> getScripts() {
+		List<ScriptDto> copy = new ArrayList<>(scripts.size());
+		copy.addAll(scripts.values());
 		return copy;
 	}
 
