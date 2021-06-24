@@ -7,10 +7,12 @@
 package alvahouse.eatool.repository.scripting;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import alvahouse.eatool.repository.dto.scripting.ScriptDto;
 import alvahouse.eatool.repository.persist.ScriptPersistence;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
@@ -47,7 +49,7 @@ public class Scripts {
     public void add(Script script) throws Exception {
  		String user = System.getProperty("user.name");
 		script.getVersion().createBy(user);
-		persistence.addScript(script);
+		persistence.addScript(script.toDto());
         fireScriptAdded(script);
     }
 
@@ -56,7 +58,7 @@ public class Scripts {
      * @param script is the script to be added.
      */
     public void _add(Script script) throws Exception {
-		persistence.addScript(script);
+		persistence.addScript(script.toDto());
     }
 
     /**
@@ -66,7 +68,7 @@ public class Scripts {
     public void update(Script script) throws Exception {
  		String user = System.getProperty("user.name");
 		script.getVersion().modifyBy(user);
-		persistence.updateScript(script);
+		persistence.updateScript(script.toDto());
         fireScriptChanged(script);
     }
 
@@ -85,7 +87,12 @@ public class Scripts {
      * @return an unmodifiable collection of Script.
      */
     public Collection<Script> getScripts() throws Exception{
-        return persistence.getScripts();
+    	Collection<ScriptDto> dtos = persistence.getScripts();
+    	ArrayList<Script> scripts = new ArrayList<>(dtos.size());
+    	for(ScriptDto dto : dtos) {
+    		scripts.add(new Script(dto));
+    	}
+    	return scripts;
     }
     
     /**
@@ -142,7 +149,15 @@ public class Scripts {
     public void removeChangeListener(ScriptsChangeListener listener) {
         listeners.remove(listener);
     }
-    
+
+    /**
+     * Sees if a listener is active.
+     * @param listener is the listener to check.
+     */
+    public boolean isActive(ScriptsChangeListener listener) {
+        return listeners.contains(listener);
+    }
+
     /**
      * Signal to any attached listeners that the list of scripts
      * has fundamentally changed. 
@@ -193,7 +208,7 @@ public class Scripts {
      * @return the Script or null if not found.
      */
     public Script lookupScript(UUID uuid) throws Exception {
-        Script theScript = persistence.getScript(uuid);
+        Script theScript = new Script(persistence.getScript(uuid));
         return theScript;
     }
 
