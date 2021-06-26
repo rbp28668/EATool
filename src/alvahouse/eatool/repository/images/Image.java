@@ -13,6 +13,7 @@ import java.io.InputStream;
 import javax.imageio.ImageIO;
 
 import alvahouse.eatool.repository.base.NamedRepositoryItem;
+import alvahouse.eatool.repository.dto.images.ImageDto;
 import alvahouse.eatool.repository.version.Version;
 import alvahouse.eatool.repository.version.VersionImpl;
 import alvahouse.eatool.repository.version.Versionable;
@@ -42,12 +43,32 @@ public class Image extends NamedRepositoryItem implements Versionable{
         super(uuid);
     }
 
+    public Image(ImageDto dto) {
+    	super(dto);
+    	this.image = dto.getImage();
+    	this.format = dto.getFormat();
+    	this.version = new VersionImpl(dto.getVersion());
+    }
+    
+    public ImageDto toDto(){
+    	ImageDto dto = new ImageDto();
+    	copyTo(dto);
+    	return dto;
+    }
     /**
      * Gets the underlying image.
      * @return the Image.
      */
     public java.awt.Image getImage(){
         return image;
+    }
+    
+    /**
+     * Allows the image to be set directly.
+     * @param img
+     */
+    public void setImage(BufferedImage img) {
+    	this.image = img;
     }
     
     /**
@@ -144,6 +165,12 @@ public class Image extends NamedRepositoryItem implements Versionable{
 		copy.image = new BufferedImage(image.getWidth(), image.getHeight(),image.getType());
 		image.copyData(copy.image.getRaster());
 		
+	}
+	protected void copyTo(ImageDto dto) {
+		super.copyTo(dto);
+		dto.setFormat(format);
+		dto.setImage(image);
+		dto.setVersion(version.toDao());
 	}
 
 	/* (non-Javadoc)

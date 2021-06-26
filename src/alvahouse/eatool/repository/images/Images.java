@@ -7,9 +7,11 @@
 package alvahouse.eatool.repository.images;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import alvahouse.eatool.repository.dto.images.ImageDto;
 import alvahouse.eatool.repository.persist.ImagePersistence;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
@@ -47,7 +49,7 @@ public class Images {
         }
  		String user = System.getProperty("user.name");
 		image.getVersion().createBy(user);
-		persistence.addImage(image);
+		persistence.addImage(image.toDto());
         fireImageAdded(image);
     }
     
@@ -59,7 +61,7 @@ public class Images {
         if(image == null){
             throw new NullPointerException("Can't add null Image");
         }
-		persistence.addImage(image);
+		persistence.addImage(image.toDto());
     }
 
     /**
@@ -69,7 +71,7 @@ public class Images {
     public void updateImage(Image image) throws Exception {
  		String user = System.getProperty("user.name");
 		image.getVersion().modifyBy(user);
-		persistence.updateImage(image);
+		persistence.updateImage(image.toDto());
         fireImageChanged(image);
     }
 
@@ -87,7 +89,21 @@ public class Images {
      * @return an unmodifiable collection.
      */
     public Collection<Image> getImages() throws Exception{
-        return persistence.getImages();
+        Collection<ImageDto> dtos = persistence.getImages();
+        ArrayList<Image> copy = new ArrayList<Image>(dtos.size());
+        for(ImageDto dto : dtos) {
+        	copy.add(new Image(dto));
+        }
+        return copy;
+    }
+    
+    /**
+     * Gets a count of the number of images in the repository.
+     * @return the image count.
+     * @throws Exception
+     */
+    public int getImageCount() throws Exception{
+    	return persistence.getImageCount();
     }
     
     /**
@@ -115,7 +131,16 @@ public class Images {
     public void removeChangeListener(ImagesChangeListener listener){
         listeners.remove(listener);
     }
-    
+
+    /**
+     * Determines whether a listener is active (registered).
+     * @param listener is the ImagesChangeListener to check.
+     * @returns true if registered, false if not.
+     */
+    public boolean isActive(ImagesChangeListener listener){
+        return listeners.contains(listener);
+    }
+
     /**
      * Signals that an image has been added to the collection.
      * @param image is the image that has been added.
@@ -180,7 +205,7 @@ public class Images {
      * @return the corresponding image or null if not found.
      */
     public Image lookupImage(UUID imageKey) throws Exception{
-        return persistence.getImage(imageKey);
+        return new Image(persistence.getImage(imageKey));
     }
 
 }

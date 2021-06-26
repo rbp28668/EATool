@@ -5,7 +5,7 @@ package alvahouse.eatool.repository.persist;
 
 import java.util.Collection;
 
-import alvahouse.eatool.repository.images.Image;
+import alvahouse.eatool.repository.dto.images.ImageDto;
 import alvahouse.eatool.util.UUID;
 
 /**
@@ -25,7 +25,7 @@ public interface ImagePersistence {
 	 * @param key is the key of the image to get
 	 * @return the corresponding image, or null if not in the model
 	 */
-	public Image getImage(UUID key) throws Exception;
+	public ImageDto getImage(UUID key) throws Exception;
 
 	/**
 	 * adds a new image to the collection.
@@ -33,7 +33,7 @@ public interface ImagePersistence {
 	 * @param s is the image to add.
 	 * @throws IllegalStateException if the image already exists in the model.
 	 */
-	public void addImage(Image image) throws Exception;
+	public void addImage(ImageDto image) throws Exception;
 
 	/**
 	 * Updates and existing image in the model.
@@ -41,7 +41,7 @@ public interface ImagePersistence {
 	 * @param s is the image to update.
 	 * @throws IllegalStateException if the image already exists in the model.
 	 */
-	public void updateImage(Image image) throws Exception;
+	public void updateImage(ImageDto image) throws Exception;
 
 	/**
 	 * Deletes an image keyed by UUID.
@@ -56,7 +56,7 @@ public interface ImagePersistence {
 	 * 
 	 * @return an iterator for the entities.
 	 */
-	public Collection<Image> getImages() throws Exception;
+	public Collection<ImageDto> getImages() throws Exception;
 
 	/**
 	 * DEBUG only
