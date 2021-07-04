@@ -300,7 +300,7 @@ public class Relationship extends PropertyContainer implements TooltipProvider, 
 		dao.setMetaRelationshipKey(meta.getKey());
 		dao.setStart(ends[0].toDao());
 		dao.setFinish(ends[1].toDao());
-		dao.setVersion(version.toDao());
+		dao.setVersion(version.toDto());
 	}
 	/**
 	 * gets the tooltip for this object when displayed in a gui or diagram.

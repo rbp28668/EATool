@@ -14,6 +14,7 @@ import java.util.Set;
 
 import org.apache.bsf.BSFException;
 
+import alvahouse.eatool.repository.dto.scripting.EventMapDto;
 import alvahouse.eatool.repository.version.Version;
 import alvahouse.eatool.repository.version.VersionImpl;
 import alvahouse.eatool.repository.version.Versionable;
@@ -45,6 +46,26 @@ public class EventMap implements Versionable{
         super();
     }
 
+    public EventMap(EventMapDto dto) {
+    	handlers.clear();
+    	for(EventMapDto.EventMapHandlerDto handler : dto.getHandlers()) {
+    		handlers.put(handler.getEvent(), new ScriptProxy(handler.getHandler()));
+    	}
+    	version.fromDto(dto.getVersion());
+    }
+    
+    public EventMapDto toDto() {
+    	EventMapDto dto = new EventMapDto();
+    	for(Map.Entry<String,ScriptProxy> entry : handlers.entrySet()) {
+    		EventMapDto.EventMapHandlerDto handlerDto = new EventMapDto.EventMapHandlerDto();
+    		handlerDto.setEvent(entry.getKey());
+    		ScriptProxy sp = entry.getValue();
+    		handlerDto.setHandler(sp.isNull() ? null : sp.getKey());
+    		dto.getHandlers().add(handlerDto);
+    	}
+    	dto.setVersion(version.toDto());
+    	return dto;
+    }
     /**
      * Adds an event to the map with a null handler if it doesn't already exist.
      * @param event is the event name to add.

@@ -7,10 +7,12 @@
 package alvahouse.eatool.repository.html;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import alvahouse.eatool.repository.dto.html.HTMLPageDto;
 import alvahouse.eatool.repository.persist.HTMLPagePersistence;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
@@ -43,7 +45,7 @@ public class HTMLPages {
         }
  		String user = System.getProperty("user.name");
 		page.getVersion().createBy(user);
-        persistence.addHTMLPage(page);
+        persistence.addHTMLPage(page.toDto());
         firePageAdded(page);
     }
 
@@ -56,7 +58,7 @@ public class HTMLPages {
         if(page == null){
             throw new NullPointerException("Can't add null HTMLProxy page");
         }
-        persistence.addHTMLPage(page);
+        persistence.addHTMLPage(page.toDto());
     }
     
     /**
@@ -69,7 +71,7 @@ public class HTMLPages {
         }
  		String user = System.getProperty("user.name");
 		page.getVersion().modifyBy(user);
-        persistence.updateHTMLPage(page);
+        persistence.updateHTMLPage(page.toDto());
         firePageUpdated(page);
     }
 
@@ -79,16 +81,8 @@ public class HTMLPages {
      * @return the corresponding HTMLPage or null if not found.
      */
     public HTMLPage lookup(UUID uuid) throws Exception{
-        HTMLPage page = persistence.getHTMLPage(uuid);
+        HTMLPage page = new HTMLPage(persistence.getHTMLPage(uuid));
         return page;
-    }
-    
-    /**
-     * Gets a read-only collection of pages.
-     * @return Collection of HTMLPage.
-     */
-    public Collection<HTMLPage> getPages() throws Exception{
-        return persistence.getHTMLPages();
     }
 
     /**
@@ -100,6 +94,28 @@ public class HTMLPages {
         firePageRemoved(page);
     }
 
+
+    /**
+     * Gets a read-only collection of pages.
+     * @return Collection of HTMLPage.
+     */
+    public Collection<HTMLPage> getPages() throws Exception{
+        Collection<HTMLPageDto> dtos = persistence.getHTMLPages();
+        List<HTMLPage> pages = new ArrayList<>(dtos.size());
+        for(HTMLPageDto dto : dtos) {
+        	pages.add(new HTMLPage(dto));
+        }
+        return pages;
+    }
+
+    /**
+     * Gets the number of HTML pages in this repository.
+     * @return
+     * @throws Exception
+     */
+    public int getPageCount() throws Exception {
+    	return persistence.getHTMLPageCount();
+    }
     /**
      * Clears all the HTMLProxy pages.
      */
@@ -132,6 +148,15 @@ public class HTMLPages {
      */
     public void removeChangeListener(PagesChangeListener listener){
         listeners.remove(listener);
+    }
+    
+    /**
+     * Determines whether a listener is active (i.e. registered).
+     * @param listener
+     * @return
+     */
+    public boolean isActive(PagesChangeListener listener) {
+    	return listeners.contains(listener);
     }
     
     /**

@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import alvahouse.eatool.repository.dto.DeleteDependenciesListDto;
+import alvahouse.eatool.repository.dto.metamodel.ExtensibleMetaPropertyTypeDto;
 import alvahouse.eatool.repository.dto.metamodel.MetaEntityDto;
 import alvahouse.eatool.repository.dto.metamodel.MetaRelationshipDto;
 import alvahouse.eatool.repository.metamodel.types.ExtensibleMetaPropertyType;
@@ -172,7 +173,7 @@ public interface MetaModelPersistence {
      * @return a collection of ExtensibleMetaPropertyType. May be empty, never null.
      * @throws Exception
      */
-    public Collection<ExtensibleMetaPropertyType> getDefinedTypes() throws Exception;
+    public Collection<ExtensibleMetaPropertyTypeDto> getDefinedTypes() throws Exception;
     
 	/**
 	 * Adds a single ExtensibleMetaPropertyType to the repository. The meta property
@@ -180,7 +181,7 @@ public interface MetaModelPersistence {
 	 * @param mpt is the ExtensibleMetaPropertyType to add to the repository.
 	 * @throws Exception
 	 */
-	public void addType(ExtensibleMetaPropertyType mpt) throws Exception;
+	public void addType(ExtensibleMetaPropertyTypeDto mpt) throws Exception;
 
 	/**
 	 * Updates a single ExtensibleMetaPropertyType to the repository. The meta property
@@ -188,7 +189,7 @@ public interface MetaModelPersistence {
 	 * @param mpt is the ExtensibleMetaPropertyType to update in the repository.
 	 * @throws Exception
 	 */
-	public void updateType(ExtensibleMetaPropertyType mpt) throws Exception;
+	public void updateType(ExtensibleMetaPropertyTypeDto mpt) throws Exception;
 
     /**
      * Removes an ExtensibleMetaPropertyType from the repository identified by its key.
