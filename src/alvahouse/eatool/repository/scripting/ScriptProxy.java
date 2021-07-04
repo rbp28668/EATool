@@ -24,6 +24,9 @@ public class ScriptProxy {
 		set(null);
 	}
 
+	public ScriptProxy(UUID key) {
+		setKey(key);
+	}
 	
 	/**
 	 * Sets a new key for this script.  As the key is being

@@ -157,7 +157,7 @@ public class MetaRelationship extends MetaPropertyContainer implements Versionab
         dao.setStart(m_ends[0].toDao());
         dao.setFinish(m_ends[1].toDao());
         dao.setRestriction(restriction.toDao());
-        dao.setVersion(version.toDao());
+        dao.setVersion(version.toDto());
 
     }
 

@@ -46,16 +46,11 @@ public class VersionImpl implements Version {
     /**
 	 * @param dao
 	 */
-	public VersionImpl(VersionDto dao) {
-		createDate = dao.getCreateDate();
-		createUser = dao.getCreateUser();
-		modifyDate = dao.getModifyDate();
-		modifyUser = dao.getModifyUser();
-		version = dao.getVersion();
-		originalVersion = dao.getOriginalVersion();
+	public VersionImpl(VersionDto dto) {
+		fromDto(dto);
 	}
 	
-	public VersionDto toDao() {
+	public VersionDto toDto() {
 		VersionDto dao = new VersionDto();
 		dao.setCreateDate(createDate);
 		dao.setCreateUser(createUser);
@@ -66,6 +61,14 @@ public class VersionImpl implements Version {
 		return dao;
 	}
 
+	public void fromDto(VersionDto dto) {
+		createDate = dto.getCreateDate();
+		createUser = dto.getCreateUser();
+		modifyDate = dto.getModifyDate();
+		modifyUser = dto.getModifyUser();
+		version = dto.getVersion();
+		originalVersion = dto.getOriginalVersion();
+	}
 	/* (non-Javadoc)
      * @see alvahouse.eatool.repository.version.Versionable#getCreateDate()
      */

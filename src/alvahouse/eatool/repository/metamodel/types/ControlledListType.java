@@ -14,6 +14,7 @@ import java.util.LinkedList;
 
 import javax.swing.JComboBox;
 
+import alvahouse.eatool.repository.dto.metamodel.ControlledListTypeDto;
 import alvahouse.eatool.repository.exception.InputException;
 import alvahouse.eatool.util.ClassUtils;
 import alvahouse.eatool.util.UUID;
@@ -44,6 +45,18 @@ public class ControlledListType extends ExtensibleMetaPropertyType {
         super(key);
     }
 
+    public ControlledListType(ControlledListTypeDto dto) {
+    	super(dto);
+    	values.addAll(dto.getValues());
+    	defaultValue = dto.getDefaultValue();
+    }
+    
+    public ControlledListTypeDto toDto() {
+    	ControlledListTypeDto dto = new ControlledListTypeDto();
+    	copyTo(dto);
+    	return dto;
+    }
+    
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.metamodel.types.ExtensibleMetaPropertyType#writeXML(alvahouse.eatool.util.XMLWriter)
      */
@@ -189,9 +202,9 @@ public class ControlledListType extends ExtensibleMetaPropertyType {
      */
     public void endElement(String uri, String local) throws InputException {
         if(local.equals("Value")){
-            add(getXMLValue());
+            add(getXmlValue());
         } else if(local.equals("Default")){
-            setDefault(getXMLValue());
+            setDefault(getXmlValue());
         }
     }
 
@@ -202,5 +215,11 @@ public class ControlledListType extends ExtensibleMetaPropertyType {
     	copy.values.addAll(values);
     	copy.defaultValue = defaultValue;
     	return copy;
+    }
+    
+    protected void copyTo(ControlledListTypeDto dto) {
+    	super.copyTo(dto);
+    	dto.getValues().addAll(values);
+    	dto.setDefaultValue(defaultValue);
     }
 }

@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.StringTokenizer;
 
+import alvahouse.eatool.repository.dto.metamodel.TimeSeriesTypeDto;
 import alvahouse.eatool.repository.exception.InputException;
 import alvahouse.eatool.util.ClassUtils;
 import alvahouse.eatool.util.UUID;
@@ -46,6 +47,16 @@ public class TimeSeriesType extends ExtensibleMetaPropertyType {
         super(key);
     }
 
+    public TimeSeriesType(TimeSeriesTypeDto dto) {
+    	super(dto);
+    	intervals.addAll(dto.getIntervals());
+    }
+    
+    public TimeSeriesTypeDto toDto() {
+    	TimeSeriesTypeDto dto = new TimeSeriesTypeDto();
+    	copyTo(dto);
+    	return dto;
+    }
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.metamodel.types.MetaPropertyType#getEditor(java.lang.Object)
      */
@@ -109,7 +120,7 @@ public class TimeSeriesType extends ExtensibleMetaPropertyType {
      */
     public void endElement(String uri, String local) throws InputException {
         if(local.equals("Interval")){
-            add(getXMLValue());
+            add(getXmlValue());
         }
     }
 
@@ -200,4 +211,8 @@ public class TimeSeriesType extends ExtensibleMetaPropertyType {
     	return copy;
     }
 
+    public void copyTo(TimeSeriesTypeDto dto) {
+    	super.copyTo(dto);
+    	dto.getIntervals().addAll(intervals);
+    }
 }

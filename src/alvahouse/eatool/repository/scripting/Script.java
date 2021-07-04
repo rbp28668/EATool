@@ -108,7 +108,7 @@ public class Script extends NamedRepositoryItem implements Versionable {
 		super.copyTo(dto);
 		dto.setLanguage(language);
 		dto.setScript(script);
-		dto.setVersion(version.toDao());
+		dto.setVersion(version.toDto());
 	}
 	/* (non-Javadoc)
 	 * @see java.lang.Object#clone()

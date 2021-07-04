@@ -11,6 +11,7 @@ import java.io.IOException;
 import org.apache.commons.codec.binary.Base64;
 
 import alvahouse.eatool.repository.base.NamedRepositoryItem;
+import alvahouse.eatool.repository.dto.html.HTMLPageDto;
 import alvahouse.eatool.repository.scripting.EventMap;
 import alvahouse.eatool.repository.version.Version;
 import alvahouse.eatool.repository.version.VersionImpl;
@@ -28,7 +29,7 @@ public class HTMLPage extends NamedRepositoryItem implements Versionable {
     private String html;
     private boolean isDynamic;
     private EventMap eventMap;
-    private VersionImpl version = new VersionImpl();
+    private final VersionImpl version = new VersionImpl();
     
     public final static String ON_DISPLAY_EVENT = "OnDisplay";
     public final static String ON_CLOSE_EVENT = "OnClose";
@@ -43,6 +44,28 @@ public class HTMLPage extends NamedRepositoryItem implements Versionable {
         eventMap.ensureEvent(ON_CLOSE_EVENT);
     }
     
+	/**
+	 * @param dto
+	 */
+	public HTMLPage(HTMLPageDto dto) {
+		super(dto);
+		html = dto.getHtml();
+		isDynamic = dto.isDynamic();
+		eventMap = new EventMap(dto.getEventMap());
+        eventMap.ensureEvent(ON_DISPLAY_EVENT);
+        eventMap.ensureEvent(ON_CLOSE_EVENT);
+		version.fromDto(dto.getVersion());
+	}
+
+	/**
+	 * @return
+	 */
+	public HTMLPageDto toDto() {
+		HTMLPageDto dto = new HTMLPageDto();
+		copyTo(dto);
+		return dto;
+	}
+
     /**
      * Shows that the page is dynamic - dynamic pages are created
      * by attached script and should not be saved.
@@ -132,6 +155,18 @@ public class HTMLPage extends NamedRepositoryItem implements Versionable {
 		copy.html = html;
 		copy.isDynamic = isDynamic;
 		version.cloneTo(copy.version);
+	}
+
+	/**
+	 * @return
+	 */
+	protected void copyTo(HTMLPageDto dto) {
+		super.copyTo(dto);
+		dto.setHtml(html);
+		dto.setDynamic(isDynamic);
+		dto.setEventMap(eventMap.toDto());
+		dto.setVersion(version.toDto());
+		
 	}
 
 }

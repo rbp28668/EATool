@@ -170,7 +170,7 @@ public class Image extends NamedRepositoryItem implements Versionable{
 		super.copyTo(dto);
 		dto.setFormat(format);
 		dto.setImage(image);
-		dto.setVersion(version.toDao());
+		dto.setVersion(version.toDto());
 	}
 
 	/* (non-Javadoc)

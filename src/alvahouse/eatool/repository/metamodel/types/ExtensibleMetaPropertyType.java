@@ -10,6 +10,7 @@ import java.io.IOException;
 
 import org.xml.sax.Attributes;
 
+import alvahouse.eatool.repository.dto.metamodel.ExtensibleMetaPropertyTypeDto;
 import alvahouse.eatool.repository.exception.InputException;
 import alvahouse.eatool.repository.version.Version;
 import alvahouse.eatool.repository.version.VersionImpl;
@@ -43,6 +44,12 @@ public abstract class ExtensibleMetaPropertyType extends MetaPropertyType implem
         super(key);
     }
 
+    protected ExtensibleMetaPropertyType(ExtensibleMetaPropertyTypeDto dto) {
+    	super(dto);
+    	version = new VersionImpl(dto.getVersion());
+    }
+    
+    
     /* (non-Javadoc)
 	 * @see alvahouse.eatool.repository.version.Versionable#getVersion()
 	 */
@@ -62,6 +69,11 @@ public abstract class ExtensibleMetaPropertyType extends MetaPropertyType implem
     	version.cloneTo(other.version);
     }
 
+    protected void copyTo(ExtensibleMetaPropertyTypeDto dto) {
+    	super.copyTo(dto);
+    	dto.setVersion(version.toDto());
+    }
+    
     /**
      * Writes the list out as XML
      * @param out is the XMLWriterDirect to write the XML to
@@ -111,7 +123,7 @@ public abstract class ExtensibleMetaPropertyType extends MetaPropertyType implem
         xmlValue = str;
     }
 
-    protected String getXMLValue(){
+    protected String getXmlValue(){
         return xmlValue;
     }
 }

@@ -18,8 +18,12 @@ public class ObjectFactory {
 	public ObjectFactory() {
 	}
 	
-	public MetaEntityDto createMetaEntityDao() { return new MetaEntityDto(); }
-	public MetaRelationshipDto createMetaRelationshipDao() { return new MetaRelationshipDto(); }
-	public MetaRoleDto createMetaRoleDao() { return new MetaRoleDto(); }
-	public VersionDto createVersionDao() { return new VersionDto(); }
+	public MetaEntityDto createMetaEntityDto() { return new MetaEntityDto(); }
+	public MetaRelationshipDto createMetaRelationshipDto() { return new MetaRelationshipDto(); }
+	public MetaRoleDto createMetaRoleDto() { return new MetaRoleDto(); }
+	public VersionDto createVersionDto() { return new VersionDto(); }
+	public RegexpCheckedTypeDto createRegexpCheckedTypeDto() { return new RegexpCheckedTypeDto();}
+	public ControlledListTypeDto createControlledListTypeDto() { return new ControlledListTypeDto();}
+	public TimeSeriesTypeDto createTimeSeriesTypeDto() { return new TimeSeriesTypeDto();}
+	
 }
