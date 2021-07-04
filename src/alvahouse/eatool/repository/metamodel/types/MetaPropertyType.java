@@ -15,6 +15,7 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 
 import alvahouse.eatool.repository.base.NamedRepositoryItem;
+import alvahouse.eatool.repository.dto.NamedRepositoryItemDto;
 import alvahouse.eatool.util.UUID;
 
 /* Use basic Java types
@@ -54,6 +55,9 @@ public abstract class MetaPropertyType extends NamedRepositoryItem {
         super(key);
     }
 
+    protected MetaPropertyType(NamedRepositoryItemDto dto) {
+    	super(dto);
+    }
     /**
      * Gets the name of the data type for this MetaProperty.
      * @return  String with the type name

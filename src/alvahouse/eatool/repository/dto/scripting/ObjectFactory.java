@@ -17,4 +17,7 @@ public class ObjectFactory {
 	}
 	
 	public ScriptDto createScriptDto() { return new ScriptDto(); }
+	public EventMapDto createEventMapDto() { return new EventMapDto();}
+	public EventMapDto.EventMapHandlerDto createEventMapDto_EventMapHandlerDto() { return new EventMapDto.EventMapHandlerDto();}
+	
 }

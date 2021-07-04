@@ -201,7 +201,7 @@ public class Entity extends PropertyContainer implements Versionable {
    protected void copyTo(EntityDto dao) {
 	   super.copyTo(dao);
        dao.setMetaEntityKey(meta.getKey());
-       dao.setVersion(version.toDao());
+       dao.setVersion(version.toDto());
    }
     
 

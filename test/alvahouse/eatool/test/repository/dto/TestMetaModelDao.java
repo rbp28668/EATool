@@ -7,7 +7,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.samePropertyValuesAs;
-import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -22,8 +21,8 @@ import org.junit.jupiter.api.Test;
 
 import alvahouse.eatool.repository.dto.Serialise;
 import alvahouse.eatool.repository.dto.VersionDto;
-import alvahouse.eatool.repository.dto.metamodel.MetaEntityDto;
 import alvahouse.eatool.repository.dto.metamodel.MetaEntityDisplayHintDto;
+import alvahouse.eatool.repository.dto.metamodel.MetaEntityDto;
 import alvahouse.eatool.repository.dto.metamodel.MetaPropertyContainerDto;
 import alvahouse.eatool.repository.dto.metamodel.MetaPropertyDto;
 import alvahouse.eatool.repository.dto.metamodel.MetaRelationshipDto;
@@ -216,7 +215,7 @@ class TestMetaModelDao {
 		//assertThat( dhd.getKeys(), containsInAnyOrder(propertyKeys));
 
 		String asJson = Serialise.marshalToJSON(dao);
-		System.out.println(asJson);
+		//System.out.println(asJson);
 		MetaEntityDto copy = (MetaEntityDto) Serialise.unmarshalFromJson(asJson, MetaEntityDto.class);
 
 		assertThat( copy.getDisplayHint(), notNullValue());
@@ -241,7 +240,7 @@ class TestMetaModelDao {
 		propertyKeys.forEach( pk -> assertTrue(dhd.getKeys().contains(pk)));
 		
 		String asXml = Serialise.marshalToXML(dao);
-		System.out.println(asXml);
+		//System.out.println(asXml);
 		MetaEntityDto copy = (MetaEntityDto) Serialise.marshalFromXML(new ByteArrayInputStream(asXml.getBytes(Charset.forName("UTF-8"))));
 		
 		assertThat( copy.getDisplayHint(), notNullValue());

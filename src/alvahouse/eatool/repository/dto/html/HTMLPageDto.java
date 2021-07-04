@@ -1,7 +1,7 @@
 /**
  * 
  */
-package alvahouse.eatool.repository.dto.scripting;
+package alvahouse.eatool.repository.dto.html;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import alvahouse.eatool.repository.dto.NamedRepositoryItemDto;
 import alvahouse.eatool.repository.dto.VersionDto;
+import alvahouse.eatool.repository.dto.scripting.EventMapDto;
 import alvahouse.eatool.util.Base64InputStream;
 import alvahouse.eatool.util.Base64OutputStream;
 
@@ -28,54 +29,41 @@ import alvahouse.eatool.util.Base64OutputStream;
  * @author bruce_porteous
  *
  */
-@XmlRootElement(name = "script")
+@XmlRootElement(name = "htmlPage")
 @XmlAccessorType(XmlAccessType.NONE)
-@XmlType(propOrder = { "language", "scriptJson", "version"})
-public class ScriptDto extends NamedRepositoryItemDto {
+@XmlType(propOrder = { "htmlJson","dynamic","eventMap","version"})
+public class HTMLPageDto extends NamedRepositoryItemDto {
 
-    private String language;
-    private String script;	// the actual script.
+    private String html;
+    private boolean isDynamic;
+    private EventMapDto eventMap;
     private VersionDto version;
-	/**
-	 * @return the language
+
+    /**
+	 * @return the html
 	 */
-    @XmlElement(required=true)
-	public String getLanguage() {
-		return language;
+    @JsonIgnore
+	public String getHtml() {
+		return html;
 	}
 	/**
-	 * @param language the language to set
+	 * @param html the html to set
 	 */
-	public void setLanguage(String language) {
-		this.language = language;
-	}
-	/**
-	 * @return the script
-	 */
-	@JsonIgnore
-	public String getScript() {
-		return script;
-	}
-	/**
-	 * @param script the script to set
-	 */
-	public void setScript(String script) {
-		this.script = script;
+	public void setHtml(String html) {
+		this.html = html;
 	}
 
-	/**
-	 * @return the script as base64 encoded data.
-	 * @throws IOException 
-	 */
-    @XmlElement(name="script",required=true)
-	@JsonProperty(value="script")
-	public String getScriptJson() throws IOException {
-    	if(script == null) {
+
+    @XmlElement(name="html",required=true)
+	@JsonProperty(value="html")
+	public String getHtmlJson() throws IOException {
+    	if(html == null) {
     		return null;
     	}
+    	
     	String data = null;
         try(Base64OutputStream stream = new Base64OutputStream()){
-	        byte[] bytes = script.getBytes("UTF-8");
+	        byte[] bytes = html.getBytes("UTF-8");
 	        stream.write(bytes);
 	        data = stream.getData();
         }
@@ -85,23 +73,52 @@ public class ScriptDto extends NamedRepositoryItemDto {
 	 * @param script the script to set
 	 * @throws UnsupportedEncodingException 
 	 */
-	public void setScriptJson(String base64) throws IOException {
-	   StringBuilder script = new StringBuilder();
+	public void setHtmlJson(String base64) throws IOException {
+	   StringBuilder html = new StringBuilder();
         try(InputStream stream = new Base64InputStream(base64)){
 	        try(Reader reader = new BufferedReader(new InputStreamReader(stream,"UTF-8"))){
 	        	int ch = 0;
 	        	while((ch = reader.read()) != -1) {
-	        		script.append((char)ch);
+	        		html.append((char)ch);
 	        	}
 	        }
         }
-		this.script = script.toString();
+		this.html = html.toString();
+	}
+
+	
+	/**
+	 * @return the isDynamic
+	 */
+	@XmlElement
+	public boolean isDynamic() {
+		return isDynamic;
+	}
+	/**
+	 * @param isDynamic the isDynamic to set
+	 */
+	public void setDynamic(boolean isDynamic) {
+		this.isDynamic = isDynamic;
+	}
+	
+	/**
+	 * @return the eventMap
+	 */
+	@XmlElement
+	public EventMapDto getEventMap() {
+		return eventMap;
+	}
+	/**
+	 * @param eventMap the eventMap to set
+	 */
+	public void setEventMap(EventMapDto eventMap) {
+		this.eventMap = eventMap;
 	}
 
 	/**
 	 * @return the version
 	 */
-	@XmlElement(required=true)
+	@XmlElement
 	public VersionDto getVersion() {
 		return version;
 	}
@@ -111,7 +128,6 @@ public class ScriptDto extends NamedRepositoryItemDto {
 	public void setVersion(VersionDto version) {
 		this.version = version;
 	}
-    
-    
 
+    
 }

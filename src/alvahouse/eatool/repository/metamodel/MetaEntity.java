@@ -205,7 +205,7 @@ public class MetaEntity extends MetaPropertyContainer implements  Versionable{
         dao.setBase(base.isNull() ? null :  base.getKey());
         dao.setAbstract(m_isAbstract);
         dao.setDisplayHint( (displayHint == null) ? null : displayHint.toDao());
-        dao.setVersion(version.toDao());
+        dao.setVersion(version.toDto());
     }
 
     /** Sets the parent meta-model
