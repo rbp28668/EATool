@@ -82,7 +82,8 @@ public class Serialise {
         		+ ":" + alvahouse.eatool.repository.dto.model.ObjectFactory.class.getPackage().getName()
         		+ ":" + alvahouse.eatool.repository.dto.scripting.ObjectFactory.class.getPackage().getName()
         		+ ":" + alvahouse.eatool.repository.dto.images.ObjectFactory.class.getPackage().getName()
-        		+ ":" + alvahouse.eatool.repository.dto.html.ObjectFactory.class.getPackage().getName();
+        		+ ":" + alvahouse.eatool.repository.dto.html.ObjectFactory.class.getPackage().getName()
+        		+ ":" + alvahouse.eatool.repository.dto.mapping.ObjectFactory.class.getPackage().getName();
 
         JAXBContext jc = JAXBContext.newInstance(contextPath);
         return jc;
