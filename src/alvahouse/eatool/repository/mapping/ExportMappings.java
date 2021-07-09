@@ -7,11 +7,14 @@
 package alvahouse.eatool.repository.mapping;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import alvahouse.eatool.repository.dto.mapping.ExportMappingDto;
 import alvahouse.eatool.repository.persist.ExportMappingPersistence;
+import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
 /**
@@ -48,7 +51,7 @@ public class ExportMappings {
         writer.startEntity("Export");
         
         try {
-	        for(ExportMapping mapping : persistence.getMappings()) {
+	        for(ExportMapping mapping : getExportMappings()) {
 	            mapping.writeXML(writer);
 	        }
         } catch(Exception e) {
@@ -63,7 +66,12 @@ public class ExportMappings {
      * @return Collection of ExportMapping, maybe empty, never null.
      */
     public Collection<ExportMapping> getExportMappings() throws Exception{
-        return persistence.getMappings();
+        Collection<ExportMappingDto> dtos =  persistence.getMappings();
+        List<ExportMapping> copy = new ArrayList<>(dtos.size());
+        for(ExportMappingDto dto : dtos) {
+        	copy.add(new ExportMapping(dto));
+        }
+        return copy;
     }
     
     /**
@@ -76,7 +84,7 @@ public class ExportMappings {
         }
 		String user = System.getProperty("user.name");
 		mapping.getVersion().createBy(user);
-        persistence.addMapping(mapping);
+        persistence.addMapping(mapping.toDto());
         fireMappingAdded(mapping);
     }
 
@@ -88,7 +96,7 @@ public class ExportMappings {
         if(mapping == null) {
             throw new NullPointerException("Can't add null export mapping");
         }
-        persistence.addMapping(mapping);
+        persistence.addMapping(mapping.toDto());
     }
 
     /**
@@ -101,10 +109,20 @@ public class ExportMappings {
         }
 		String user = System.getProperty("user.name");
 		mapping.getVersion().modifyBy(user);
-        persistence.updateMapping(mapping);
+        persistence.updateMapping(mapping.toDto());
         fireMappingUpdated(mapping);
     }
 
+    /**
+     * Looks up an export mapping by its key.
+     * @param key
+     * @return
+     * @throws Exception
+     */
+    public ExportMapping lookupMapping(UUID key) throws Exception {
+    	return new ExportMapping(persistence.lookupMapping(key));
+    }
+    
     /**
      * Removes an ExportMapping from the collection.
      * @param mapping is the ExportMapping to remove.
@@ -167,5 +185,21 @@ public class ExportMappings {
             listener.MappingDeleted(e);
         }
     }
+
+	/**
+	 * Determines whether a listener is active.
+	 * @param l is the listener to check.
+	 * @return true if the set of listeners contains l.
+	 */
+	public boolean isActive(ExportMappingChangeListener l) {
+		return listeners.contains(l);
+	}
+
+	/**
+	 * Deletes all the export mappings. 
+	 */
+	public void deleteContents() throws Exception {
+		persistence.deleteContents();
+	}
     
 }

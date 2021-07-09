@@ -139,7 +139,7 @@ public class PropertyMappingDialog extends BasicDialog {
             add(label);
 
             propertySel = new JComboBox<MetaProperty>(parentEntity.getMetaPropertiesAsArray());
-            propertySel.setSelectedItem(mapping.getMeta());
+            propertySel.setSelectedItem(parentEntity.getMetaProperty(mapping.getMetaPropertyKey()));
             c.gridwidth = GridBagConstraints.REMAINDER;
             gridbag.setConstraints(propertySel,c);
             add(propertySel);

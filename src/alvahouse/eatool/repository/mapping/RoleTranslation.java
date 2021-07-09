@@ -8,7 +8,10 @@ package alvahouse.eatool.repository.mapping;
 
 import java.io.IOException;
 
+import alvahouse.eatool.repository.dto.mapping.RoleTranslationDto;
+import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.metamodel.MetaRole;
+import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
 
@@ -22,16 +25,34 @@ import alvahouse.eatool.util.XMLWriter;
  */
 public class RoleTranslation extends PropertyTranslationCollection{
 
+	private RelationshipTranslation parent = null;
     private String type="";          // what the "type" attribute of the input record is
-    private MetaRole meta = null;    // maps to this meta role 
+    private UUID metaRoleKey = null;    // maps to this meta role 
     
 
     /**
      * Creates a null role tranlsation.
      */
-    public RoleTranslation() {
-     }
+    public RoleTranslation(RelationshipTranslation parent) {
+    	this.parent = parent;
+    }
 
+    public RoleTranslation(RelationshipTranslation parent, RoleTranslationDto dto) {
+    	super(dto);
+    	this.parent = parent;
+    	type = dto.getType();
+    	metaRoleKey = dto.getMetaRoleKey();
+    }
+	/**
+	 * @return
+	 */
+	public RoleTranslationDto toDto() {
+		RoleTranslationDto dto = new RoleTranslationDto();
+		copyTo(dto);
+		return dto;
+	}
+
+    
     /**
      * Gets the type name used for this role translation. The type name in this 
      * context is the name used to identify a given role in the input XML.
@@ -46,15 +67,25 @@ public class RoleTranslation extends PropertyTranslationCollection{
      * @return the MetaRole that is the target for any Roles that
      * match the given type name.
      */
-    public MetaRole getMeta() {
-        return meta;
+    public UUID getMetaRoleKey() {
+        return metaRoleKey;
     }
 
+    /**
+     * Gets the corresponding MetaRole that this translation correspond to.
+     * @param metaModel
+     * @return
+     * @throws Exception
+     */
+    public MetaRole getMeta(MetaModel metaModel) throws Exception {
+    	return parent.getMeta(metaModel).getMetaRole(metaRoleKey);
+    }
+    
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */
     public String toString() {
-        return "Role " + type + " to " + meta.getName();
+        return "Role " + type + " to " + metaRoleKey;
     }
 
     /**
@@ -66,7 +97,7 @@ public class RoleTranslation extends PropertyTranslationCollection{
         if(role == null){
             throw new NullPointerException("Can't set null MetaRole in RoleTranslation");
         }
-        meta = role;
+        metaRoleKey = role.getKey();
     }
 
     /**
@@ -89,7 +120,7 @@ public class RoleTranslation extends PropertyTranslationCollection{
     public void writeXML(XMLWriter writer) throws IOException {
         writer.startEntity("RoleTranslation");
         writer.addAttribute("type",getTypeName());
-        writer.addAttribute("uuid",getMeta().getKey().toString());
+        writer.addAttribute("uuid",metaRoleKey.toString());
         
         for(PropertyTranslation pt : getPropertyTranslations()){
             pt.writeXML(writer);
@@ -99,7 +130,7 @@ public class RoleTranslation extends PropertyTranslationCollection{
 
     @Override
     public Object clone() {
-    	RoleTranslation copy = new RoleTranslation();
+    	RoleTranslation copy = new RoleTranslation(parent);
     	cloneTo(copy);
     	return copy;
     }
@@ -107,6 +138,13 @@ public class RoleTranslation extends PropertyTranslationCollection{
     protected void cloneTo(RoleTranslation copy) {
     	super.cloneTo(copy);
     	copy.type = type;
-    	copy.meta = (MetaRole) meta.clone();
+    	copy.metaRoleKey = metaRoleKey;
     }
+
+	protected void copyTo(RoleTranslationDto dto) {
+		super.copyTo(dto);
+		dto.setType(type);
+		dto.setMetaRoleKey(metaRoleKey);
+	}
+
 }

@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import alvahouse.eatool.repository.mapping.ImportMapping;
+import alvahouse.eatool.repository.dto.mapping.ImportMappingDto;
 import alvahouse.eatool.repository.persist.ImportMappingPersistence;
 import alvahouse.eatool.util.UUID;
 
@@ -18,7 +18,7 @@ import alvahouse.eatool.util.UUID;
  */
 public class ImportMappingPersistenceMemory implements ImportMappingPersistence {
 
-	private Map<UUID, ImportMapping> mappings = new HashMap<>();
+	private Map<UUID, ImportMappingDto> mappings = new HashMap<>();
 	
 	/**
 	 *  
@@ -30,36 +30,47 @@ public class ImportMappingPersistenceMemory implements ImportMappingPersistence 
 	 * @see alvahouse.eatool.repository.persist.ImportMappingPersistence#getMappings()
 	 */
 	@Override
-	public Collection<ImportMapping> getMappings() throws Exception {
-		ArrayList<ImportMapping> copy = new ArrayList<>(mappings.size());
-		for(ImportMapping em : mappings.values()) {
-			copy.add( (ImportMapping) em.clone());
-		}
+	public Collection<ImportMappingDto> getMappings() throws Exception {
+		ArrayList<ImportMappingDto> copy = new ArrayList<>(mappings.size());
+		copy.addAll(mappings.values());
 		return copy;
+	}
+
+	
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.persist.ImportMappingPersistence#lookupMapping(alvahouse.eatool.util.UUID)
+	 */
+	@Override
+	public ImportMappingDto lookupMapping(UUID key) throws Exception {
+		ImportMappingDto mapping = mappings.get(key);
+		if(mapping == null) {
+			throw new IllegalArgumentException("Mapping with key " + key + " not known to the repository");
+		}
+		return mapping;
 	}
 
 	/* (non-Javadoc)
 	 * @see alvahouse.eatool.repository.persist.ImportMappingPersistence#addMapping(alvahouse.eatool.repository.mapping.ImportMapping)
 	 */
 	@Override
-	public void addMapping(ImportMapping mapping) throws Exception {
+	public void addMapping(ImportMappingDto mapping) throws Exception {
 		UUID key = mapping.getKey();
 		if(mappings.containsKey(key)) {
 			throw new IllegalArgumentException("Cannot add import mapping with key " + key + " as mapping already exists");
 		}
-		mappings.put(key, (ImportMapping)mapping.clone());
+		mappings.put(key, mapping);
 	}
 
 	/* (non-Javadoc)
 	 * @see alvahouse.eatool.repository.persist.ImportMappingPersistence#updateMapping(alvahouse.eatool.repository.mapping.ImportMapping)
 	 */
 	@Override
-	public void updateMapping(ImportMapping mapping) throws Exception {
+	public void updateMapping(ImportMappingDto mapping) throws Exception {
 		UUID key = mapping.getKey();
 		if(!mappings.containsKey(key)) {
 			throw new IllegalArgumentException("Cannot update import mapping - key " + key + " not known to the repository");
 		}
-		mappings.put(key, (ImportMapping)mapping.clone());
+		mappings.put(key, mapping);
 	}
 
 	/* (non-Javadoc)

@@ -7,14 +7,17 @@
 package alvahouse.eatool.repository.mapping;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import alvahouse.eatool.repository.dto.mapping.ImportMappingDto;
 import alvahouse.eatool.repository.persist.ImportMappingPersistence;
 import alvahouse.eatool.util.SettingsManager;
+import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
 /**
@@ -41,7 +44,12 @@ public class ImportMappings {
      * @return a list of ImportMapping, never null, maybe empty.
      */
     public Collection<ImportMapping> getImportMappings() throws Exception {
-        return persistence.getMappings();
+    	Collection<ImportMappingDto> dtos = persistence.getMappings();
+    	List<ImportMapping> copy = new ArrayList<>(dtos.size());
+    	for(ImportMappingDto dto : dtos) {
+    		copy.add(new ImportMapping(dto));
+    	}
+        return copy;
     }
     
     public String toString(){
@@ -57,7 +65,7 @@ public class ImportMappings {
         writer.startEntity("Import");
         
         try {
-	        for(ImportMapping mapping : persistence.getMappings()) {
+	        for(ImportMapping mapping : getImportMappings()) {
 	            mapping.writeXML(writer);
 	        }
         } catch (Exception e) {
@@ -85,7 +93,7 @@ public class ImportMappings {
         }
 		String user = System.getProperty("user.name");
 		mapping.getVersion().createBy(user);
-        persistence.addMapping(mapping);
+        persistence.addMapping(mapping.toDto());
         fireMappingAdded(mapping);
     }
 
@@ -97,9 +105,13 @@ public class ImportMappings {
         if(mapping == null){
             throw new NullPointerException("Can't add null mapping to ImportMappings");
         }
-        persistence.addMapping(mapping);
+        persistence.addMapping(mapping.toDto());
     }
 
+    public ImportMapping lookupMapping(UUID key) throws Exception {
+    	return new ImportMapping(persistence.lookupMapping(key));
+    }
+    
     /**
      * Updates a mapping to the import mappings.
      * @param mapping is the ImportMapping to add.
@@ -110,7 +122,7 @@ public class ImportMappings {
         }
 		String user = System.getProperty("user.name");
 		mapping.getVersion().modifyBy(user);
-        persistence.updateMapping(mapping);
+        persistence.updateMapping(mapping.toDto());
         fireMappingChanged(mapping);
     }
 
@@ -141,6 +153,15 @@ public class ImportMappings {
     public void removeChangeListener(ImportMappingChangeListener listener){
         listeners.remove(listener);
     }
+
+	/**
+	 * Determines whether a change listener is registered.
+	 * @param l
+	 * @return
+	 */
+	public boolean isActive(ImportMappingChangeListener l) {
+		return listeners.contains(l);
+	}
 
     /**
      * Loads up the parsers. Must be called before getParserNames or lookupParser.
@@ -443,5 +464,6 @@ public class ImportMappings {
             return parserClass;
         }
     }
+
     
 }

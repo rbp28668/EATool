@@ -8,7 +8,9 @@ package alvahouse.eatool.repository.mapping;
 
 import java.io.IOException;
 
+import alvahouse.eatool.repository.dto.mapping.PropertyTranslationDto;
 import alvahouse.eatool.repository.metamodel.MetaProperty;
+import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
 /**
@@ -21,13 +23,19 @@ import alvahouse.eatool.util.XMLWriter;
 public class PropertyTranslation {
 
     private String type = "";           // typename for input property
-    private MetaProperty meta = null;   // corresponding meta property
+    private UUID metaPropertyKey = null;   // corresponding meta property
     private boolean isKey = false;  	// true if forms part of identify
 
     /**
      * Creates an empty translation.
      */
     public PropertyTranslation(){
+    }
+    
+    public PropertyTranslation(PropertyTranslationDto dto)  {
+    	this.type = dto.getType();
+    	this.metaPropertyKey = dto.getMetaPropertyKey();
+    	this.isKey = dto.isKey();
     }
     
     /**
@@ -55,8 +63,8 @@ public class PropertyTranslation {
      * Gets the MetaProperty this maps to.
      * @return the target MetaProperty.
      */
-    public MetaProperty getMeta() {
-        return meta;
+    public UUID getMetaPropertyKey() {
+        return metaPropertyKey;
     }
 
     /**
@@ -67,7 +75,7 @@ public class PropertyTranslation {
         if(meta == null) {
             throw new NullPointerException("Can't set null MetaProperty for PropertyTranslation");
         }
-        this.meta = meta;
+        this.metaPropertyKey = meta.getKey();
     }
     
    /**
@@ -94,7 +102,7 @@ public class PropertyTranslation {
      * @see java.lang.Object#toString()
      */
     public String toString() {
-        return "Property " + type + " to " + meta.getName() + ((isKey) ? " [key]" : " ");
+        return "Property " + type + " to " + metaPropertyKey + ((isKey) ? " [key]" : " ");
     }
 
     /**
@@ -106,7 +114,7 @@ public class PropertyTranslation {
         writer.startEntity("PropertyTranslation");
         writer.addAttribute("key",isKeyValue());
         writer.addAttribute("type",getTypeName());
-        writer.addAttribute("uuid",getMeta().getKey().toString());
+        writer.addAttribute("uuid",metaPropertyKey.toString());
         writer.stopEntity();
     }
 
@@ -114,10 +122,21 @@ public class PropertyTranslation {
     public Object clone() {
     	PropertyTranslation copy = new PropertyTranslation();
         copy.type = type;
-        copy.meta = (MetaProperty) meta.clone();
+        copy.metaPropertyKey = metaPropertyKey;
         copy.isKey = isKey;
         return copy;
     }
+
+	/**
+	 * @return
+	 */
+	public PropertyTranslationDto toDto() {
+		PropertyTranslationDto dto = new PropertyTranslationDto();
+		dto.setType(type);
+		dto.setMetaPropertyKey(metaPropertyKey);
+		dto.setKey(isKey);
+		return dto;
+	}
  
 }
 

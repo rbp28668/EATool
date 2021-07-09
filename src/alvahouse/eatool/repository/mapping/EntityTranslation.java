@@ -8,6 +8,7 @@ package alvahouse.eatool.repository.mapping;
 
 import java.io.IOException;
 
+import alvahouse.eatool.repository.dto.mapping.EntityTranslationDto;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaEntityProxy;
 import alvahouse.eatool.repository.metamodel.MetaModel;
@@ -40,6 +41,21 @@ public class EntityTranslation extends PropertyTranslationCollection{
      */
     public EntityTranslation() {
     }
+
+    public EntityTranslation(EntityTranslationDto dto) {
+    	super(dto);
+    	this.type = dto.getType();
+    	this.meta.setKey(dto.getMetaEntityKey());
+    }
+    
+	/**
+	 * @return
+	 */
+	public EntityTranslationDto toDto() {
+		EntityTranslationDto dto = new EntityTranslationDto();
+		copyTo(dto);
+		return dto;
+	}
 
     /**
      * Gets the type name used to identify the entity in the input XML.
@@ -112,5 +128,11 @@ public class EntityTranslation extends PropertyTranslationCollection{
     	super.cloneTo(copy);
     	copy.type = type;
     	copy.meta = (MetaEntityProxy)meta.clone();
+    }
+
+    protected void copyTo(EntityTranslationDto dto) {
+    	super.copyTo(dto);
+    	dto.setType(type);
+    	dto.setMetaEntityKey(meta.getKey());
     }
 }

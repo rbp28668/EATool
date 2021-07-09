@@ -11,6 +11,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import alvahouse.eatool.repository.base.NamedRepositoryItem;
+import alvahouse.eatool.repository.dto.mapping.EntityTranslationDto;
+import alvahouse.eatool.repository.dto.mapping.ImportMappingDto;
+import alvahouse.eatool.repository.dto.mapping.RelationshipTranslationDto;
 import alvahouse.eatool.repository.version.Version;
 import alvahouse.eatool.repository.version.VersionImpl;
 import alvahouse.eatool.repository.version.Versionable;
@@ -36,6 +39,30 @@ public class ImportMapping extends NamedRepositoryItem implements Versionable{
     public ImportMapping(UUID key){
     	super(key);
     }
+
+    public ImportMapping(ImportMappingDto dto) {
+    	super(dto);
+    	this.parserName = dto.getParserName();
+    	this.transformPath = dto.getTransformPath();
+    	for(EntityTranslationDto etdto : dto.getEntityTranslations()) {
+    		EntityTranslation et = new EntityTranslation(etdto);
+    		entityTranslations.add(et);
+    	}
+    	for(RelationshipTranslationDto rtdto : dto.getRelationshipTranslations()) {
+    		RelationshipTranslation rt = new RelationshipTranslation(rtdto);
+    		relationshipTranslations.add(rt);
+    	}
+    	this.version.fromDto(dto.getVersion());
+    }
+    
+	/**
+	 * @return
+	 */
+	public ImportMappingDto toDto() {
+		ImportMappingDto dto = new ImportMappingDto();
+		copyTo(dto);
+		return dto;
+	}
 
     
     /* (non-Javadoc)
@@ -212,6 +239,21 @@ public class ImportMapping extends NamedRepositoryItem implements Versionable{
     		copy.relationshipTranslations.add( (RelationshipTranslation) rt.clone());
     	}
     	version.cloneTo(copy.version);
+	}
+
+	protected void copyTo(ImportMappingDto dto) {
+		super.copyTo(dto);
+		dto.setParserName(parserName);
+		dto.setTransformPath(transformPath);
+		for(EntityTranslation et : entityTranslations) {
+			dto.getEntityTranslations().add(et.toDto());
+		}
+    	for(RelationshipTranslation rt : relationshipTranslations) {
+    		dto.getRelationshipTranslations().add(rt.toDto());
+    	}
+    	dto.setVersion(version.toDto());
+
+		
 	}
 
     
