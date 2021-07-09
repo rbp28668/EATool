@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import alvahouse.eatool.repository.mapping.ExportMapping;
+import alvahouse.eatool.repository.dto.mapping.ExportMappingDto;
 import alvahouse.eatool.repository.persist.ExportMappingPersistence;
 import alvahouse.eatool.util.UUID;
 
@@ -18,7 +18,7 @@ import alvahouse.eatool.util.UUID;
  */
 public class ExportMappingPersistenceMemory implements ExportMappingPersistence {
 
-	private Map<UUID, ExportMapping> mappings = new HashMap<>();
+	private Map<UUID, ExportMappingDto> mappings = new HashMap<>();
 	
 	/**
 	 *  
@@ -30,11 +30,9 @@ public class ExportMappingPersistenceMemory implements ExportMappingPersistence 
 	 * @see alvahouse.eatool.repository.persist.ExportMappingPersistence#getMappings()
 	 */
 	@Override
-	public Collection<ExportMapping> getMappings() throws Exception {
-		ArrayList<ExportMapping> copy = new ArrayList<>(mappings.size());
-		for(ExportMapping em : mappings.values()) {
-			copy.add( (ExportMapping) em.clone());
-		}
+	public Collection<ExportMappingDto> getMappings() throws Exception {
+		ArrayList<ExportMappingDto> copy = new ArrayList<>(mappings.size());
+		copy.addAll(mappings.values());
 		return copy;
 	}
 
@@ -42,24 +40,24 @@ public class ExportMappingPersistenceMemory implements ExportMappingPersistence 
 	 * @see alvahouse.eatool.repository.persist.ExportMappingPersistence#addMapping(alvahouse.eatool.repository.mapping.ExportMapping)
 	 */
 	@Override
-	public void addMapping(ExportMapping mapping) throws Exception {
+	public void addMapping(ExportMappingDto mapping) throws Exception {
 		UUID key = mapping.getKey();
 		if(mappings.containsKey(key)) {
 			throw new IllegalArgumentException("Cannot add export mapping with key " + key + " as mapping already exists");
 		}
-		mappings.put(key, (ExportMapping)mapping.clone());
+		mappings.put(key, mapping);
 	}
 
 	/* (non-Javadoc)
 	 * @see alvahouse.eatool.repository.persist.ExportMappingPersistence#updateMapping(alvahouse.eatool.repository.mapping.ExportMapping)
 	 */
 	@Override
-	public void updateMapping(ExportMapping mapping) throws Exception {
+	public void updateMapping(ExportMappingDto mapping) throws Exception {
 		UUID key = mapping.getKey();
 		if(!mappings.containsKey(key)) {
 			throw new IllegalArgumentException("Cannot update export mapping - key " + key + " not known to the repository");
 		}
-		mappings.put(key, (ExportMapping)mapping.clone());
+		mappings.put(key, mapping);
 	}
 
 	/* (non-Javadoc)
@@ -71,6 +69,26 @@ public class ExportMappingPersistenceMemory implements ExportMappingPersistence 
 			throw new IllegalArgumentException("Cannot delete export mapping - key " + key + " not known to the repository");
 		}
 		mappings.remove(key);
+	}
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.persist.ExportMappingPersistence#lookupMapping(alvahouse.eatool.util.UUID)
+	 */
+	@Override
+	public ExportMappingDto lookupMapping(UUID key) throws Exception {
+		ExportMappingDto mapping = mappings.get(key);
+		if(mappings == null) {
+			throw new IllegalArgumentException("Cannot find export mapping with key " + key);
+		}
+		return mapping;
+	}
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.persist.ExportMappingPersistence#deleteContents()
+	 */
+	@Override
+	public void deleteContents() throws Exception {
+		mappings.clear();
 	}
 
 }

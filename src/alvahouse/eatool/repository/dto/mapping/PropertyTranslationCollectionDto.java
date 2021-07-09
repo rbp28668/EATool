@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @XmlAccessorType(XmlAccessType.NONE)
 public class PropertyTranslationCollectionDto {
 
-    private List<PropertyTranslationDto> props = new LinkedList<PropertyTranslationDto>(); // property input descriptions
+    private List<PropertyTranslationDto> props = null;
 
 	/**
 	 * @return the props

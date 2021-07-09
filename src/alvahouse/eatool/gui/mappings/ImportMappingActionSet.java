@@ -26,6 +26,7 @@ import alvahouse.eatool.repository.mapping.PropertyTranslationCollection;
 import alvahouse.eatool.repository.mapping.RelationshipTranslation;
 import alvahouse.eatool.repository.mapping.RoleTranslation;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
+import alvahouse.eatool.repository.metamodel.MetaRole;
 
 /**
  * ImportMappingActionSet provides action handlers for the import
@@ -96,7 +97,8 @@ public class ImportMappingActionSet extends ActionSet {
             	me = parentTranslation.getMeta(repository.getMetaModel());
             } else if (parent instanceof RoleTranslation){
                 RoleTranslation parentTranslation = (RoleTranslation)parent;
-                me = parentTranslation.getMeta().connectsTo();
+                MetaRole mr = parentTranslation.getMeta(repository.getMetaModel());
+                me = mr.connectsTo();
             }
             if(me == null){
                 throw new IllegalStateException("PropertyTranslation parent is of invalid type " + parent.getClass().getName());

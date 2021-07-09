@@ -9,6 +9,7 @@ package alvahouse.eatool.repository.mapping;
 import java.io.IOException;
 
 import alvahouse.eatool.repository.base.NamedRepositoryItem;
+import alvahouse.eatool.repository.dto.mapping.ExportMappingDto;
 import alvahouse.eatool.repository.version.Version;
 import alvahouse.eatool.repository.version.VersionImpl;
 import alvahouse.eatool.repository.version.Versionable;
@@ -33,7 +34,19 @@ public class ExportMapping  extends NamedRepositoryItem implements Versionable {
         super(new UUID());
     }
 
+    public ExportMapping(ExportMappingDto dto){
+    	super(dto);
+    	this.components = dto.getComponents();
+    	this.transformPath = dto.getTransformPath();
+    	version.fromDto(dto.getVersion());
+    }
 
+    public ExportMappingDto toDto() {
+    	ExportMappingDto dto = new ExportMappingDto();
+    	copyTo(dto);
+    	return dto;
+    }
+    
     /**
      * Sets a component of the repository for export.
      * @param component is the value of the component (from Repository) to set.
@@ -117,6 +130,15 @@ public class ExportMapping  extends NamedRepositoryItem implements Versionable {
     	copy.transformPath = transformPath;
     	version.cloneTo(copy.version);
     }
+    
+    protected void copyTo(ExportMappingDto dto) {
+    	super.copyTo(dto);
+    	dto.setComponents(components);
+    	dto.setTransformPath(transformPath);
+    	dto.setVersion(version.toDto());
+    }
+    
+    
 	/* (non-Javadoc)
 	 * @see alvahouse.eatool.repository.version.Versionable#getVersion()
 	 */
