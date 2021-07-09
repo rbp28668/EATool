@@ -9,7 +9,6 @@ import static org.hamcrest.Matchers.samePropertyValuesAs;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -28,8 +27,6 @@ import alvahouse.eatool.repository.html.PagesChangeListener;
 import alvahouse.eatool.repository.persist.HTMLPagePersistence;
 import alvahouse.eatool.repository.persist.memory.HTMLPagePersistenceMemory;
 import alvahouse.eatool.repository.scripting.Script;
-import alvahouse.eatool.repository.scripting.ScriptChangeEvent;
-import alvahouse.eatool.repository.scripting.ScriptsChangeListener;
 import alvahouse.eatool.util.UUID;
 
 /**

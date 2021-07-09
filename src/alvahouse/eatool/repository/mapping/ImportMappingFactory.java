@@ -230,7 +230,7 @@ public class ImportMappingFactory extends FactoryBase implements
             throw new InputException("RoleTranslation outside RelationshipTranslation");
         }
         
-        currentRoleTranslation = new RoleTranslation();
+        currentRoleTranslation = new RoleTranslation(currentRelationshipTranslation);
         currentPTC = currentRoleTranslation;
         
         String attr = attrs.getValue("type");

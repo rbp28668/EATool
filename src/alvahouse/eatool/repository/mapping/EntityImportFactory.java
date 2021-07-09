@@ -14,6 +14,7 @@ import java.util.Map;
 import org.xml.sax.Attributes;
 
 import alvahouse.eatool.repository.exception.InputException;
+import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.model.Entity;
 import alvahouse.eatool.repository.model.Model;
@@ -23,7 +24,8 @@ import alvahouse.eatool.util.UUID;
 
 
 /**
- * Class to process XML import files.
+ * Class to process XML import files. This uses a given ImportMapping to create entities 
+ * in response to the input XML events. 
  * @author  rbp28668
  */
 public class EntityImportFactory implements IXMLContentHandler  {
@@ -34,6 +36,7 @@ public class EntityImportFactory implements IXMLContentHandler  {
 
     // current state of input... 
     private EntityTranslation currentEntityTranslation = null;
+    private MetaEntity currentMetaEntity = null;
     private Entity currentEntity = null;
     private Property currentProperty = null;
 
@@ -83,7 +86,8 @@ public class EntityImportFactory implements IXMLContentHandler  {
             if(currentEntityTranslation == null)
                 throw new InputException("Entity type " + type + " not recognised importing XML");
             try {
-            	currentEntity = new Entity(new UUID(), currentEntityTranslation.getMeta(metaModel)); // default position is to assume it's a new entity
+            	currentMetaEntity = currentEntityTranslation.getMeta(metaModel);
+            	currentEntity = new Entity(new UUID(), currentMetaEntity); // default position is to assume it's a new entity
             } catch (Exception e) {
         		throw new InputException("Unable to create Entity during import",e);
         	}
@@ -102,12 +106,12 @@ public class EntityImportFactory implements IXMLContentHandler  {
             PropertyTranslation pt = currentEntityTranslation.getPropertyTranslationByType(type);
             if(pt == null) {
                 //System.out.println("Property type " + type + " is not mapped");
-                //throw new InputException("Unrecognised property type while importing XML");
+                throw new InputException("Unrecognised property type while importing XML: " + type);
             } else {
 
 	            //System.out.println("Property " + type + " = " + value);
 	            
-	            UUID uuidMeta = pt.getMeta().getKey();
+	            UUID uuidMeta = pt.getMetaPropertyKey();
 	            propertyIDs.add(uuidMeta); // track which properties read in.
 	            
 	            currentProperty = currentEntity.getPropertyByMeta(uuidMeta);
@@ -146,6 +150,7 @@ public class EntityImportFactory implements IXMLContentHandler  {
 	            //model.addEntity(currentEntity);
 	            
 	            currentEntity = null;
+	            currentMetaEntity = null;
 	            currentEntityTranslation = null;
 	            propertyIDs.clear();
             } catch (Exception e) {

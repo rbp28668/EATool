@@ -14,6 +14,7 @@ import org.xml.sax.Attributes;
 import alvahouse.eatool.repository.exception.InputException;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaModel;
+import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.repository.metamodel.MetaRole;
 import alvahouse.eatool.repository.model.Entity;
 import alvahouse.eatool.repository.model.Model;
@@ -38,6 +39,9 @@ public class RelationshipImportFactory implements IXMLContentHandler, ModelChang
     
     /** Meta model to fetch meta relationships from */
     MetaModel metaModel;
+    
+    /** Current meta relationship that defines what's being defined. */
+    private MetaRelationship currentMetaRelationship = null;
     
     /** Current relationship being defined */
     private Relationship currentRelationship = null;
@@ -126,7 +130,8 @@ public class RelationshipImportFactory implements IXMLContentHandler, ModelChang
 				// want key lookup to allow easy lookup of target entity by
 				// natural composite key. 
 				MetaEntity me = null;
-				me = currentRoleTranslation.getMeta().connectsTo();
+				MetaRole mr = currentMetaRelationship.getMetaRole(currentRoleTranslation.getMetaRoleKey());
+				me = mr.connectsTo();
 				ec = entityLookup.get(me);
 				if(ec == null) {
 				    ec = new EntityKeyLookup(model, me, currentRoleTranslation);
@@ -161,7 +166,8 @@ public class RelationshipImportFactory implements IXMLContentHandler, ModelChang
                 throw new InputException("Relationship type " + type + " not recognised importing XML");
             
             try {
-            	currentRelationship = new Relationship(new UUID(), currentRelationshipTranslation.getMeta(metaModel)); // default position is to assume it's a new relationship
+            	currentMetaRelationship = currentRelationshipTranslation.getMeta(metaModel);
+            	currentRelationship = new Relationship(new UUID(), currentMetaRelationship); // default position is to assume it's a new relationship
             }catch(Exception e) {
             	throw new InputException("Unable to create new relationship during import",e);
             }
@@ -174,7 +180,7 @@ public class RelationshipImportFactory implements IXMLContentHandler, ModelChang
             if(type == null) throw new InputException("Missing role type while importing XML");
             
             currentRoleTranslation = currentRelationshipTranslation.getRoleByTypename(type);
-            MetaRole mr = currentRoleTranslation.getMeta();
+            MetaRole mr = currentMetaRelationship.getMetaRole(currentRoleTranslation.getMetaRoleKey());
             try{
             	currentRole = new Role(new UUID(),mr);
             } catch (Exception e) {
@@ -201,7 +207,7 @@ public class RelationshipImportFactory implements IXMLContentHandler, ModelChang
             // role).  When all the key properties are read in, this entity will
             // provide the composite key that identifies the real target entity
             // for this role.
-            UUID uuidMeta = pt.getMeta().getKey();
+            UUID uuidMeta = pt.getMetaPropertyKey();
             Property p = currentEntity.getPropertyByMeta(uuidMeta);
             p.setValue(value);
 
