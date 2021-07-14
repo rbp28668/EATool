@@ -17,6 +17,7 @@ import java.util.StringTokenizer;
 
 import alvahouse.eatool.repository.base.FactoryBase;
 import alvahouse.eatool.repository.base.RepositoryItem;
+import alvahouse.eatool.repository.dto.graphical.TextualObjectDto;
 import alvahouse.eatool.repository.graphical.GraphicalObject;
 import alvahouse.eatool.repository.graphical.Handle;
 import alvahouse.eatool.util.UUID;
@@ -52,7 +53,21 @@ public abstract class TextualObject extends RepositoryItem implements GraphicalO
 		mustSizeSymbol = true;
     }
 
-    public abstract String getText();
+    /**
+	 * @param dto
+	 */
+	public TextualObject(TextualObjectDto dto) {
+		super(dto);
+		x = dto.getX();
+		y = dto.getY();
+		size = new DimensionFloat(dto.getWidth(), dto.getHeight());
+		backColour = dto.getBackColour();
+		textColour = dto.getTextColour();
+		borderColour = dto.getBorderColour();
+		font = dto.getFont();
+	}
+	
+	public abstract String getText();
 
 	/**
 	 * Draws handles round the symbol.
@@ -524,5 +539,15 @@ public abstract class TextualObject extends RepositoryItem implements GraphicalO
 		copy.borderColour = borderColour;
 		copy.font = font;
 	}
-	
+
+	protected void copyTo(TextualObjectDto dto) {
+		dto.setX(x);
+		dto.setY(y);
+		dto.setWidth(size.getWidth());
+		dto.setHeight(size.getHeight());
+		dto.setBackColour(backColour);
+		dto.setTextColour(textColour);
+		dto.setBorderColour(borderColour);
+		dto.setFont(font);
+	}
 }

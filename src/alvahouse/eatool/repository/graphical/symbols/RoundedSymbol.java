@@ -12,6 +12,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.RoundRectangle2D;
 
 import alvahouse.eatool.repository.base.KeyedItem;
+import alvahouse.eatool.repository.dto.graphical.RoundedSymbolDto;
 import alvahouse.eatool.repository.graphical.standard.AbstractSymbol;
 import alvahouse.eatool.repository.graphical.standard.DimensionFloat;
 import alvahouse.eatool.repository.graphical.standard.SymbolType;
@@ -44,6 +45,14 @@ public class RoundedSymbol extends AbstractSymbol {
     public RoundedSymbol(UUID key, KeyedItem item, SymbolType type) {
         super(key, item, type);
     }
+
+	/**
+ * @param csd
+ */
+public RoundedSymbol(KeyedItem item, SymbolType type, RoundedSymbolDto rsd) {
+	super(item, type, rsd);
+}
+
 
 	/**
 	 * Gets the outline of the symbol.

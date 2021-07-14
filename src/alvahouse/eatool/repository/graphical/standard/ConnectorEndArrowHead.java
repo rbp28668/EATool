@@ -13,6 +13,8 @@ import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 
 import alvahouse.eatool.gui.graphical.standard.UnitVector;
+import alvahouse.eatool.repository.dto.graphical.ConnectorEndArrowHeadDto;
+import alvahouse.eatool.repository.dto.graphical.ConnectorEndDto;
 
 /**
  * ConnectorEndArrowHead
@@ -29,6 +31,14 @@ public class ConnectorEndArrowHead extends ConnectorEnd {
 		super();
 	}
 
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.graphical.standard.ConnectorEnd#toDto()
+	 */
+	@Override
+	public ConnectorEndDto toDto() {
+		return new ConnectorEndArrowHeadDto();
+	}
+	
 
 	public void draw(Graphics2D g, UnitVector pos, float zoom) {
 		if(pos == null) {
@@ -59,5 +69,6 @@ public class ConnectorEndArrowHead extends ConnectorEnd {
 		triangle.addPoint(s,-s2);
 		return triangle;
 	}
-	
+
+
 }

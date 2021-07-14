@@ -12,6 +12,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 
 import alvahouse.eatool.repository.base.KeyedItem;
+import alvahouse.eatool.repository.dto.graphical.DiamondSymbolDto;
 import alvahouse.eatool.repository.graphical.standard.AbstractSymbol;
 import alvahouse.eatool.repository.graphical.standard.DimensionFloat;
 import alvahouse.eatool.repository.graphical.standard.SymbolType;
@@ -44,6 +45,14 @@ public class DiamondSymbol extends AbstractSymbol {
         super(key, item, type);
     }
     
+	/**
+	 * @param csd
+	 */
+	public DiamondSymbol(KeyedItem item, SymbolType type, DiamondSymbolDto dsd) {
+		super(item, type, dsd);
+	}
+
+
 	/**
 	 * Gets the outline of the symbol.
 	 * @return Shape containing the outline symbol.
