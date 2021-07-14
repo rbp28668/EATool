@@ -7,6 +7,7 @@
 package alvahouse.eatool.repository.graphical.standard;
 
 import alvahouse.eatool.repository.base.KeyedItem;
+import alvahouse.eatool.repository.dto.graphical.ConnectorDto;
 import alvahouse.eatool.util.UUID;
 
 /**
@@ -55,6 +56,19 @@ public class BasicConnector extends AbstractConnector {
 		
 	}
 
+	/**
+	 * @param connector
+	 */
+	public BasicConnector(KeyedItem item, ConnectorType type, Symbol start, Symbol finish,  ConnectorDto dto) {
+		super(item, type, start, finish, dto);
+	}
+
+	public ConnectorDto toDto() {
+		ConnectorDto dto = new ConnectorDto();
+		copyTo(dto);
+		return dto;
+	}
+	
 	public Object clone() {
 		BasicConnector copy = new BasicConnector(getKey(), getItem(), getType());
 		cloneTo(copy);

@@ -20,8 +20,8 @@ import javax.imageio.ImageIO;
 
 import alvahouse.eatool.repository.base.KeyedItem;
 import alvahouse.eatool.repository.base.NamedRepositoryItem;
+import alvahouse.eatool.repository.dto.graphical.DiagramDto;
 import alvahouse.eatool.repository.scripting.EventMap;
-import alvahouse.eatool.repository.scripting.Script;
 import alvahouse.eatool.repository.version.Version;
 import alvahouse.eatool.repository.version.VersionImpl;
 import alvahouse.eatool.repository.version.Versionable;
@@ -52,6 +52,20 @@ public abstract class Diagram extends NamedRepositoryItem implements Versionable
 		this.type = type;
 		eventMap = new EventMap();
 		type.getEventMap().cloneTo(eventMap);
+	}
+
+	/**
+	 * @param dto
+	 */
+	public Diagram(DiagramType type, DiagramDto dto) {
+		super(dto);
+		this.type = type;
+		this.isDynamic = dto.isDynamic();
+		this.backColour = dto.getBackColour();
+		this.eventMap = new EventMap(dto.getEventMap());
+		this.eventMap.ensureEvent(ON_DISPLAY_EVENT);
+		this.eventMap.ensureEvent(ON_CLOSE_EVENT);
+		this.version.fromDto(dto.getVersion()); 
 	}
 
 	/**
@@ -413,5 +427,12 @@ public abstract class Diagram extends NamedRepositoryItem implements Versionable
 		version.cloneTo(copy.version);
 	}
 	
-
+	protected void copyTo(DiagramDto dto) {
+		super.copyTo(dto);
+		dto.setTypeKey(type.getKey());
+		dto.setDynamic(isDynamic);
+		dto.setBackColour(backColour);
+		dto.setEventMap(eventMap.toDto());
+		dto.setVersion(version.toDto());
+	}
 }

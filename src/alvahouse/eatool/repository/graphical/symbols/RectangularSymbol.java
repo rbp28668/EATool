@@ -7,6 +7,7 @@
 package alvahouse.eatool.repository.graphical.symbols;
 
 import alvahouse.eatool.repository.base.KeyedItem;
+import alvahouse.eatool.repository.dto.graphical.RectangularSymbolDto;
 import alvahouse.eatool.repository.graphical.standard.AbstractSymbol;
 import alvahouse.eatool.repository.graphical.standard.SymbolType;
 import alvahouse.eatool.util.UUID;
@@ -28,6 +29,13 @@ public class RectangularSymbol extends AbstractSymbol {
 
 	public RectangularSymbol(UUID key,KeyedItem item, SymbolType type) {
 		super(key, item, type);
+	}
+
+	/**
+	 * @param rsd
+	 */
+	public RectangularSymbol(KeyedItem item, SymbolType type, RectangularSymbolDto rsd) {
+		super(item, type, rsd);
 	}
 	
 }

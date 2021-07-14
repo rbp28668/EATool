@@ -17,6 +17,7 @@ import java.util.LinkedList;
 
 import alvahouse.eatool.gui.graphical.layout.Arc;
 import alvahouse.eatool.repository.base.KeyedItem;
+import alvahouse.eatool.repository.dto.graphical.SymbolDto;
 import alvahouse.eatool.repository.model.Entity;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
@@ -43,7 +44,16 @@ public class AbstractSymbol extends TextualObject implements Symbol  {
 		
 	}
     
-    public String getText(){
+    /**
+	 * @param rsd
+	 */
+	public AbstractSymbol(KeyedItem item, SymbolType type, SymbolDto dto) {
+		super(dto);
+        this.item = item;
+        this.type = type;
+	}
+
+	public String getText(){
 		String text = getItem().toString();
 		return text;
     }

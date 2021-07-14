@@ -8,6 +8,7 @@ package alvahouse.eatool.repository.graphical.standard;
 
 import java.io.IOException;
 
+import alvahouse.eatool.repository.dto.graphical.TextBoxDto;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
@@ -29,7 +30,22 @@ public class TextBox extends TextualObject {
         super(key);
     }
 
-    /* (non-Javadoc)
+    /**
+	 * @param textBox
+	 */
+	public TextBox(TextBoxDto dto) {
+		super(dto);
+		text = dto.getText();
+		url = dto.getUrl();
+	}
+
+	public TextBoxDto toDto() {
+		TextBoxDto dto = new TextBoxDto();
+		copyTo(dto);
+		return dto;
+	}
+	
+	/* (non-Javadoc)
      * @see alvahouse.eatool.gui.graphical.standard.TextualObject#getText()
      */
     public String getText() {
@@ -86,6 +102,10 @@ public class TextBox extends TextualObject {
 		copy.url = url;
 	}
 
-	
+	protected void copyTo(TextBoxDto dto) {
+		super.copyTo(dto);
+		dto.setText(text);
+		dto.setUrl(url);
+	}
 
 }

@@ -12,6 +12,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Arc2D;
 
 import alvahouse.eatool.repository.base.KeyedItem;
+import alvahouse.eatool.repository.dto.graphical.CircularSymbolDto;
 import alvahouse.eatool.repository.graphical.standard.AbstractSymbol;
 import alvahouse.eatool.repository.graphical.standard.DimensionFloat;
 import alvahouse.eatool.repository.graphical.standard.SymbolType;
@@ -42,6 +43,13 @@ public class CircularSymbol extends AbstractSymbol {
     public CircularSymbol(UUID key, KeyedItem item, SymbolType type) {
         super(key, item, type);
     }
+
+	/**
+	 * @param csd
+	 */
+	public CircularSymbol(KeyedItem item, SymbolType type, CircularSymbolDto csd) {
+		super(item, type, csd);
+	}
 
 	/**
 	 * Gets the outline of the symbol.
