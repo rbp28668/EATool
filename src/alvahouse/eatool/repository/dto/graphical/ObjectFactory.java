@@ -34,4 +34,9 @@ public class ObjectFactory {
 	
 	public ImageDisplayDto createImageDisplayDto() { return new ImageDisplayDto(); }
 	
+	public StandardDiagramDto createStandardDiagramDto() { return new StandardDiagramDto(); }
+	
+	public SymbolTypeDto createSymbolTypeDto() { return new SymbolTypeDto();}
+	public ConnectorTypeDto createConnectorTypeDto() { return new ConnectorTypeDto();}
+	public StandardDiagramTypeDto createStandardDiagramTypeDto() { return new StandardDiagramTypeDto();}
 }

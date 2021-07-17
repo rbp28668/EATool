@@ -9,6 +9,8 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import alvahouse.eatool.util.UUID;
 
@@ -22,6 +24,13 @@ import alvahouse.eatool.util.UUID;
 		RoundedSymbolDto.class,
 		CircularSymbolDto.class
 		})
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = CircularSymbolDto.class, name = "CircularSymbol"),
+    @JsonSubTypes.Type(value = RectangularSymbolDto.class, name = "RectangularSymbol"),
+    @JsonSubTypes.Type(value = RoundedSymbolDto.class, name = "RoundedSymbol"),
+    @JsonSubTypes.Type(value = DiamondSymbolDto.class, name = "DiamondSymbol")
+    })
 public abstract class SymbolDto extends TextualObjectDto {
 
 	private int index;
@@ -107,7 +116,7 @@ public abstract class SymbolDto extends TextualObjectDto {
 	/**
 	 * @param symbolTypeKey the symbolTypeKey to set
 	 */
-	public void setSymbolTypeKey(String symbolTypeKey) {
+	public void setSymbolTypeKeyJson(String symbolTypeKey) {
 		this.symbolTypeKey = UUID.fromJsonId(symbolTypeKey);
 	}
 

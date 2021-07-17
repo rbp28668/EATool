@@ -6,9 +6,12 @@ import java.io.IOException;
 
 import alvahouse.eatool.repository.base.FactoryBase;
 import alvahouse.eatool.repository.base.KeyedItem;
-import alvahouse.eatool.repository.base.RepositoryItem;
+import alvahouse.eatool.repository.base.NamedRepositoryItem;
+import alvahouse.eatool.repository.dto.graphical.SymbolTypeDto;
 import alvahouse.eatool.repository.exception.LogicException;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
+import alvahouse.eatool.repository.metamodel.MetaEntityProxy;
+import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
@@ -19,18 +22,14 @@ import alvahouse.eatool.util.XMLWriter;
  * @author bruce.porteous
  *
  */
-public class SymbolType extends RepositoryItem implements TextObjectSettings{
+public class SymbolType extends NamedRepositoryItem implements TextObjectSettings{
 
-	private UUID uuid = null;
-	
-	/** Name of this symbol type for display to the user */
-	private String name = null;
 	
 	/** The class used to display the symbol (a subclass of BasicSymbol) */
-	private Class symbolClass;
+	private Class<? extends Symbol> symbolClass;
 	
 	/** Which MetaEntity this symbol type represents */
-	private MetaEntity represents;
+	private MetaEntityProxy represents = new MetaEntityProxy();
 
 	/** Default background colour for symbols of this type */
 	private Color backColour = Color.lightGray;
@@ -45,24 +44,7 @@ public class SymbolType extends RepositoryItem implements TextObjectSettings{
 	private Font font = new Font("SansSerif", Font.PLAIN,10);
 
 
-	protected void cloneTo(SymbolType copy){
-		copy.name = name;
-		copy.symbolClass = symbolClass;
-		copy.represents = represents;
-		copy.backColour = cloneColour(backColour);
-		copy.textColour = cloneColour(textColour);
-		copy.borderColour = cloneColour(borderColour);
-		copy.font = new Font(font.getName(), font.getStyle(), font.getSize());
-	}
 	
-	/**
-	 * Convenience method for cloning a colour.
-	 * @param src is the colour to be cloned.
-	 * @return a new copy of src.
-	 */
-	private Color cloneColour(Color src){
-		return new Color(src.getRed(), src.getGreen(), src.getBlue(), src.getAlpha());
-	}
 	
 	/**
 	 * Constructor for SymbolType.
@@ -80,7 +62,7 @@ public class SymbolType extends RepositoryItem implements TextObjectSettings{
 	 * type corresponding to the given MetaEntity.
 	 * @param name is the name of the symbol type.
 	 */
-	public SymbolType(UUID uuid, MetaEntity represents, Class symbolClass, String name) {
+	public SymbolType(UUID uuid, MetaEntity represents, Class<? extends Symbol> symbolClass, String name) {
 		super(uuid);
 
 		if(represents == null) {
@@ -91,9 +73,9 @@ public class SymbolType extends RepositoryItem implements TextObjectSettings{
 			throw new NullPointerException("Null value for symbol class");
 		}
 		
-		this.represents = represents;
+		this.represents.set(represents);
 		this.symbolClass = symbolClass;
-		this.name = name;
+		setName(name);
 	}
 
 	/**
@@ -102,7 +84,7 @@ public class SymbolType extends RepositoryItem implements TextObjectSettings{
 	 * @param symbolClass is the Class of the Symbol to use for display.
 	 * @param name is the name this SymbolType should be known by.
 	 */
-	 public SymbolType(Class symbolClass, String name){
+	 public SymbolType(Class<? extends Symbol> symbolClass, String name){
 		super(new UUID());
 
 		if(symbolClass == null) {
@@ -111,7 +93,27 @@ public class SymbolType extends RepositoryItem implements TextObjectSettings{
 		
 		this.represents = null;
 		this.symbolClass = symbolClass;
-		this.name = name;
+		setName(name);
+	}
+	
+	/**
+	 * @param stdto
+	 */
+	@SuppressWarnings("unchecked")
+	public SymbolType(SymbolTypeDto stdto) throws Exception {
+		super(stdto);
+		this.represents.setKey(stdto.getMetaEntityKey());
+		this.symbolClass = (Class<? extends Symbol>)Class.forName(stdto.getSymbolClass());
+		this.textColour = stdto.getTextColour();
+		this.backColour = stdto.getBackColour();
+		this.borderColour = stdto.getBorderColour();
+		this.font = stdto.getFont();
+	}
+
+	public SymbolTypeDto toDto() {
+		SymbolTypeDto dto = new SymbolTypeDto();
+		copyTo(dto);
+		return dto;
 	}
 	
 	/* (non-Javadoc)
@@ -122,6 +124,7 @@ public class SymbolType extends RepositoryItem implements TextObjectSettings{
 		cloneTo(copy);
 		return copy;
 	}
+	
 	
 	/**
 	 * updateFromCopy updates this symbol type from a copy.  It's the inverse
@@ -200,11 +203,12 @@ public class SymbolType extends RepositoryItem implements TextObjectSettings{
 	 * use it, otherwise, use the meta-entities name.
 	 * @return String
 	 */
-	public String getName() {
+	public String getName(MetaModel mm) throws Exception {
+		String name = super.getName();
 		if(name != null) {
 			return name;
 		} else {
-			return represents.getName();
+			return represents.get(mm).getName();
 		}
 	}
 
@@ -212,27 +216,24 @@ public class SymbolType extends RepositoryItem implements TextObjectSettings{
 	 * Returns the represents.
 	 * @return MetaEntity
 	 */
-	public MetaEntity getRepresents() {
-		return represents;
+	public MetaEntity getRepresents(MetaModel mm) throws Exception {
+		return represents.get(mm);
 	}
 
+	/**
+	 * Gets the key of the meta entity this binds to.
+	 * @return
+	 */
+	public UUID getRepresentsKey() {
+		return represents.getKey();
+	}
+	
 	/**
 	 * Returns the Class of the SymbolClass used to render this symbol type.
 	 * @return Class
 	 */
-	public Class getRenderClass() {
+	public Class<? extends Symbol> getRenderClass() {
 		return symbolClass;
-	}
-
-	/**
-	 * Sets the name.
-	 * @param name The name to set
-	 */
-	public void setName(String name) {
-		if(name == null) {
-			throw new NullPointerException("Null name for SymbolType");
-		}
-		this.name = name;
 	}
 
 	/**
@@ -243,9 +244,10 @@ public class SymbolType extends RepositoryItem implements TextObjectSettings{
 		if(represents == null) {
 			throw new NullPointerException("Null value for represented meta-entity");
 		}
-		this.represents = represents;
-		if(name == null){
-			name = represents.getName();
+		this.represents.set(represents);
+		String name = super.getName();
+		if(name == null || name.trim().isEmpty()){
+			setName(represents.getName());
 		}
 	}
 
@@ -253,7 +255,7 @@ public class SymbolType extends RepositoryItem implements TextObjectSettings{
 	 * Sets the class used to render this symnbol type.
 	 * @param symbolClass The symbolClass to set
 	 */
-	public void setRenderClass(Class symbolClass) {
+	public void setRenderClass(Class<? extends Symbol> symbolClass) {
 		if(symbolClass == null) {
 			throw new NullPointerException("Null value for symbol class");
 		}
@@ -271,15 +273,10 @@ public class SymbolType extends RepositoryItem implements TextObjectSettings{
 	 * @throws IOException in the event of an io error
 	 */
 	public void writeXML(XMLWriter out) throws IOException {
-		if(name == null){
-			name = represents.getName();
-		}
-		
 		out.startEntity("SymbolType");
-		out.addAttribute("uuid",getKey().toString());
+		writeAttributesXML(out);
 		out.addAttribute("represents", represents.getKey().toString());
 		out.addAttribute("renderClass", symbolClass.getName());
-		out.addAttribute("name",name);
 		FactoryBase.writeColour(out,"DefaultTextColour",textColour);
 		FactoryBase.writeColour(out,"DefaultBackColour",backColour);
 		FactoryBase.writeColour(out,"DefaultBorderColour",borderColour);
@@ -356,5 +353,32 @@ public class SymbolType extends RepositoryItem implements TextObjectSettings{
 		this.font = font;
 	}
 
- 
+	protected void cloneTo(SymbolType copy){
+		super.cloneTo(copy);
+		copy.symbolClass = symbolClass;
+		copy.represents = represents;
+		copy.backColour = cloneColour(backColour);
+		copy.textColour = cloneColour(textColour);
+		copy.borderColour = cloneColour(borderColour);
+		copy.font = new Font(font.getName(), font.getStyle(), font.getSize());
+	}
+	
+	/**
+	 * Convenience method for cloning a colour.
+	 * @param src is the colour to be cloned.
+	 * @return a new copy of src.
+	 */
+	private Color cloneColour(Color src){
+		return new Color(src.getRed(), src.getGreen(), src.getBlue(), src.getAlpha());
+	}
+
+	protected void copyTo(SymbolTypeDto dto) {
+		super.copyTo(dto);
+		dto.setMetaEntityKey(getKey());
+		dto.setSymbolClass(symbolClass.getName());
+		dto.setTextColour(textColour);
+		dto.setBackColour(backColour);
+		dto.setBorderColour(borderColour);
+		dto.setFont(font);
+	}
 }

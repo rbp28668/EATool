@@ -33,6 +33,7 @@ import alvahouse.eatool.repository.graphical.standard.StandardDiagram;
 import alvahouse.eatool.repository.graphical.standard.StandardDiagramType;
 import alvahouse.eatool.repository.graphical.standard.Symbol;
 import alvahouse.eatool.repository.graphical.standard.SymbolType;
+import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.repository.model.Entity;
 import alvahouse.eatool.repository.model.Relationship;
 
@@ -75,16 +76,17 @@ public class ModelViewerActionSet extends StandardDiagramViewerActionSet {
     /** Add selected connectors allows the user to select which type of relationships
 	 * are added to the diagram. */
 	private final Action actionAddSelectedConnectors = new AbstractAction() {
+		private static final long serialVersionUID = 1L;
+
 		public void actionPerformed(ActionEvent e) {
 		    
 			try {
 				StandardDiagram diagram = (StandardDiagram)getViewer().getDiagram();
 				StandardDiagramType dt = (StandardDiagramType)diagram.getType();
 				
-				List allowable = new LinkedList();
-				for(Iterator iter = dt.getConnectorTypes().iterator(); iter.hasNext();){
-				    ConnectorType ct = (ConnectorType)iter.next();
-				    allowable.add(ct.getRepresents());
+				List<MetaRelationship> allowable = new LinkedList<MetaRelationship>();
+				for(ConnectorType ct : dt.getConnectorTypes()){
+				    allowable.add(ct.getRepresents(repository.getMetaModel()));
 				}
 				
 				// Possible that there are no connectors that can be displayed.
@@ -92,19 +94,18 @@ public class ModelViewerActionSet extends StandardDiagramViewerActionSet {
 				    return;
 				}
 				
-				ItemSelectionDialog dlg = new ItemSelectionDialog(getViewer(),"Select relationship type(s)", allowable);
+				ItemSelectionDialog<MetaRelationship> dlg = new ItemSelectionDialog<>(getViewer(),"Select relationship type(s)", allowable);
 				dlg.setVisible(true);
 				if(dlg.wasEdited()){
-				    Set selected = dlg.getSelectedSet();
+				    Set<MetaRelationship> selected = dlg.getSelectedSet();
 				    
 					for(Iterator<? extends Node> iter = diagram.getNodes().iterator(); iter.hasNext();){
 						Symbol symbol = (Symbol)iter.next();
 						
 						Entity entity = (Entity)symbol.getItem();
-						Set connected = entity.getConnectedRelationships();
+						Set<Relationship> connected = entity.getConnectedRelationships();
 						
-						for(Iterator ir = connected.iterator(); ir.hasNext(); ){
-							Relationship r = (Relationship)ir.next();
+						for(Relationship r : connected){
 							
 							if(selected.contains(r.getMeta())){
 								Entity farEntity = null;
@@ -141,6 +142,8 @@ public class ModelViewerActionSet extends StandardDiagramViewerActionSet {
 
 	/** Add Connectors action */
 	private final Action actionAddConnectors = new AbstractAction() {
+		private static final long serialVersionUID = 1L;
+
 		public void actionPerformed(ActionEvent e) {
 			try {
 				StandardDiagram diagram = (StandardDiagram)getViewer().getDiagram();
@@ -155,6 +158,8 @@ public class ModelViewerActionSet extends StandardDiagramViewerActionSet {
 	
 	/** Search and Add action */
 	private final Action actionSearchAndAdd = new AbstractAction() {
+		private static final long serialVersionUID = 1L;
+
 		public void actionPerformed(ActionEvent e) {
 			try {
 				String query =
@@ -205,6 +210,8 @@ public class ModelViewerActionSet extends StandardDiagramViewerActionSet {
 
 	/** Edit an entity*/
 	private final Action actionEntityEdit = new AbstractAction() {
+		private static final long serialVersionUID = 1L;
+
 		public void actionPerformed(ActionEvent e) {
            try {
                StandardDiagramViewer viewer = (StandardDiagramViewer)getViewer();
@@ -226,6 +233,8 @@ public class ModelViewerActionSet extends StandardDiagramViewerActionSet {
 
 	/** Browse a symbol's attached entity */
 	private final Action actionEntityBrowse = new AbstractAction() {
+		private static final long serialVersionUID = 1L;
+
 		public void actionPerformed(ActionEvent e) {
            try {
                StandardDiagramViewer viewer = (StandardDiagramViewer)getViewer();
@@ -247,6 +256,8 @@ public class ModelViewerActionSet extends StandardDiagramViewerActionSet {
 
 	/** Remove selected Symbol from diagram */
 	private final Action actionEntityRemove = new AbstractAction() {
+		private static final long serialVersionUID = 1L;
+
 		public void actionPerformed(ActionEvent e) {
            try {
                StandardDiagramViewer viewer = (StandardDiagramViewer)getViewer();
@@ -264,6 +275,8 @@ public class ModelViewerActionSet extends StandardDiagramViewerActionSet {
 	
 	/** Remove selected Sybmol from diagram and delete attached Entity from model */
 	private final Action actionEntityDelete = new AbstractAction() {
+		private static final long serialVersionUID = 1L;
+
 		public void actionPerformed(ActionEvent e) {
            try {
                StandardDiagramViewer viewer = (StandardDiagramViewer)getViewer();
@@ -291,6 +304,8 @@ public class ModelViewerActionSet extends StandardDiagramViewerActionSet {
 
 	/** Remove selected connector from diagram */
 	private final Action actionRelationshipRemove = new AbstractAction() {
+		private static final long serialVersionUID = 1L;
+
 		public void actionPerformed(ActionEvent e) {
            try {
                StandardDiagramViewer viewer = (StandardDiagramViewer)getViewer();
@@ -309,6 +324,8 @@ public class ModelViewerActionSet extends StandardDiagramViewerActionSet {
 	
 	/** Remove selected connector from diagram and delete underlying relationship from model. */
 	private final Action actionRelationshipDelete = new AbstractAction() {
+		private static final long serialVersionUID = 1L;
+
 		public void actionPerformed(ActionEvent e) {
 	           try {
 	               StandardDiagramViewer viewer = (StandardDiagramViewer)getViewer();
