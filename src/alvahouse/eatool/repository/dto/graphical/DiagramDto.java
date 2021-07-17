@@ -24,7 +24,7 @@ import alvahouse.eatool.util.UUID;
  *
  */
 @XmlAccessorType(XmlAccessType.NONE)
-@XmlType(propOrder = {"backColourJson", "eventMap", "version"})
+@XmlType(propOrder = {"typeKeyJson","backColourJson", "eventMap", "version"})
 public abstract class DiagramDto extends NamedRepositoryItemDto {
 
 	private UUID typeKey;
