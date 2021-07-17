@@ -89,7 +89,7 @@ public class ModelViewerItemHandler implements ItemHandler {
 		try {
 			Collection<SymbolType> symbolTypes = diagramType.getSymbolTypes();
 			for(SymbolType symbolType : symbolTypes){
-				MetaEntity me = symbolType.getRepresents();
+				MetaEntity me = symbolType.getRepresents(repository.getMetaModel());
 				allowedMeta.add(me);
 			}
 
@@ -206,7 +206,7 @@ public class ModelViewerItemHandler implements ItemHandler {
 				return null;
 			}
 			
-			Relationship r = new Relationship( ct.getRepresents());
+			Relationship r = new Relationship( ct.getRepresents(repository.getMetaModel()));
 			r.start().setConnection((Entity)first.getItem());
 			r.finish().setConnection((Entity)second.getItem());
 			
@@ -269,7 +269,7 @@ public class ModelViewerItemHandler implements ItemHandler {
 		Set<ConnectorType> validConnectorTypes = new HashSet<ConnectorType>();
 		for(Iterator<?> iter = connectorTypes.iterator(); iter.hasNext();){
 			ConnectorType ct = (ConnectorType)iter.next();
-			MetaRelationship mr = ct.getRepresents();
+			MetaRelationship mr = ct.getRepresents(repository.getMetaModel());
 			MetaEntity metaStart = mr.start().connectsTo();
 			MetaEntity metaFinish = mr.finish().connectsTo();
 			
@@ -309,12 +309,12 @@ public class ModelViewerItemHandler implements ItemHandler {
 	 * @param connectorTypes is the set of connectorTypes to prune by.
 	 * @return a pruned Set of Relationship.
 	 */
-	private Set<Relationship> pruneRelationships(Set<Relationship> relationships, Set<ConnectorType> connectorTypes){
+	private Set<Relationship> pruneRelationships(Set<Relationship> relationships, Set<ConnectorType> connectorTypes) throws Exception{
 		// Create set of allowable MetaRelationships from the connectorTypes.
 		Set<MetaRelationship> allowableMeta = new HashSet<MetaRelationship>();
 		for(Iterator<ConnectorType> iter = connectorTypes.iterator(); iter.hasNext();){
 			ConnectorType ct = (ConnectorType)iter.next();
-			allowableMeta.add(ct.getRepresents());
+			allowableMeta.add(ct.getRepresents(repository.getMetaModel()));
 		}
 		
 		Set<Relationship> pruned = new HashSet<Relationship>();
@@ -378,7 +378,7 @@ public class ModelViewerItemHandler implements ItemHandler {
 		Collection<?> symbolTypes = diagramType.getSymbolTypes();
 		for(Iterator<?> iter = symbolTypes.iterator(); iter.hasNext();){
 			SymbolType symbolType = (SymbolType)iter.next();
-			MetaEntity me = symbolType.getRepresents();
+			MetaEntity me = symbolType.getRepresents(repository.getMetaModel());
 			allowedMeta.add(me);
 		}
 		

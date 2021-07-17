@@ -3,6 +3,11 @@
  */
 package alvahouse.eatool.repository.dto.graphical;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
+
 import alvahouse.eatool.repository.dto.NamedRepositoryItemDto;
 import alvahouse.eatool.repository.dto.VersionDto;
 import alvahouse.eatool.repository.dto.scripting.EventMapDto;
@@ -11,6 +16,8 @@ import alvahouse.eatool.repository.dto.scripting.EventMapDto;
  * @author bruce_porteous
  *
  */
+@XmlAccessorType(XmlAccessType.NONE)
+@XmlType(propOrder = {"eventMap", "version"})
 public class DiagramTypeDto extends NamedRepositoryItemDto {
 
 	private EventMapDto eventMap;
@@ -20,12 +27,12 @@ public class DiagramTypeDto extends NamedRepositoryItemDto {
 	 * 
 	 */
 	public DiagramTypeDto() {
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
 	 * @return the eventMap
 	 */
+	@XmlElement
 	public EventMapDto getEventMap() {
 		return eventMap;
 	}
@@ -40,6 +47,7 @@ public class DiagramTypeDto extends NamedRepositoryItemDto {
 	/**
 	 * @return the version
 	 */
+	@XmlElement
 	public VersionDto getVersion() {
 		return version;
 	}

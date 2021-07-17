@@ -2,6 +2,8 @@ package alvahouse.eatool.test;
 
 import static org.junit.Assert.fail;
 
+import java.lang.reflect.Array;
+
 /**
  * 
  */
@@ -93,15 +95,18 @@ public class Comparator {
 				if(name.startsWith("get") && m.getParameterCount() == 0) {
 					name = name.substring(3);
 					name = Character.toLowerCase(name.charAt(0)) + name.substring(1);
-					
+
+					// Ignore getClass as recurses to infinity
 					if(name.equals("class")) {
 						continue;
 					}
+					
 					Object prop1 = m.invoke(obj1, nullParams);
 					Object prop2 = m.invoke(obj2, nullParams);
+					
 					if(!objectsEqual(prop1, prop2, where + "," + name)) {
 						return false;
-					} 
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -186,14 +191,14 @@ public class Comparator {
 	 * @param where
 	 */
 	private static boolean compareArrays(Object obj1, Object obj2, String where) {
-		Object[] a1 = (Object[]) obj1;
-		Object[] a2 = (Object[]) obj2;
-		if(a1.length != a2.length) {
+		
+		int len1 = Array.getLength(obj1);
+		if( len1 != Array.getLength(obj2)) {
 			fail("Arrays have different lengths");
 			return false;
 		}
-		for(int i=0; i<a1.length; ++i) {
-			if(!objectsEqual( a1[i], a2[i], where + "[" + i + "]")){
+		for(int i=0; i<len1; ++i) {
+			if(!objectsEqual( Array.get(obj1, i), Array.get(obj2, i), where + "[" + i + "]")){
 				return false;
 			}
 		}

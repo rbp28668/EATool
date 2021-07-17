@@ -8,13 +8,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import alvahouse.eatool.repository.dto.graphical.ConnectorTypeDto;
+import alvahouse.eatool.repository.dto.graphical.StandardDiagramTypeDto;
+import alvahouse.eatool.repository.dto.graphical.SymbolTypeDto;
 import alvahouse.eatool.repository.graphical.Diagram;
 import alvahouse.eatool.repository.graphical.DiagramDetailFactory;
 import alvahouse.eatool.repository.graphical.DiagramType;
 import alvahouse.eatool.repository.graphical.DiagramTypeDetailFactory;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
-import alvahouse.eatool.repository.scripting.Scripts;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
@@ -30,8 +32,9 @@ public class StandardDiagramType extends DiagramType {
 
 	private List<SymbolType> symbolTypes = new LinkedList<SymbolType>(); // of SymbolType
 	private List<ConnectorType> connectorTypes = new LinkedList<ConnectorType>(); // of ConnectorType
-	private Map<MetaEntity, SymbolType> symbolLookup = new HashMap<MetaEntity, SymbolType>(); // by meta type
-	private Map<MetaRelationship, ConnectorType> connectorLookup = new HashMap<MetaRelationship, ConnectorType>(); // by
+	
+	private Map<UUID, SymbolType> symbolLookup = new HashMap<>(); // by key of meta entity
+	private Map<UUID, ConnectorType> connectorLookup = new HashMap<>(); // by key of meta relationship
 																													// meta
 																													// type
 	private Map<UUID, SymbolType> symbolLookupByUUID = new HashMap<UUID, SymbolType>();
@@ -55,6 +58,18 @@ public class StandardDiagramType extends DiagramType {
 		super(name, uuid);
 	}
 
+	public StandardDiagramType(StandardDiagramTypeFamily family, StandardDiagramTypeDto dto) throws Exception {
+		super(family, dto);
+		for (SymbolTypeDto stdto : dto.getSymbolTypes()) {
+			SymbolType st = new SymbolType(stdto);
+			_add(st);
+		}
+		for (ConnectorTypeDto ctdto : dto.getConnectorTypes()) {
+			ConnectorType ct = new ConnectorType(ctdto);
+			_add(ct);
+		}
+	}
+
 	/**
 	 * @param copy
 	 */
@@ -64,20 +79,18 @@ public class StandardDiagramType extends DiagramType {
 		// Do deep copy as child objects mutable.
 		copy.symbolTypes.clear();
 		for (SymbolType st : symbolTypes) {
-			copy.symbolTypes.add((SymbolType) st.clone());
-			copy.symbolLookup.put(st.getRepresents(), st);
-			copy.symbolLookupByUUID.put(st.getKey(), st);
+			copy._add((SymbolType) st.clone());
 		}
 		copy.connectorTypes.clear();
 		for (ConnectorType ct : connectorTypes) {
-			copy.connectorTypes.add((ConnectorType) ct.clone());
-			copy.connectorLookup.put(ct.getRepresents(), ct);
-			copy.connectorLookupByUUID.put(ct.getKey(), ct);
+			copy._add((ConnectorType) ct.clone());
 		}
 
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#clone()
 	 */
 	public Object clone() {
@@ -104,12 +117,19 @@ public class StandardDiagramType extends DiagramType {
 		if (st == null) {
 			throw new NullPointerException("Adding null symbol type to diagram type");
 		}
-		if (symbolLookup.containsKey(st.getRepresents())) {
+		if (symbolLookup.containsKey(st.getRepresentsKey())) {
 			throw new IllegalStateException("StandardDiagram type already contains a symbol type for meta entity "
-					+ st.getRepresents().getName());
+					+ st.getRepresentsKey());
 		}
+		_add(st);
+	}
+
+	/**
+	 * @param st
+	 */
+	private void _add(SymbolType st) {
 		symbolTypes.add(st);
-		symbolLookup.put(st.getRepresents(), st);
+		symbolLookup.put(st.getRepresentsKey(), st);
 		symbolLookupByUUID.put(st.getKey(), st);
 	}
 
@@ -132,7 +152,7 @@ public class StandardDiagramType extends DiagramType {
 	 *                                  symbol type.
 	 */
 	public SymbolType getSymbolTypeFor(MetaEntity me) {
-		SymbolType st = (SymbolType) symbolLookup.get(me);
+		SymbolType st = symbolLookup.get(me.getKey());
 		if (st == null) {
 			throw new IllegalArgumentException("Meta entity does not correspond to a known symbol type");
 		}
@@ -147,7 +167,7 @@ public class StandardDiagramType extends DiagramType {
 	 * @throws NullPonterException - if me is null
 	 */
 	public boolean hasSymbolTypeFor(MetaEntity me) {
-		return symbolLookup.containsKey(me);
+		return symbolLookup.containsKey(me.getKey());
 	}
 
 	/**
@@ -159,13 +179,20 @@ public class StandardDiagramType extends DiagramType {
 		if (ct == null) {
 			throw new NullPointerException("Adding null connector type to diagram type");
 		}
-		if (connectorLookup.containsKey(ct.getRepresents())) {
+		if (connectorLookup.containsKey(ct.getRepresentsKey())) {
 			throw new IllegalStateException(
 					"StandardDiagram type already contains a connector type for meta relationship "
-							+ ct.getRepresents().getName());
+							+ ct.getRepresentsKey());
 		}
+		_add(ct);
+	}
+
+	/**
+	 * @param ct
+	 */
+	private void _add(ConnectorType ct) {
 		connectorTypes.add(ct);
-		connectorLookup.put(ct.getRepresents(), ct);
+		connectorLookup.put(ct.getRepresentsKey(), ct);
 		connectorLookupByUUID.put(ct.getKey(), ct);
 	}
 
@@ -188,7 +215,7 @@ public class StandardDiagramType extends DiagramType {
 	 *                                  connector type.
 	 */
 	public ConnectorType getConnectorTypeFor(MetaRelationship mr) {
-		ConnectorType ct = (ConnectorType) connectorLookup.get(mr);
+		ConnectorType ct = (ConnectorType) connectorLookup.get(mr.getKey());
 		if (ct == null) {
 			throw new IllegalArgumentException("Meta relationship does not correspond to a known connector type");
 		}
@@ -203,7 +230,7 @@ public class StandardDiagramType extends DiagramType {
 	 * @throws NullPonterException - if mr is null
 	 */
 	public boolean hasConnectorTypeFor(MetaRelationship mr) {
-		return connectorLookup.containsKey(mr);
+		return connectorLookup.containsKey(mr.getKey());
 	}
 
 	/**
@@ -282,11 +309,11 @@ public class StandardDiagramType extends DiagramType {
 	 * @param meta is the meta-entity to have its symbol type removed.
 	 */
 	public void removeSymbolsFor(MetaEntity meta) {
-		SymbolType st = (SymbolType) symbolLookup.get(meta);
+		SymbolType st = (SymbolType) symbolLookup.get(meta.getKey());
 		if (st != null) {
 			symbolTypes.remove(st);
 			symbolLookupByUUID.remove(st.getKey());
-			symbolLookup.remove(meta);
+			symbolLookup.remove(meta.getKey());
 		}
 	}
 
@@ -296,11 +323,11 @@ public class StandardDiagramType extends DiagramType {
 	 * @param meta is the meta-relationship to have its connector type removed.
 	 */
 	public void removeConnectorsFor(MetaRelationship meta) {
-		ConnectorType st = (ConnectorType) connectorLookup.get(meta);
+		ConnectorType st = (ConnectorType) connectorLookup.get(meta.getKey());
 		if (st != null) {
 			connectorTypes.remove(st);
 			connectorLookupByUUID.remove(st.getKey());
-			connectorLookup.remove(meta);
+			connectorLookup.remove(meta.getKey());
 		}
 	}
 
@@ -315,7 +342,7 @@ public class StandardDiagramType extends DiagramType {
 		MetaEntity start = meta.start().connectsTo();
 		MetaEntity finish = meta.finish().connectsTo();
 
-		if (!(symbolLookup.containsKey(start) && symbolLookup.containsKey(finish))) {
+		if (!(symbolLookup.containsKey(start.getKey()) && symbolLookup.containsKey(finish.getKey()))) {
 			removeConnectorsFor(meta);
 		}
 	}
@@ -337,6 +364,5 @@ public class StandardDiagramType extends DiagramType {
 	public DiagramTypeDetailFactory getTypeDetailFactory() {
 		return new StandardDiagramTypeFactory();
 	}
-
 
 }

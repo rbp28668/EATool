@@ -2,9 +2,12 @@ package alvahouse.eatool.repository.graphical.standard;
 
 import java.io.IOException;
 
-import alvahouse.eatool.repository.base.RepositoryItem;
+import alvahouse.eatool.repository.base.NamedRepositoryItem;
+import alvahouse.eatool.repository.dto.graphical.ConnectorTypeDto;
 import alvahouse.eatool.repository.exception.LogicException;
+import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
+import alvahouse.eatool.repository.metamodel.MetaRelationshipProxy;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
@@ -15,18 +18,11 @@ import alvahouse.eatool.util.XMLWriter;
  * @author bruce.porteous
  *
  */
-public class ConnectorType extends RepositoryItem{
+public class ConnectorType extends NamedRepositoryItem{
 
-	private String name = null;
-	private Class connectorClass = null;
-	private MetaRelationship represents = null;
+	private Class<? extends Connector> connectorClass = null;
+	private MetaRelationshipProxy represents = new MetaRelationshipProxy();
 
-	protected void cloneTo(ConnectorType copy){
-		copy.name = name;
-		copy.connectorClass = connectorClass;
-		copy.represents = represents;
-	}
-	
 
 	/**
 	 * Constructor for ConnectorType.
@@ -41,7 +37,7 @@ public class ConnectorType extends RepositoryItem{
 	 * @param connectorClass
 	 * @param name
 	 */
-	public ConnectorType(UUID key, MetaRelationship represents, Class connectorClass, String name){
+	public ConnectorType(UUID key, MetaRelationship represents, Class<? extends Connector> connectorClass, String name){
 	    super(key);
 	    
 		if(represents == null) {
@@ -51,9 +47,9 @@ public class ConnectorType extends RepositoryItem{
 			throw new NullPointerException("Null value for connector class");
 		}
 		
-		this.represents = represents;
+		this.represents.set(represents);
 		this.connectorClass = connectorClass;
-		this.name = name;
+		setName(name);
 	}
 
 	/**
@@ -61,7 +57,7 @@ public class ConnectorType extends RepositoryItem{
 	 * @param connectorClass
 	 * @param name
 	 */
-	public ConnectorType(Class connectorClass, String name){
+	public ConnectorType(Class<? extends Connector> connectorClass, String name){
 	    super(new UUID());
 	    
 		if(connectorClass == null) {
@@ -70,9 +66,22 @@ public class ConnectorType extends RepositoryItem{
 		
 		this.represents = null;
 		this.connectorClass = connectorClass;
-		this.name = name;
+		setName(name);
 	}
 
+	@SuppressWarnings("unchecked")
+	public ConnectorType(ConnectorTypeDto dto) throws Exception {
+		super(dto);
+		this.represents.setKey(dto.getMetaRelationshipKey());
+		this.connectorClass = (Class<? extends Connector>) Class.forName(dto.getConnectorClass());
+	}
+	
+	public ConnectorTypeDto toDto() {
+		ConnectorTypeDto dto = new ConnectorTypeDto();
+		copyTo(dto);
+		return dto;
+	}
+	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#clone()
 	 */
@@ -115,11 +124,12 @@ public class ConnectorType extends RepositoryItem{
 	 * use it, otherwise, use the meta-entities name.
 	 * @return String
 	 */
-	public String getName() {
+	public String getName(MetaModel mm) throws Exception {
+		String name = super.getName();
 		if(name != null) {
 			return name;
 		} else {
-			return represents.getName();
+			return represents.get(mm).getName();
 		}
 	}
 
@@ -134,28 +144,26 @@ public class ConnectorType extends RepositoryItem{
 	 * Returns the represents.
 	 * @return MetaEntity
 	 */
-	public MetaRelationship getRepresents() {
-		return represents;
+	public MetaRelationship getRepresents(MetaModel mm) throws Exception {
+		return represents.get(mm);
 	}
 
+	/**
+	 * Gets the key of the meta relationship that this connector type draws relationships for. 
+	 * @return
+	 */
+	public UUID getRepresentsKey() {
+		return represents.getKey();
+	}
+	
 	/**
 	 * Returns the Class of the ConnectorClass used to render this connector type.
 	 * @return Class
 	 */
-	public Class getRenderClass() {
+	public Class<? extends Connector> getRenderClass() {
 		return connectorClass;
 	}
 
-	/**
-	 * Sets the name.
-	 * @param name The name to set
-	 */
-	public void setName(String name) {
-		if(name == null) {
-			throw new NullPointerException("Null name for ConnectorType");
-		}
-		this.name = name;
-	}
 
 	/**
 	 * Sets the represents.
@@ -165,17 +173,14 @@ public class ConnectorType extends RepositoryItem{
 		if(represents == null) {
 			throw new NullPointerException("Null value for represented meta-relationship");
 		}
-		this.represents = represents;
-		if(name == null){
-			name = represents.getName();
-		}
+		this.represents.set(represents);
 	}
 
 	/**
 	 * Sets the class used to render this symnbol type.
 	 * @param connectorClass The connectorClass to set
 	 */
-	public void setRenderClass(Class connectorClass) {
+	public void setRenderClass(Class<? extends Connector> connectorClass) {
 		if(connectorClass == null) {
 			throw new NullPointerException("Null value for connector class");
 		}
@@ -192,18 +197,24 @@ public class ConnectorType extends RepositoryItem{
 	 * @throws IOException in the event of an io error
 	 */
 	public void writeXML(XMLWriter out) throws IOException {
-		if(name == null){
-			name = represents.getName();
-		}
-		
 		out.startEntity("ConnectorType");
-		out.addAttribute("uuid",getKey().toString());
+		writeAttributesXML(out);
 		out.addAttribute("represents", represents.getKey().toString());
 		out.addAttribute("renderClass", connectorClass.getName());
-		out.addAttribute("name", name);
 		out.stopEntity();
 	}
 
+	protected void cloneTo(ConnectorType copy){
+		super.cloneTo(copy);
+		copy.connectorClass = connectorClass;
+		copy.represents = represents;
+	}
+	
+	protected void copyTo(ConnectorTypeDto dto) {
+		super.copyTo(dto);
+		dto.setConnectorClass(getClass().getName());
+		dto.setMetaRelationshipKey(represents.getKey());
+	}
 
  
 }
