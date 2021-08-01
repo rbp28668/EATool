@@ -41,7 +41,7 @@ public class Property extends RepositoryItem  implements Cloneable  {
         this.container = container;
     }
 
-	/**
+ 	/**
 	 * @return
 	 */
 	public PropertyDto toDao() {
@@ -120,7 +120,7 @@ public class Property extends RepositoryItem  implements Cloneable  {
     /** sets the parent entity for this property
      * e is the parent entity
      */
-    void setContainer(PropertyContainer container) {
+    public void setContainer(PropertyContainer container) {
         this.container = container;
     }
     

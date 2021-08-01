@@ -55,6 +55,23 @@ public abstract class PropertyContainer extends RepositoryItem{
         return (Property)properties.get(uuidMeta);
     }
 
+    /** Gets a child property given its corresponding MetaProperty.
+     * If the property doesn't exist (possible if a new MetaProperty has been created)
+     * then a new one is created and initialised.
+     * @param mp is the meta property to get the property value for.
+     * @return the property corresponding to the key
+     */
+    public Property getPropertyByMeta(MetaProperty mp) {
+        Property p = properties.get(mp.getKey());
+        if(p == null) {
+            p = new Property(new UUID(), mp);
+            p.setContainer(this);
+            properties.put(mp.getKey(),p);
+            propertyList.add(p);
+        }
+        return p;
+    }
+
     /** gets an iterator that can be used to retrieve all the -properties
      * for this -entity
      * @return an iterator for -properties
@@ -90,12 +107,17 @@ public abstract class PropertyContainer extends RepositoryItem{
      * to a change in the meta-model.
      * @param p is the property to add.
      */
-    protected void addProperty(Property p){
+    public void addProperty(Property p){
         if(p == null){
             throw new NullPointerException("Can't add null property");
         }
+        UUID metaKey = p.getMeta().getKey();
+        if(properties.containsKey(metaKey)) {
+        	throw new IllegalArgumentException("Properties already contains property of type " + p.getMeta().getName());
+        }
+        
         propertyList.add(p);
-        properties.put(p.getMeta().getKey(), p);
+        properties.put(metaKey, p);
     }
     
     /**

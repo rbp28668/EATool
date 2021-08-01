@@ -110,7 +110,7 @@ public class DiagramExplorerActionSet extends ActionSet {
                 DiagramTypeEditor editor = getTypeEditor(metaModel, diagramTypes, diagramType);
                 editor.setVisible(true);
 				if(editor.wasEdited()){
-					diagramTypes.signalEdited(diagramType);
+					diagramTypes.update(diagramType);
 				}
 			} catch(Throwable t) {
 				new ExceptionDisplay(explorer,t);

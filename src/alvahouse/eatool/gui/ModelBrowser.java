@@ -469,7 +469,7 @@ public class ModelBrowser extends JInternalFrame {
             for(Entity e : entities){
                 buff.append("<tr>");
                 for(MetaProperty mp : me.getMetaProperties()){
-                    Property p = e.getPropertyByMeta(mp.getKey());
+                    Property p = e.getPropertyByMeta(mp);
                     buff.append("<td>");
                     buff.append(p.getValue());
                     buff.append("</td>");

@@ -219,9 +219,9 @@ public class EventMap implements Versionable{
         
         for(Map.Entry<String,ScriptProxy> entry : handlers.entrySet()){
             ScriptProxy handler = entry.getValue();
-            if(handler != null){
+            if(handler != null && !handler.isNull()){
                 out.startEntity("Event");
-                out.addAttribute("name",(String)entry.getKey());
+                out.addAttribute("name", entry.getKey().toString());
                 out.addAttribute("handler", handler.getKey().toString());
                 out.stopEntity();
             }
@@ -249,9 +249,9 @@ public class EventMap implements Versionable{
         
         for(Map.Entry<String,ScriptProxy> entry : handlers.entrySet()){
             ScriptProxy handler = entry.getValue();
-            if(handler != null){
+            if(handler != null && !handler.isNull()){
                 out.startEntity("Event");
-                out.addAttribute("name",(String)entry.getKey());
+                out.addAttribute("name", entry.getKey().toString());
                 out.addAttribute("handler", handler.getKey().toString());
                 out.stopEntity();
             }

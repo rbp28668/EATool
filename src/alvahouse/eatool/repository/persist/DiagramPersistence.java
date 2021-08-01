@@ -31,6 +31,12 @@ public interface DiagramPersistence {
 	 * @param uuid
 	 * @return
 	 */
+	public boolean contains(UUID uuid) throws Exception;
+
+	/**
+	 * @param uuid
+	 * @return
+	 */
 	public Diagram lookup(UUID uuid) throws Exception;
 
 	/**

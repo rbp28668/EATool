@@ -39,4 +39,11 @@ public class ObjectFactory {
 	public SymbolTypeDto createSymbolTypeDto() { return new SymbolTypeDto();}
 	public ConnectorTypeDto createConnectorTypeDto() { return new ConnectorTypeDto();}
 	public StandardDiagramTypeDto createStandardDiagramTypeDto() { return new StandardDiagramTypeDto();}
+	
+	public TimeDiagramDto createTimeDiagramDto() { return new TimeDiagramDto();}
+	public TimeDiagramEntryDto createTimeDiagramEntryDto() { return new TimeDiagramEntryDto(); }
+	public TimeDiagramTypeDto createTimeDiagramTypeDto() { return new TimeDiagramTypeDto(); }
+	public TypeEntryDto createTypeEntryDto() { return new TypeEntryDto(); }
+	
+	
 }
