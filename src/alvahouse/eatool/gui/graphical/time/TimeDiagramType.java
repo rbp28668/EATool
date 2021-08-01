@@ -17,15 +17,18 @@ import java.util.Map;
 import java.util.Vector;
 
 import alvahouse.eatool.repository.base.FactoryBase;
+import alvahouse.eatool.repository.dto.graphical.TimeDiagramTypeDto;
+import alvahouse.eatool.repository.dto.graphical.TypeEntryDto;
 import alvahouse.eatool.repository.graphical.Diagram;
 import alvahouse.eatool.repository.graphical.DiagramDetailFactory;
 import alvahouse.eatool.repository.graphical.DiagramType;
 import alvahouse.eatool.repository.graphical.DiagramTypeDetailFactory;
+import alvahouse.eatool.repository.graphical.DiagramTypeFamily;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
+import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.metamodel.MetaProperty;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.repository.metamodel.types.TimeSeriesType;
-import alvahouse.eatool.repository.scripting.Scripts;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
@@ -64,6 +67,24 @@ public class TimeDiagramType extends DiagramType {
         super(uuid);
     }
 
+    public TimeDiagramType(MetaModel mm, DiagramTypeFamily family, TimeDiagramTypeDto dto) throws Exception {
+    	super(family, dto);
+    	for(TypeEntryDto target : dto.getTargets()) {
+    		MetaEntity targetType = mm.getMetaEntity(target.getTargetTypeKey());
+    		MetaProperty targetProperty = targetType.getMetaProperty(target.getTargetPropertyKey());
+    		TypeEntry entry = new TypeEntry(targetType, targetProperty);
+    		entry.setColours(target.getColours());
+    		addTarget(entry);
+    	}
+    }
+    
+    public TimeDiagramTypeDto toDto() {
+    	TimeDiagramTypeDto dto = new TimeDiagramTypeDto();
+    	copyTo(dto);
+    	return dto;
+    }
+    
+    
     /**
      * Adds a target (TypeEntry - the meta-entity, meta-property and colours needed to display it) to
      * the diagram type.
@@ -187,10 +208,21 @@ public class TimeDiagramType extends DiagramType {
 	protected void cloneTo(TimeDiagramType copy) {
 		super.cloneTo(copy);
 		for(TypeEntry target : targets) {
-			addTarget((TypeEntry) target.clone()); 
+			copy.addTarget((TypeEntry) target.clone()); 
 		}
 	}
 
+	protected void copyTo(TimeDiagramTypeDto dto) {
+		super.copyTo(dto);
+		for(TypeEntry target : targets) {
+			TypeEntryDto entry = new TypeEntryDto();
+			entry.setTargetTypeKey(target.targetType.getKey());
+			entry.setTargetPropertyKey(target.getTargetProperty().getKey());
+			entry.setColours(target.getColours());
+			dto.getTargets().add(entry);
+		}
+		
+	}
     
     /**
      * TypeEntry describes a MetaEntity/MetaProperty pair and colours needed to display 
@@ -297,6 +329,7 @@ public class TimeDiagramType extends DiagramType {
         @Override
         protected Object clone() {
         	TypeEntry copy = new TypeEntry(targetType, targetProperty);
+        	copy.colours = new Vector<Color>(colours.size());
         	copy.colours.addAll(colours);
         	return copy;
         }

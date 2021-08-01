@@ -80,7 +80,7 @@ public class EntityListExportProxy implements ExportProxy {
 
             out.startEntity("Properties");
             for(MetaProperty mp : me.getMetaProperties()){
-                Property p = e.getPropertyByMeta(mp.getKey());
+                Property p = e.getPropertyByMeta(mp);
                 out.startEntity("Property");
                 out.addAttribute("summary",mp.isSummary()?"true":"false");
                 out.textEntity("Value",p.getValue());

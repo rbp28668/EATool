@@ -172,7 +172,7 @@ public class PropertySelectionDialog extends BasicDialog {
             Entity e = (Entity)obj;
         	DefaultMutableTreeNode entryNode = (DefaultMutableTreeNode) path[len-2];
         	TimeDiagramType.TypeEntry entry = (TimeDiagramType.TypeEntry)entryNode.getUserObject();
-            p = e.getPropertyByMeta(entry.getTargetProperty().getKey());
+            p = e.getPropertyByMeta(entry.getTargetProperty());
         }
         return p;
     }

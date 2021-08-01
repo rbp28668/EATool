@@ -2,13 +2,10 @@ package alvahouse.eatool.repository.graphical;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.function.BooleanSupplier;
 
-import alvahouse.eatool.repository.model.Entity;
 import alvahouse.eatool.repository.model.Model;
 import alvahouse.eatool.repository.model.ModelChangeAdapter;
 import alvahouse.eatool.repository.model.ModelChangeEvent;
@@ -29,17 +26,6 @@ public class Diagrams extends ModelChangeAdapter {
 
 	private final DiagramPersistence persistence;
 	private List<DiagramsChangeListener> changeListeners = new LinkedList<DiagramsChangeListener>(); // of DiagramsChangeListener
-	
-	/**
-	 * Gets a list of diagrams of a particular type.  If there is no
-	 * existing list, then a new, empty, list is created for the given
-	 * diagram type and stored against that type.
-	 * @param type is the diagram type to get the associated diagrams for.
-	 * @return List of diagrams: never null, may be empty.
-	 */
-	private Collection<Diagram> getDiagramList(DiagramType type) throws Exception {
-		return persistence.getDiagramsByType(type);
-	}
 	
 	private Collection<Diagram> getDiagrams() throws Exception {
 		return persistence.getDiagrams();
@@ -65,6 +51,16 @@ public class Diagrams extends ModelChangeAdapter {
         return persistence.lookup(uuid);
     }
 
+    /**
+     * Determines whether there is a diagram with a given key.
+     * @param uuid
+     * @return
+     * @throws Exception
+     */
+    public boolean contains(UUID uuid) throws Exception {
+    	return persistence.contains(uuid);
+    }
+    
 	/**
 	 * This adds a diagram to the diagrams collection.
 	 * @param diagram is the diagram to add.
@@ -127,11 +123,15 @@ public class Diagrams extends ModelChangeAdapter {
 	
 	/**
 	 * Returns a collection of all the diagrams of a given diagram type.
+	 * If there is no existing list, then a new, empty, list is created for the given
+	 * diagram type and stored against that type.
+	 * @param type is the diagram type to get the associated diagrams for.
+	 * @return List of diagrams: never null, may be empty.
 	 * @param type is the DiagramType of the diagrams to be returned.
 	 * @return Collection of diagrams.  May be empty, never null.
 	 */
 	public Collection<Diagram> getDiagramsOfType(DiagramType type) throws Exception {
-		return getDiagramList(type);
+		return persistence.getDiagramsByType(type);
 	}
 
 	public void addChangeListener(DiagramsChangeListener listener){
@@ -142,7 +142,15 @@ public class Diagrams extends ModelChangeAdapter {
 		changeListeners.remove(listener);
 	}
 	
-	
+	/**
+	 * Determines whether a change listener is active.
+	 * @param l
+	 * @return
+	 */
+	public boolean isActive(DiagramsChangeListener l) {
+		return changeListeners.contains(l);
+	}
+
 	
 	public void deleteContents() throws Exception{
 		persistence.dispose();
@@ -277,6 +285,9 @@ public class Diagrams extends ModelChangeAdapter {
         Role role = (Role)e.getSource();
         validateRelationship(role.getRelationship());
     }
+
+
+
 
 
 }

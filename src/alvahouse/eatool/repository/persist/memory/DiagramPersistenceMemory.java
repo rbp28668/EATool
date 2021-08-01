@@ -58,6 +58,14 @@ public class DiagramPersistenceMemory implements DiagramPersistence {
 	}
 
 	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.persist.DiagramPersistence#contains(alvahouse.eatool.util.UUID)
+	 */
+	@Override
+	public boolean contains(UUID uuid) throws Exception {
+		return diagrams.containsKey(uuid);
+	}
+
+	/* (non-Javadoc)
 	 * @see alvahouse.eatool.repository.persist.DiagramPersistence#lookup(alvahouse.eatool.util.UUID)
 	 */
 	@Override

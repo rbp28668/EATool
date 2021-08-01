@@ -783,7 +783,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
                 for(Entity entity : model.getEntitiesOfType(me)){
                     boolean isChanged = false;
                     for(MetaProperty mp : changed){
-                        Property p = entity.getPropertyByMeta(mp.getKey());
+                        Property p = entity.getPropertyByMeta(mp);
                         try {
                             mp.getMetaPropertyType().validate(p.getValue());
                         } catch (IllegalArgumentException x){
