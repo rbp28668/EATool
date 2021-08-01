@@ -182,15 +182,23 @@ public class DiagramTypes extends MetaModelChangeAdapter {
 		changeListeners.remove(listener);
 	}
 	
-	
 	/**
-	 * Allows anything (such as a dialog) that edits a DiagramType to
-	 * fire the event to any registered listeners.
-	 * @param dt is the edited DiagramType.
+	 * Determines if the given change listener is active i.e. registered.
+	 * @param listener
+	 * @return
 	 */
-	public void signalEdited(DiagramType dt) throws Exception{
-		fireDiagramTypeChanged(dt);
+	public boolean isActive(DiagramsChangeListener listener) {
+		return changeListeners.contains(listener);
 	}
+	
+//	/**
+//	 * Allows anything (such as a dialog) that edits a DiagramType to
+//	 * fire the event to any registered listeners.
+//	 * @param dt is the edited DiagramType.
+//	 */
+//	public void signalEdited(DiagramType dt) throws Exception{
+//		fireDiagramTypeChanged(dt);
+//	}
 	
 	/**
 	 * Get the collection of all DiagramTypeFamily.  Iterate through

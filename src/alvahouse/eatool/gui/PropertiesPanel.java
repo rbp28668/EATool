@@ -18,6 +18,7 @@ import alvahouse.eatool.repository.metamodel.MetaPropertyContainer;
 import alvahouse.eatool.repository.metamodel.types.MetaPropertyType;
 import alvahouse.eatool.repository.model.Property;
 import alvahouse.eatool.repository.model.PropertyContainer;
+import alvahouse.eatool.util.UUID;
 
 /*=================================================================*/
 // PropertiesPanel is the edit panel for the entity's properties
@@ -67,7 +68,8 @@ public class PropertiesPanel extends JPanel{
             layout.setConstraints(type,c);
             add(type);
             
-            Property p = pc.getPropertyByMeta(mp.getKey());
+            Property p = pc.getPropertyByMeta(mp);
+            
             Component component;
             if(mp.isReadOnly()) {
                 component = mp.getMetaPropertyType().getRenderer(p.getValue());

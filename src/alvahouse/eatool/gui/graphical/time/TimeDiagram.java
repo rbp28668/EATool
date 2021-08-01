@@ -28,11 +28,14 @@ import java.util.Set;
 
 import alvahouse.eatool.gui.graphical.time.TimeDiagramType.TypeEntry;
 import alvahouse.eatool.repository.base.KeyedItem;
+import alvahouse.eatool.repository.dto.graphical.TimeDiagramDto;
+import alvahouse.eatool.repository.dto.graphical.TimeDiagramEntryDto;
 import alvahouse.eatool.repository.graphical.Diagram;
 import alvahouse.eatool.repository.graphical.DiagramType;
 import alvahouse.eatool.repository.graphical.GraphicalProxy;
 import alvahouse.eatool.repository.metamodel.MetaProperty;
 import alvahouse.eatool.repository.model.Entity;
+import alvahouse.eatool.repository.model.Model;
 import alvahouse.eatool.repository.model.Property;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
@@ -205,6 +208,27 @@ public class TimeDiagram extends Diagram {
 		font = new Font("SansSerif", Font.PLAIN,10);
     }
 
+    public TimeDiagram( Model model, TimeDiagramType type, TimeDiagramDto dto) throws Exception {
+    	super(type, dto);
+    	this.type = type;
+    	this.timeAxis = dto.getTimeAxis();
+		font = new Font("SansSerif", Font.PLAIN,10);
+		
+		for(TimeDiagramEntryDto entry : dto.getProperties()) {
+			Entity e = model.getEntity(entry.getEntityKey());
+			Property p = e.getPropertyByMeta(entry.getMetaPropertyKey());
+			if(p != null) {
+				addProperty(p);
+			}
+		}
+    }
+    
+    public TimeDiagramDto toDto() {
+    	TimeDiagramDto dto = new TimeDiagramDto();
+    	copyTo(dto);
+    	return dto;
+    }
+    
     /**
      * Low level method for adding a property to the diagram without firing any events etc.
      * Intended for deserialising TimeDiagrams.
@@ -759,6 +783,15 @@ public class TimeDiagram extends Diagram {
 		}
 	}
     
+	protected void copyTo(TimeDiagramDto dto) {
+		super.copyTo(dto);
+		for(Property p : properties) {
+			TimeDiagramEntryDto entry = new TimeDiagramEntryDto();
+			entry.setEntityKey(p.getContainer().getKey());
+			entry.setMetaPropertyKey(p.getMeta().getKey());
+			dto.getProperties().add(entry);
+		}
+	}
     
     private static class CaptionMarker{
         

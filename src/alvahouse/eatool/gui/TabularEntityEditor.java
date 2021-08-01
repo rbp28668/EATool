@@ -619,7 +619,7 @@ public class TabularEntityEditor extends JInternalFrame {
                 return values.get(column);
             } else {
                 MetaProperty mp = (MetaProperty)metaProperties.get(column);
-                return entity.getPropertyByMeta(mp.getKey()).getValue();
+                return entity.getPropertyByMeta(mp).getValue();
             }
         }
         
@@ -630,7 +630,7 @@ public class TabularEntityEditor extends JInternalFrame {
                 values = new Vector<Object>(metaProperties.size());
                 for(int i=0; i<metaProperties.size(); ++i){
                     MetaProperty mp = (MetaProperty)metaProperties.get(i);
-                    Property p = entity.getPropertyByMeta(mp.getKey());
+                    Property p = entity.getPropertyByMeta(mp);
                     values.add(i,p.getValue());
                  }
             }
@@ -661,7 +661,7 @@ public class TabularEntityEditor extends JInternalFrame {
         public void updateEntity(Entity e) {
             for(int i=0; i<values.size(); ++i){
                 MetaProperty mp = (MetaProperty)metaProperties.get(i);
-                Property p = e.getPropertyByMeta(mp.getKey());
+                Property p = e.getPropertyByMeta(mp);
                 p.setValue((String) values.get(i));
             }
         }
