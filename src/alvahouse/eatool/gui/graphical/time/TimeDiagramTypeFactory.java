@@ -15,9 +15,7 @@ import alvahouse.eatool.repository.base.FactoryBase;
 import alvahouse.eatool.repository.exception.InputException;
 import alvahouse.eatool.repository.graphical.DiagramType;
 import alvahouse.eatool.repository.graphical.DiagramTypeDetailFactory;
-import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaModel;
-import alvahouse.eatool.repository.metamodel.MetaProperty;
 import alvahouse.eatool.util.UUID;
 
 /**
@@ -29,7 +27,6 @@ import alvahouse.eatool.util.UUID;
 public class TimeDiagramTypeFactory extends FactoryBase implements
         DiagramTypeDetailFactory {
 
-    private MetaModel metaModel;
     private TimeDiagramType diagramType;
     private TimeDiagramType.TypeEntry currentTarget = null;
     private Vector<Color> colours = null;
@@ -48,7 +45,6 @@ public class TimeDiagramTypeFactory extends FactoryBase implements
      */
     public void init(DiagramType diagramType, MetaModel metaModel) {
         this.diagramType = (TimeDiagramType)diagramType;
-        this.metaModel = metaModel;
     }
 
     /* (non-Javadoc)
@@ -72,22 +68,9 @@ public class TimeDiagramTypeFactory extends FactoryBase implements
 	                throw new InputException("Missing property key attribute in TypeEntry");
 	            }
 	            
-	            MetaEntity metaEntity = null;
-	            try{
-	            	metaEntity = metaModel.getMetaEntity(new UUID(entityKey));
-	            } catch(Exception e) {
-	            	throw new InputException("Can't fetch meta entity corresponding to key " + entityKey);
-	            }
-	            if(metaEntity == null){
-	                throw new InputException("No Meta Entity corresponding to key " + entityKey);
-	            }
-	            
-	            MetaProperty metaProperty = metaEntity.getMetaProperty(new UUID(propertyKey));
-	            if(metaProperty == null){
-	                throw new InputException("No Meta Property corresponding to key " + propertyKey);
-	            }
-	            
-	            currentTarget = new TimeDiagramType.TypeEntry(metaEntity, metaProperty);
+	            UUID metaEntityKey = new UUID(entityKey);
+	            UUID metaPropertyKey = new UUID(propertyKey);
+	            currentTarget = new TimeDiagramType.TypeEntry(metaEntityKey, metaPropertyKey);
 	            colours = new Vector<Color>();
         	} catch (Exception e) {
         		throw new InputException("Unable to load TypeEntry", e);

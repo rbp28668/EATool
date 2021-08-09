@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 
 import alvahouse.eatool.gui.graphical.time.TimeDiagramType;
 import alvahouse.eatool.gui.graphical.time.TimeDiagramTypeFamily;
+import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.graphical.DiagramType;
 import alvahouse.eatool.repository.graphical.DiagramTypeFamily;
 import alvahouse.eatool.repository.graphical.DiagramTypes;
@@ -44,10 +45,12 @@ import alvahouse.eatool.util.UUID;
  */
 class TestDiagramTypes {
 
+	private Repository repository;
 	private DiagramTypePersistence typePersistence;
 	private DiagramTypes diagramTypes;
 	private DiagramsChangeListener listener;
-	private DiagramTypeFamily family;
+	private DiagramTypeFamily standardFamily;
+	private DiagramTypeFamily timeFamily;
 
 	/**
 	 * @throws java.lang.Exception
@@ -55,10 +58,18 @@ class TestDiagramTypes {
 	@BeforeEach
 	void setUp() throws Exception {
 		UUID.initialise(UUID.findMACAddress(), null);
+		repository = mock(Repository.class);
 		typePersistence = new DiagramTypePersistenceMemory();
-		diagramTypes = new DiagramTypes(typePersistence);
-		family = new StandardDiagramTypeFamily();
-		family.setParent(diagramTypes);
+		diagramTypes = new DiagramTypes(repository,typePersistence);
+
+		standardFamily = new StandardDiagramTypeFamily();
+		standardFamily.setParent(diagramTypes);
+		diagramTypes.addDiagramFamily(standardFamily);
+
+		timeFamily = new TimeDiagramTypeFamily();
+		timeFamily.setParent(diagramTypes);
+		diagramTypes.addDiagramFamily(timeFamily);
+
 		listener = mock(DiagramsChangeListener.class);
 		diagramTypes.addChangeListener(listener);
 	}
@@ -70,39 +81,8 @@ class TestDiagramTypes {
 	void tearDown() throws Exception {
 	}
 
-	/**
-	 * @return
-	 * @throws UnsupportedEncodingException
-	 */
-	private SettingsManager getDiagramFamilyConfig() throws UnsupportedEncodingException {
-		String importData = 
-				"<?xml version=\"1.0\"?>\n" +
-				"<EAToolConfig>\n"+
-						"	<DiagramFamilies>\n" + 
-						"		<DiagramFamily name=\"Standard\" class=\"alvahouse.eatool.repository.graphical.standard.StandardDiagramTypeFamily\" />\n" + 
-						"		<DiagramFamily name=\"Time\"     class=\"alvahouse.eatool.gui.graphical.time.TimeDiagramTypeFamily\" />\n" + 
-						"	</DiagramFamilies>\n" + 
-				"</EAToolConfig>\n";
-		SettingsManager settings = new SettingsManager();
-		InputStream stream = new ByteArrayInputStream(importData.getBytes("UTF-8"));
-		settings.load(stream);
-		return settings;
-	}
 
 	
-	/**
-	 * Test method for {@link alvahouse.eatool.repository.graphical.DiagramTypes#setFamilies(alvahouse.eatool.util.SettingsManager)}.
-	 */
-	@Test
-	void testSetFamilies() throws Exception {
-		
-		SettingsManager config =  getDiagramFamilyConfig();
-		diagramTypes.setFamilies(config);
-		
-		Collection<DiagramTypeFamily> families = diagramTypes.getDiagramTypeFamilies();
-		assertEquals(2, families.size());
-		
-	}
 
 
 	/**
@@ -111,8 +91,8 @@ class TestDiagramTypes {
 	@Test
 	void testAdd() throws Exception {
 		
-		DiagramType standardType = new StandardDiagramType("test type", new UUID());
-		standardType.setFamily(family);
+		DiagramType standardType = new StandardDiagramType(repository,"test type", new UUID());
+		standardType.setFamily(standardFamily);
 
 		diagramTypes.add(standardType);
 
@@ -132,8 +112,8 @@ class TestDiagramTypes {
 	@Test
 	void testUpdate() throws Exception {
 		
-		DiagramType standardType = new StandardDiagramType("test type", new UUID());
-		standardType.setFamily(family);
+		DiagramType standardType = new StandardDiagramType(repository, "test type", new UUID());
+		standardType.setFamily(standardFamily);
 		diagramTypes.add(standardType);
 
 		Collection<DiagramType> retrieved = diagramTypes.getDiagramTypes();
@@ -155,8 +135,8 @@ class TestDiagramTypes {
 	 */
 	@Test
 	void testDelete() throws Exception {
-		DiagramType standardType = new StandardDiagramType("test type", new UUID());
-		standardType.setFamily(family);
+		DiagramType standardType = new StandardDiagramType(repository,"test type", new UUID());
+		standardType.setFamily(standardFamily);
 		diagramTypes.add(standardType);
 
 		Collection<DiagramType> retrieved = diagramTypes.getDiagramTypes();
@@ -175,8 +155,8 @@ class TestDiagramTypes {
 	 */
 	@Test
 	void testGet() throws Exception {
-		DiagramType standardType = new StandardDiagramType("test type", new UUID());
-		standardType.setFamily(family);
+		DiagramType standardType = new StandardDiagramType(repository,"test type", new UUID());
+		standardType.setFamily(standardFamily);
 
 		diagramTypes.add(standardType);
 
@@ -195,15 +175,15 @@ class TestDiagramTypes {
 		retrieved = diagramTypes.getDiagramTypes();
 		assertEquals(0,retrieved.size());
 
-		DiagramType standardType = new StandardDiagramType("test type", new UUID());
-		standardType.setFamily(family);
+		DiagramType standardType = new StandardDiagramType(repository, "test type", new UUID());
+		standardType.setFamily(standardFamily);
 		diagramTypes.add(standardType);
 
 		retrieved = diagramTypes.getDiagramTypes();
 		assertEquals(1,retrieved.size());
 
-		standardType = new StandardDiagramType("test type 2", new UUID());
-		standardType.setFamily(family);
+		standardType = new StandardDiagramType(repository, "test type 2", new UUID());
+		standardType.setFamily(standardFamily);
 		diagramTypes.add(standardType);
 
 		
@@ -238,24 +218,6 @@ class TestDiagramTypes {
 		assertFalse(diagramTypes.isActive(l));
 	}
 
-	/**
-	 * Test method for {@link alvahouse.eatool.repository.graphical.DiagramTypes#getDiagramTypeFamilies()}.
-	 */
-	@Test
-	void testGetDiagramTypeFamilies() throws Exception {
-
-		SettingsManager config =  getDiagramFamilyConfig();
-		diagramTypes.setFamilies(config);
-		
-		Collection<DiagramTypeFamily> families = diagramTypes.getDiagramTypeFamilies();
-		assertEquals(2, families.size());
-
-		String[] names = {"Standard", "Time"};
-		
-		for(DiagramTypeFamily family: families) {
-			assertTrue(Arrays.asList(names).contains(family.getName()));
-		}
-	}
 
 	/**
 	 * Test method for {@link alvahouse.eatool.repository.graphical.DiagramTypes#deleteContents()}.
@@ -265,8 +227,8 @@ class TestDiagramTypes {
 		
 		Collection<DiagramType> retrieved; 
 		
-		DiagramType standardType = new StandardDiagramType("test type", new UUID());
-		standardType.setFamily(family);
+		DiagramType standardType = new StandardDiagramType(repository,"test type", new UUID());
+		standardType.setFamily(standardFamily);
 		diagramTypes.add(standardType);
 
 		retrieved = diagramTypes.getDiagramTypes();
@@ -279,21 +241,6 @@ class TestDiagramTypes {
 	}
 
 
-	/**
-	 * Test method for {@link alvahouse.eatool.repository.graphical.DiagramTypes#lookupFamily(alvahouse.eatool.util.UUID)}.
-	 */
-	@Test
-	void testLookupFamily() throws Exception{
-		
-		SettingsManager config =  getDiagramFamilyConfig();
-		diagramTypes.setFamilies(config);
-		
-		DiagramTypeFamily family = diagramTypes.lookupFamily(StandardDiagramTypeFamily.FAMILY_KEY);
-		assertNotNull(family);
-
-		family = diagramTypes.lookupFamily(TimeDiagramTypeFamily.FAMILY_KEY);
-		assertNotNull(family);
-	}
 
 	/**
 	 * Test method for {@link alvahouse.eatool.repository.graphical.DiagramTypes#getDiagramTypesOfFamily(alvahouse.eatool.repository.graphical.DiagramTypeFamily)}.
@@ -301,14 +248,12 @@ class TestDiagramTypes {
 	@Test
 	void testGetDiagramTypesOfFamily() throws Exception {
 		
-		SettingsManager config =  getDiagramFamilyConfig();
-		diagramTypes.setFamilies(config);
 
 		DiagramTypeFamily standardFamily = diagramTypes.lookupFamily(StandardDiagramTypeFamily.FAMILY_KEY);
-		DiagramType standardType = new StandardDiagramType("test type", new UUID());
+		DiagramType standardType = new StandardDiagramType(repository, "test type", new UUID());
 		standardFamily.add(standardType);
 
-		standardType = new StandardDiagramType("test type 2", new UUID());
+		standardType = new StandardDiagramType(repository, "test type 2", new UUID());
 		standardFamily.add(standardType);
 
 		DiagramTypeFamily timeFamily = diagramTypes.lookupFamily(TimeDiagramTypeFamily.FAMILY_KEY);
@@ -334,14 +279,12 @@ class TestDiagramTypes {
 	 */
 	@Test
 	void testDeleteDiagramTypesOfFamily()  throws Exception {
-		SettingsManager config =  getDiagramFamilyConfig();
-		diagramTypes.setFamilies(config);
 
 		DiagramTypeFamily standardFamily = diagramTypes.lookupFamily(StandardDiagramTypeFamily.FAMILY_KEY);
-		DiagramType standardType = new StandardDiagramType("test type", new UUID());
+		DiagramType standardType = new StandardDiagramType(repository, "test type", new UUID());
 		standardFamily.add(standardType);
 
-		standardType = new StandardDiagramType("test type 2", new UUID());
+		standardType = new StandardDiagramType(repository, "test type 2", new UUID());
 		standardFamily.add(standardType);
 
 		DiagramTypeFamily timeFamily = diagramTypes.lookupFamily(TimeDiagramTypeFamily.FAMILY_KEY);

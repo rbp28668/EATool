@@ -8,6 +8,7 @@ package alvahouse.eatool.gui.graphical.standard.model;
 
 import java.awt.Color;
 
+import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.graphical.standard.BasicConnector;
 import alvahouse.eatool.repository.graphical.standard.ConnectorType;
 import alvahouse.eatool.repository.graphical.standard.StandardDiagram;
@@ -32,18 +33,18 @@ public class ModelDiagramType extends StandardDiagramType {
     /**
      * 
      */
-    public ModelDiagramType(MetaModel metaModel)  throws Exception{
-        super();
-        init(metaModel);
+    public ModelDiagramType(Repository repository)  throws Exception{
+        super(repository);
+        init(repository.getMetaModel());
     }
 
     /**
      * @param name
      * @param uuid
      */
-    public ModelDiagramType(MetaModel metaModel, String name, UUID uuid)  throws Exception{
-        super(name, uuid);
-        init(metaModel);
+    public ModelDiagramType(Repository repository, String name, UUID uuid)  throws Exception{
+        super(repository, name, uuid);
+        init(repository.getMetaModel());
     }
 
     /**

@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import alvahouse.eatool.gui.graphical.time.TimeDiagramType;
 import alvahouse.eatool.gui.graphical.time.TimeDiagramTypeFamily;
+import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.graphical.Diagram;
 import alvahouse.eatool.repository.graphical.DiagramType;
 import alvahouse.eatool.repository.graphical.DiagramTypeFamily;
@@ -52,7 +53,7 @@ class TestDiagrams {
 	private DiagramType diagramType;
 	private DiagramTypeFamily family;
 	private DiagramsChangeListener listener;
-
+	private Repository repository;
 	/**
 	 * @throws java.lang.Exception
 	 */
@@ -62,13 +63,15 @@ class TestDiagrams {
 		persistence = new DiagramPersistenceMemory();
 		typePersistence = new DiagramTypePersistenceMemory();
 		
-		diagrams = new Diagrams(persistence);
-		diagramType = new StandardDiagramType("test type", new UUID());
-		allTypes = new DiagramTypes(typePersistence);
+		repository = mock(Repository.class);
+		allTypes = new DiagramTypes(repository, typePersistence);
+		diagrams = new Diagrams(allTypes, persistence);
+		diagramType = new StandardDiagramType(repository, "test type", new UUID());
 		family = new StandardDiagramTypeFamily();
 		family.setParent(allTypes);
 		diagramType.setFamily(family);
 		family.add(diagramType);
+		allTypes.addDiagramFamily(family);
 		listener = mock(DiagramsChangeListener.class);
 		diagrams.addChangeListener(listener);
 	}
@@ -175,7 +178,7 @@ class TestDiagrams {
 	void testGetDiagramsOfType() throws Exception {
 		
 		// Magic up the time diagram type
-		DiagramType timeDiagramType = new TimeDiagramType( new UUID());
+		DiagramType timeDiagramType = new TimeDiagramType(repository, new UUID());
 		DiagramTypeFamily timeFamily = new TimeDiagramTypeFamily();
 		timeFamily.setParent(allTypes);
 		timeDiagramType.setFamily(timeFamily);

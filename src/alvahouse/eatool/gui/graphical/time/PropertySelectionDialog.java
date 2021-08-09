@@ -20,6 +20,7 @@ import javax.swing.tree.TreePath;
 import alvahouse.eatool.gui.BasicDialog;
 import alvahouse.eatool.gui.ExceptionDisplay;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
+import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.model.Entity;
 import alvahouse.eatool.repository.model.Model;
 import alvahouse.eatool.repository.model.Property;
@@ -35,16 +36,17 @@ public class PropertySelectionDialog extends BasicDialog {
      * 
      */
     private static final long serialVersionUID = 1L;
-    
+    private final MetaModel metaModel;
     private boolean selected = false;
 	private JTree tree = null;
 
 	public PropertySelectionDialog(
 		Component parent,
 		TimeDiagramType diagramType,
-		//MetaModel metaModel,
+		MetaModel metaModel,
 		Model model) throws Exception {
 		super(parent, "Select Property");
+		this.metaModel = metaModel;
 
 		// Build a tree model to display a tree
 		tree = new JTree(createTree(diagramType, model));
@@ -123,7 +125,7 @@ public class PropertySelectionDialog extends BasicDialog {
 	 * first to ensure that there is a selected property.
 	 * @return the selected entity.
 	 */
-	public Property getSelectedProperty() {
+	public Property getSelectedProperty() throws Exception {
 		TreePath treePath = tree.getSelectionPath();
 		if (treePath == null) {
 			return null;
@@ -138,7 +140,7 @@ public class PropertySelectionDialog extends BasicDialog {
 	 * Gets all selected Properties.
 	 * @return an array with all the selected Entities or null if none selected.
 	 */
-	public Property[] getAllSelected(){
+	public Property[] getAllSelected() throws Exception{
 		TreePath[] paths = tree.getSelectionPaths();
 		if (paths == null) {
 			return null;
@@ -160,8 +162,9 @@ public class PropertySelectionDialog extends BasicDialog {
      * @param path is a selection path from the tree.
      * @return the selected Property or null if the selection cannot be 
      * translated into a property.
+	 * @throws Exception 
      */
-    private Property getPropertyFromPath(Object[] path) {
+    private Property getPropertyFromPath(Object[] path) throws Exception {
         int len = path.length;
         DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) path[len-1];
         Object obj = selectedNode.getUserObject();
@@ -172,7 +175,7 @@ public class PropertySelectionDialog extends BasicDialog {
             Entity e = (Entity)obj;
         	DefaultMutableTreeNode entryNode = (DefaultMutableTreeNode) path[len-2];
         	TimeDiagramType.TypeEntry entry = (TimeDiagramType.TypeEntry)entryNode.getUserObject();
-            p = e.getPropertyByMeta(entry.getTargetProperty());
+            p = e.getPropertyByMeta(entry.getTargetProperty(metaModel));
         }
         return p;
     }
@@ -205,7 +208,7 @@ public class PropertySelectionDialog extends BasicDialog {
 		TimeDiagramType.TypeEntry entry,
 		Model model,
 		int idxEntity) throws Exception {
-	    MetaEntity me = entry.getTargetType();
+	    MetaEntity me = entry.getTargetType(metaModel);
 		List<Entity> listEntities = model.getEntitiesOfType(me);
 		if (!listEntities.isEmpty()) {
 			DefaultMutableTreeNode tnEntity = new DefaultMutableTreeNode(entry);

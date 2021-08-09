@@ -9,6 +9,8 @@ package alvahouse.eatool.repository.graphical;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 
+import alvahouse.eatool.repository.Repository;
+import alvahouse.eatool.repository.dto.graphical.DiagramTypeDto;
 import alvahouse.eatool.util.UUID;
 
 /**
@@ -65,18 +67,11 @@ public abstract class DiagramTypeFamily {
     /**
      * Creates an instance of the DiagramType appropriate for this family.
      * @return a new DiagramType.
-     * @throws InstantiationException
-     * @throws IllegalAccessException
-     * @throws SecurityException 
-     * @throws NoSuchMethodException 
-     * @throws InvocationTargetException 
-     * @throws IllegalArgumentException 
+     * @throws Exception if something bad happens
      */
-    public DiagramType newDiagramType() throws InstantiationException, IllegalAccessException, NoSuchMethodException, SecurityException, IllegalArgumentException, InvocationTargetException{
-        DiagramType created = createdClass.newInstance();
-        created.setFamily(this);
-        return created;
-    }
+    public abstract DiagramType newDiagramType(Repository repository) throws Exception;
+    
+    public abstract DiagramType newDiagramType(Repository repository, DiagramTypeDto dto) throws Exception;
     
     /**
      * Gets the Class of the child DiagramType.

@@ -5,41 +5,52 @@ package alvahouse.eatool.repository.persist;
 
 import java.util.Collection;
 
-import alvahouse.eatool.repository.graphical.DiagramType;
-import alvahouse.eatool.repository.graphical.DiagramTypeFamily;
+import alvahouse.eatool.repository.dto.graphical.DiagramTypeDto;
 import alvahouse.eatool.util.UUID;
 
 /**
+ * Interface to persist DiagramTypes (and their sub-types).
  * @author bruce_porteous
  *
  */
 public interface DiagramTypePersistence {
 
 	/**
-	 * @param typeID
-	 * @return
+	 * Gets the diagram type corresponding to a given key.
+	 * @param typeID is the key to retrieve
+	 * @throws Exception if the diagram type does not exist. Maybe
+	 * other exceptions if there are comms errors etc.
+	 * @return the DiagramTypeDto corresponding to the key.
 	 */
-	DiagramType getDiagramType(UUID typeID) throws Exception;
+	DiagramTypeDto getDiagramType(UUID typeID) throws Exception;
 
 	/**
-	 * @param dt
+	 * Adds a diagram type to the repository.
+	 * @param dt is the diagram type DTO to add.
+	 * @throws Exception if the diagram type already exists. Maybe
+	 * other exceptions if there are comms errors etc.
 	 */
-	void addDiagramType(DiagramType dt) throws Exception;
+	void addDiagramType(DiagramTypeDto dt) throws Exception;
 
 	/**
-	 * @param dt
+	 * Updates a diagram type in the repository.
+	 * @param dt is the diagram type to update.
+	 * @throws Exception if the diagram type does not exist. Maybe
+	 * other exceptions if there are comms errors etc.
 	 */
-	void updateDiagramType(DiagramType dt) throws Exception;
+	void updateDiagramType(DiagramTypeDto dt) throws Exception;
 
 	/**
-	 * @param key
+	 * Deletes the given diagram type.
+	 * @param key identifies the diagram type
 	 */
 	void delete(UUID key) throws Exception;
 
 	/**
-	 * @return
+	 * Gets all the diagram types irrespective of family.
+	 * @return a collection of all the types.
 	 */
-	Collection<DiagramType> getTypes() throws Exception;
+	Collection<DiagramTypeDto> getTypes() throws Exception;
 
 	/**
 	 * 
@@ -47,14 +58,18 @@ public interface DiagramTypePersistence {
 	void dispose() throws Exception;
 
 	/**
-	 * @param diagramTypeFamily
-	 * @return
+	 * Gets all the diagram types for a given type family.
+	 * @param diagramTypeFamily identifies the family. 
+	 * E.g. StandardDiagramTypeFamily.FAMILY_KEY
+	 * @return collection of diagram types.
 	 */
-	Collection<DiagramType> getDiagramTypesOfFamily(DiagramTypeFamily diagramTypeFamily) throws Exception;
+	Collection<DiagramTypeDto> getDiagramTypesOfFamily(UUID diagramTypeFamilyKey) throws Exception;
 
 	/**
-	 * @param diagramTypeFamily
+	 * Deletes all the diagram types for a given diagram type family.
+	 * @param diagramTypeFamilyKey identifies the DiagramTypeFamily that should have
+	 * its DiagramTypes deleted. 
 	 */
-	void deleteDiagramTypesOfFamily(DiagramTypeFamily diagramTypeFamily) throws Exception;
+	void deleteDiagramTypesOfFamily(UUID diagramTypeFamilyKey) throws Exception;
 
 }

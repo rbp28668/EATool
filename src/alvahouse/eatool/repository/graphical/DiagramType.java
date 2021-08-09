@@ -9,6 +9,7 @@ package alvahouse.eatool.repository.graphical;
 import java.io.IOException;
 
 import alvahouse.eatool.repository.base.NamedRepositoryItem;
+import alvahouse.eatool.repository.dto.graphical.DiagramDto;
 import alvahouse.eatool.repository.dto.graphical.DiagramTypeDto;
 import alvahouse.eatool.repository.graphical.standard.StandardDiagram;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
@@ -67,6 +68,12 @@ public abstract class DiagramType extends NamedRepositoryItem implements Version
 		eventMap.ensureEvent("Relationship");
 	}
 
+	/**
+	 * Convert to the appropriate subclass of DiagramTypeDto.
+	 * @return
+	 */
+	public abstract DiagramTypeDto toDto();
+
 //	/**
 //	 * @param copy
 //	 */
@@ -89,8 +96,10 @@ public abstract class DiagramType extends NamedRepositoryItem implements Version
 	 * 
 	 * @return a new diagram.
 	 */
-	public abstract Diagram newDiagram(UUID key);
+	public abstract Diagram newDiagram(UUID key) throws Exception;
 
+	public abstract Diagram newDiagram(DiagramDto dto) throws Exception;
+	
 	public String toString() {
 		return getName();
 	}
@@ -177,9 +186,11 @@ public abstract class DiagramType extends NamedRepositoryItem implements Version
 	
 	protected void copyTo(DiagramTypeDto dto) {
 		super.copyTo(dto);
+		dto.setFamilyKey(getFamilyKey());
 		dto.setEventMap(eventMap.toDto());
 		dto.setVersion(version.toDto());
 	}
+
 	
 
 }

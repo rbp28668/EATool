@@ -97,7 +97,12 @@ public class TimeDiagramProxy {
          */
         public void run() {
             for(Entity e : entities.getContents()){
-                diagram.addNodeForObject(e);
+                try {
+					diagram.addNodeForObject(e);
+				} catch (Exception e1) {
+					// TODO - not clear there's a way of handling this exception.
+					e1.printStackTrace();
+				}
             }
         }
         

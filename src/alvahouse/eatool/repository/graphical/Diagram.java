@@ -435,4 +435,10 @@ public abstract class Diagram extends NamedRepositoryItem implements Versionable
 		dto.setEventMap(eventMap.toDto());
 		dto.setVersion(version.toDto());
 	}
+
+	/**
+	 * Create an appropriate DTO for this Diagram.
+	 * @return initialised DTO.
+	 */
+	public abstract DiagramDto toDto();
 }

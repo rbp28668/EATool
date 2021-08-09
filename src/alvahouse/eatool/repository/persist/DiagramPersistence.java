@@ -5,8 +5,7 @@ package alvahouse.eatool.repository.persist;
 
 import java.util.Collection;
 
-import alvahouse.eatool.repository.graphical.Diagram;
-import alvahouse.eatool.repository.graphical.DiagramType;
+import alvahouse.eatool.repository.dto.graphical.DiagramDto;
 import alvahouse.eatool.util.UUID;
 
 /**
@@ -17,15 +16,17 @@ public interface DiagramPersistence {
 
 	
 	/**
-	 * @param type
+	 * Gets diagrams of a given type
+	 * @param typeKey is the UUID that identifies the diagram type.
 	 * @return
 	 */
-	public Collection<Diagram> getDiagramsByType(DiagramType type) throws Exception ;
+	public Collection<DiagramDto> getDiagramsByType(UUID typeKey) throws Exception ;
 
 	/**
+	 * Gets all the diagrams.
 	 * @return
 	 */
-	public Collection<Diagram> getDiagrams() throws Exception;
+	public Collection<DiagramDto> getDiagrams() throws Exception;
 
 	/**
 	 * @param uuid
@@ -37,17 +38,17 @@ public interface DiagramPersistence {
 	 * @param uuid
 	 * @return
 	 */
-	public Diagram lookup(UUID uuid) throws Exception;
+	public DiagramDto lookup(UUID uuid) throws Exception;
 
 	/**
 	 * @param diagram
 	 */
-	public void addDiagram(Diagram diagram) throws Exception;
+	public void addDiagram(DiagramDto diagram) throws Exception;
 
 	/**
 	 * @param diagram
 	 */
-	public void updateDiagram(Diagram diagram) throws Exception;
+	public void updateDiagram(DiagramDto diagram) throws Exception;
 
 	/**
 	 * @param key

@@ -1,11 +1,12 @@
 package alvahouse.eatool.repository.graphical;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.BooleanSupplier;
 
+import alvahouse.eatool.repository.dto.graphical.DiagramDto;
 import alvahouse.eatool.repository.model.Model;
 import alvahouse.eatool.repository.model.ModelChangeAdapter;
 import alvahouse.eatool.repository.model.ModelChangeEvent;
@@ -24,11 +25,35 @@ import alvahouse.eatool.util.XMLWriter;
  */
 public class Diagrams extends ModelChangeAdapter {
 
+	private final DiagramTypes types;
 	private final DiagramPersistence persistence;
 	private List<DiagramsChangeListener> changeListeners = new LinkedList<DiagramsChangeListener>(); // of DiagramsChangeListener
 	
-	private Collection<Diagram> getDiagrams() throws Exception {
-		return persistence.getDiagrams();
+	/**
+	 * @return
+	 * @throws Exception
+	 */
+	private Collection<Diagram> toDiagrams(Collection<DiagramDto> dtos) throws Exception {
+		List<Diagram> diagrams = new ArrayList<>(dtos.size());
+		for(DiagramDto dto : dtos) {
+			Diagram d = diagramFromDto(dto);
+			diagrams.add(d);
+		}
+		return diagrams;
+	}
+
+
+
+	/**
+	 * @param dto
+	 * @return
+	 * @throws Exception
+	 */
+	private Diagram diagramFromDto(DiagramDto dto) throws Exception {
+		UUID typeKey = dto.getTypeKey();
+		DiagramType type = types.get(typeKey);
+		Diagram d = type.newDiagram(dto);
+		return d;
 	}
 	
 	
@@ -37,8 +62,9 @@ public class Diagrams extends ModelChangeAdapter {
 	 * Constructor for Diagrams.
 	 * @param diagramPersistence 
 	 */
-	public Diagrams(DiagramPersistence diagramPersistence) {
+	public Diagrams(DiagramTypes types, DiagramPersistence diagramPersistence) {
 		super();
+		this.types = types;
 		this.persistence = diagramPersistence;
 	}
 
@@ -48,7 +74,7 @@ public class Diagrams extends ModelChangeAdapter {
      * @param uuid is the key to use for lookup.
      */
     public Diagram lookup(UUID uuid) throws Exception {
-        return persistence.lookup(uuid);
+        return diagramFromDto(persistence.lookup(uuid));
     }
 
     /**
@@ -72,7 +98,7 @@ public class Diagrams extends ModelChangeAdapter {
  		String user = System.getProperty("user.name");
 		diagram.getVersion().createBy(user);
 
-		persistence.addDiagram(diagram);
+		persistence.addDiagram(diagram.toDto());
 		fireDiagramAdded(diagram);
 	}
 
@@ -84,7 +110,7 @@ public class Diagrams extends ModelChangeAdapter {
 	    if(diagram == null){
 	        throw new NullPointerException("Can't add null diagram to diagrams");
 	    }
-		persistence.addDiagram(diagram);
+		persistence.addDiagram(diagram.toDto());
 	}
 
 	/**
@@ -98,7 +124,7 @@ public class Diagrams extends ModelChangeAdapter {
  		String user = System.getProperty("user.name");
 		diagram.getVersion().modifyBy(user);
 
-		persistence.updateDiagram(diagram);
+		persistence.updateDiagram(diagram.toDto());
 		fireDiagramChanged(diagram);
 	}
 
@@ -131,7 +157,8 @@ public class Diagrams extends ModelChangeAdapter {
 	 * @return Collection of diagrams.  May be empty, never null.
 	 */
 	public Collection<Diagram> getDiagramsOfType(DiagramType type) throws Exception {
-		return persistence.getDiagramsByType(type);
+		Collection<DiagramDto> dtos = persistence.getDiagramsByType(type.getKey());
+		return toDiagrams(dtos);
 	}
 
 	public void addChangeListener(DiagramsChangeListener listener){
@@ -166,7 +193,8 @@ public class Diagrams extends ModelChangeAdapter {
 	public void writeXML(XMLWriter out, String entityName) throws IOException {
 		out.startEntity(entityName);
 		try {
-			for( Diagram diagram : getDiagrams()) {
+			Collection<DiagramDto> dtos = persistence.getDiagrams();
+			for( Diagram diagram : toDiagrams(dtos)) {
 				diagram.writeXML(out);
 			}
 		} catch (Exception e) {

@@ -6,6 +6,10 @@
  */
 package alvahouse.eatool.repository.graphical.standard;
 
+import alvahouse.eatool.repository.Repository;
+import alvahouse.eatool.repository.dto.graphical.DiagramTypeDto;
+import alvahouse.eatool.repository.dto.graphical.StandardDiagramTypeDto;
+import alvahouse.eatool.repository.graphical.DiagramType;
 import alvahouse.eatool.repository.graphical.DiagramTypeFamily;
 import alvahouse.eatool.util.UUID;
 
@@ -24,5 +28,26 @@ public class StandardDiagramTypeFamily extends DiagramTypeFamily {
     public StandardDiagramTypeFamily() {
         super(StandardDiagramType.class, FAMILY_KEY);
     }
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.graphical.DiagramTypeFamily#newDiagramType(alvahouse.eatool.repository.Repository)
+	 */
+	@Override
+	public DiagramType newDiagramType(Repository repository) throws Exception {
+		StandardDiagramType type = new StandardDiagramType(repository);
+		type.setFamily(this);
+		return type;
+	}
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.graphical.DiagramTypeFamily#newDiagramType(alvahouse.eatool.repository.dto.graphical.DiagramTypeDto)
+	 */
+	@Override
+	public DiagramType newDiagramType(Repository repository, DiagramTypeDto dto) throws Exception {
+		StandardDiagramTypeDto sdtdto = (StandardDiagramTypeDto) dto;
+		StandardDiagramType type = new StandardDiagramType(repository, this,sdtdto);
+		type.setFamily(this);
+		return type;
+	}
 
 }
