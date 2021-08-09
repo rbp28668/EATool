@@ -9,8 +9,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import alvahouse.eatool.repository.graphical.DiagramType;
-import alvahouse.eatool.repository.graphical.DiagramTypeFamily;
+import alvahouse.eatool.repository.dto.graphical.DiagramTypeDto;
 import alvahouse.eatool.repository.persist.DiagramTypePersistence;
 import alvahouse.eatool.util.UUID;
 
@@ -20,7 +19,7 @@ import alvahouse.eatool.util.UUID;
  */
 public class DiagramTypePersistenceMemory implements DiagramTypePersistence {
 
-	private Map<UUID,DiagramType> types = new HashMap<>();
+	private Map<UUID,DiagramTypeDto> types = new HashMap<>();
 	/**
 	 * 
 	 */
@@ -31,36 +30,36 @@ public class DiagramTypePersistenceMemory implements DiagramTypePersistence {
 	 * @see alvahouse.eatool.repository.persist.DiagramTypePersistence#getDiagramType(alvahouse.eatool.util.UUID)
 	 */
 	@Override
-	public DiagramType getDiagramType(UUID typeID) throws Exception {
-		DiagramType type = types.get(typeID);
+	public DiagramTypeDto getDiagramType(UUID typeID) throws Exception {
+		DiagramTypeDto type = types.get(typeID);
 		if(type == null) {
 			throw new IllegalArgumentException("Repository does not have a diagram type with key " + typeID);
 		}
-		return (DiagramType) type.clone();
+		return type;
 	}
 
 	/* (non-Javadoc)
 	 * @see alvahouse.eatool.repository.persist.DiagramTypePersistence#addDiagramType(alvahouse.eatool.repository.graphical.DiagramType)
 	 */
 	@Override
-	public void addDiagramType(DiagramType dt) throws Exception {
+	public void addDiagramType(DiagramTypeDto dt) throws Exception {
 		UUID key = dt.getKey();
 		if(types.containsKey(key)) {
 			throw new IllegalArgumentException("Repository already contains a diagram type with key " + key);
 		}
-		types.put(key, (DiagramType) dt.clone());
+		types.put(key, dt);
 	}
 
 	/* (non-Javadoc)
 	 * @see alvahouse.eatool.repository.persist.DiagramTypePersistence#updateDiagramType(alvahouse.eatool.repository.graphical.DiagramType)
 	 */
 	@Override
-	public void updateDiagramType(DiagramType dt) throws Exception {
+	public void updateDiagramType(DiagramTypeDto dt) throws Exception {
 		UUID key = dt.getKey();
 		if(!types.containsKey(key)) {
 			throw new IllegalArgumentException("Repository does not contain a diagram type with key " + key);
 		}
-		types.put(key, (DiagramType) dt.clone());
+		types.put(key, dt);
 	}
 
 	/* (non-Javadoc)
@@ -78,11 +77,9 @@ public class DiagramTypePersistenceMemory implements DiagramTypePersistence {
 	 * @see alvahouse.eatool.repository.persist.DiagramTypePersistence#getTypes()
 	 */
 	@Override
-	public Collection<DiagramType> getTypes() throws Exception {
-		ArrayList<DiagramType> list = new ArrayList<>(types.size());
-		for(DiagramType t : types.values()) {
-			list.add((DiagramType)t.clone());
-		}
+	public Collection<DiagramTypeDto> getTypes() throws Exception {
+		ArrayList<DiagramTypeDto> list = new ArrayList<>(types.size());
+		list.addAll(types.values());
 		return list;
 	}
 
@@ -98,15 +95,14 @@ public class DiagramTypePersistenceMemory implements DiagramTypePersistence {
 	 * @see alvahouse.eatool.repository.persist.DiagramTypePersistence#getDiagramTypesOfFamily(alvahouse.eatool.repository.graphical.DiagramTypeFamily)
 	 */
 	@Override
-	public Collection<DiagramType> getDiagramTypesOfFamily(DiagramTypeFamily diagramTypeFamily) throws Exception {
+	public Collection<DiagramTypeDto> getDiagramTypesOfFamily(UUID diagramTypeFamilyKey) throws Exception {
 		// Brute force and ignorance search on the expectation that there are never more than a few tens of diagram types.
 		// Saves book-keeping when writing.
-		UUID familyKey = diagramTypeFamily.getKey();
-		LinkedList<DiagramType> list = new LinkedList<>();
+		LinkedList<DiagramTypeDto> list = new LinkedList<>();
 
-		for(DiagramType t : types.values()) {
-			if(familyKey.equals(t.getFamilyKey())){
-				list.add((DiagramType)t.clone());
+		for(DiagramTypeDto t : types.values()) {
+			if(diagramTypeFamilyKey.equals(t.getFamilyKey())){
+				list.add(t);
 			}
 		}
 		return list;
@@ -116,12 +112,11 @@ public class DiagramTypePersistenceMemory implements DiagramTypePersistence {
 	 * @see alvahouse.eatool.repository.persist.DiagramTypePersistence#deleteDiagramTypesOfFamily(alvahouse.eatool.repository.graphical.DiagramTypeFamily)
 	 */
 	@Override
-	public void deleteDiagramTypesOfFamily(DiagramTypeFamily diagramTypeFamily) throws Exception {
-		UUID familyKey = diagramTypeFamily.getKey();
-		ArrayList<DiagramType> list = new ArrayList<>(types.values());
+	public void deleteDiagramTypesOfFamily(UUID diagramTypeFamilyKey) throws Exception {
+		ArrayList<DiagramTypeDto> list = new ArrayList<>(types.values());
 
-		for(DiagramType t : list) {
-			if(familyKey.equals(t.getFamilyKey())){
+		for(DiagramTypeDto t : list) {
+			if(diagramTypeFamilyKey.equals(t.getFamilyKey())){
 				types.remove(t.getKey());
 			}
 		}

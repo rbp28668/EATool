@@ -18,6 +18,7 @@ import alvahouse.eatool.repository.base.KeyedItem;
 import alvahouse.eatool.repository.graphical.GraphicalObject;
 import alvahouse.eatool.repository.graphical.GraphicalProxy;
 import alvahouse.eatool.repository.graphical.standard.DimensionFloat;
+import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.model.Entity;
 import alvahouse.eatool.repository.model.Property;
 
@@ -163,7 +164,7 @@ public class TimeBar implements GraphicalObject, GraphicalProxy{
      * @param g
      * @param scale
      */
-    public void drawCaption(Graphics2D g, Font font, float scale) {
+    public void drawCaption(MetaModel mm, Graphics2D g, Font font, float scale) throws Exception {
         float height = size.getHeight();
         
         float px = 0;
@@ -171,16 +172,16 @@ public class TimeBar implements GraphicalObject, GraphicalProxy{
         
         g.setColor(Color.black);
         g.setFont(font);
-        g.drawString(getCaption(),px,py);
+        g.drawString(getCaption(mm),px,py);
     }
 
     /**
      * Gets the caption that will be used to describe the attached property.
      * @return the caption String.
      */
-    public String getCaption() {
+    public String getCaption(MetaModel mm) throws Exception {
         Entity e = (Entity)property.getContainer();
-        return e.toString()+ " (" + type.getTargetProperty().getName() +")";
+        return e.toString()+ " (" + type.getTargetProperty(mm).getName() +")";
     }
     
     /* (non-Javadoc)

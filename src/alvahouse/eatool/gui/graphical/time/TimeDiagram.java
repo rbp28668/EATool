@@ -27,12 +27,14 @@ import java.util.Map;
 import java.util.Set;
 
 import alvahouse.eatool.gui.graphical.time.TimeDiagramType.TypeEntry;
+import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.base.KeyedItem;
 import alvahouse.eatool.repository.dto.graphical.TimeDiagramDto;
 import alvahouse.eatool.repository.dto.graphical.TimeDiagramEntryDto;
 import alvahouse.eatool.repository.graphical.Diagram;
 import alvahouse.eatool.repository.graphical.DiagramType;
 import alvahouse.eatool.repository.graphical.GraphicalProxy;
+import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.metamodel.MetaProperty;
 import alvahouse.eatool.repository.model.Entity;
 import alvahouse.eatool.repository.model.Model;
@@ -47,6 +49,7 @@ import alvahouse.eatool.util.XMLWriter;
  */
 public class TimeDiagram extends Diagram {
 
+	private Repository repository;
     private List<Property> properties = new LinkedList<Property>();  // of Property
     private List<TimeBar> bars = new LinkedList<TimeBar>();		// of TimeBar
     private Map<Property, TimeBar> barLookup = new HashMap<Property, TimeBar>();		// of TimeBar keyed by Property
@@ -202,18 +205,21 @@ public class TimeDiagram extends Diagram {
     /**
      * @param uuid
      */
-    public TimeDiagram(DiagramType type, UUID key) {
+    public TimeDiagram(Repository repository, DiagramType type, UUID key) {
         super(type,key);
+    	this.repository = repository;
         this.type = (TimeDiagramType)type;
 		font = new Font("SansSerif", Font.PLAIN,10);
     }
 
-    public TimeDiagram( Model model, TimeDiagramType type, TimeDiagramDto dto) throws Exception {
+    public TimeDiagram( Repository repository, TimeDiagramType type, TimeDiagramDto dto) throws Exception {
     	super(type, dto);
+    	this.repository = repository;
     	this.type = type;
     	this.timeAxis = dto.getTimeAxis();
 		font = new Font("SansSerif", Font.PLAIN,10);
 		
+		Model model = repository.getModel();
 		for(TimeDiagramEntryDto entry : dto.getProperties()) {
 			Entity e = model.getEntity(entry.getEntityKey());
 			Property p = e.getPropertyByMeta(entry.getMetaPropertyKey());
@@ -256,9 +262,10 @@ public class TimeDiagram extends Diagram {
  	/* (non-Javadoc)
  	 * @see alvahouse.eatool.gui.graphical.Diagram#draw(java.awt.Graphics2D, float)
  	 */
- 	public void draw(Graphics2D g, float zoom) {
+ 	public void draw(Graphics2D g, float zoom) throws Exception{
 	    if(layoutRequired){
-	        layout(g,zoom);
+	    	MetaModel mm = repository.getMetaModel();
+	        layout(mm, g,zoom);
 	    }
 	    
 	    for(TimeBar bar : bars){
@@ -271,14 +278,14 @@ public class TimeDiagram extends Diagram {
  	 * @param g
  	 * @param zoom
  	 */
- 	public void drawCaptions(Graphics2D g, float zoom) {
+ 	public void drawCaptions(MetaModel mm, Graphics2D g, float zoom) throws Exception{
 	    if(layoutRequired){
-	        layout(g,zoom);
+	        layout(mm, g,zoom);
 	    }
 	    
 	    Font localFont = deriveFont(zoom);
 	    for(TimeBar bar : bars){
-	        bar.drawCaption(g, localFont, zoom);
+	        bar.drawCaption(mm, g, localFont, zoom);
 	    }
 	}
 
@@ -333,10 +340,10 @@ public class TimeDiagram extends Diagram {
      * @param bounds
      * @param zoom2
      */
-    public void drawTimeScale(Graphics2D g, Rectangle bounds, float zoom) {
+    public void drawTimeScale(Graphics2D g, Rectangle bounds, float zoom) throws Exception {
 
 	    if(layoutRequired){
-	        layout(g,zoom);
+	        layout(repository.getMetaModel(), g,zoom);
 	    }
         
         assert(startDate != null);
@@ -520,7 +527,7 @@ public class TimeDiagram extends Diagram {
 	 * @param g
 	 * @param zoom
 	 */
-	private void layout(Graphics2D g, float zoom){
+	private void layout(MetaModel mm, Graphics2D g, float zoom) throws Exception{
 	    
 	    setDateRange();
         layoutTimeScale(g,zoom);
@@ -546,7 +553,7 @@ public class TimeDiagram extends Diagram {
 	        bar.setPosition((barStart + barEnd)/2 , y);
 	        bar.setSize(barEnd - barStart, unitHeight);
 
-	        String caption = bar.getCaption();
+	        String caption = bar.getCaption(mm);
 	        int width = fontMetrics.stringWidth(caption);
 	        if(width > widthCaptions){
 	            widthCaptions = width;
@@ -596,15 +603,16 @@ public class TimeDiagram extends Diagram {
      /* (non-Javadoc)
      * @see alvahouse.eatool.gui.graphical.Diagram#addNodeForObject(java.lang.Object)
      */
-    public GraphicalProxy addNodeForObject(KeyedItem item) {
+    public GraphicalProxy addNodeForObject(KeyedItem item) throws Exception {
         Entity e = (Entity)item;
         
+        MetaModel metaModel = repository.getMetaModel();
         if(allowableMetaProperties == null){
             allowableMetaProperties = new HashSet<MetaProperty>();
             TimeDiagramType diagramType = (TimeDiagramType)getType();
             Collection<TypeEntry> targets = diagramType.getTargets();
             for(TimeDiagramType.TypeEntry entry : targets){
-                allowableMetaProperties.add(entry.getTargetProperty());
+                allowableMetaProperties.add(entry.getTargetProperty(metaModel));
             }
         }
         
@@ -749,8 +757,13 @@ public class TimeDiagram extends Diagram {
         /* (non-Javadoc)
          * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
          */
-        public int compare(TimeBar tb0, TimeBar tb1) {
-            return tb0.getCaption().compareTo(tb1.getCaption());
+        public int compare(TimeBar tb0, TimeBar tb1){
+        	try {
+				MetaModel mm = repository.getMetaModel();
+				return tb0.getCaption(mm).compareTo(tb1.getCaption(mm));
+			} catch (Exception e) {
+				return 0;
+			}
         }
         
     }
@@ -771,7 +784,7 @@ public class TimeDiagram extends Diagram {
 	 */
 	@Override
 	public Object clone() {
-		TimeDiagram copy = new TimeDiagram(getType(), getKey());
+		TimeDiagram copy = new TimeDiagram(repository, getType(), getKey());
 		cloneTo(copy);
 		return copy;
 	}

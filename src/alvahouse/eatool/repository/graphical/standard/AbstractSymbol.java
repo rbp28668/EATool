@@ -28,7 +28,7 @@ import alvahouse.eatool.util.XMLWriter;
  * joined by Arcs.
  * @author  rbp28668
  */
-public class AbstractSymbol extends TextualObject implements Symbol  {
+public abstract class AbstractSymbol extends TextualObject implements Symbol  {
 
 	private int index;
 	private KeyedItem item;
@@ -41,7 +41,6 @@ public class AbstractSymbol extends TextualObject implements Symbol  {
     	super(key);
         this.item = item;
         this.type = type;
-		
 	}
     
     /**
@@ -53,6 +52,7 @@ public class AbstractSymbol extends TextualObject implements Symbol  {
         this.type = type;
 	}
 
+	
 	public String getText(){
 		String text = getItem().toString();
 		return text;
@@ -282,11 +282,7 @@ public class AbstractSymbol extends TextualObject implements Symbol  {
 		return index;
 	}
 
-	public Object clone() {
-		AbstractSymbol copy = new AbstractSymbol(getKey(), getItem(), getType());
-		cloneTo(copy);
-		return copy;
-	}
+	public abstract Object clone();// throws CloneNotSupportedException;
 	
 	protected void cloneTo(AbstractSymbol copy) {
 		super.cloneTo(copy);
@@ -294,5 +290,12 @@ public class AbstractSymbol extends TextualObject implements Symbol  {
 		copy.connectors.addAll(connectors);
 	}
 
+	protected void copyTo(SymbolDto dto) {
+		super.copyTo(dto);
+		dto.setIndex(index);
+		dto.setReferencedItemKey(item.getKey());
+		dto.setSymbolTypeKey(type.getKey());
+		// connectors not part of DTO - they are dealt with implicitly by the connector DTOs.
+	}
 
 }

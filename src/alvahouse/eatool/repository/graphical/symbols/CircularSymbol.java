@@ -13,6 +13,7 @@ import java.awt.geom.Arc2D;
 
 import alvahouse.eatool.repository.base.KeyedItem;
 import alvahouse.eatool.repository.dto.graphical.CircularSymbolDto;
+import alvahouse.eatool.repository.dto.graphical.SymbolDto;
 import alvahouse.eatool.repository.graphical.standard.AbstractSymbol;
 import alvahouse.eatool.repository.graphical.standard.DimensionFloat;
 import alvahouse.eatool.repository.graphical.standard.SymbolType;
@@ -119,6 +120,26 @@ public class CircularSymbol extends AbstractSymbol {
 		float height = width * textHeight/textWidth;
 		
 		setSize(width,height);
+	}
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.graphical.standard.Symbol#toDto()
+	 */
+	@Override
+	public SymbolDto toDto() {
+		CircularSymbolDto dto = new CircularSymbolDto();
+		copyTo(dto);
+		return dto;
+	}
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.graphical.standard.AbstractSymbol#clone()
+	 */
+	@Override
+	public Object clone() {
+		CircularSymbol s = new CircularSymbol();
+		cloneTo(s);
+		return s;
 	}
 
 	

@@ -13,6 +13,7 @@ import java.awt.geom.RoundRectangle2D;
 
 import alvahouse.eatool.repository.base.KeyedItem;
 import alvahouse.eatool.repository.dto.graphical.RoundedSymbolDto;
+import alvahouse.eatool.repository.dto.graphical.SymbolDto;
 import alvahouse.eatool.repository.graphical.standard.AbstractSymbol;
 import alvahouse.eatool.repository.graphical.standard.DimensionFloat;
 import alvahouse.eatool.repository.graphical.standard.SymbolType;
@@ -120,5 +121,26 @@ public RoundedSymbol(KeyedItem item, SymbolType type, RoundedSymbolDto rsd) {
 		
 		setSize(width,height);
 	}
+
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.graphical.standard.Symbol#toDto()
+	 */
+	@Override
+	public SymbolDto toDto() {
+		RoundedSymbolDto dto = new RoundedSymbolDto();
+		copyTo(dto);
+		return dto;
+	}
     
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.graphical.standard.AbstractSymbol#clone()
+	 */
+	@Override
+	public Object clone() {
+		RoundedSymbol s = new RoundedSymbol();
+		cloneTo(s);
+		return s;
+	}
+
 }

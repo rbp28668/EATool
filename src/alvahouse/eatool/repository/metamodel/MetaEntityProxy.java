@@ -83,7 +83,19 @@ public class MetaEntityProxy {
 			return metaEntity;
 		}
 	}
-	
+
+	/**
+	 * Allows a get of the meta entity when it's already been loaded.
+	 * @return the MetaEntity corresponding to this proxy. Never null
+	 * @throws IllegalStateException if the meta entity isn't initialised.
+	 */
+	public MetaEntity get() throws IllegalStateException{
+		if(metaEntity == null) {
+			throw new IllegalStateException("MetaEntity not loaded into proxy");
+		}
+		return metaEntity;
+	}
+
 	/**
 	 * Gets the key that identifies this meta entity.
 	 * It's an error to try to get the key of a null meta entity.

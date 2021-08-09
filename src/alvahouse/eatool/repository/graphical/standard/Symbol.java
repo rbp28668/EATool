@@ -12,6 +12,7 @@ import java.util.Collection;
 
 import alvahouse.eatool.gui.graphical.layout.Node;
 import alvahouse.eatool.repository.base.KeyedItem;
+import alvahouse.eatool.repository.dto.graphical.SymbolDto;
 import alvahouse.eatool.repository.graphical.GraphicalObject;
 import alvahouse.eatool.repository.graphical.GraphicalProxy;
 import alvahouse.eatool.util.UUID;
@@ -79,5 +80,10 @@ public interface Symbol extends Node, GraphicalObject, GraphicalProxy, TextObjec
     Collection<Connector> getConnectors();
     
     
- 	public Object clone();
+ 	public Object clone(); //throws CloneNotSupportedException;
+
+	/**
+	 * @return
+	 */
+	public SymbolDto toDto();
 }

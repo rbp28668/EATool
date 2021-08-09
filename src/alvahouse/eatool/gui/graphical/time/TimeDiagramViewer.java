@@ -246,21 +246,26 @@ public class TimeDiagramViewer extends DiagramViewer {
         /* (non-Javadoc)
          * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
          */
-        public void paintComponent(Graphics g) {
- 			this.setBackground(diagram.getBackgroundColour());
-            super.paintComponent(g);
+        public void paintComponent(Graphics g){
+ 			try {
+				this.setBackground(diagram.getBackgroundColour());
+				super.paintComponent(g);
 
-            Rectangle windowBounds;
-            Container parent = getParent();
-            if(parent instanceof JViewport){
-                windowBounds = ((JViewport)parent).getViewRect();
-            } else {
-                windowBounds = getBounds();
-            }
-            //g.setClip(windowBounds.x,windowBounds.y, windowBounds.width, windowBounds.height); 
-            g.setColor(Color.black);
-            diagram.drawTimeScale((Graphics2D)g,windowBounds,zoom);
-            diagram.draw((Graphics2D)g, zoom);
+				Rectangle windowBounds;
+				Container parent = getParent();
+				if(parent instanceof JViewport){
+				    windowBounds = ((JViewport)parent).getViewRect();
+				} else {
+				    windowBounds = getBounds();
+				}
+				//g.setClip(windowBounds.x,windowBounds.y, windowBounds.width, windowBounds.height); 
+				g.setColor(Color.black);
+				diagram.drawTimeScale((Graphics2D)g,windowBounds,zoom);
+				diagram.draw((Graphics2D)g, zoom);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
        }
 
 		/**
@@ -299,11 +304,17 @@ public class TimeDiagramViewer extends DiagramViewer {
             repaint();
         }
         
-        public void paintComponent(Graphics g) {
- 			this.setBackground(diagram.getBackgroundColour());
-            super.paintComponent(g);
-            diagram.drawCaptions((Graphics2D)g, zoom);
+        public void paintComponent(Graphics g)  {
+ 			try {
+				this.setBackground(diagram.getBackgroundColour());
+				super.paintComponent(g);
+				diagram.drawCaptions(repository.getMetaModel(), (Graphics2D)g, zoom);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
        }
+        
 
         /* (non-Javadoc)
 		 * @see java.awt.Component#getPreferredSize()

@@ -18,6 +18,7 @@ import alvahouse.eatool.gui.graphical.layout.Node;
 import alvahouse.eatool.gui.graphical.layout.NodeGraph;
 import alvahouse.eatool.repository.base.KeyedItem;
 import alvahouse.eatool.repository.dto.graphical.ConnectorDto;
+import alvahouse.eatool.repository.dto.graphical.DiagramDto;
 import alvahouse.eatool.repository.dto.graphical.ImageDisplayDto;
 import alvahouse.eatool.repository.dto.graphical.StandardDiagramDto;
 import alvahouse.eatool.repository.dto.graphical.SymbolDto;
@@ -96,7 +97,15 @@ public class StandardDiagram extends Diagram implements NodeGraph{
 		}
 	}
 	
-	
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.graphical.Diagram#toDto()
+	 */
+	@Override
+	public DiagramDto toDto() {
+		StandardDiagramDto dto = new StandardDiagramDto();
+		copyTo(dto);
+		return dto;
+	}
 	/**
 	 * Gets the symbols in this diagram.
 	 * @return an unmodifiable collection of symbols.
@@ -754,6 +763,23 @@ public class StandardDiagram extends Diagram implements NodeGraph{
 		}
 		for(ImageDisplay id : images) {
 			copy.images.add((ImageDisplay) id.clone());
+		}
+		
+	}
+
+	protected void copyTo(StandardDiagramDto dto) {
+		super.copyTo(dto);
+		for(Symbol s : symbols) {
+			dto.getSymbols().add(s.toDto());
+		}
+		for(Connector c : connectors) {
+			dto.getConnectors().add(c.toDto());
+		}
+		for(TextBox t : textBoxes) {
+			dto.getTextBoxes().add(t.toDto());
+		}
+		for(ImageDisplay id : images) {
+			dto.getImages().add(id.toDto());
 		}
 		
 	}

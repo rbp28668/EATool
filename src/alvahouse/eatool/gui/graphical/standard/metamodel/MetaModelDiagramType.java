@@ -8,6 +8,7 @@ package alvahouse.eatool.gui.graphical.standard.metamodel;
 
 import java.awt.Color;
 
+import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.graphical.standard.BasicConnector;
 import alvahouse.eatool.repository.graphical.standard.ConnectorType;
 import alvahouse.eatool.repository.graphical.standard.StandardDiagram;
@@ -34,8 +35,8 @@ public class MetaModelDiagramType extends StandardDiagramType {
     /**
      * 
      */
-    private MetaModelDiagramType() {
-        super();
+    MetaModelDiagramType(Repository repository) {
+        super(repository);
         init();
     }
 
@@ -43,8 +44,8 @@ public class MetaModelDiagramType extends StandardDiagramType {
      * @param name
      * @param uuid
      */
-    private MetaModelDiagramType(String name, UUID uuid) {
-        super(name, uuid);
+    private MetaModelDiagramType(Repository repository, String name, UUID uuid) {
+        super(repository, name, uuid);
         init();
     }
 
@@ -52,9 +53,9 @@ public class MetaModelDiagramType extends StandardDiagramType {
      * Singleton accessor.
      * @return the singleton instance of MetaModelDiagramType.
      */
-    public static MetaModelDiagramType getInstance(){
+    public static MetaModelDiagramType getInstance(Repository repository){
         if(instance == null){
-            instance = new MetaModelDiagramType("Meta-Model Diagrams", new UUID());
+            instance = new MetaModelDiagramType(repository, "Meta-Model Diagrams", new UUID());
         }
         return instance;
     }
