@@ -13,6 +13,7 @@ import org.xml.sax.Attributes;
 
 import alvahouse.eatool.gui.graphical.standard.metamodel.MetaModelDiagramType;
 import alvahouse.eatool.repository.ProgressCounter;
+import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.base.FactoryBase;
 import alvahouse.eatool.repository.exception.InputException;
 import alvahouse.eatool.repository.images.Images;
@@ -32,6 +33,7 @@ import alvahouse.eatool.util.UUID;
  */
 public class DiagramFactory extends FactoryBase implements IXMLContentHandler {
 
+	private final Repository repository;
     private Diagrams diagrams;
     private DiagramTypes diagramTypes;
     private MetaModel metaModel;
@@ -53,15 +55,18 @@ public class DiagramFactory extends FactoryBase implements IXMLContentHandler {
 	 * @param diagramTypes provides the types of any diagram.
 	 * @param metaModel is the meta-model that the digrams belong to.
 	 */
-	public DiagramFactory(ProgressCounter counter, Diagrams diagrams, DiagramTypes diagramTypes, MetaModel metaModel, Model model, Images images, EventMapFactory eventMapFactory) {
+	public DiagramFactory(ProgressCounter counter, Diagrams diagrams, DiagramTypes diagramTypes, Repository repository, EventMapFactory eventMapFactory) {
 		super();
+		this.repository = repository;
 		this.diagrams = diagrams;
 		this.diagramTypes = diagramTypes;
-		this.metaModel = metaModel;
-		this.model = model;
-		this.images = images;
 		this.eventMapFactory = eventMapFactory;
 		this.counter = counter;
+
+		this.metaModel = repository.getMetaModel();
+		this.model = repository.getModel();
+		this.images = repository.getImages();
+
 	}
 
 	/* (non-Javadoc)
@@ -86,14 +91,18 @@ public class DiagramFactory extends FactoryBase implements IXMLContentHandler {
 			try {
 				type = diagramTypes.get(typeID);
 				if(type == null){
-				    type = MetaModelDiagramType.getInstance();
+				    type = MetaModelDiagramType.getInstance(repository);
 				}
 			} catch (Exception e) {
 				throw new InputException("Unable to get diagram types whilst loading XML",e);
 			}
 			
-			currentDiagram = type.newDiagram(uuid);
-			setupHandler(type);
+			try {
+				currentDiagram = type.newDiagram(uuid);
+				setupHandler(type);
+			} catch (Exception e) {
+				throw new InputException("Unable to create diagram whilst loading XML",e);
+			}
 			
             attr = attrs.getValue("name");
             if(attr != null){

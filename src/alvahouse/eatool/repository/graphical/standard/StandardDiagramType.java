@@ -8,15 +8,21 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.dto.graphical.ConnectorTypeDto;
+import alvahouse.eatool.repository.dto.graphical.DiagramDto;
+import alvahouse.eatool.repository.dto.graphical.DiagramTypeDto;
+import alvahouse.eatool.repository.dto.graphical.StandardDiagramDto;
 import alvahouse.eatool.repository.dto.graphical.StandardDiagramTypeDto;
 import alvahouse.eatool.repository.dto.graphical.SymbolTypeDto;
 import alvahouse.eatool.repository.graphical.Diagram;
 import alvahouse.eatool.repository.graphical.DiagramDetailFactory;
 import alvahouse.eatool.repository.graphical.DiagramType;
 import alvahouse.eatool.repository.graphical.DiagramTypeDetailFactory;
+import alvahouse.eatool.repository.images.Images;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
+import alvahouse.eatool.repository.model.Model;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
@@ -30,6 +36,8 @@ import alvahouse.eatool.util.XMLWriter;
  */
 public class StandardDiagramType extends DiagramType {
 
+	private final Repository repository;
+	
 	private List<SymbolType> symbolTypes = new LinkedList<SymbolType>(); // of SymbolType
 	private List<ConnectorType> connectorTypes = new LinkedList<ConnectorType>(); // of ConnectorType
 	
@@ -44,8 +52,9 @@ public class StandardDiagramType extends DiagramType {
 	/**
 	 * Constructs a new StandardDiagramType.
 	 */
-	public StandardDiagramType() {
+	public StandardDiagramType(Repository repository) {
 		super(new UUID());
+		this.repository = repository;
 	}
 
 	/**
@@ -54,12 +63,14 @@ public class StandardDiagramType extends DiagramType {
 	 * @param name is the name of the diagram type.
 	 * @param uuid is the unique ID of the diagram type.
 	 */
-	public StandardDiagramType(String name, UUID uuid) {
+	public StandardDiagramType(Repository repository,String name, UUID uuid) {
 		super(name, uuid);
+		this.repository = repository;
 	}
 
-	public StandardDiagramType(StandardDiagramTypeFamily family, StandardDiagramTypeDto dto) throws Exception {
+	public StandardDiagramType(Repository repository, StandardDiagramTypeFamily family, StandardDiagramTypeDto dto) throws Exception {
 		super(family, dto);
+		this.repository = repository;
 		for (SymbolTypeDto stdto : dto.getSymbolTypes()) {
 			SymbolType st = new SymbolType(stdto);
 			_add(st);
@@ -70,6 +81,12 @@ public class StandardDiagramType extends DiagramType {
 		}
 	}
 
+	public DiagramTypeDto toDto() {
+		StandardDiagramTypeDto dto = new StandardDiagramTypeDto();
+		copyTo(dto);
+		return dto;
+	}
+	
 	/**
 	 * @param copy
 	 */
@@ -88,25 +105,26 @@ public class StandardDiagramType extends DiagramType {
 
 	}
 
+	protected void copyTo(StandardDiagramTypeDto dto) {
+		super.copyTo(dto);
+		for (SymbolType st : symbolTypes) {
+			dto.getSymbolTypes().add(st.toDto());
+		}
+		for (ConnectorType ct : connectorTypes) {
+			dto.getConnectorTypes().add(ct.toDto());
+		}
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see java.lang.Object#clone()
 	 */
 	public Object clone() {
-		StandardDiagramType copy = new StandardDiagramType(getName(), getKey());
+		StandardDiagramType copy = new StandardDiagramType(repository, getName(), getKey());
 		cloneTo(copy);
 		return copy;
 	}
-//	
-//	/**
-//	 * updateFromCopy updates this diagram type from a copy.  It's the inverse
-//	 * of clone and used when updating from an edited copy.
-//	 * @param copy is the StandardDiagramType to update from.
-//	 */
-//	public void updateFromCopy(StandardDiagramType copy){
-//		copy.cloneTo(this);
-//	}
 
 	/**
 	 * Method add adds a symbol type to the diagram type.
@@ -241,6 +259,18 @@ public class StandardDiagramType extends DiagramType {
 	 */
 	public Diagram newDiagram(UUID key) {
 		StandardDiagram diagram = new StandardDiagram(this, key);
+		return diagram;
+	}
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.graphical.DiagramType#newDiagram(alvahouse.eatool.repository.dto.graphical.DiagramDto)
+	 */
+	@Override
+	public Diagram newDiagram(DiagramDto dto) throws Exception {
+		StandardDiagramDto sddto = (StandardDiagramDto)dto;
+		Model model = repository.getModel();
+		Images images = repository.getImages();
+		StandardDiagram diagram = new StandardDiagram(model, this, images, sddto);
 		return diagram;
 	}
 

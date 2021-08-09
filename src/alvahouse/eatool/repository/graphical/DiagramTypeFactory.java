@@ -3,10 +3,10 @@ package alvahouse.eatool.repository.graphical;
 import org.xml.sax.Attributes;
 
 import alvahouse.eatool.repository.ProgressCounter;
+import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.base.FactoryBase;
 import alvahouse.eatool.repository.exception.InputException;
 import alvahouse.eatool.repository.graphical.standard.StandardDiagramTypeFamily;
-import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.scripting.EventMap;
 import alvahouse.eatool.repository.scripting.EventMapFactory;
 import alvahouse.eatool.repository.scripting.Scripts;
@@ -23,7 +23,7 @@ import alvahouse.eatool.util.UUID;
   */
 public class DiagramTypeFactory extends FactoryBase implements IXMLContentHandler {
 
-	private MetaModel metaModel;
+	private Repository repository;
 	private DiagramTypes types;
 	private EventMapFactory eventMapFactory;
 	private EventMap savedEventMap = null;
@@ -37,10 +37,10 @@ public class DiagramTypeFactory extends FactoryBase implements IXMLContentHandle
 	 * Constructor for DiagramTypeFactory.
 	 * @param counter
 	 */
-	public DiagramTypeFactory(ProgressCounter counter, DiagramTypes diagramTypes, MetaModel mm, EventMapFactory eventMapFactory, Scripts scripts) {
+	public DiagramTypeFactory(ProgressCounter counter, DiagramTypes diagramTypes, Repository repository, EventMapFactory eventMapFactory, Scripts scripts) {
 		super();
 		types = diagramTypes;
-        metaModel = mm; 
+        this.repository = repository;
         this.eventMapFactory = eventMapFactory;
         this.counter = counter;
 	}
@@ -70,7 +70,7 @@ public class DiagramTypeFactory extends FactoryBase implements IXMLContentHandle
                 }
                 
                 currentFamily = types.lookupFamily(familyKey);
-                currentDiagramType = currentFamily.newDiagramType();
+                currentDiagramType = currentFamily.newDiagramType(repository);
             } catch (Exception e) {
                 throw new InputException("Unable to create diagram type: " + e.getMessage(), e);
             }
@@ -84,7 +84,7 @@ public class DiagramTypeFactory extends FactoryBase implements IXMLContentHandle
 			eventMapFactory.setEventMap(currentDiagramType.getEventMap());
 			
 			currentHandler = currentDiagramType.getTypeDetailFactory();
-			currentHandler.init(currentDiagramType,metaModel);
+			currentHandler.init(currentDiagramType,repository.getMetaModel());
 		} else if(local.equals("Version")){
 			VersionImpl.readXML(attrs, currentDiagramType);
 		} else {

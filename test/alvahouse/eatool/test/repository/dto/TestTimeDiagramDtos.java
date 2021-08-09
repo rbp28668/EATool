@@ -113,6 +113,7 @@ class TestTimeDiagramDtos {
 		dto.setKey(new UUID());
 		dto.setName("TDT");
 		dto.setDescription("A time diagram type");
+		dto.setFamilyKey(new UUID());
 		
 		TypeEntryDto entry = new TypeEntryDto();
 		entry.setTargetTypeKey(new UUID());

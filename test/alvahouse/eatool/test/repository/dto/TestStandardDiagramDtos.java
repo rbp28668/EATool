@@ -249,6 +249,7 @@ class TestStandardDiagramDtos {
 		dto.setKey(new UUID());
 		dto.setName("SDT");
 		dto.setDescription("A standard diagram type");
+		dto.setFamilyKey(new UUID());
 		
 		SymbolTypeDto stdto = new SymbolTypeDto();
 		stdto.setKey(new UUID());

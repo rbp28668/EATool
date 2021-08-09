@@ -6,6 +6,9 @@
  */
 package alvahouse.eatool.gui.graphical.standard.metamodel;
 
+import alvahouse.eatool.repository.Repository;
+import alvahouse.eatool.repository.dto.graphical.DiagramTypeDto;
+import alvahouse.eatool.repository.graphical.DiagramType;
 import alvahouse.eatool.repository.graphical.DiagramTypeFamily;
 import alvahouse.eatool.repository.graphical.DiagramTypes;
 import alvahouse.eatool.repository.persist.DiagramTypePersistence;
@@ -26,14 +29,14 @@ public class MetaModelDiagramTypes extends DiagramTypes {
     /**
      * constructor that sets up the single MetaModelDiagramType.
      */
-    public MetaModelDiagramTypes(DiagramTypePersistence persistence){
-        super(persistence);
+    public MetaModelDiagramTypes(Repository repository, DiagramTypePersistence persistence){
+        super(repository, persistence);
         family = new MetaModelDiagramFamily(this);
         addDiagramFamily(family);
     }
     
-    public void addDefaultType() throws Exception {
-        family.add(MetaModelDiagramType.getInstance());
+    public void addDefaultType(Repository repository) throws Exception {
+        family.add(MetaModelDiagramType.getInstance(repository));
     }
     
     /**
@@ -52,5 +55,28 @@ public class MetaModelDiagramTypes extends DiagramTypes {
             setParent(types);
             setName("Meta-Model Diagram Types");
         }
+
+
+		/* (non-Javadoc)
+		 * @see alvahouse.eatool.repository.graphical.DiagramTypeFamily#newDiagramType(alvahouse.eatool.repository.Repository)
+		 */
+		@Override
+		public DiagramType newDiagramType(Repository repository) throws Exception {
+			MetaModelDiagramType type = new MetaModelDiagramType(repository);
+			return type;
+		}
+
+		/* (non-Javadoc)
+		 * @see alvahouse.eatool.repository.graphical.DiagramTypeFamily#newDiagramType(alvahouse.eatool.repository.Repository, alvahouse.eatool.repository.dto.graphical.DiagramTypeDto)
+		 */
+		@Override
+		public DiagramType newDiagramType(Repository repository, DiagramTypeDto dto) throws Exception {
+			// We're ignoring the dto as MetaModelDiagramType has fixed config.
+			// Possibly should throw an unsupported operation exception
+			MetaModelDiagramType type = new MetaModelDiagramType(repository);
+			return type;
+		}
+		
+		
     }
 }

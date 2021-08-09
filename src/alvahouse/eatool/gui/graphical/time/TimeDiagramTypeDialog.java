@@ -50,6 +50,7 @@ import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.metamodel.MetaProperty;
 import alvahouse.eatool.repository.metamodel.types.TimeSeriesType;
+import alvahouse.eatool.util.UUID;
 
 /**
  * TimeDiagramTypeDialog
@@ -506,7 +507,7 @@ public class TimeDiagramTypeDialog extends BasicDialog implements DiagramTypeEdi
 	                            selectedProperty = (MetaProperty)Dialogs.selectNRIFrom(possibleProperties,"Select Property", TimeDiagramTypeDialog.this);
 	                        }
 	                        if(selectedProperty != null){
-	                            TimeDiagramType.TypeEntry entry = new TimeDiagramType.TypeEntry(selected,selectedProperty);
+	                            TimeDiagramType.TypeEntry entry = new TimeDiagramType.TypeEntry(selected.getKey(),selectedProperty.getKey());
 	                            entry.setColours(defaultColoursFor((TimeSeriesType)selectedProperty.getMetaPropertyType()));
 	                            listModel.addElement(entry);
 	                            addEntry(entry);
@@ -557,15 +558,15 @@ public class TimeDiagramTypeDialog extends BasicDialog implements DiagramTypeEdi
             List<MetaEntity> selectable = new LinkedList<MetaEntity>();
             
             // Create a set of used MetaProperty to exclude them from the list.
-            Set<MetaProperty> used = new HashSet<MetaProperty>();
+            Set<UUID> used = new HashSet<UUID>();
             for(int i=0; i< listModel.size(); ++i){
                 TypeEntry entry = (TypeEntry)listModel.elementAt(i);
-                used.add(entry.getTargetProperty());
+                used.add(entry.getTargetPropertyKey());
             }
             
             for(Iterator<MetaProperty> iter = allowableMeta.iterator(); iter.hasNext();){
-                MetaProperty meta = (MetaProperty)iter.next();
-                if(!used.contains(meta)){
+                MetaProperty meta = iter.next();
+                if(!used.contains(meta.getKey())){
 	                MetaEntity metaEntity = (MetaEntity)meta.getContainer();
 	                if(!selectable.contains(metaEntity)){
 	                    selectable.add(metaEntity);
@@ -584,10 +585,10 @@ public class TimeDiagramTypeDialog extends BasicDialog implements DiagramTypeEdi
         private List<MetaProperty> getPossibleProperties(MetaEntity selected) throws Exception{
             
             // Create a set of used MetaProperty to exclude them from the list.
-            Set<MetaProperty> used = new HashSet<MetaProperty>();
+            Set<UUID> used = new HashSet<>();
             for(int i=0; i< listModel.size(); ++i){
                 TypeEntry entry = (TypeEntry)listModel.elementAt(i);
-                used.add(entry.getTargetProperty());
+                used.add(entry.getTargetPropertyKey());
             }
             
             List<MetaProperty> possibleProperties = new LinkedList<MetaProperty>();
@@ -595,7 +596,7 @@ public class TimeDiagramTypeDialog extends BasicDialog implements DiagramTypeEdi
             for(Iterator<?> iterProps = selected.getMetaProperties().iterator(); iterProps.hasNext();){
                 MetaProperty metaProperty = (MetaProperty)iterProps.next();
                 if(metaProperty.getMetaPropertyType() instanceof TimeSeriesType){
-                    if(!used.contains(metaProperty)){
+                    if(!used.contains(metaProperty.getKey())){
                         possibleProperties.add(metaProperty);
                     }
                 }

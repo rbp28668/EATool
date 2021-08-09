@@ -102,10 +102,10 @@ public class RepositoryImpl implements TypeEventListener, Repository{
 	private final MetaPropertyTypes types = new MetaPropertyTypes();
     private final MetaModel metaModel = new MetaModel(persistence.getMetaModelPersistence(), types );
     private final Model model = new Model(metaModel, persistence.getModelPersistence());
-    private final Diagrams diagrams = new Diagrams(persistence.getDiagramPersistence());
-    private final Diagrams metaModelDiagrams = new Diagrams(persistence.getMetaModelDiagramPersistence());
-    private final DiagramTypes diagramTypes = new DiagramTypes(persistence.getDiagramTypePersistence());
-    private final MetaModelDiagramTypes metaModelDiagramTypes = new MetaModelDiagramTypes(persistence.getDiagramTypePersistence());
+    private final DiagramTypes diagramTypes = new DiagramTypes(this,persistence.getDiagramTypePersistence());
+    private final Diagrams diagrams = new Diagrams(diagramTypes, persistence.getDiagramPersistence());
+    private final MetaModelDiagramTypes metaModelDiagramTypes = new MetaModelDiagramTypes(this, persistence.getDiagramTypePersistence());
+    private final Diagrams metaModelDiagrams = new Diagrams(metaModelDiagramTypes, persistence.getMetaModelDiagramPersistence());
     private final ImportMappings importMappings = new ImportMappings(persistence.getImportMappingPersistence());
     private final ExportMappings exportMappings = new ExportMappings(persistence.getExportMappingPersistence());
     private final Scripts scripts = new Scripts(persistence.getScriptPersistence());
@@ -154,7 +154,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
         extensibleTypes.addListener(this);
         
         try {
-			metaModelDiagramTypes.addDefaultType();
+			metaModelDiagramTypes.addDefaultType(this);
 		} catch (Exception e1) {
 			throw new RepositoryException("Unable to set default diagram type for metamodel",e1);
 		}
@@ -253,15 +253,15 @@ public class RepositoryImpl implements TypeEventListener, Repository{
         loader.registerContent(NAMESPACE,"DisplayHint",dhf);
         loader.registerContent(OLD_NAMESPACE,"DisplayHint",dhf);
         
-        DiagramTypeFactory dtf = new DiagramTypeFactory(counter,diagramTypes, metaModel, eventsmf, scripts);
+        DiagramTypeFactory dtf = new DiagramTypeFactory(counter,diagramTypes, this, eventsmf, scripts);
         loader.registerContent(NAMESPACE,"DiagramType",dtf);
         loader.registerContent(OLD_NAMESPACE,"DiagramType",dtf);
 
-		DiagramFactory metadf = new DiagramFactory(counter,diagrams,diagramTypes, metaModel, model, images, eventsmf);
+		DiagramFactory metadf = new DiagramFactory(counter,diagrams,diagramTypes, this, eventsmf);
 		loader.registerContent(NAMESPACE,"MetaDiagrams",metadf);
 		loader.registerContent(OLD_NAMESPACE,"MetaDiagrams",metadf);
         
-		DiagramFactory df = new DiagramFactory(counter,diagrams,diagramTypes, metaModel, model, images,  eventsmf);
+		DiagramFactory df = new DiagramFactory(counter,diagrams,diagramTypes, this,  eventsmf);
 		loader.registerContent(NAMESPACE,"Diagrams",df);
 		loader.registerContent(OLD_NAMESPACE,"Diagrams",df);
 

@@ -13,6 +13,7 @@ import java.awt.geom.GeneralPath;
 
 import alvahouse.eatool.repository.base.KeyedItem;
 import alvahouse.eatool.repository.dto.graphical.DiamondSymbolDto;
+import alvahouse.eatool.repository.dto.graphical.SymbolDto;
 import alvahouse.eatool.repository.graphical.standard.AbstractSymbol;
 import alvahouse.eatool.repository.graphical.standard.DimensionFloat;
 import alvahouse.eatool.repository.graphical.standard.SymbolType;
@@ -119,6 +120,26 @@ public class DiamondSymbol extends AbstractSymbol {
 		
 		setSize(width,height);
 	}
+
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.graphical.standard.Symbol#toDto()
+	 */
+	@Override
+	public SymbolDto toDto() {
+		DiamondSymbolDto dto = new DiamondSymbolDto();
+		copyTo(dto);
+		return dto;
+	}
     
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.graphical.standard.AbstractSymbol#clone()
+	 */
+	@Override
+	public Object clone() {
+		DiamondSymbol s = new DiamondSymbol();
+		cloneTo(s);
+		return s;
+	}
 
 }
