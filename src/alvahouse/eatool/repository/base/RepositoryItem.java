@@ -28,6 +28,9 @@ public class RepositoryItem implements KeyedItem{
      */
     public RepositoryItem(RepositoryItemDto dao) {
         m_uuid = dao.getKey();
+        if(m_uuid == null) {
+        	throw new NullPointerException("Cannot have null key of a RepositoryItem");
+        }
     }
 
     /** Gets the key that uniquely identifies this repository item

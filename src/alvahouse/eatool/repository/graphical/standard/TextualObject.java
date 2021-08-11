@@ -541,6 +541,7 @@ public abstract class TextualObject extends RepositoryItem implements GraphicalO
 	}
 
 	protected void copyTo(TextualObjectDto dto) {
+		super.copyTo(dto);
 		dto.setX(x);
 		dto.setY(y);
 		dto.setWidth(size.getWidth());
