@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import alvahouse.eatool.repository.dto.NamedRepositoryItemDto;
 import alvahouse.eatool.repository.dto.VersionDto;
+import alvahouse.eatool.repository.dto.VersionedDto;
 
 /**
  * @author bruce_porteous
@@ -26,7 +27,7 @@ import alvahouse.eatool.repository.dto.VersionDto;
     @JsonSubTypes.Type(value = TimeSeriesTypeDto.class)
     })
 
-public abstract class ExtensibleMetaPropertyTypeDto extends NamedRepositoryItemDto{
+public abstract class ExtensibleMetaPropertyTypeDto extends NamedRepositoryItemDto implements VersionedDto{
 
 	private VersionDto version;
 	private String rev;
@@ -35,6 +36,7 @@ public abstract class ExtensibleMetaPropertyTypeDto extends NamedRepositoryItemD
 	 * @return the version
 	 */
 	@XmlElement
+	@Override
 	public VersionDto getVersion() {
 		return version;
 	}
@@ -51,6 +53,7 @@ public abstract class ExtensibleMetaPropertyTypeDto extends NamedRepositoryItemD
 	 * @return the rev
 	 */
 	@JsonProperty("_rev")
+	@Override
 	public String getRev() {
 		return rev;
 	}
@@ -58,6 +61,7 @@ public abstract class ExtensibleMetaPropertyTypeDto extends NamedRepositoryItemD
 	/**
 	 * @param rev the rev to set
 	 */
+	@Override
 	public void setRev(String rev) {
 		this.rev = rev;
 	}

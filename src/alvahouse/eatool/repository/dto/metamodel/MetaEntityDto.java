@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import alvahouse.eatool.repository.dto.VersionDto;
+import alvahouse.eatool.repository.dto.VersionedDto;
 import alvahouse.eatool.util.UUID;
 
 /**
@@ -25,7 +26,7 @@ import alvahouse.eatool.util.UUID;
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(propOrder = { "baseJson", "displayHint", "version"})
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type_name")
-public class MetaEntityDto extends MetaPropertyContainerDto {
+public class MetaEntityDto extends MetaPropertyContainerDto implements VersionedDto {
     private UUID base;
     private boolean isAbstract;
     private MetaEntityDisplayHintDto displayHint;
@@ -100,6 +101,7 @@ public class MetaEntityDto extends MetaPropertyContainerDto {
 	 * @return the version
 	 */
 	@XmlElement
+	@Override
 	public VersionDto getVersion() {
 		return version;
 	}
@@ -116,6 +118,7 @@ public class MetaEntityDto extends MetaPropertyContainerDto {
 	 * @return the rev
 	 */
 	@JsonProperty("_rev")
+	@Override
 	public String getRev() {
 		return rev;
 	}
@@ -123,6 +126,7 @@ public class MetaEntityDto extends MetaPropertyContainerDto {
 	/**
 	 * @param rev the rev to set
 	 */
+	@Override
 	public void setRev(String rev) {
 		this.rev = rev;
 	}

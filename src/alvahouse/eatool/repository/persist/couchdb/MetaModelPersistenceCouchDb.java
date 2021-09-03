@@ -3,7 +3,6 @@
  */
 package alvahouse.eatool.repository.persist.couchdb;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -124,10 +123,7 @@ public class MetaModelPersistenceCouchDb implements MetaModelPersistence {
 	 */
 	@Override
 	public MetaEntityDto getMetaEntity(UUID uuid) throws Exception {
-		String json = couch.database().getDocument(database, uuid.asJsonId());
-		MetaEntityDto dto = Serialise.unmarshalFromJson(json, MetaEntityDto.class);
-		dto.getVersion().update(dto.getRev());
-		return dto;
+		return Helpers.get(couch, database, uuid, MetaEntityDto.class);
 	}
 
 	/* (non-Javadoc)
@@ -135,10 +131,7 @@ public class MetaModelPersistenceCouchDb implements MetaModelPersistence {
 	 */
 	@Override
 	public String addMetaEntity(MetaEntityDto me) throws Exception {
-		String document = Serialise.marshalToJSON(me);
-		CouchDB.PutDocumentResponse response = couch.database().putDocument(database, me.getKeyJson(), document);
-		String revision = response.rev;
-		return revision;
+		return Helpers.add(couch, database, me);
 	}
 
 	/* (non-Javadoc)
@@ -146,23 +139,8 @@ public class MetaModelPersistenceCouchDb implements MetaModelPersistence {
 	 */
 	@Override
 	public Collection<MetaEntityDto> getMetaEntities() throws Exception {
-		//_design/meta_entities/_view/all?include_docs=true
-		
 		String json = couch.database().queryView(database,"meta_entities", "all", CouchDB.Query.INCLUDE_DOCS);
-		JsonNode root = Serialise.parseToJsonTree(json);
-		
-		int rowCount = root.get("total_rows").asInt();
-		List<MetaEntityDto> dtos = new ArrayList<>(rowCount);
-
-		JsonNode rows = root.get("rows");
-		assert(rows.isArray());
-		for(JsonNode row : rows) {
-			JsonNode doc = row.get("doc");
-			MetaEntityDto dto = Serialise.unmarshalFromJson(doc, MetaEntityDto.class);
-			dto.getVersion().update(dto.getRev());
-			dtos.add(dto);
-		}
-		return dtos;
+		return Helpers.getViewCollectionFrom(json, MetaEntityDto.class);
 	}
 
 	/* (non-Javadoc)
@@ -170,7 +148,6 @@ public class MetaModelPersistenceCouchDb implements MetaModelPersistence {
 	 */
 	@Override
 	public int getMetaEntityCount() throws Exception {
-		//_design/meta_entities/_view/count
 		String json = couch.database().queryView(database,"meta_entities", "count");
 		return Helpers.getCountFrom(json);
 	}
@@ -180,10 +157,7 @@ public class MetaModelPersistenceCouchDb implements MetaModelPersistence {
 	 */
 	@Override
 	public String updateMetaEntity(MetaEntityDto me) throws Exception {
-		me.setRev(me.getVersion().getVersion());
-		String document = Serialise.marshalToJSON(me);
-		CouchDB.PutDocumentResponse response = couch.database().putDocument(database, me.getKeyJson(), document);
-		return response.rev;
+		return Helpers.update(couch, database, me);
 	}
 
 	/* (non-Javadoc)
@@ -191,10 +165,7 @@ public class MetaModelPersistenceCouchDb implements MetaModelPersistence {
 	 */
 	@Override
 	public MetaEntityDto deleteMetaEntity(UUID uuid, String version) throws Exception {
-		String json = couch.database().getDocument(database, uuid.asJsonId());
-		MetaEntityDto dto = Serialise.unmarshalFromJson(json, MetaEntityDto.class);
-		couch.database().deleteDocument(database, uuid.asJsonId(), version);
-		return dto;
+		return Helpers.delete(couch, database, uuid, version, MetaEntityDto.class);
 	}
 
 	/* (non-Javadoc)
@@ -202,10 +173,7 @@ public class MetaModelPersistenceCouchDb implements MetaModelPersistence {
 	 */
 	@Override
 	public MetaRelationshipDto getMetaRelationship(UUID uuid) throws Exception {
-		String json = couch.database().getDocument(database, uuid.asJsonId());
-		MetaRelationshipDto dto = Serialise.unmarshalFromJson(json, MetaRelationshipDto.class);
-		dto.getVersion().update(dto.getRev());
-		return dto;
+		return Helpers.get(couch, database, uuid,MetaRelationshipDto.class);
 	}
 
 	/* (non-Javadoc)
@@ -213,10 +181,7 @@ public class MetaModelPersistenceCouchDb implements MetaModelPersistence {
 	 */
 	@Override
 	public String addMetaRelationship(MetaRelationshipDto mr) throws Exception {
-		String document = Serialise.marshalToJSON(mr);
-		CouchDB.PutDocumentResponse response = couch.database().putDocument(database, mr.getKeyJson(), document);
-		String revision = response.rev;
-		return revision;
+		return Helpers.add(couch, database, mr);
 	}
 
 	/* (non-Javadoc)
@@ -224,10 +189,7 @@ public class MetaModelPersistenceCouchDb implements MetaModelPersistence {
 	 */
 	@Override
 	public String updateMetaRelationship(MetaRelationshipDto mr) throws Exception {
-		mr.setRev(mr.getVersion().getVersion());
-		String document = Serialise.marshalToJSON(mr);
-		CouchDB.PutDocumentResponse response = couch.database().putDocument(database, mr.getKeyJson(), document);
-		return response.rev;
+		return Helpers.update(couch, database, mr);
 	}
 
 	/* (non-Javadoc)
@@ -235,10 +197,7 @@ public class MetaModelPersistenceCouchDb implements MetaModelPersistence {
 	 */
 	@Override
 	public MetaRelationshipDto deleteMetaRelationship(UUID uuid, String version) throws Exception {
-		String json = couch.database().getDocument(database, uuid.asJsonId());
-		MetaRelationshipDto dto = Serialise.unmarshalFromJson(json, MetaRelationshipDto.class);
-		couch.database().deleteDocument(database, uuid.asJsonId(), version);
-		return dto;
+		return Helpers.delete(couch, database, uuid, version, MetaRelationshipDto.class);
 	}
 
 	/* (non-Javadoc)
@@ -246,23 +205,8 @@ public class MetaModelPersistenceCouchDb implements MetaModelPersistence {
 	 */
 	@Override
 	public Collection<MetaRelationshipDto> getMetaRelationships() throws Exception {
-		//_design/meta_entities/_view/all?include_docs=true
-		
 		String json = couch.database().queryView(database,"meta_relationships", "all", CouchDB.Query.INCLUDE_DOCS);
-		JsonNode root = Serialise.parseToJsonTree(json);
-		
-		int rowCount = root.get("total_rows").asInt();
-		List<MetaRelationshipDto> dtos = new ArrayList<>(rowCount);
-
-		JsonNode rows = root.get("rows");
-		assert(rows.isArray());
-		for(JsonNode row : rows) {
-			JsonNode doc = row.get("doc");
-			MetaRelationshipDto dto = Serialise.unmarshalFromJson(doc, MetaRelationshipDto.class);
-			dto.getVersion().update(dto.getRev());
-			dtos.add(dto);
-		}
-		return dtos;
+		return Helpers.getViewCollectionFrom(json, MetaRelationshipDto.class);
 	}
 
 	/* (non-Javadoc)
@@ -302,19 +246,10 @@ public class MetaModelPersistenceCouchDb implements MetaModelPersistence {
 				.add("key", metaEntityKey.asJsonId())
 				.add(CouchDB.Query.INCLUDE_DOCS)
 				.toString());
-		JsonNode root = Serialise.parseToJsonTree(json);
 		
-		int rowCount = root.get("total_rows").asInt();
-		Set<MetaRelationshipDto> dtos = new HashSet<>(rowCount);
-
-		JsonNode rows = root.get("rows");
-		assert(rows.isArray());
-		for(JsonNode row : rows) {
-			JsonNode doc = row.get("doc");
-			MetaRelationshipDto dto = Serialise.unmarshalFromJson(doc, MetaRelationshipDto.class);
-			dto.getVersion().update(dto.getRev());
-			dtos.add(dto);
-		}
+		List<MetaRelationshipDto> all = Helpers.getViewCollectionFrom(json, MetaRelationshipDto.class);
+		Set<MetaRelationshipDto> dtos = new HashSet<>();
+		dtos.addAll(all);
 		return dtos;
 	}
 
@@ -401,20 +336,7 @@ public class MetaModelPersistenceCouchDb implements MetaModelPersistence {
 				.add("key", metaEntityKey.asJsonId())
 				.add(CouchDB.Query.INCLUDE_DOCS)
 				.toString());
-		JsonNode root = Serialise.parseToJsonTree(json);
-		
-		int rowCount = root.get("total_rows").asInt();
-		List<MetaEntityDto> dtos = new ArrayList<>(rowCount);
-
-		JsonNode rows = root.get("rows");
-		assert(rows.isArray());
-		for(JsonNode row : rows) {
-			JsonNode doc = row.get("doc");
-			MetaEntityDto me = Serialise.unmarshalFromJson(doc, MetaEntityDto.class);
-			me.getVersion().setVersion(me.getRev());
-			dtos.add(me);
-		}
-		return dtos;
+		return Helpers.getViewCollectionFrom(json, MetaEntityDto.class);
 	}
 
 	/* (non-Javadoc)
@@ -423,20 +345,7 @@ public class MetaModelPersistenceCouchDb implements MetaModelPersistence {
 	@Override
 	public Collection<ExtensibleMetaPropertyTypeDto> getDefinedTypes() throws Exception {
 		String json = couch.database().queryView(database,"meta_property_types", "all", CouchDB.Query.INCLUDE_DOCS);
-		JsonNode root = Serialise.parseToJsonTree(json);
-		
-		int rowCount = root.get("total_rows").asInt();
-		List<ExtensibleMetaPropertyTypeDto> dtos = new ArrayList<>(rowCount);
-
-		JsonNode rows = root.get("rows");
-		assert(rows.isArray());
-		for(JsonNode row : rows) {
-			JsonNode doc = row.get("doc");
-			ExtensibleMetaPropertyTypeDto dto = Serialise.unmarshalFromJson(doc, ExtensibleMetaPropertyTypeDto.class);
-			dto.getVersion().update(dto.getRev());
-			dtos.add(dto);
-		}
-		return dtos;
+		return Helpers.getViewCollectionFrom(json, ExtensibleMetaPropertyTypeDto.class);
 	}
 
 	/* (non-Javadoc)
@@ -444,10 +353,7 @@ public class MetaModelPersistenceCouchDb implements MetaModelPersistence {
 	 */
 	@Override
 	public String addType(ExtensibleMetaPropertyTypeDto mpt) throws Exception {
-		String document = Serialise.marshalToJSON(mpt);
-		CouchDB.PutDocumentResponse response = couch.database().putDocument(database, mpt.getKeyJson(), document);
-		String revision = response.rev;
-		return revision;
+		return Helpers.add(couch, database, mpt);
 	}
 
 	/* (non-Javadoc)
@@ -455,10 +361,7 @@ public class MetaModelPersistenceCouchDb implements MetaModelPersistence {
 	 */
 	@Override
 	public String updateType(ExtensibleMetaPropertyTypeDto mpt) throws Exception {
-		mpt.setRev(mpt.getVersion().getVersion());
-		String document = Serialise.marshalToJSON(mpt);
-		CouchDB.PutDocumentResponse response = couch.database().putDocument(database, mpt.getKeyJson(), document);
-		return response.rev;
+		return Helpers.update(couch, database, mpt);
 	}
 
 	/* (non-Javadoc)
@@ -466,7 +369,7 @@ public class MetaModelPersistenceCouchDb implements MetaModelPersistence {
 	 */
 	@Override
 	public void deleteType(UUID key, String version) throws Exception {
-		couch.database().deleteDocument(database, key.asJsonId(), version);
+		Helpers.delete(couch, database, key, version, ExtensibleMetaPropertyTypeDto.class);
 	}
 
 	/* (non-Javadoc)
