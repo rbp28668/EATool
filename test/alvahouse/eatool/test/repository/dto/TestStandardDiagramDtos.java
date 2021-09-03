@@ -234,10 +234,10 @@ class TestStandardDiagramDtos {
 		VersionDto version = new VersionDto();
 		version.setCreateDate(new Date());
 		version.setCreateUser("fred");
-		version.setOriginalVersion(new UUID());
+		version.setOriginalVersion(new UUID().asJsonId());
 		version.setModifyDate(new Date());
 		version.setModifyUser("jim");
-		version.setVersion(new UUID());
+		version.setVersion(new UUID().asJsonId());
 		return version;
 	}
 	
@@ -295,7 +295,7 @@ class TestStandardDiagramDtos {
 		StandardDiagramDto dto = createDto();
 		
 		String asJson = Serialise.marshalToJSON(dto);
-		System.out.println(asJson);
+		//System.out.println(asJson);
 		StandardDiagramDto copy = (StandardDiagramDto) Serialise.unmarshalFromJson(asJson, StandardDiagramDto.class);
 		assertThat(copy.getVersion(), samePropertyValuesAs(dto.getVersion()));
 		assertTrue(objectsEqual(copy,dto));
@@ -318,7 +318,7 @@ class TestStandardDiagramDtos {
 		StandardDiagramTypeDto dto = createTypeDto();
 		
 		String asJson = Serialise.marshalToJSON(dto);
-		System.out.println(asJson);
+		//System.out.println(asJson);
 		StandardDiagramTypeDto copy = (StandardDiagramTypeDto) Serialise.unmarshalFromJson(asJson, StandardDiagramTypeDto.class);
 		assertThat(copy.getVersion(), samePropertyValuesAs(dto.getVersion()));
 		assertTrue(objectsEqual(copy,dto));

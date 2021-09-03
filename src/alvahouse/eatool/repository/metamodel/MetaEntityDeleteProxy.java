@@ -19,15 +19,17 @@ public class MetaEntityDeleteProxy implements IDeleteDependenciesProxy {
 	private final MetaModel metaModel;
 	private final String name;
 	private final UUID targetKey;
+	private final String version;
 
 	/** Creates a new proxy for deleting dependent meta-entities
      * @param me is the dependent meta-entity
      * @param metaModel is the meta model that the meta entity belongs to.
      */        
-    public MetaEntityDeleteProxy(MetaModel metaModel, UUID targetKey, String name) {
+    public MetaEntityDeleteProxy(MetaModel metaModel, UUID targetKey, String name, String version) {
         this.metaModel = metaModel;
         this.targetKey = targetKey;
 		this.name = name;
+		this.version = version;
     }
     
     public MetaEntityDeleteProxy(MetaModel metaModel, DeleteProxyDto dao) {
@@ -37,6 +39,7 @@ public class MetaEntityDeleteProxy implements IDeleteDependenciesProxy {
     	this.metaModel = metaModel;
     	this.targetKey = dao.getItemKey();
     	this.name = dao.getName();
+    	this.version = dao.getVersion();
     }
     
     /** gets the name of the dependent meta entity
@@ -49,7 +52,7 @@ public class MetaEntityDeleteProxy implements IDeleteDependenciesProxy {
     /** deletes the dependent meta-entity
      */
     public void delete() throws Exception {
-        this.metaModel.deleteMetaEntity(targetKey);
+        this.metaModel.deleteMetaEntity(targetKey, version);
     }
     
     /** gets the dependent meta-entity

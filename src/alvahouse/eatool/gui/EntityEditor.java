@@ -447,7 +447,7 @@ public class EntityEditor extends BasicDialog {
 				model.updateRelationship(toUpdate);
 			}
 			for (Relationship toDelete : relationshipsToDelete) {
-				model.deleteRelationship(toDelete.getKey());
+				model.deleteRelationship(toDelete.getKey(), toDelete.getVersion().getVersion());
 			}
 		}
 

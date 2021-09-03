@@ -93,10 +93,10 @@ class TestImportMappingDto {
 		VersionDto version = new VersionDto();
 		version.setCreateDate(new Date());
 		version.setCreateUser("fred");
-		version.setOriginalVersion(new UUID());
+		version.setOriginalVersion(new UUID().asJsonId());
 		version.setModifyDate(new Date());
 		version.setModifyUser("jim");
-		version.setVersion(new UUID());
+		version.setVersion(new UUID().asJsonId());
 		return version;
 	}
 

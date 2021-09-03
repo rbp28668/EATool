@@ -29,6 +29,8 @@ import alvahouse.eatool.gui.graphical.standard.metamodel.MetaModelDiagramType;
 import alvahouse.eatool.gui.graphical.standard.metamodel.MetaModelDiagramTypes;
 import alvahouse.eatool.gui.graphical.standard.model.ModelDiagramType;
 import alvahouse.eatool.repository.base.DeleteDependenciesList;
+import alvahouse.eatool.repository.dto.RepositoryPropertiesDto;
+import alvahouse.eatool.repository.dto.scripting.EventMapDto;
 import alvahouse.eatool.repository.exception.InputException;
 import alvahouse.eatool.repository.exception.OutputException;
 import alvahouse.eatool.repository.exception.RepositoryException;
@@ -69,8 +71,9 @@ import alvahouse.eatool.repository.model.Relationship;
 import alvahouse.eatool.repository.model.factory.EntityFactory;
 import alvahouse.eatool.repository.model.factory.ModelFactory;
 import alvahouse.eatool.repository.model.factory.RelationshipFactory;
+import alvahouse.eatool.repository.persist.EventMapPersistence;
 import alvahouse.eatool.repository.persist.RepositoryPersistence;
-import alvahouse.eatool.repository.persist.memory.RepositoryPersistenceMemory;
+import alvahouse.eatool.repository.persist.RepositoryPropertiesPersistence;
 import alvahouse.eatool.repository.scripting.EventMap;
 import alvahouse.eatool.repository.scripting.EventMapFactory;
 import alvahouse.eatool.repository.scripting.ScriptFactory;
@@ -95,26 +98,22 @@ public class RepositoryImpl implements TypeEventListener, Repository{
 
 	private UUID key;
 	
-	// For the time being we'll keep the persistence mechanism as in memory.
-	private final RepositoryPersistence persistence = new RepositoryPersistenceMemory();
+	private final RepositoryPersistence persistence; // = new RepositoryPersistenceMemory();
 	
-    private final ExtensibleTypes extensibleTypes = new ExtensibleTypes(persistence.getMetaModelPersistence());
-	private final MetaPropertyTypes types = new MetaPropertyTypes();
-    private final MetaModel metaModel = new MetaModel(persistence.getMetaModelPersistence(), types );
-    private final Model model = new Model(metaModel, persistence.getModelPersistence());
-    private final DiagramTypes diagramTypes = new DiagramTypes(this,persistence.getDiagramTypePersistence());
-    private final Diagrams diagrams = new Diagrams(diagramTypes, persistence.getDiagramPersistence());
-    private final MetaModelDiagramTypes metaModelDiagramTypes = new MetaModelDiagramTypes(this, persistence.getDiagramTypePersistence());
-    private final Diagrams metaModelDiagrams = new Diagrams(metaModelDiagramTypes, persistence.getMetaModelDiagramPersistence());
-    private final ImportMappings importMappings = new ImportMappings(persistence.getImportMappingPersistence());
-    private final ExportMappings exportMappings = new ExportMappings(persistence.getExportMappingPersistence());
-    private final Scripts scripts = new Scripts(persistence.getScriptPersistence());
-    //private final EventMap events = new EventMap(scripts);
-    //private final RepositoryProperties properties = new RepositoryProperties();
-    private final HTMLPages pages = new HTMLPages(persistence.getHTMLPagePeristence());
-    private final Images images = new Images(persistence.getImagePersistence());
-    //private final EventMap modelEvents = new EventMap(scripts);
-    //private final EventMap metaModelEvents = new EventMap(scripts);
+    private final ExtensibleTypes extensibleTypes;
+	private final MetaPropertyTypes types;
+    private final MetaModel metaModel;
+    private final Model model;
+    private final DiagramTypes diagramTypes;
+    private final Diagrams diagrams;
+    private final MetaModelDiagramTypes metaModelDiagramTypes;
+    private final Diagrams metaModelDiagrams;
+    private final ImportMappings importMappings;
+    private final ExportMappings exportMappings;
+    private final Scripts scripts;
+    private final HTMLPages pages;
+    private final Images images;
+
     // Events 
     private final String POST_LOAD_EVENT = "PostLoadEvent";
     private final String PRE_SAVE_EVENT = "PreSaveEvent";
@@ -126,8 +125,25 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     private SearchEngine search;
 
     /** Creates new, empty,  Repository */
-    public RepositoryImpl(SettingsManager config) throws RepositoryException {
+    public RepositoryImpl(RepositoryPersistence persistence, SettingsManager config) throws RepositoryException {
 
+    	this.persistence = persistence;
+    	this.extensibleTypes = new ExtensibleTypes(persistence.getMetaModelPersistence());
+    	this.types = new MetaPropertyTypes();
+    	this.metaModel = new MetaModel(persistence.getMetaModelPersistence(), types );
+    	this.model = new Model(metaModel, persistence.getModelPersistence());
+    	this.diagramTypes = new DiagramTypes(this,persistence.getDiagramTypePersistence());
+    	this.diagrams = new Diagrams(diagramTypes, persistence.getDiagramPersistence());
+    	this.metaModelDiagramTypes = new MetaModelDiagramTypes(this, persistence.getDiagramTypePersistence());
+    	this.metaModelDiagrams = new Diagrams(metaModelDiagramTypes, persistence.getMetaModelDiagramPersistence());
+    	this.importMappings = new ImportMappings(persistence.getImportMappingPersistence());
+    	this.exportMappings = new ExportMappings(persistence.getExportMappingPersistence());
+    	this.scripts = new Scripts(persistence.getScriptPersistence());
+    	this.pages = new HTMLPages(persistence.getHTMLPagePeristence());
+    	this.images = new Images(persistence.getImagePersistence());
+
+    	
+    	
     	key = new UUID(); // may be over-ridden later by load.
     	
         try {
@@ -159,25 +175,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
 			throw new RepositoryException("Unable to set default diagram type for metamodel",e1);
 		}
         
-        try {
-	        // Event maps need to be initialised with the allowable events
-	        // even if no handlers defined.
-	        EventMap events = new EventMap();
-	        ensureEvents(events);
-	        persistence.getRepositoryEventMapPersistence().set(events);
-
-	        EventMap modelEvents = new EventMap();
-	        ModelDiagramType.defineEventMap(modelEvents);
-	        persistence.getModelViewerEventMapPersistence().set(modelEvents);
-	        
-	        EventMap metaModelEvents = new EventMap();
-	        MetaModelDiagramType.defineEventMap(metaModelEvents);
-	        persistence.getMetaModelViewerEventMapPersistence().set(metaModelEvents);
-	        
-        } catch (Exception e) {
-        	throw new RepositoryException("Unable to define event maps", e);
-        }
-        // Set up search engine
+         // Set up search engine
         search = new SearchEngine();
         model.addChangeListener(search);
 
@@ -193,6 +191,43 @@ public class RepositoryImpl implements TypeEventListener, Repository{
 
     }
 
+    @Override
+    public void initialiseNew() {
+    	key = new UUID(); // may be over-ridden later by load.
+         
+        try {
+        	// Create a blank repository properties.
+        	RepositoryProperties props = new RepositoryProperties();
+        	updateProperties(props);
+        	
+ 	        // Event maps need to be initialised with the allowable events
+	        // even if no handlers defined.
+	        EventMap events = new EventMap();
+	        ensureEvents(events);
+	        persistence.getRepositoryEventMapPersistence().set(events.toDto());
+
+	        EventMap modelEvents = new EventMap();
+	        ModelDiagramType.defineEventMap(modelEvents);
+	        persistence.getModelViewerEventMapPersistence().set(modelEvents.toDto());
+	        
+	        EventMap metaModelEvents = new EventMap();
+	        MetaModelDiagramType.defineEventMap(metaModelEvents);
+	        persistence.getMetaModelViewerEventMapPersistence().set(metaModelEvents.toDto());
+	        
+        } catch (Exception e) {
+        	throw new RepositoryException("Unable to define event maps", e);
+        }
+ 
+    }
+    
+    @Override
+    public void bindToExisting() {
+    	key = new UUID(); // may be over-ridden later by load.
+    	
+    	// TODO need to do something creative with search engine.
+
+
+    }
 	/**
 	 * @param events
 	 */
@@ -315,15 +350,21 @@ public class RepositoryImpl implements TypeEventListener, Repository{
         }
         
         try {
-        	persistence.getRepositoryPropertiesPersistence().set(props);
+        	// ReadModifyWrite as there will already be a record from initialisation.
+        	RepositoryPropertiesPersistence rpp = persistence.getRepositoryPropertiesPersistence();
+        	RepositoryPropertiesDto original = rpp.get();
+        	RepositoryPropertiesDto updated = props.toDto();
+        	String rev = original.getVersion().getVersion();
+        	updated.getVersion().update(rev);
+        	rpp.set(updated);
         } catch (Exception e) {
         	throw new InputException("Unable to save properties into model when loading XML",e);
         }
         
         try {
-        	persistence.getRepositoryEventMapPersistence().set(events);
-        	persistence.getMetaModelViewerEventMapPersistence().set(metaModelEvents);
-        	persistence.getModelViewerEventMapPersistence().set(modelEvents);
+        	updateEventMap(events.toDto(), persistence.getRepositoryEventMapPersistence());
+        	updateEventMap(metaModelEvents.toDto(),persistence.getMetaModelViewerEventMapPersistence());
+        	updateEventMap(modelEvents.toDto(),persistence.getModelViewerEventMapPersistence());
         } catch (Exception e) {
         	throw new InputException("Unable to save events when loading XML",e);
         }
@@ -342,6 +383,21 @@ public class RepositoryImpl implements TypeEventListener, Repository{
         
         //System.out.println("**Loaded XML");
     }
+
+	/**
+	 * Allow an event map to be updated with read/modify/write.  This is needed as event maps are
+	 * created as part of the repository intialisation and just writing will result in a stale
+	 * data exception when the versions do not match.
+	 * @param updated is the EventMapDto to write.
+	 * @param emp is the EventMapPersistence to use.
+	 * @throws Exception
+	 */
+	private void updateEventMap(EventMapDto updated, EventMapPersistence emp) throws Exception {
+		EventMapDto original = emp.get();
+		String rev = original.getVersion().getVersion();
+		updated.getVersion().update(rev);
+		emp.set(updated);
+	}
     
 	/* (non-Javadoc)
      * @see alvahouse.eatool.repository.Repository#saveXML(java.lang.String)
@@ -359,7 +415,8 @@ public class RepositoryImpl implements TypeEventListener, Repository{
 	            writer.startEntity("Repository");
 	            writer.addAttribute("uuid", key.toString());
 	            
-	            RepositoryProperties properties = persistence.getRepositoryPropertiesPersistence().get();
+	            RepositoryProperties properties = new RepositoryProperties(
+	            		persistence.getRepositoryPropertiesPersistence().get());
 	            properties.writeXML(writer);
 	            
 	            CountHandler counts = new CountHandler(this);
@@ -594,7 +651,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
      */
  	@Override
  	public EventMap getEventMap() throws Exception{
- 	    return persistence.getRepositoryEventMapPersistence().get();
+ 	    return new EventMap(persistence.getRepositoryEventMapPersistence().get());
  	}
 
 	/* (non-Javadoc)
@@ -602,7 +659,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
 	 */
 	@Override
 	public void setEventMap(EventMap events) throws Exception {
-		persistence.getRepositoryEventMapPersistence().set(events);
+		persistence.getRepositoryEventMapPersistence().set(events.toDto());
 	}
 
 	/* (non-Javadoc)
@@ -610,7 +667,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
 	 */
 	@Override
 	public EventMap getMetaModelViewerEvents() throws Exception{
-		return persistence.getMetaModelViewerEventMapPersistence().get();
+		return new EventMap(persistence.getMetaModelViewerEventMapPersistence().get());
 	}
 	
 	/* (non-Javadoc)
@@ -618,7 +675,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
 	 */
 	@Override
 	public void setMetaModelViewerEvents(EventMap metaModelViewerEvents) throws Exception {
-		persistence.getMetaModelViewerEventMapPersistence().set(metaModelViewerEvents);
+		persistence.getMetaModelViewerEventMapPersistence().set(metaModelViewerEvents.toDto());
 	}
 
 	/* (non-Javadoc)
@@ -626,7 +683,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
 	 */
 	@Override
 	public EventMap getModelViewerEvents() throws Exception{
-		return persistence.getModelViewerEventMapPersistence().get();
+		return new EventMap(persistence.getModelViewerEventMapPersistence().get());
 	}
 
  	/* (non-Javadoc)
@@ -634,7 +691,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
 	 */
 	@Override
 	public void setModelViewerEvents(EventMap modelViewerEvents) throws Exception {
-		persistence.getModelViewerEventMapPersistence().set(modelViewerEvents);
+		persistence.getModelViewerEventMapPersistence().set(modelViewerEvents.toDto());
 	}
 
 	/* (non-Javadoc)
@@ -642,7 +699,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
      */
     @Override
  	public RepositoryProperties getProperties() throws Exception{
- 	    return persistence.getRepositoryPropertiesPersistence().get();
+ 	    return new RepositoryProperties(persistence.getRepositoryPropertiesPersistence().get());
  	}
  	
 	/* (non-Javadoc)
@@ -650,7 +707,7 @@ public class RepositoryImpl implements TypeEventListener, Repository{
 	 */
     @Override
 	public void updateProperties(RepositoryProperties properties) throws Exception {
-		persistence.getRepositoryPropertiesPersistence().set(properties);
+		persistence.getRepositoryPropertiesPersistence().set(properties.toDto());
 	}
 
  	/* (non-Javadoc)
@@ -750,10 +807,30 @@ public class RepositoryImpl implements TypeEventListener, Repository{
         getImportMappings().deleteContents();
         getScripts().deleteContents();
         getEventMap().deleteHandlers();
-        getProperties().reset();
+        
         getExtensibleTypes().deleteContents();
-        getPages().reset();
-        getImages().reset();
+        getPages().deleteContents();
+        getImages().deleteContents();
+        
+        RepositoryProperties props = getProperties();
+        props.reset(); 
+        updateProperties(props);
+        
+        EventMap eventMap = getEventMap();
+        eventMap.deleteHandlers();
+        ensureEvents(eventMap);
+        setEventMap(eventMap);
+        
+        EventMap modelViewerEvents = getModelViewerEvents();
+        modelViewerEvents.deleteHandlers();
+        ModelDiagramType.defineEventMap(modelViewerEvents);
+        setModelViewerEvents(modelViewerEvents);
+
+        EventMap metaModelViewerEvents = getMetaModelViewerEvents();
+        metaModelViewerEvents.deleteHandlers();
+        MetaModelDiagramType.defineEventMap(metaModelViewerEvents);
+        setMetaModelViewerEvents(metaModelViewerEvents);
+
     }
 
     /* (non-Javadoc)

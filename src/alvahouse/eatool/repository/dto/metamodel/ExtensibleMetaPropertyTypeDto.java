@@ -7,6 +7,10 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import alvahouse.eatool.repository.dto.NamedRepositoryItemDto;
 import alvahouse.eatool.repository.dto.VersionDto;
 
@@ -15,9 +19,17 @@ import alvahouse.eatool.repository.dto.VersionDto;
  *
  */
 @XmlAccessorType(XmlAccessType.NONE)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type_name")
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = ControlledListTypeDto.class),
+    @JsonSubTypes.Type(value = RegexpCheckedTypeDto.class),
+    @JsonSubTypes.Type(value = TimeSeriesTypeDto.class)
+    })
+
 public abstract class ExtensibleMetaPropertyTypeDto extends NamedRepositoryItemDto{
 
 	private VersionDto version;
+	private String rev;
 
 	/**
 	 * @return the version
@@ -34,6 +46,23 @@ public abstract class ExtensibleMetaPropertyTypeDto extends NamedRepositoryItemD
 		this.version = version;
 	}
 	
+	/**
+	 * revision information for CouchDB
+	 * @return the rev
+	 */
+	@JsonProperty("_rev")
+	public String getRev() {
+		return rev;
+	}
+
+	/**
+	 * @param rev the rev to set
+	 */
+	public void setRev(String rev) {
+		this.rev = rev;
+	}
+
+
 	
 	
 

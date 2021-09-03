@@ -84,7 +84,8 @@ public class ExportMappings {
         }
 		String user = System.getProperty("user.name");
 		mapping.getVersion().createBy(user);
-        persistence.addMapping(mapping.toDto());
+        String version = persistence.addMapping(mapping.toDto());
+        mapping.getVersion().update(version);
         fireMappingAdded(mapping);
     }
 
@@ -96,7 +97,8 @@ public class ExportMappings {
         if(mapping == null) {
             throw new NullPointerException("Can't add null export mapping");
         }
-        persistence.addMapping(mapping.toDto());
+        String version = persistence.addMapping(mapping.toDto());
+        mapping.getVersion().update(version);
     }
 
     /**
@@ -109,7 +111,8 @@ public class ExportMappings {
         }
 		String user = System.getProperty("user.name");
 		mapping.getVersion().modifyBy(user);
-        persistence.updateMapping(mapping.toDto());
+		String version = persistence.updateMapping(mapping.toDto());
+        mapping.getVersion().update(version);
         fireMappingUpdated(mapping);
     }
 
@@ -128,7 +131,7 @@ public class ExportMappings {
      * @param mapping is the ExportMapping to remove.
      */
     public void remove(ExportMapping mapping) throws Exception{
-        persistence.deleteMapping(mapping.getKey());
+        persistence.deleteMapping(mapping.getKey(), mapping.getVersion().getVersion());
         fireMappingDeleted(mapping);
     }
     

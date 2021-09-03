@@ -16,9 +16,11 @@ import javax.xml.bind.annotation.XmlType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import alvahouse.eatool.repository.dto.NamedRepositoryItemDto;
 import alvahouse.eatool.repository.dto.VersionDto;
+import alvahouse.eatool.repository.dto.VersionedDto;
 import alvahouse.eatool.util.Base64InputStream;
 import alvahouse.eatool.util.Base64OutputStream;
 
@@ -29,12 +31,15 @@ import alvahouse.eatool.util.Base64OutputStream;
 @XmlRootElement(name = "image")
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(propOrder = { "format", "imageJson", "version"})
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type_name")
 
-public class ImageDto extends NamedRepositoryItemDto {
+public class ImageDto extends NamedRepositoryItemDto implements VersionedDto {
 
     private BufferedImage image;
     private String format;
     private VersionDto version;
+    private String rev;
+    
 	/**
 	 * @return the image
 	 */
@@ -86,6 +91,7 @@ public class ImageDto extends NamedRepositoryItemDto {
 	 * @return the version
 	 */
 	@XmlElement(required=true)
+	@Override
 	public VersionDto getVersion() {
 		return version;
 	}
@@ -96,6 +102,25 @@ public class ImageDto extends NamedRepositoryItemDto {
 		this.version = version;
 	}
     
+	/**
+	 * revision information for CouchDB
+	 * @return the rev
+	 */
+	@JsonProperty("_rev")
+	@Override
+	public String getRev() {
+		return rev;
+	}
+
+	/**
+	 * @param rev the rev to set
+	 */
+	@Override
+	public void setRev(String rev) {
+		this.rev = rev;
+	}
+	
+
     
 
 }

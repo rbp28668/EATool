@@ -11,6 +11,7 @@ import java.util.Map;
 
 import alvahouse.eatool.repository.dto.graphical.DiagramDto;
 import alvahouse.eatool.repository.persist.DiagramPersistence;
+import alvahouse.eatool.repository.persist.StaleDataException;
 import alvahouse.eatool.util.UUID;
 
 /**
@@ -77,11 +78,14 @@ public class DiagramPersistenceMemory implements DiagramPersistence {
 	 * @see alvahouse.eatool.repository.persist.DiagramPersistence#addDiagram(alvahouse.eatool.repository.graphical.Diagram)
 	 */
 	@Override
-	public void addDiagram(DiagramDto diagram) throws Exception {
+	public String addDiagram(DiagramDto diagram) throws Exception {
 		UUID key = diagram.getKey();
 		if(diagrams.containsKey(key)) {
 			throw new IllegalArgumentException("Can't add Diagram with key " + key + " it is already in the repository");
 		}
+		
+		String version = diagram.getVersion().update(new UUID().asJsonId());
+
 		UUID typeKey = diagram.getTypeKey();
 		Map<UUID,DiagramDto> ofType = diagramsByType.get(typeKey);
 		if(ofType == null) {  // no existing diagrams of this type so...
@@ -90,32 +94,48 @@ public class DiagramPersistenceMemory implements DiagramPersistence {
 		}
 		diagrams.put(key, diagram);
 		ofType.put(key, diagram);
+		
+		return version;
 	}
 
 	/* (non-Javadoc)
 	 * @see alvahouse.eatool.repository.persist.DiagramPersistence#updateDiagram(alvahouse.eatool.repository.graphical.Diagram)
 	 */
 	@Override
-	public void updateDiagram(DiagramDto diagram) throws Exception {
+	public String updateDiagram(DiagramDto diagram) throws Exception {
 		UUID key = diagram.getKey();
-		if(!diagrams.containsKey(key)) {
+		DiagramDto original = diagrams.get(key);
+		if(original == null) {
 			throw new IllegalArgumentException("Can't update Diagram with key " + key + " is not known to the repository");
 		}
+		
+		if(!diagram.getVersion().sameVersionAs(original.getVersion())) {
+			throw new StaleDataException("Unable to update diagram due to stale data");
+		}
+		
+		String version = diagram.getVersion().update(new UUID().asJsonId());
+		
 		UUID typeKey = diagram.getTypeKey();
 		Map<UUID,DiagramDto> ofType = diagramsByType.get(typeKey);
 		diagrams.put(key, diagram);
 		ofType.put(key, diagram);
+		return version;
 	}
 
 	/* (non-Javadoc)
 	 * @see alvahouse.eatool.repository.persist.DiagramPersistence#deleteDiagram(alvahouse.eatool.util.UUID)
 	 */
 	@Override
-	public void deleteDiagram(UUID key) throws Exception {
+	public void deleteDiagram(UUID key, String version) throws Exception {
 		DiagramDto d = diagrams.get(key);
 		if(d == null) {
 			throw new IllegalArgumentException("Can't delete Diagram with key " + key + " as is not known to the repository");
 		}
+		
+		if(!d.getVersion().getVersion().equals(version)) {
+			throw new StaleDataException("Unable to delete diagram due to stale data");
+		}
+
 		diagrams.remove(key);
 		Map<UUID,DiagramDto> ofType = diagramsByType.get(d.getTypeKey());
 		ofType.remove(key);

@@ -18,6 +18,7 @@ import javax.xml.bind.annotation.XmlType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import alvahouse.eatool.repository.dto.NamedRepositoryItemDto;
 import alvahouse.eatool.repository.dto.VersionDto;
@@ -31,11 +32,14 @@ import alvahouse.eatool.util.Base64OutputStream;
 @XmlRootElement(name = "script")
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(propOrder = { "language", "scriptJson", "version"})
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type_name")
 public class ScriptDto extends NamedRepositoryItemDto {
 
     private String language;
     private String script;	// the actual script.
     private VersionDto version;
+	private String rev;
+	
 	/**
 	 * @return the language
 	 */
@@ -112,6 +116,21 @@ public class ScriptDto extends NamedRepositoryItemDto {
 		this.version = version;
 	}
     
-    
+	/**
+	 * revision information for CouchDB
+	 * @return the rev
+	 */
+	@JsonProperty("_rev")
+	public String getRev() {
+		return rev;
+	}
+
+	/**
+	 * @param rev the rev to set
+	 */
+	public void setRev(String rev) {
+		this.rev = rev;
+	}
+
 
 }

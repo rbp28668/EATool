@@ -10,7 +10,6 @@ import alvahouse.eatool.repository.dto.DeleteDependenciesListDto;
 import alvahouse.eatool.repository.dto.metamodel.ExtensibleMetaPropertyTypeDto;
 import alvahouse.eatool.repository.dto.metamodel.MetaEntityDto;
 import alvahouse.eatool.repository.dto.metamodel.MetaRelationshipDto;
-import alvahouse.eatool.repository.metamodel.types.ExtensibleMetaPropertyType;
 import alvahouse.eatool.util.UUID;
 
 /**
@@ -41,10 +40,10 @@ public interface MetaModelPersistence {
     
     /** adds a new meta-entity to the collection
      * @param me is the meta-entity to add
-     * @return the added meta-entity (to allow chaining)
+     * @return the revision string of the new meta entity
      * @throws Exception 
      */
-    public void addMetaEntity(MetaEntityDto me) throws Exception;
+    public String addMetaEntity(MetaEntityDto me) throws Exception;
     
     /** Gets a Collection of all the MetaEntities in the meta-model.
      * @return Collection of MetaEntity.
@@ -58,17 +57,17 @@ public interface MetaModelPersistence {
 
     /** updates a meta-entity in the collection
      * @param me is the meta-entity to update
-     * @return the updated meta-entity (to allow chaining)
+     * @return The new revision string for the meta entity
      * @throws Exception 
      */
-    public void updateMetaEntity(MetaEntityDto me) throws Exception;
+    public String updateMetaEntity(MetaEntityDto me) throws Exception;
 
     
     /** deletes a meta-entity from the meta-model
      * @param uuid is the identifier of the meta-entity to delete
      * @throws Exception 
      */
-    public MetaEntityDto deleteMetaEntity(UUID uuid) throws Exception;
+    public MetaEntityDto deleteMetaEntity(UUID uuid, String version) throws Exception;
     
     /**
      * Gets a MetaRelationship from the meta model, creating a new one if there
@@ -80,23 +79,23 @@ public interface MetaModelPersistence {
     
     /** adds a new meta-relationship to the collection
      * @param mr is the meta-relationship to add
-     * @return the added meta-relationship (to allow chaining)
+     * @return the revision string of the meta relationship.
      * @throws Exception 
      */
-    public void addMetaRelationship(MetaRelationshipDto mr) throws Exception;
+    public String addMetaRelationship(MetaRelationshipDto mr) throws Exception;
     
     /** updates a meta relationship in the collection
      * @param mr is the meta-relationship to update
-     * @return the updated meta relationship (to allow chaining)
+     * @return the new revision id of the meta relationship
      * @throws Exception 
      */
-    public void updateMetaRelationship(MetaRelationshipDto mr) throws Exception;
+    public String updateMetaRelationship(MetaRelationshipDto mr) throws Exception;
 
     /** deletes a meta-relationship from the meta-model
      * @param uuid is the key for the meta-relationship to delete
      * @throws Exception 
      */
-    public MetaRelationshipDto deleteMetaRelationship(UUID uuid) throws Exception;
+    public MetaRelationshipDto deleteMetaRelationship(UUID uuid, String version) throws Exception;
     
     /** Get the collection of MetaRelationships in the meta-model.
      * @return a Collection containing MetaRelationship.
@@ -181,7 +180,7 @@ public interface MetaModelPersistence {
 	 * @param mpt is the ExtensibleMetaPropertyType to add to the repository.
 	 * @throws Exception
 	 */
-	public void addType(ExtensibleMetaPropertyTypeDto mpt) throws Exception;
+	public String addType(ExtensibleMetaPropertyTypeDto mpt) throws Exception;
 
 	/**
 	 * Updates a single ExtensibleMetaPropertyType to the repository. The meta property
@@ -189,13 +188,13 @@ public interface MetaModelPersistence {
 	 * @param mpt is the ExtensibleMetaPropertyType to update in the repository.
 	 * @throws Exception
 	 */
-	public void updateType(ExtensibleMetaPropertyTypeDto mpt) throws Exception;
+	public String updateType(ExtensibleMetaPropertyTypeDto mpt) throws Exception;
 
     /**
      * Removes an ExtensibleMetaPropertyType from the repository identified by its key.
      * @param key is the key of the type to remove.
      */
-    public void deleteType(UUID key) throws Exception;
+    public void deleteType(UUID key, String version) throws Exception;
 
     /**
      * Removes all ExtensibleMetaPropertyTypes from the repository.
@@ -203,8 +202,8 @@ public interface MetaModelPersistence {
     public void deleteDefinedTypes() throws Exception;
 
     
-	public UUID getKey() ;
+	public UUID getKey();
 
-	public void setKey(UUID uuid);
+	public void setKey(UUID uuid) throws Exception;
     
 }

@@ -27,24 +27,27 @@ public interface DiagramTypePersistence {
 	/**
 	 * Adds a diagram type to the repository.
 	 * @param dt is the diagram type DTO to add.
+	 * @return revision number of the new record.
 	 * @throws Exception if the diagram type already exists. Maybe
 	 * other exceptions if there are comms errors etc.
 	 */
-	void addDiagramType(DiagramTypeDto dt) throws Exception;
+	String addDiagramType(DiagramTypeDto dt) throws Exception;
 
 	/**
 	 * Updates a diagram type in the repository.
 	 * @param dt is the diagram type to update.
+	 * @return revision number of the updated diagram type.
 	 * @throws Exception if the diagram type does not exist. Maybe
 	 * other exceptions if there are comms errors etc.
 	 */
-	void updateDiagramType(DiagramTypeDto dt) throws Exception;
+	String updateDiagramType(DiagramTypeDto dt) throws Exception;
 
 	/**
 	 * Deletes the given diagram type.
-	 * @param key identifies the diagram type
+	 * @param key identifies the diagram type.
+	 * @param version is the revision number of the diagram to delete.
 	 */
-	void delete(UUID key) throws Exception;
+	void delete(UUID key, String version) throws Exception;
 
 	/**
 	 * Gets all the diagram types irrespective of family.

@@ -10,9 +10,13 @@ import javax.xml.bind.annotation.XmlType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 
 import alvahouse.eatool.repository.dto.NamedRepositoryItemDto;
 import alvahouse.eatool.repository.dto.VersionDto;
+import alvahouse.eatool.repository.dto.VersionedDto;
 import alvahouse.eatool.repository.dto.scripting.EventMapDto;
 import alvahouse.eatool.util.UUID;
 
@@ -22,12 +26,18 @@ import alvahouse.eatool.util.UUID;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(propOrder = {"familyKeyJson", "eventMap", "version"})
-public class DiagramTypeDto extends NamedRepositoryItemDto {
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type_name")
+@JsonSubTypes({ 
+	  @Type(value = StandardDiagramTypeDto.class, name = "StandardDiagramTypeDto"), 
+	  @Type(value = TimeDiagramTypeDto.class, name = "TimeDiagramTypeDto") 
+	})
+public class DiagramTypeDto extends NamedRepositoryItemDto implements VersionedDto{
 
 	private UUID familyKey;
 	private EventMapDto eventMap;
 	private VersionDto version;
-
+	private String rev;
+	
 	/**
 	 * 
 	 */
@@ -92,6 +102,7 @@ public class DiagramTypeDto extends NamedRepositoryItemDto {
 	 * @return the version
 	 */
 	@XmlElement
+	@Override
 	public VersionDto getVersion() {
 		return version;
 	}
@@ -102,6 +113,25 @@ public class DiagramTypeDto extends NamedRepositoryItemDto {
 	public void setVersion(VersionDto version) {
 		this.version = version;
 	}
+
+	/**
+	 * revision information for CouchDB
+	 * @return the rev
+	 */
+	@JsonProperty("_rev")
+	@Override
+	public String getRev() {
+		return rev;
+	}
+
+	/**
+	 * @param rev the rev to set
+	 */
+	@Override
+	public void setRev(String rev) {
+		this.rev = rev;
+	}
+	
 
 	
 	

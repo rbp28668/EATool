@@ -110,7 +110,8 @@ public class DiagramTypes extends MetaModelChangeAdapter {
 		dt.getVersion().createBy(user);
 
 		DiagramTypeDto dto = dt.toDto();
-		persistence.addDiagramType(dto);
+		String version = persistence.addDiagramType(dto);
+		dt.getVersion().update(version);
 		fireDiagramTypeAdded(dt);
 	}
 
@@ -124,7 +125,8 @@ public class DiagramTypes extends MetaModelChangeAdapter {
 			throw new NullPointerException("Adding null diagram type");
 		}
 		DiagramTypeDto dto = dt.toDto();
-		persistence.addDiagramType(dto);
+		String version = persistence.addDiagramType(dto);
+		dt.getVersion().update(version);
 	}
 
 	/**
@@ -139,7 +141,8 @@ public class DiagramTypes extends MetaModelChangeAdapter {
 		dt.getVersion().modifyBy(user);
 
 		DiagramTypeDto dto = dt.toDto();
-		persistence.updateDiagramType(dto);
+		String version = persistence.updateDiagramType(dto);
+		dt.getVersion().update(version);
 		fireDiagramTypeChanged(dt);
 	}
 
@@ -151,7 +154,7 @@ public class DiagramTypes extends MetaModelChangeAdapter {
 		if(diagramType == null) {
 			throw new NullPointerException("Can't remove null diagram type");
 		}
-        persistence.delete(diagramType.getKey());
+        persistence.delete(diagramType.getKey(), diagramType.getVersion().getVersion());
 		fireDiagramTypeDeleted(diagramType);
     }
 

@@ -11,6 +11,7 @@ import java.util.Map;
 
 import alvahouse.eatool.repository.dto.html.HTMLPageDto;
 import alvahouse.eatool.repository.persist.HTMLPagePersistence;
+import alvahouse.eatool.repository.persist.StaleDataException;
 import alvahouse.eatool.util.UUID;
 
 /**
@@ -51,34 +52,50 @@ public class HTMLPagePersistenceMemory implements HTMLPagePersistence {
 	 * @see alvahouse.eatool.repository.persist.HTMLPagePersistence#addHTMLPage(alvahouse.eatool.repository.html.HTMLPage)
 	 */
 	@Override
-	public void addHTMLPage(HTMLPageDto page) throws Exception {
+	public String addHTMLPage(HTMLPageDto page) throws Exception {
 		UUID key = page.getKey();
 		if(pages.containsKey(key)) {
 			throw new IllegalArgumentException("HTML Page with key " + key + " already exists in repository");
 		}
+		String version = page.getVersion().update(new UUID().asJsonId());
 		pages.put(key, page);
+		return version;
 	}
 
 	/* (non-Javadoc)
 	 * @see alvahouse.eatool.repository.persist.HTMLPagePersistence#updateHTMLPage(alvahouse.eatool.repository.html.HTMLPage)
 	 */
 	@Override
-	public void updateHTMLPage(HTMLPageDto page) throws Exception {
+	public String updateHTMLPage(HTMLPageDto page) throws Exception {
 		UUID key = page.getKey();
-		if(!pages.containsKey(key)) {
+		HTMLPageDto original = pages.get(key);
+		
+		if(original == null) {
 			throw new IllegalArgumentException("HTML Page with key " + key + " does not exist in repository");
 		}
+		if(!page.getVersion().sameVersionAs(original.getVersion())) {
+			throw new StaleDataException("Unable to update page due to stale data");
+		}
+		
+		String version = page.getVersion().update(new UUID().asJsonId());
+
 		pages.put(key,page);
+		return version;
 	}
 
 	/* (non-Javadoc)
 	 * @see alvahouse.eatool.repository.persist.HTMLPagePersistence#deleteHTMLPage(alvahouse.eatool.util.UUID)
 	 */
 	@Override
-	public void deleteHTMLPage(UUID key) throws Exception {
-		if(!pages.containsKey(key)) {
+	public void deleteHTMLPage(UUID key, String version) throws Exception {
+		HTMLPageDto page = pages.get(key);
+		if(page == null) {
 			throw new IllegalArgumentException("HTML Page with key " + key + " does not exist in repository");
 		}
+		if(!page.getVersion().getVersion().equals(version)) {
+			throw new StaleDataException("Unable to delete HTML page due to stale data");
+		}
+	
 		pages.remove(key);
 	}
 

@@ -9,6 +9,9 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import alvahouse.eatool.repository.dto.VersionDto;
 
 /**
@@ -18,12 +21,13 @@ import alvahouse.eatool.repository.dto.VersionDto;
 @XmlRootElement(name = "metaRelationship")
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(propOrder = { "start", "finish", "restriction", "version"})
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type_name")
 public class MetaRelationshipDto extends MetaPropertyContainerDto {
 	private MetaRoleDto start;
 	private MetaRoleDto finish;
 	private MetaRelationshipRestrictionDto restriction;
 	private VersionDto version;
-	
+	private String rev;
 	/**
 	 * @return the start
 	 */
@@ -77,5 +81,22 @@ public class MetaRelationshipDto extends MetaPropertyContainerDto {
 	public void setVersion(VersionDto version) {
 		this.version = version;
 	}
+	
+	/**
+	 * revision information for CouchDB
+	 * @return the rev
+	 */
+	@JsonProperty("_rev")
+	public String getRev() {
+		return rev;
+	}
+
+	/**
+	 * @param rev the rev to set
+	 */
+	public void setRev(String rev) {
+		this.rev = rev;
+	}
+
 	
 }

@@ -12,6 +12,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.bsf.BSFException;
+
 import alvahouse.eatool.gui.CommandFrame;
 import alvahouse.eatool.gui.EAToolWindowCoordinator;
 import alvahouse.eatool.gui.ProgressDisplay;
@@ -20,6 +22,9 @@ import alvahouse.eatool.gui.scripting.proxy.ApplicationProxy;
 import alvahouse.eatool.repository.LoadProgress;
 import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.RepositoryImpl;
+import alvahouse.eatool.repository.persist.RepositoryPersistence;
+import alvahouse.eatool.repository.persist.couchdb.CouchDB;
+import alvahouse.eatool.repository.persist.couchdb.RepositoryPersistenceCouchDb;
 import alvahouse.eatool.repository.scripting.ScriptManager;
 import alvahouse.eatool.util.SettingsManager;
 import alvahouse.eatool.util.UUID;
@@ -32,7 +37,7 @@ import alvahouse.eatool.util.UUID;
  */
 public class Main implements Application{
 
-	private WindowCoordinator windowCoordinator;
+	private EAToolWindowCoordinator windowCoordinator;
 	private Repository m_repository;
 	private SettingsManager config;
 	private SettingsManager settings;
@@ -107,6 +112,21 @@ public class Main implements Application{
 		getSettings().save(path);
 	}
 
+	void setRepository(Repository repository) throws BSFException {
+		assert(repository != null);
+		this.m_repository = repository;
+		
+		// Make the app and updated repository known to the script manager.
+		ScriptManager.getInstance().declareObject("app", 
+	                new ApplicationProxy(this,m_repository), 
+	                ApplicationProxy.class);
+
+
+		// Init the GUI
+		windowCoordinator.setRepository(repository);
+		commandFrame.setRepository(repository);
+	}
+	
 	private void run(String args[]) {
 
 		try {
@@ -144,9 +164,27 @@ public class Main implements Application{
 			// Make sure UUIDs are initialised.
 			initUUID();
 
+			boolean isNewRepository = false;
 
-			// Create & configure the repository.
-			m_repository = new RepositoryImpl(config);
+			// Hack for testing.
+			CouchDB couch = new CouchDB();
+			couch.info();
+			String databases = couch.databases();
+			if(!databases.contains("test")) {
+				RepositoryPersistenceCouchDb.initialiseDatabase(couch, "test");
+				isNewRepository = true;
+			}
+			RepositoryPersistence persistence = new RepositoryPersistenceCouchDb("test");
+
+			// Create & configure the repository with a default in-memory persistence layer.
+			//RepositoryPersistence persistence = new RepositoryPersistenceMemory();
+
+			m_repository = new RepositoryImpl(persistence, config);
+			if(isNewRepository) {
+				m_repository.initialiseNew();
+			} else {
+				m_repository.bindToExisting();
+			}
 
 			// Make the app known to the script manager.
 			ScriptManager.getInstance().declareObject("app", 

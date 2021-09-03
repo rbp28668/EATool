@@ -21,6 +21,8 @@ public class DeleteProxyDto {
 	private String itemType;
 	private String name;
 	private UUID itemKey;
+	private String version;
+	
 	/**
 	 * @return the itemType
 	 */
@@ -61,6 +63,22 @@ public class DeleteProxyDto {
 	public void setItemKey(UUID itemKey) {
 		this.itemKey = itemKey;
 	}
+	
+	/**
+	 * Gets specific version that should be deleted.
+	 * @return the version
+	 */
+	@XmlElement(required=true)
+	public String getVersion() {
+		return version;
+	}
+	/**
+	 * @param version the version to set
+	 */
+	public void setVersion(String version) {
+		this.version = version;
+	}
+	
 	
 	
 }

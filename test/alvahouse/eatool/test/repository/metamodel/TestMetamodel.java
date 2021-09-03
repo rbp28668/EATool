@@ -191,21 +191,33 @@ public class TestMetamodel {
 		meta.addChangeListener(listener);
 
 		UUID key = new UUID();
+		
+		// Create and save
 		MetaEntity me = new MetaEntity(key);
 		me.setName("fred");
 		me.setDescription("fredDescription");
 		meta.addMetaEntity(me);
 
-		MetaEntity meUpdate = new MetaEntity(key);
-		meUpdate.setName("Jim");
-		meUpdate.setDescription("JimDescription");
-		meta.updateMetaEntity(meUpdate);
+		// Now update the same one
+		me.setName("Jim");
+		me.setDescription("JimDescription");
+		meta.updateMetaEntity(me);
 
+		// Update should have fired
 		verify(listener, times(1)).metaEntityChanged(any(MetaModelChangeEvent.class));
 		
+		// Make sure it was updated
 		MetaEntity retrieved = meta.getMetaEntity(key);
 		assertEquals("Jim",retrieved.getName());
 		assertEquals("JimDescription",retrieved.getDescription());
+		
+		// And make sure we can update it again as this time it's
+		// a read modify write cycle.
+		retrieved.setName("albert");
+		retrieved.setDescription("albertDescription");
+		meta.updateMetaEntity(retrieved);
+		
+		
 	}
 
 	/**
@@ -223,7 +235,7 @@ public class TestMetamodel {
 		me.setDescription("fredDescription");
 		meta.addMetaEntity(me);
 		
-		meta.deleteMetaEntity(key);
+		meta.deleteMetaEntity(key,me.getVersion().getVersion());
 		
 		verify(listener, times(1)).metaEntityDeleted(any(MetaModelChangeEvent.class));
 
@@ -327,22 +339,19 @@ public class TestMetamodel {
 		meta.addMetaEntity(fme);
 		meta.addMetaRelationship(mr);
 
-		MetaRelationship mrUpdated = new MetaRelationship(key);
-		MetaRole startUpdated = mrUpdated.getMetaRole(new UUID());
-		MetaRole finishUpdated = mrUpdated.getMetaRole(new UUID());
-		startUpdated.setConnection(sme);
-		finishUpdated.setConnection(fme);
-		mrUpdated.setName("Jim");
-		mrUpdated.setDescription("JimDescription");
-
-		
-		meta.updateMetaRelationship(mrUpdated);
+		mr.setName("Jim");
+		mr.setDescription("JimDescription");
+		meta.updateMetaRelationship(mr);
 		
 		verify(listener, times(1)).metaRelationshipChanged(any(MetaModelChangeEvent.class));
 		
 		MetaRelationship mrRetrieved = meta.getMetaRelationship(key);
 		assertEquals("Jim", mrRetrieved.getName());
 		assertEquals("JimDescription", mrRetrieved.getDescription());
+		
+		mrRetrieved.setName("albert");
+		mrRetrieved.setDescription("albertDesc");
+		meta.updateMetaRelationship(mrRetrieved);
 	}
 
 	/**
@@ -370,7 +379,7 @@ public class TestMetamodel {
 		meta.addMetaEntity(fme);
 		meta.addMetaRelationship(mr);
 		
-		meta.deleteMetaRelationship(key);
+		meta.deleteMetaRelationship(key,mr.getVersion().getVersion());
 		
 		verify(listener, times(1)).metaRelationshipDeleted(any(MetaModelChangeEvent.class));
 
@@ -697,7 +706,7 @@ public class TestMetamodel {
 	 * Test method for {@link alvahouse.eatool.repository.metamodel.MetaModel#setKey(alvahouse.eatool.util.UUID)}.
 	 */
 	@Test
-	public void testGetSetKey() {
+	public void testGetSetKey() throws Exception{
 		UUID key = new UUID();
 		meta.setKey(key);
 		UUID retrieved = meta.getKey();

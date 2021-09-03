@@ -104,10 +104,10 @@ class TestExtensibleTypes {
 	private void setVersionInfo(Version version) {
 		version.setCreateDate(new Date());
 		version.setCreateUser("fred");
-		version.setOriginalVersion(new UUID());
+		version.setOriginalVersion(new UUID().asJsonId());
 		version.setModifyDate(new Date());
 		version.setModifyUser("jim");
-		version.setVersion(new UUID());
+		version.setVersion(new UUID().asJsonId());
 	}
 
 	@Test

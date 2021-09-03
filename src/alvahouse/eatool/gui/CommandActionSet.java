@@ -124,7 +124,14 @@ public class CommandActionSet extends ActionSet {
         addAction("HelpScripts", actionScriptHelpBrowser);
         
     }    
-    
+
+	/**
+	 * @param repository
+	 */
+	public void setRepository(Repository repository) {
+		this.repository = repository;
+	}   
+
     /**
      * BasicFileFilter provides a simple file filter that only accepts files
      * with the suffix xml.
@@ -1156,6 +1163,7 @@ public class CommandActionSet extends ActionSet {
                 new ExceptionDisplay(frame,t);
             }
         }
-    };   
+    };
+
     
 }

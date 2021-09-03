@@ -15,6 +15,7 @@ import javax.xml.bind.annotation.XmlType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import alvahouse.eatool.util.UUID;
 
@@ -25,6 +26,7 @@ import alvahouse.eatool.util.UUID;
 @XmlRootElement(name = "timeDiagram")
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(propOrder = { "properties","typeKeyJson","timeAxis"})
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type_name")
 public class TimeDiagramDto extends DiagramDto {
 
     private List<TimeDiagramEntryDto> properties; 

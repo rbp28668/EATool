@@ -15,6 +15,8 @@ import java.util.Set;
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
 
+import alvahouse.eatool.repository.Repository;
+
 /**
  * WindowCoordinator
  * Has repsonsibility for tracking which top-level windows exist in the application
@@ -22,6 +24,10 @@ import javax.swing.JInternalFrame;
  * @author  rbp28668
  */
 public class WindowCoordinator {
+
+    private Map<String, JInternalFrame> frames = new HashMap<String, JInternalFrame>();
+    private Map<String, WindowFactory> factories = new HashMap<String, WindowFactory>();
+    private JDesktopPane desktopPane = null;
 
     /** Creates new WindowCoordinator */
     public WindowCoordinator() {
@@ -146,6 +152,14 @@ public class WindowCoordinator {
         }
     }
     
+    /**
+     * Removes all windows.  Use when swapping between repositories.
+     */
+    public void removeAll() {
+    	closeAll();
+    	frames.clear();
+    }
+    
     /** Adds a factory to the window coordinator so windows can be created by
      * type name.  
      * @param factory is the window factory that will create new windows.
@@ -196,7 +210,4 @@ public class WindowCoordinator {
         public JInternalFrame createFrame() throws Exception;
     }
     
-    private Map<String, JInternalFrame> frames = new HashMap<String, JInternalFrame>();
-    private Map<String, WindowFactory> factories = new HashMap<String, WindowFactory>();
-    private JDesktopPane desktopPane = null;
 }

@@ -200,7 +200,7 @@ public class ExtensibleTypes {
         if(!handlersByImplementingClass.containsKey(type.getClass())){
             throw new IllegalArgumentException("Type " + type.getClass().getCanonicalName() + " is not known");
         }
-        persistence.deleteType(type.getKey());
+        persistence.deleteType(type.getKey(), type.getVersion().getVersion());
         fireTypeDeleted(type);
     }
 

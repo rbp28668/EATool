@@ -13,9 +13,13 @@ import javax.xml.bind.annotation.XmlType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import alvahouse.eatool.repository.dto.NamedRepositoryItemDto;
 import alvahouse.eatool.repository.dto.VersionDto;
+import alvahouse.eatool.repository.dto.VersionedDto;
 import alvahouse.eatool.repository.dto.scripting.EventMapDto;
 import alvahouse.eatool.util.UUID;
 
@@ -25,14 +29,20 @@ import alvahouse.eatool.util.UUID;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(propOrder = {"typeKeyJson","backColourJson", "eventMap", "version"})
-public abstract class DiagramDto extends NamedRepositoryItemDto {
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type_name")
+@JsonSubTypes({ 
+	  @Type(value = StandardDiagramDto.class, name = "StandardDiagramDto"), 
+	  @Type(value = TimeDiagramDto.class, name = "TimeDiagramDto") 
+	})
+public abstract class DiagramDto extends NamedRepositoryItemDto implements VersionedDto{
 
 	private UUID typeKey;
 	private boolean isDynamic = false; // True if content script generated so don't save.
 	private Color backColour = Color.lightGray;
 	private EventMapDto eventMap;
 	private VersionDto version;
-
+	private String rev;
+	
 	/**
 	 * 
 	 */
@@ -136,6 +146,7 @@ public abstract class DiagramDto extends NamedRepositoryItemDto {
 	 * @return the version
 	 */
 	@XmlElement
+	@Override
 	public VersionDto getVersion() {
 		return version;
 	}
@@ -145,6 +156,24 @@ public abstract class DiagramDto extends NamedRepositoryItemDto {
 	 */
 	public void setVersion(VersionDto version) {
 		this.version = version;
+	}
+
+	/**
+	 * revision information for CouchDB
+	 * @return the rev
+	 */
+	@JsonProperty("_rev")
+	@Override
+	public String getRev() {
+		return rev;
+	}
+
+	/**
+	 * @param rev the rev to set
+	 */
+	@Override
+	public void setRev(String rev) {
+		this.rev = rev;
 	}
 
 	

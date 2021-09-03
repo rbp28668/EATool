@@ -45,7 +45,8 @@ public class HTMLPages {
         }
  		String user = System.getProperty("user.name");
 		page.getVersion().createBy(user);
-        persistence.addHTMLPage(page.toDto());
+        String version = persistence.addHTMLPage(page.toDto());
+        page.getVersion().update(version);
         firePageAdded(page);
     }
 
@@ -58,7 +59,8 @@ public class HTMLPages {
         if(page == null){
             throw new NullPointerException("Can't add null HTMLProxy page");
         }
-        persistence.addHTMLPage(page.toDto());
+        String version = persistence.addHTMLPage(page.toDto());
+        page.getVersion().update(version);
     }
     
     /**
@@ -71,7 +73,8 @@ public class HTMLPages {
         }
  		String user = System.getProperty("user.name");
 		page.getVersion().modifyBy(user);
-        persistence.updateHTMLPage(page.toDto());
+        String version = persistence.updateHTMLPage(page.toDto());
+        page.getVersion().update(version);
         firePageUpdated(page);
     }
 
@@ -90,7 +93,7 @@ public class HTMLPages {
      * @param page is the page to remove.
      */
     public void delete(HTMLPage page) throws Exception{
-        persistence.deleteHTMLPage(page.getKey());
+        persistence.deleteHTMLPage(page.getKey(), page.getVersion().getVersion());
         firePageRemoved(page);
     }
 
@@ -119,7 +122,7 @@ public class HTMLPages {
     /**
      * Clears all the HTMLProxy pages.
      */
-    public void reset() throws Exception {
+    public void deleteContents() throws Exception {
         persistence.dispose();
     }
     

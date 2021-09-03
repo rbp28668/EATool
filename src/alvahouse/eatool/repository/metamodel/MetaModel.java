@@ -70,7 +70,8 @@ public class MetaModel implements KeyedItem {
 		me.getVersion().createBy(user);
 		
 		MetaEntityDto dao = me.toDao();
-		persistence.addMetaEntity(dao);
+		String version = persistence.addMetaEntity(dao);
+		me.getVersion().update(version);
 		
 		fireMetaEntityAdded(me);
 		return me;
@@ -86,7 +87,8 @@ public class MetaModel implements KeyedItem {
 	public void _add(MetaEntity me) throws Exception {
 		me.setModel(this);
 		MetaEntityDto dao = me.toDao();
-		persistence.addMetaEntity(dao);
+		String version = persistence.addMetaEntity(dao);
+		me.getVersion().update(version);
 	}
 
 	/**
@@ -127,8 +129,9 @@ public class MetaModel implements KeyedItem {
 		me.getVersion().modifyBy(user);
 		
 		MetaEntityDto dao = me.toDao();
-		persistence.updateMetaEntity(dao);
-		
+		String version = persistence.updateMetaEntity(dao);
+		me.getVersion().update(version);
+
 		fireMetaEntityChanged(me);
 		return me;
 	}
@@ -142,17 +145,20 @@ public class MetaModel implements KeyedItem {
 			throw new IllegalArgumentException("Cannot move meta-entities across models");
 		}
 		MetaEntityDto dao = me.toDao();
-		persistence.updateMetaEntity(dao);
+		String version = persistence.updateMetaEntity(dao);
+		me.getVersion().update(version);
 	}
 
 	/**
 	 * deletes a meta-entity from the meta-model
 	 * 
 	 * @param uuid is the identifier of the meta-entity to delete
+	 * @param version is the specific version to delete - can only delete if the
+	 * repository still contains the referenced version otherwise it's been updated.
 	 * @throws Exception
 	 */
-	public void deleteMetaEntity(UUID uuid) throws Exception {
-		MetaEntityDto dao = persistence.deleteMetaEntity(uuid);
+	public void deleteMetaEntity(UUID uuid, String version) throws Exception {
+		MetaEntityDto dao = persistence.deleteMetaEntity(uuid, version);
 		MetaEntity me = new MetaEntity(dao, types);
 		fireMetaEntityDeleted(me);
 	}
@@ -183,8 +189,9 @@ public class MetaModel implements KeyedItem {
 		mr.getVersion().createBy(user);
 		
 		MetaRelationshipDto dao = mr.toDao();
-		persistence.addMetaRelationship(dao);
-		
+		String version = persistence.addMetaRelationship(dao);
+		mr.getVersion().update(version);
+
 		fireMetaRelationshipAdded(mr);
 		return mr;
 	}
@@ -199,7 +206,8 @@ public class MetaModel implements KeyedItem {
 	public void _add(MetaRelationship mr) throws Exception {
 		mr.setModel(this);
 		MetaRelationshipDto dao = mr.toDao();
-		persistence.addMetaRelationship(dao);
+		String version = persistence.addMetaRelationship(dao);
+		mr.getVersion().update(version);
 	}
 
 	/**
@@ -213,7 +221,8 @@ public class MetaModel implements KeyedItem {
 		mr.getVersion().modifyBy(user);
 
 		MetaRelationshipDto dao = mr.toDao();
-		persistence.updateMetaRelationship(dao);
+		String version = persistence.updateMetaRelationship(dao);
+		mr.getVersion().update(version);
 		
 		fireMetaRelationshipChanged(mr);
 		return mr;
@@ -224,10 +233,12 @@ public class MetaModel implements KeyedItem {
 	 * deletes a meta-relationship from the meta-model
 	 * 
 	 * @param uuid is the key for the meta-relationship to delete
+	 * @param version is the specific version to delete - can only delete if the
+	 * repository still contains the referenced version otherwise it's been updated.
 	 * @throws Exception
 	 */
-	public void deleteMetaRelationship(UUID uuid) throws Exception {
-		MetaRelationshipDto dao = persistence.deleteMetaRelationship(uuid);
+	public void deleteMetaRelationship(UUID uuid, String version) throws Exception {
+		MetaRelationshipDto dao = persistence.deleteMetaRelationship(uuid, version);
 		MetaRelationship mr = new MetaRelationship(dao, types);
 		fireMetaRelationshipDeleted(mr);
 	}
@@ -316,7 +327,7 @@ public class MetaModel implements KeyedItem {
 	 * @param mr           is the meta-relationship to find the dependencies of.
 	 */
 	public void getDeleteDependencies(DeleteDependenciesList dependencies, MetaRelationship mr)  throws Exception{
-		MetaRelationshipDeleteProxy proxy = new MetaRelationshipDeleteProxy(this, mr.getKey(), mr.getName());
+		MetaRelationshipDeleteProxy proxy = new MetaRelationshipDeleteProxy(this, mr.getKey(), mr.getName(), mr.getVersion().getVersion());
 		dependencies.addDependency(proxy);
 	}
 
@@ -541,7 +552,7 @@ public class MetaModel implements KeyedItem {
 	 * alvahouse.eatool.repository.base.KeyedItem#setKey(alvahouse.eatool.util.UUID)
 	 */
 	@Override
-	public void setKey(UUID uuid) {
+	public void setKey(UUID uuid) throws Exception {
 		assert (uuid != null);
 		persistence.setKey(uuid);
 	}

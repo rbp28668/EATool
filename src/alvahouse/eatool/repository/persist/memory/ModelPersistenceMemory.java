@@ -18,6 +18,7 @@ import alvahouse.eatool.repository.dto.model.EntityDto;
 import alvahouse.eatool.repository.dto.model.RelationshipDto;
 import alvahouse.eatool.repository.model.RelationshipDeleteProxy;
 import alvahouse.eatool.repository.persist.ModelPersistence;
+import alvahouse.eatool.repository.persist.StaleDataException;
 import alvahouse.eatool.util.UUID;
 
 /**
@@ -38,15 +39,6 @@ public class ModelPersistenceMemory implements ModelPersistence {
 	public ModelPersistenceMemory() {
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see alvahouse.eatool.repository.persist.ModelPersistence#dispose()
-	 */
-	@Override
-	public void dispose() {
-
-	}
 
 	/*
 	 * (non-Javadoc)
@@ -72,12 +64,14 @@ public class ModelPersistenceMemory implements ModelPersistence {
 	 * eatool.repository.model.Entity)
 	 */
 	@Override
-	public void addEntity(EntityDto e) throws Exception {
+	public String addEntity(EntityDto e) throws Exception {
 		if (entities.containsKey(e.getKey()))
 			throw new IllegalStateException("Entity " + e.getKey() + " already exists in model");
+		
+		String version = e.getVersion().update(new UUID().asJsonId());
 		entities.put(e.getKey(), e);
 		entityCacheByType.remove(e.getMetaEntityKey());
-		//System.out.println("Added Entity " + e.getKey() + " to model");
+		return version;
 	}
 
 	/*
@@ -88,9 +82,19 @@ public class ModelPersistenceMemory implements ModelPersistence {
 	 * eatool.repository.model.Entity)
 	 */
 	@Override
-	public void updateEntity(EntityDto e) throws Exception {
+	public String updateEntity(EntityDto e) throws Exception {
+		EntityDto original = entities.get(e.getKey());
+		if (original == null)
+			throw new IllegalStateException("Entity " + e.getKey() + " already exists in model");
+		
+		if(!e.getVersion().sameVersionAs(original.getVersion())) {
+			throw new StaleDataException("Unable to update entity due to stale data");
+		}
+		
+		String version = e.getVersion().update(new UUID().asJsonId());
 		entities.put(e.getKey(), e);
 		entityCacheByType.remove(e.getMetaEntityKey());
+		return version;
 	}
 
 	/*
@@ -101,13 +105,18 @@ public class ModelPersistenceMemory implements ModelPersistence {
 	 * eatool.util.UUID)
 	 */
 	@Override
-	public EntityDto deleteEntity(UUID uuid) throws Exception {
-		EntityDto e = entities.remove(uuid);
+	public EntityDto deleteEntity(UUID uuid, String version) throws Exception {
+		EntityDto e = entities.get(uuid);
 		if (e == null)
 			throw new IllegalStateException("Entity " + uuid + " cannot be deleted - does not exist");
 
-		// Invalidate cache for this type.
-		entityCacheByType.remove(e.getMetaEntityKey());
+		if(!e.getVersion().getVersion().equals(version)) {
+			throw new StaleDataException("Unable to delete entity due to stale data");
+		}
+		
+		entities.remove(uuid);
+		entityCacheByType.remove(e.getMetaEntityKey());		// Invalidate cache for this type.
+
 		return e;
 	}
 
@@ -178,12 +187,14 @@ public class ModelPersistenceMemory implements ModelPersistence {
 	 * alvahouse.eatool.repository.model.Relationship)
 	 */
 	@Override
-	public void addRelationship(RelationshipDto r) throws Exception {
+	public String addRelationship(RelationshipDto r) throws Exception {
 		if (relationships.containsKey(r.getKey()))
 			throw new IllegalStateException("Relationship " + r.getKey() + " already exists in model");
 
+		String version = r.getVersion().update(new UUID().asJsonId());
 		relationships.put(r.getKey(), r);
 		relationshipCacheByType.remove(r.getMetaRelationshipKey());
+		return version;
 	}
 
 	/*
@@ -193,9 +204,22 @@ public class ModelPersistenceMemory implements ModelPersistence {
 	 * alvahouse.eatool.repository.model.Relationship)
 	 */
 	@Override
-	public void updateRelationship(RelationshipDto r) throws Exception {
+	public String updateRelationship(RelationshipDto r) throws Exception {
+		
+		RelationshipDto original = relationships.get(r.getKey());
+		if(original == null) {
+			throw new IllegalStateException("Relationship " + r.getKey() + " does not exist in model");
+		}
+		
+		if(!r.getVersion().sameVersionAs(original.getVersion())) {
+			throw new StaleDataException("Unable to update relationship due to version mismatch");
+		}
+
+		String version = r.getVersion().update(new UUID().asJsonId());
+		
 		relationships.put(r.getKey(), r);
 		relationshipCacheByType.remove(r.getMetaRelationshipKey());
+		return version;
 	}
 
 	/*
@@ -205,13 +229,17 @@ public class ModelPersistenceMemory implements ModelPersistence {
 	 * alvahouse.eatool.util.UUID)
 	 */
 	@Override
-	public RelationshipDto deleteRelationship(UUID uuid) throws Exception {
-		RelationshipDto r = relationships.remove(uuid);
+	public RelationshipDto deleteRelationship(UUID uuid, String version) throws Exception {
+		RelationshipDto r = relationships.get(uuid);
 		if (r == null)
 			throw new IllegalStateException("Relationship " + uuid + " cannot be deleted - does not exist");
 
-		// Invalidate cache for this type.
-		relationshipCacheByType.remove(r.getMetaRelationshipKey());
+		if(!r.getVersion().getVersion().equals(version)) {
+			throw new StaleDataException("Unable to delete relationship due to version mismatch");
+		}
+		
+		relationships.remove(uuid);
+		relationshipCacheByType.remove(r.getMetaRelationshipKey());// Invalidate cache for this type.
 		return r;
 	}
 
