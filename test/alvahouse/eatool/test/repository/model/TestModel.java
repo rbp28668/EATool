@@ -221,6 +221,18 @@ class TestModel {
 	}
 
 	/**
+	 * Test method for {@link alvahouse.eatool.repository.model.Model#deleteEntity(alvahouse.eatool.util.UUID)}.
+	 */
+	@Test
+	void testDeleteEntity() throws Exception {
+		Entity e = new Entity(other);
+		model.addEntity(e);
+		assertEquals(1, model.getEntityCount());
+		model.deleteEntity(e.getKey(), e.getVersion().getVersion());
+		assertEquals(0, model.getEntityCount());
+	}
+
+	/**
 	 * Test method for {@link alvahouse.eatool.repository.model.Model#getEntities()}.
 	 */
 	@Test
@@ -344,7 +356,7 @@ class TestModel {
 		
 		assertEquals(1, model.getRelationshipCount());
 		
-		model.deleteRelationship(r.getKey());
+		model.deleteRelationship(r.getKey(), r.getVersion().getVersion());
 		
 		assertEquals(0, model.getRelationshipCount());
 	}

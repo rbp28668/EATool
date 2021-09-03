@@ -10,6 +10,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import alvahouse.eatool.repository.dto.VersionDto;
 import alvahouse.eatool.util.UUID;
@@ -21,11 +23,14 @@ import alvahouse.eatool.util.UUID;
 @XmlRootElement(name = "relationship")
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(propOrder = { "metaRelationshipKeyJson", "start", "finish", "version"})
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type_name")
 public class RelationshipDto extends PropertyContainerDto {
 	private UUID metaRelationshipKey;
 	private RoleDto start;
 	private RoleDto finish;
 	private VersionDto version;
+	private String rev;
+	
 	/**
 	 * @return the metaRelationshipKey
 	 */
@@ -95,5 +100,20 @@ public class RelationshipDto extends PropertyContainerDto {
 		this.version = version;
 	}
 	
-	
+	/**
+	 * revision information for CouchDB
+	 * @return the rev
+	 */
+	@JsonProperty("_rev")
+	public String getRev() {
+		return rev;
+	}
+
+	/**
+	 * @param rev the rev to set
+	 */
+	public void setRev(String rev) {
+		this.rev = rev;
+	}
+
 }

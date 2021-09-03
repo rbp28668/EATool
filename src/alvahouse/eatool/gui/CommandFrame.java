@@ -202,6 +202,13 @@ public class CommandFrame extends javax.swing.JFrame {
 	public ActionSet getActions(){
 	    return actions;
 	}
+
+	/**
+	 *  Allows the repository to be changed at runtime.
+	 */
+	public void setRepository(Repository repository) {
+		actions.setRepository(repository);
+	}
 	
 
 }

@@ -13,6 +13,8 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 /**
  * @author bruce_porteous
  *
@@ -20,6 +22,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "standardDiagramType")
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(propOrder = {"symbolTypes", "connectorTypes"})
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type_name")
 public class StandardDiagramTypeDto extends DiagramTypeDto {
 
 	private List<SymbolTypeDto> symbolTypes; 

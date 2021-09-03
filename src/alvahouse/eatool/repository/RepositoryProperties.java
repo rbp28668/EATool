@@ -8,8 +8,11 @@ package alvahouse.eatool.repository;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 
+import alvahouse.eatool.repository.dto.RepositoryPropertiesDto;
 import alvahouse.eatool.repository.version.Version;
 import alvahouse.eatool.repository.version.VersionImpl;
 import alvahouse.eatool.repository.version.Versionable;
@@ -46,12 +49,35 @@ public class RepositoryProperties  implements Versionable{
         init();
         _set(arg0);
     }
+    
+    public RepositoryProperties(RepositoryPropertiesDto dto) {
+    	init();  // will protect against adding new properties in an upgrade
+    	
+    	for(RepositoryPropertiesDto.KeyValue kv : dto.getProperties()) {
+    		String value = kv.getValue() == null ? "" : kv.getValue();
+    		properties.put(kv.getKey(), value);
+    	}
+    	
+    	version.fromDto(dto.getVersion());
+    }
 
     private void init(){
         properties.setProperty(NAME,"");
         properties.setProperty(ORIGINATOR,"");
     }
     
+	/**
+	 * @return
+	 */
+	public RepositoryPropertiesDto toDto() {
+		RepositoryPropertiesDto dto = new RepositoryPropertiesDto();
+		for(Map.Entry<Object,Object> entry : properties.entrySet()) {
+			dto.add(entry.getKey().toString(), entry.getValue().toString());
+		}
+		dto.setVersion(version.toDto());
+		return dto;
+	}
+
     /**
      * Internal method to be called when loading properties.  Doesn't
      * update version information.
@@ -131,4 +157,5 @@ public class RepositoryProperties  implements Versionable{
 	public Version getVersion() {
 		return version;
 	}
+
 }

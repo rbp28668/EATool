@@ -3,8 +3,7 @@
  */
 package alvahouse.eatool.repository.persist;
 
-import alvahouse.eatool.repository.scripting.EventMap;
-import alvahouse.eatool.repository.scripting.Scripts;
+import alvahouse.eatool.repository.dto.scripting.EventMapDto;
 
 /**
  * @author bruce_porteous
@@ -16,12 +15,12 @@ public interface EventMapPersistence {
 	 * Gets the event map
 	 * @return the event map.
 	 */
-	public EventMap get() throws Exception;
+	public EventMapDto get() throws Exception;
 	
 	/**
 	 * Sets the event map.
 	 * @param eventMap
 	 */
-	public void set(EventMap eventMap) throws Exception;
+	public void set(EventMapDto eventMap) throws Exception;
 
 }

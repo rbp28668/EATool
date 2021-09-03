@@ -175,10 +175,10 @@ class TestHtmlPages {
 	}
 
 	/**
-	 * Test method for {@link alvahouse.eatool.repository.html.HTMLPages#reset()}.
+	 * Test method for {@link alvahouse.eatool.repository.html.HTMLPages#deleteContents()}.
 	 */
 	@Test
-	void testReset() throws Exception{
+	void testDeleteContents() throws Exception{
 		HTMLPage page1 = createPage("page1", "first page");
 		HTMLPage page2 = createPage("page2", "second page");
 		HTMLPage page3 = createPage("page3", "third page");
@@ -189,7 +189,7 @@ class TestHtmlPages {
 		
 		assertEquals(3, pages.getPageCount());
 
-		pages.reset();
+		pages.deleteContents();
 		
 		assertEquals(0, pages.getPageCount());
 	}

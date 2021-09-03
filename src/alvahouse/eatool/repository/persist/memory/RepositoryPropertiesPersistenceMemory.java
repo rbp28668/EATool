@@ -4,6 +4,7 @@
 package alvahouse.eatool.repository.persist.memory;
 
 import alvahouse.eatool.repository.RepositoryProperties;
+import alvahouse.eatool.repository.dto.RepositoryPropertiesDto;
 import alvahouse.eatool.repository.persist.RepositoryPropertiesPersistence;
 
 /**
@@ -14,7 +15,7 @@ import alvahouse.eatool.repository.persist.RepositoryPropertiesPersistence;
  */
 public class RepositoryPropertiesPersistenceMemory implements RepositoryPropertiesPersistence {
 
-	private RepositoryProperties props = new RepositoryProperties();
+	private RepositoryPropertiesDto props = new RepositoryPropertiesDto();
 	/**
 	 * 
 	 */
@@ -25,13 +26,13 @@ public class RepositoryPropertiesPersistenceMemory implements RepositoryProperti
 	 * @see alvahouse.eatool.repository.persist.RepositoryPropertiesPersistence#get()
 	 */
 	@Override
-	public RepositoryProperties get() throws Exception{
-		return (RepositoryProperties) props.clone();
+	public RepositoryPropertiesDto get() throws Exception{
+		return props;
 	}
 	
 	@Override
-	public void set(RepositoryProperties repositoryProperties) throws Exception{
-		props = (RepositoryProperties) repositoryProperties.clone();
+	public void set(RepositoryPropertiesDto repositoryProperties) throws Exception{
+		props = repositoryProperties;
 		
 	}
 }

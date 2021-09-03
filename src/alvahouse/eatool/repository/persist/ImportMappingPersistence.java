@@ -19,7 +19,7 @@ public interface ImportMappingPersistence {
 	 * @return collection of import mapping. Maybe empty should not be null.
 	 * @throws Exception
 	 */
-	Collection<ImportMappingDto> getMappings() throws Exception;
+	public Collection<ImportMappingDto> getMappings() throws Exception;
 
 	/**
 	 * Looks up a mapping by key.
@@ -27,27 +27,30 @@ public interface ImportMappingPersistence {
 	 * @return
 	 * @throws Exception
 	 */
-	ImportMappingDto lookupMapping(UUID key) throws Exception;
+	public ImportMappingDto lookupMapping(UUID key) throws Exception;
 
 	/**
 	 * Adds an import mapping to the repository.  The mapping
 	 * as identified by its key, should not exist in the repository.
+	 * @return the revision number of the new mapping record.
 	 * @param mapping is the mapping to add.
 	 */
-	void addMapping(ImportMappingDto mapping) throws Exception;
+	public String addMapping(ImportMappingDto mapping) throws Exception;
 
 	/**
 	 * Updates an existing import mapping in the repository.  The mapping
 	 * as identified by its key, must exist in the repository.
 	 * @param mapping is the mapping to update.
+	 * @return the revision number of the updated mapping record.
 	 */
-	void updateMapping(ImportMappingDto mapping) throws Exception;
+	public String updateMapping(ImportMappingDto mapping) throws Exception;
 
 	/**
 	 * Deletes the import mapping corresponding to the given key.
 	 * @param key is the key of the mapping to delete.
+	 * @param version is the revision number of the record to delete.
 	 */
-	void deleteMapping(UUID key) throws Exception;
+	void deleteMapping(UUID key, String version) throws Exception;
 
 	/**
 	 * Deletes all the import mappings.

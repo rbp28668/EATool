@@ -12,6 +12,7 @@ import javax.xml.bind.annotation.XmlType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import alvahouse.eatool.repository.dto.VersionDto;
 import alvahouse.eatool.util.UUID;
@@ -23,12 +24,13 @@ import alvahouse.eatool.util.UUID;
 @XmlRootElement(name = "metaEntity")
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(propOrder = { "baseJson", "displayHint", "version"})
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type_name")
 public class MetaEntityDto extends MetaPropertyContainerDto {
     private UUID base;
     private boolean isAbstract;
     private MetaEntityDisplayHintDto displayHint;
     private VersionDto version;
-
+    private String rev; // Version revision returned by couchbase.
     public MetaEntityDto(){
     }
 
@@ -108,5 +110,22 @@ public class MetaEntityDto extends MetaPropertyContainerDto {
 	public void setVersion(VersionDto version) {
 		this.version = version;
 	}
-    
+
+	/**
+	 * revision information for CouchDB
+	 * @return the rev
+	 */
+	@JsonProperty("_rev")
+	public String getRev() {
+		return rev;
+	}
+
+	/**
+	 * @param rev the rev to set
+	 */
+	public void setRev(String rev) {
+		this.rev = rev;
+	}
+
+	
 }

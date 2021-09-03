@@ -39,11 +39,12 @@ public class MetaRelationship extends MetaPropertyContainer implements Versionab
         m_ends[1] = null;
     }
 
-    public MetaRelationship(MetaRelationshipDto dao, MetaPropertyTypes types) throws Exception {
-    	super(dao, types);
-    	m_ends[0] = new MetaRole(this, dao.getStart(), types);
-    	m_ends[1] = new MetaRole(this, dao.getFinish(), types);
-    	restriction = MetaRelationshipRestriction.fromDao(dao.getRestriction());
+    public MetaRelationship(MetaRelationshipDto dto, MetaPropertyTypes types) throws Exception {
+    	super(dto, types);
+    	m_ends[0] = new MetaRole(this, dto.getStart(), types);
+    	m_ends[1] = new MetaRole(this, dto.getFinish(), types);
+    	restriction = MetaRelationshipRestriction.fromDao(dto.getRestriction());
+    	version.fromDto(dto.getVersion());
     }
     
 	public MetaRelationshipDto toDao() {

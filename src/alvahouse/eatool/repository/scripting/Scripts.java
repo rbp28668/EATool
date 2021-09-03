@@ -49,7 +49,8 @@ public class Scripts {
     public void add(Script script) throws Exception {
  		String user = System.getProperty("user.name");
 		script.getVersion().createBy(user);
-		persistence.addScript(script.toDto());
+		String version = persistence.addScript(script.toDto());
+		script.getVersion().update(version);
         fireScriptAdded(script);
     }
 
@@ -58,7 +59,8 @@ public class Scripts {
      * @param script is the script to be added.
      */
     public void _add(Script script) throws Exception {
-		persistence.addScript(script.toDto());
+    	String version = persistence.addScript(script.toDto());
+		script.getVersion().update(version);
     }
 
     /**
@@ -68,7 +70,8 @@ public class Scripts {
     public void update(Script script) throws Exception {
  		String user = System.getProperty("user.name");
 		script.getVersion().modifyBy(user);
-		persistence.updateScript(script.toDto());
+		String version = persistence.updateScript(script.toDto());
+		script.getVersion().update(version);
         fireScriptChanged(script);
     }
 
@@ -78,7 +81,7 @@ public class Scripts {
      */
     public void delete(Script script)  throws Exception {
     	UUID key = script.getKey();
-    	persistence.deleteScript(key);
+    	persistence.deleteScript(key, script.getVersion().getVersion());
         fireScriptDeleted(script);
     }
 

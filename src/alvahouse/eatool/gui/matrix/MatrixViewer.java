@@ -519,7 +519,7 @@ public class MatrixViewer extends JInternalFrame  implements MatrixTableModelLis
         for(Relationship r : relationshipsToDelete){
             r.start().disconnect();
             r.finish().disconnect();
-            model.deleteRelationship(r.getKey());
+            model.deleteRelationship(r.getKey(), r.getVersion().getVersion());
          }
         
     }

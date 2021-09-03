@@ -98,7 +98,8 @@ public class Diagrams extends ModelChangeAdapter {
  		String user = System.getProperty("user.name");
 		diagram.getVersion().createBy(user);
 
-		persistence.addDiagram(diagram.toDto());
+		String version = persistence.addDiagram(diagram.toDto());
+		diagram.getVersion().update(version);
 		fireDiagramAdded(diagram);
 	}
 
@@ -110,7 +111,8 @@ public class Diagrams extends ModelChangeAdapter {
 	    if(diagram == null){
 	        throw new NullPointerException("Can't add null diagram to diagrams");
 	    }
-		persistence.addDiagram(diagram.toDto());
+		String version = persistence.addDiagram(diagram.toDto());
+		diagram.getVersion().update(version);
 	}
 
 	/**
@@ -124,7 +126,8 @@ public class Diagrams extends ModelChangeAdapter {
  		String user = System.getProperty("user.name");
 		diagram.getVersion().modifyBy(user);
 
-		persistence.updateDiagram(diagram.toDto());
+		String version = persistence.updateDiagram(diagram.toDto());
+		diagram.getVersion().update(version);
 		fireDiagramChanged(diagram);
 	}
 
@@ -143,7 +146,7 @@ public class Diagrams extends ModelChangeAdapter {
 	 * @param diagram
 	 */
 	public void removeDiagram(Diagram diagram) throws Exception{
-	    persistence.deleteDiagram(diagram.getKey());
+	    persistence.deleteDiagram(diagram.getKey(), diagram.getVersion().getVersion());
 	    fireDiagramDeleted(diagram);
 	}
 	

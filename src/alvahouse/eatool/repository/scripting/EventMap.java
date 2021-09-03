@@ -103,7 +103,7 @@ public class EventMap implements Versionable{
         if(!handlers.containsKey(event)){
             throw new IllegalStateException("Event map does not contain the event " + event);
         }
-        handlers.put(event,null);
+        handlers.put(event,new ScriptProxy());
     }
     
     /**

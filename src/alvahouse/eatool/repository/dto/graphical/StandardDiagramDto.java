@@ -12,12 +12,15 @@ import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 /**
  * @author bruce_porteous
  *
  */
 @XmlRootElement(name = "standardDiagram")
 @XmlAccessorType(XmlAccessType.NONE)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type_name")
 public class StandardDiagramDto extends DiagramDto {
 
 	private List<SymbolDto> symbols = new LinkedList<>();

@@ -15,9 +15,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import alvahouse.eatool.repository.dto.NamedRepositoryItemDto;
 import alvahouse.eatool.repository.dto.VersionDto;
+import alvahouse.eatool.repository.dto.VersionedDto;
 
 /**
  * @author bruce_porteous
@@ -26,14 +28,15 @@ import alvahouse.eatool.repository.dto.VersionDto;
 @XmlRootElement(name = "importMapping")
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(propOrder = { "parserName", "transformPath", "entityTranslations", "relationshipTranslations", "version"})
-public class ImportMappingDto extends NamedRepositoryItemDto {
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type_name")
+public class ImportMappingDto extends NamedRepositoryItemDto implements VersionedDto{
 
     private String parserName="XML";
     private String transformPath = null;
     private List<EntityTranslationDto> entityTranslations = new LinkedList<>();
     private List<RelationshipTranslationDto> relationshipTranslations = new LinkedList<>();
     private VersionDto version;
-    
+    private String rev;
 	/**
 	 * @return the parserName
 	 */
@@ -102,6 +105,7 @@ public class ImportMappingDto extends NamedRepositoryItemDto {
 	 * @return the version
 	 */
 	@XmlElement
+	@Override
 	public VersionDto getVersion() {
 		return version;
 	}
@@ -111,6 +115,25 @@ public class ImportMappingDto extends NamedRepositoryItemDto {
 	public void setVersion(VersionDto version) {
 		this.version = version;
 	}
+
+	/**
+	 * revision information for CouchDB
+	 * @return the rev
+	 */
+	@JsonProperty("_rev")
+	@Override
+	public String getRev() {
+		return rev;
+	}
+
+	/**
+	 * @param rev the rev to set
+	 */
+	@Override
+	public void setRev(String rev) {
+		this.rev = rev;
+	}
+	
 
 	
 

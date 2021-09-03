@@ -12,6 +12,7 @@ import java.util.Map;
 import alvahouse.eatool.repository.dto.images.ImageDto;
 import alvahouse.eatool.repository.images.Image;
 import alvahouse.eatool.repository.persist.ImagePersistence;
+import alvahouse.eatool.repository.persist.StaleDataException;
 import alvahouse.eatool.util.UUID;
 
 /**
@@ -52,34 +53,50 @@ public class ImagePersistenceMemory implements ImagePersistence {
 	 * @see alvahouse.eatool.repository.persist.ImagePersistence#addImage(alvahouse.eatool.repository.images.Image)
 	 */
 	@Override
-	public void addImage(ImageDto image) throws Exception {
+	public String addImage(ImageDto image) throws Exception {
 		UUID key = image.getKey();
 		if(images.containsKey(key)) {
 			throw new IllegalArgumentException("Image with key " + key + " already exists in repository");
 		}
+		
+		String version = image.getVersion().update(new UUID().asJsonId());
 		images.put(key, image);
+		return version;
 	}
 
 	/* (non-Javadoc)
 	 * @see alvahouse.eatool.repository.persist.ImagePersistence#updateImage(alvahouse.eatool.repository.images.Image)
 	 */
 	@Override
-	public void updateImage(ImageDto image) throws Exception {
+	public String updateImage(ImageDto image) throws Exception {
 		UUID key = image.getKey();
-		if(!images.containsKey(key)) {
+		ImageDto original = images.get(key);
+		if(original == null) {
 			throw new IllegalArgumentException("Image with key " + key + " does not exist in repository");
 		}
+		if(!image.getVersion().sameVersionAs(original.getVersion())) {
+			throw new StaleDataException("Unable to update image due to stale data");
+		}
+		
+		String version = image.getVersion().update(new UUID().asJsonId());
 		images.put(key, image);
+		return version;
 	}
 
 	/* (non-Javadoc)
 	 * @see alvahouse.eatool.repository.persist.ImagePersistence#deleteImage(alvahouse.eatool.util.UUID)
 	 */
 	@Override
-	public void deleteImage(UUID key) throws Exception {
-		if(!images.containsKey(key)) {
+	public void deleteImage(UUID key, String version) throws Exception {
+		ImageDto image = images.get(key);
+		if(image == null) {
 			throw new IllegalArgumentException("Image with key " + key + " does not exist in repository");
 		}
+
+		if(!image.getVersion().getVersion().equals(version)) {
+			throw new StaleDataException("Unable to delete image due to stale data");
+		}
+
 		images.remove(key);
 	}
 

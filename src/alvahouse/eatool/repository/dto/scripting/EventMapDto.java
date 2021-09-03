@@ -30,12 +30,33 @@ import alvahouse.eatool.util.UUID;
 
 public class EventMapDto {
 
+	private String id;
 	private List<EventMapHandlerDto> handlers;
     private VersionDto version;
-
+    private String rev;
 
     
     /**
+     * Property to allow serialisation of couch key.
+	 * @return the id
+	 */
+    @JsonProperty("_id")
+	public String getId() {
+		return id;
+	}
+
+
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(String id) {
+		this.id = id;
+	}
+
+
+
+	/**
 	 * @return the handlers
 	 */
     @XmlElement(name="handler")
@@ -73,6 +94,22 @@ public class EventMapDto {
 	 */
 	public void setVersion(VersionDto version) {
 		this.version = version;
+	}
+
+	/**
+	 * CouchDB revision string.
+	 * @return the rev
+	 */
+	@JsonProperty("_rev")
+	public String getRev() {
+		return rev;
+	}
+
+	/**
+	 * @param rev the rev to set
+	 */
+	public void setRev(String rev) {
+		this.rev = rev;
 	}
 
 

@@ -18,9 +18,12 @@ import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * @author bruce_porteous
@@ -28,6 +31,10 @@ import com.fasterxml.jackson.databind.SerializationFeature;
  */
 public class Serialise {
 
+	// Jackson object mapper single instances.
+	private static ObjectMapper inputMapper = null;
+	private static ObjectMapper outputMapper = null;
+	
     /**
      * @param outputStream
      * @throws JAXBException
@@ -102,19 +109,65 @@ public class Serialise {
 
     public static <T> T unmarshalFromJson(String json, Class<T> objClass)
     throws JsonProcessingException {
-      ObjectMapper mapper = new ObjectMapper();
+      ObjectMapper mapper = getInputMapper();
       return mapper.readValue(json, objClass);
     }
 
+    public static <T> T unmarshalFromJson(JsonNode json, Class<T> objClass)
+    throws JsonProcessingException {
+      ObjectMapper mapper = getInputMapper();
+      return mapper.treeToValue(json, objClass);
+    }
+
+    public static JsonNode parseToJsonTree(String json) throws IOException, JacksonException {
+        ObjectMapper mapper = getInputMapper();
+        return mapper.readTree(json);
+    }
+
+    public static String writeJsonTree(JsonNode json) throws IOException, JacksonException {
+        ObjectMapper mapper = getOutputMapper();
+        StringWriter out = new StringWriter();
+        mapper.writeValue(out, json);
+        return out.toString();
+    }
+
     /**
+     * Create a Jackson ObjectNode.  Use this to start
+     * building a JSON structure that can then be serialised
+     * to a string.
+     * @see https://fasterxml.github.io/jackson-databind/javadoc/2.7/com/fasterxml/jackson/databind/node/ObjectNode.html
+     * @return ObjectNode.
+     */
+    public static ObjectNode createObjectNode() {
+    	return getOutputMapper().createObjectNode();
+    }
+    
+     
+    /**
+     * Get the Jackson input mapper. Note that ObjectMapper is threadsafe and it's
+     * recommended to create once and use many times.
+     * @return
+     */
+    private static ObjectMapper getInputMapper() {
+    	if(inputMapper == null) {
+    		inputMapper = new ObjectMapper();
+    	}
+        return inputMapper;
+    }
+    
+    /**
+     * Get the Jackson output mapper.
      * @return
      */
     private static ObjectMapper getOutputMapper() {
-        ObjectMapper mapper = new ObjectMapper(); 
-        mapper.setSerializationInclusion(Include.NON_NULL);
-        mapper.setSerializationInclusion(Include.NON_EMPTY);
-        mapper.enable(SerializationFeature.INDENT_OUTPUT);
-        return mapper;
+        if(outputMapper == null) {
+        	ObjectMapper mapper = new ObjectMapper(); 
+	        mapper.setSerializationInclusion(Include.NON_NULL);
+	        mapper.setSerializationInclusion(Include.NON_EMPTY);
+	        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+	        outputMapper = mapper; // now fully configured.
+        }
+        return outputMapper;
     }
 
     /**

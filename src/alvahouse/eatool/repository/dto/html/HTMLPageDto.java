@@ -18,9 +18,11 @@ import javax.xml.bind.annotation.XmlType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import alvahouse.eatool.repository.dto.NamedRepositoryItemDto;
 import alvahouse.eatool.repository.dto.VersionDto;
+import alvahouse.eatool.repository.dto.VersionedDto;
 import alvahouse.eatool.repository.dto.scripting.EventMapDto;
 import alvahouse.eatool.util.Base64InputStream;
 import alvahouse.eatool.util.Base64OutputStream;
@@ -32,13 +34,15 @@ import alvahouse.eatool.util.Base64OutputStream;
 @XmlRootElement(name = "htmlPage")
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(propOrder = { "htmlJson","dynamic","eventMap","version"})
-public class HTMLPageDto extends NamedRepositoryItemDto {
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type_name")
+public class HTMLPageDto extends NamedRepositoryItemDto implements VersionedDto {
 
     private String html;
     private boolean isDynamic;
     private EventMapDto eventMap;
     private VersionDto version;
-
+    private String rev;
+    
     /**
 	 * @return the html
 	 */
@@ -119,6 +123,7 @@ public class HTMLPageDto extends NamedRepositoryItemDto {
 	 * @return the version
 	 */
 	@XmlElement
+	@Override
 	public VersionDto getVersion() {
 		return version;
 	}
@@ -129,5 +134,23 @@ public class HTMLPageDto extends NamedRepositoryItemDto {
 		this.version = version;
 	}
 
-    
+	/**
+	 * revision information for CouchDB
+	 * @return the rev
+	 */
+	@Override
+	@JsonProperty("_rev")
+	public String getRev() {
+		return rev;
+	}
+
+	/**
+	 * @param rev the rev to set
+	 */
+	@Override
+	public void setRev(String rev) {
+		this.rev = rev;
+	}
+	
+
 }
