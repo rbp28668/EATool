@@ -17,8 +17,8 @@ import alvahouse.eatool.repository.dto.DeleteProxyDto;
 import alvahouse.eatool.repository.dto.metamodel.ExtensibleMetaPropertyTypeDto;
 import alvahouse.eatool.repository.dto.metamodel.MetaEntityDto;
 import alvahouse.eatool.repository.dto.metamodel.MetaRelationshipDto;
-import alvahouse.eatool.repository.metamodel.types.ExtensibleMetaPropertyType;
 import alvahouse.eatool.repository.persist.MetaModelPersistence;
+import alvahouse.eatool.repository.persist.StaleDataException;
 import alvahouse.eatool.util.UUID;
 
 /**
@@ -73,12 +73,13 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 	 * alvahouse.eatool.repository.metamodel.MetaEntityDao)
 	 */
 	@Override
-	public void addMetaEntity(MetaEntityDto me) throws Exception {
+	public String addMetaEntity(MetaEntityDto me) throws Exception {
 		if (metaEntities.containsKey(me.getKey()))
 			throw new IllegalStateException("Meta Entity already exists in meta-model");
-
+		String version = me.getVersion().update(new UUID().toString());
 		metaEntities.put(me.getKey(), me);
 		sortedEntities.add(me);
+		return version;
 	}
 
 	/*
@@ -109,15 +110,22 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 	 * @see alvahouse.eatool.repository.persist.MetaModelPersistence#updateMetaEntityDao(alvahouse.eatool.repository.metamodel.MetaEntityDao)
 	 */
 	@Override
-	public void updateMetaEntity(MetaEntityDto me) throws Exception {
+	public String updateMetaEntity(MetaEntityDto me) throws Exception {
 		UUID key = me.getKey();
 		MetaEntityDto existing = metaEntities.get(key);
 		if(existing == null) {
 			throw new IllegalArgumentException("Trying to update a meta entity that is not in the repository");
 		}
+		
+		if(!me.getVersion().sameVersionAs(existing.getVersion())){
+			throw new StaleDataException("Version mismatch");
+		}
+		
+		String version = me.getVersion().update(new UUID().toString());
 		sortedEntities.remove(existing);
 		metaEntities.put(key,me);
 		sortedEntities.add(me);
+		return version;
 	}
 
 	/*
@@ -128,12 +136,19 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 	 * alvahouse.eatool.util.UUID)
 	 */
 	@Override
-	public MetaEntityDto deleteMetaEntity(UUID uuid) throws Exception {
-		MetaEntityDto me = metaEntities.remove(uuid);
+	public MetaEntityDto deleteMetaEntity(UUID uuid, String version) throws Exception {
+		
+		MetaEntityDto me = metaEntities.get(uuid);
 		if (me == null) {
 			throw new IllegalArgumentException(
 					"Can't delete meta entity with key " + uuid + " not found in repository");
 		}
+		
+		if(!me.getVersion().getVersion().equals(version)) {
+			throw new StaleDataException("Version mismatch when deleting meta entity");
+		}
+		
+		metaEntities.remove(uuid);
 		sortedEntities.remove(me);
 		return me;
 	}
@@ -162,7 +177,7 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 	 * alvahouse.eatool.repository.metamodel.MetaRelationshipDao)
 	 */
 	@Override
-	public void addMetaRelationship(MetaRelationshipDto mr) throws Exception {
+	public String addMetaRelationship(MetaRelationshipDto mr) throws Exception {
 
 		// This meta relationship should reference meta entities already in the store.
 		UUID startKey = mr.getStart().getConnects();
@@ -171,17 +186,20 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 		if ( !(metaEntities.containsKey(startKey) && metaEntities.containsKey(finishKey)) ) {
 			throw new IllegalStateException("Saving meta relationship that references meta-entities not in the model");
 		}
+		
+		String version = mr.getVersion().update(new UUID().toString());
 
 		// And save
 		metaRelationships.put(mr.getKey(), mr);
 		sortedRelationships.add(mr);
+		return version;
 	}
 
 	/* (non-Javadoc)
 	 * @see alvahouse.eatool.repository.persist.MetaModelPersistence#updateMetaRelationshipDao(alvahouse.eatool.repository.metamodel.MetaRelationshipDao)
 	 */
 	@Override
-	public void updateMetaRelationship(MetaRelationshipDto mr) throws Exception {
+	public String updateMetaRelationship(MetaRelationshipDto mr) throws Exception {
 		// This meta relationship should reference meta entities already in the store.
 		UUID startKey = mr.getStart().getConnects();
 		UUID finishKey = mr.getFinish().getConnects();
@@ -190,12 +208,17 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 			throw new IllegalStateException("Updating meta relationship that references meta-entities not in the model");
 		}
 
-		MetaRelationshipDto original = metaRelationships.remove(mr.getKey());
-		sortedRelationships.remove(original);
+		MetaRelationshipDto existing = metaRelationships.get(mr.getKey());
+		if(!mr.getVersion().sameVersionAs(existing.getVersion())){
+			throw new StaleDataException("Version mismatch");
+		}
 		
-		// And save
+		String version = mr.getVersion().update(new UUID().toString());
+
 		metaRelationships.put(mr.getKey(), mr);
+		sortedRelationships.remove(existing);
 		sortedRelationships.add(mr);
+		return version;
 	}
 
 	/*
@@ -205,11 +228,17 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 	 * deleteMetaRelationshipDao(alvahouse.eatool.util.UUID)
 	 */
 	@Override
-	public MetaRelationshipDto deleteMetaRelationship(UUID uuid) throws Exception {
-		MetaRelationshipDto mr = (MetaRelationshipDto) metaRelationships.remove(uuid);
+	public MetaRelationshipDto deleteMetaRelationship(UUID uuid, String version) throws Exception {
+		MetaRelationshipDto mr = metaRelationships.get(uuid);
 		if (mr == null) {
 			throw new IllegalArgumentException("Trying to delete a meta relationship not in the repository");
 		}
+		
+		if(!mr.getVersion().getVersion().equals(version)) {
+			throw new StaleDataException("Version mismatch when deleting meta entity");
+		}
+
+		metaRelationships.remove(uuid);
 		sortedRelationships.remove(mr);
 		return mr;
 	}
@@ -415,31 +444,48 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 	 * @see alvahouse.eatool.repository.persist.MetaModelPersistence#addType(alvahouse.eatool.repository.metamodel.types.MetaPropertyType)
 	 */
 	@Override
-	public void addType(ExtensibleMetaPropertyTypeDto mpt)  throws Exception{
+	public String addType(ExtensibleMetaPropertyTypeDto mpt)  throws Exception {
 		if(userDefinedTypes.containsKey(mpt.getKey())) {
 			throw new IllegalStateException("MetaPropertyType " + mpt.getName() + " with key " + mpt.getKey() + " already exists");
 		}
+		String version = mpt.getVersion().update(new UUID().toString());
 		userDefinedTypes.put(mpt.getKey(), mpt);
+		return version;
 	}
 
 	/* (non-Javadoc)
 	 * @see alvahouse.eatool.repository.persist.MetaModelPersistence#updateType(alvahouse.eatool.repository.metamodel.types.MetaPropertyType)
 	 */
 	@Override
-	public void updateType(ExtensibleMetaPropertyTypeDto mpt)  throws Exception{
-		if(!userDefinedTypes.containsKey(mpt.getKey())) {
+	public String updateType(ExtensibleMetaPropertyTypeDto mpt)  throws Exception {
+		
+		ExtensibleMetaPropertyTypeDto existing = userDefinedTypes.get(mpt.getKey());
+		if(existing == null) {
 			throw new IllegalStateException("MetaPropertyType " + mpt.getName() + " with key " + mpt.getKey() + " does not exist in repository");
 		}
+		
+		if(!mpt.getVersion().sameVersionAs(existing.getVersion())){
+			throw new StaleDataException("Version mismatch");
+		}
+		
+		String version = mpt.getVersion().update(new UUID().toString());
+
 		userDefinedTypes.put(mpt.getKey(), mpt);
+		return version;
 	}
 
 	/* (non-Javadoc)
 	 * @see alvahouse.eatool.repository.persist.MetaModelPersistence#removeType(alvahouse.eatool.repository.metamodel.types.MetaPropertyType)
 	 */
 	@Override
-	public void deleteType(UUID uuid) throws Exception{
-		if(!userDefinedTypes.containsKey(uuid)) {
+	public void deleteType(UUID uuid, String version) throws Exception{
+		
+		ExtensibleMetaPropertyTypeDto existing = userDefinedTypes.get(uuid);
+		if(existing == null) {
 			throw new IllegalStateException("Can't delete MetaPropertyType with key " + uuid + " - not in repository");
+		}
+		if(!existing.getVersion().getVersion().equals(version)){
+			throw new StaleDataException("Version mismatch when deleting type");
 		}
 		userDefinedTypes.remove(uuid);
 	}

@@ -20,24 +20,27 @@ public class MetaRelationshipDeleteProxy implements IDeleteDependenciesProxy {
 	private final MetaModel metaModel;
 	private final String name;
 	private final UUID targetKey;
+	private final String version;
 
 	/** Creates a new proxy for deleting a dependent meta-relationshi
      * @param metaModel TODO
      * @param m is the dependent meta-relationship
      */        
-    public MetaRelationshipDeleteProxy(MetaModel metaModel, UUID targetKey, String name) {
+    public MetaRelationshipDeleteProxy(MetaModel metaModel, UUID targetKey, String name, String version) {
         this.metaModel = metaModel;
         this.targetKey = targetKey;
 		this.name = name;
+		this.version = version;
     }
     
-    public MetaRelationshipDeleteProxy(MetaModel metaModel, DeleteProxyDto dao) {
-    	if(!NAME.equals(dao.getItemType())){
-    		throw new IllegalArgumentException("Invalid Delete proxy, expected " + NAME + " was " + dao.getItemType());
+    public MetaRelationshipDeleteProxy(MetaModel metaModel, DeleteProxyDto dto) {
+    	if(!NAME.equals(dto.getItemType())){
+    		throw new IllegalArgumentException("Invalid Delete proxy, expected " + NAME + " was " + dto.getItemType());
     	}
     	this.metaModel = metaModel;
-    	this.targetKey = dao.getItemKey();
-    	this.name = dao.getName();
+    	this.targetKey = dto.getItemKey();
+    	this.name = dto.getName();
+    	this.version = dto.getVersion();
     }
     
     /** gets the name of the dependent meta relationship
@@ -50,7 +53,7 @@ public class MetaRelationshipDeleteProxy implements IDeleteDependenciesProxy {
     /** deletes the dependent meta-relationship
      */
     public void delete() throws Exception {
-        this.metaModel.deleteMetaRelationship(targetKey);
+        this.metaModel.deleteMetaRelationship(targetKey, version);
     }
     
     /** gets the dependent meta-relationship

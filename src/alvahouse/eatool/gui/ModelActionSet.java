@@ -320,7 +320,7 @@ public class ModelActionSet extends ActionSet {
                 DeleteConfirmationDialog dlg;
                 (dlg = new DeleteConfirmationDialog(explorer, dependencies)).setVisible(true);
                 if(dlg.wasEdited()) {
-                	repository.getModel().deleteRelationship(r.getKey());
+                	repository.getModel().deleteRelationship(r.getKey(), r.getVersion().getVersion());
                 }
             } catch(Throwable t) {
                 new ExceptionDisplay(explorer,t);

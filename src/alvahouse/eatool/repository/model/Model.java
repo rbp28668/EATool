@@ -120,10 +120,11 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
 
     /** Deletes an entity keyed by UUID.
      * @param uuid is the key of the entity to delete.
+     * @param version is the revision of the entity to delete.
      * @throws IllegalStateException if deleting an entity not in the model.
      */
-    public void deleteEntity(UUID uuid) throws Exception {
-    	EntityDto dto = persistence.deleteEntity(uuid);
+    public void deleteEntity(UUID uuid, String version) throws Exception {
+    	EntityDto dto = persistence.deleteEntity(uuid, version);
         MetaEntity me = meta.getMetaEntity(dto.getMetaEntityKey());
         Entity e = new Entity(dto,me);
         fireEntityDeleted(e);
@@ -149,7 +150,7 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
      * DEBUG only
      * @return
      */
-    public int getEntityCount(){
+    public int getEntityCount() throws Exception{
         return persistence.getEntityCount();
     }
     
@@ -222,11 +223,12 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
 
     /** Deletes the relationship for a given key.
      * @param uuid is the key for the relationship to delete
+     * @param version is the revision of the record to delete.
      * @throws IllegalStateException if the key does not correspond to a
      * relationship in the model.
      */
-    public void deleteRelationship(UUID uuid) throws Exception {
-        RelationshipDto dto = persistence.deleteRelationship(uuid);
+    public void deleteRelationship(UUID uuid, String version) throws Exception {
+        RelationshipDto dto = persistence.deleteRelationship(uuid, version);
         MetaRelationship mr = meta.getMetaRelationship(dto.getMetaRelationshipKey());
         Relationship r = new Relationship(dto,mr);
         fireRelationshipDeleted(r);
@@ -252,7 +254,7 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
      * Gets the number of relationships in the model.
      * @return the count of relationships.
      */
-    public int getRelationshipCount() {
+    public int getRelationshipCount() throws Exception {
         return persistence.getRelationshipCount();
     }
 
@@ -351,7 +353,7 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
      * @param e is the entity which will be deleted.
      */    
     public void getDeleteDependencies(DeleteDependenciesList dependencies, Relationship r) throws Exception {
-    	RelationshipDeleteProxy proxy = new RelationshipDeleteProxy(this, r.getKey(), r.toString());
+    	RelationshipDeleteProxy proxy = new RelationshipDeleteProxy(this, r.getKey(), r.toString(), r.getVersion().getVersion());
     	dependencies.addDependency(proxy);
     }
     
@@ -513,7 +515,7 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
     public void metaEntityDeleted(MetaModelChangeEvent e) throws Exception {
         MetaEntity meta = (MetaEntity)e.getSource();
          for(Entity entity : getEntitiesOfType(meta)){
-            deleteEntity(entity.getKey());
+            deleteEntity(entity.getKey(), entity.getVersion().getVersion());
         }
     }
 
@@ -532,7 +534,7 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
     public void metaRelationshipDeleted(MetaModelChangeEvent e) throws Exception {
         MetaRelationship meta = (MetaRelationship)e.getSource();
         for(Relationship r : getRelationshipsOfType(meta)){
-            deleteRelationship(r.getKey());
+            deleteRelationship(r.getKey(),r.getVersion().getVersion());
 	    }
     }
 
@@ -547,7 +549,7 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
         for(Relationship r : getRelationshipsOfType(meta)){
             if( !(r.start().connectsTo().getMeta().equals(start)
                     && r.finish().connectsTo().getMeta().equals(finish))){
-                deleteRelationship(r.getKey());
+                deleteRelationship(r.getKey(), r.getVersion().getVersion());
             } else {
                 boolean changed = false;
                 changed |= r.revalidate(r.getMeta());

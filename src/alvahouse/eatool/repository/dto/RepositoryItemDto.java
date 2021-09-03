@@ -39,7 +39,7 @@ public class RepositoryItemDto {
 	 * @return the key
 	 */
 	@XmlElement(name="key", required = true)
-	@JsonProperty(value = "key")
+	@JsonProperty(value = "_id") // _id is required for CouchDB
 	public String getKeyJson() {
 		return key.asJsonId();
 	}

@@ -173,6 +173,17 @@ public class EAToolWindowCoordinator extends WindowCoordinator {
         
     }
 
+    
+	/**
+	 * Updates the window coordinator to use a new repository. Note that
+	 * any and all existing windows are closed.
+	 * @param repository
+	 */
+	public void setRepository(Repository repository) {
+		removeAll();
+		rep = repository;
+	}
+
 //            addFrame(new MetaModelExplorerFrame(m_repository.getMetaModel()), "MetaModelExplorer");
 //            addFrame(new ModelExplorer(m_repository.getModel(), m_repository.getMetaModel()),"ModelExplorer");
 //            addFrame(new MetaModelViewer(m_repository.getMetaModel()), "MetaModelViewer");

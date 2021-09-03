@@ -30,10 +30,10 @@ import alvahouse.eatool.util.UUID;
  */
 public interface ModelPersistence {
 
-	/**
-	 * Clears down the model.
-	 */
-	public void dispose();
+//	/**
+//	 * Clears down the model.
+//	 */
+//	public void dispose() throws Exception;
 
 	/**
 	 * Looks up an entity by UUID.
@@ -41,46 +41,49 @@ public interface ModelPersistence {
 	 * @param uuid is the key of the entity to get
 	 * @return the corresponding entity, or null if not in the model
 	 */
-	public EntityDto getEntity(UUID uuid);
+	public EntityDto getEntity(UUID uuid) throws Exception;
 
 	/**
 	 * adds a new entity to the collection.
 	 * 
 	 * @param e is the entity to add.
+	 * @return the version of the newly added entity
 	 * @throws IllegalStateException if the entity already exists in the model.
 	 */
-	public void addEntity(EntityDto e) throws Exception;
+	public String addEntity(EntityDto e) throws Exception;
 
 	/**
 	 * Updates and existing entity in the model.
 	 * 
 	 * @param e is the entity to update.
+	 * @return the new version of the updated entity.
 	 * @throws IllegalStateException if the entity already exists in the model.
 	 */
-	public void updateEntity(EntityDto e) throws Exception;
+	public String updateEntity(EntityDto e) throws Exception;
 
 	/**
 	 * Deletes an entity keyed by UUID.
 	 * 
 	 * @param uuid is the key of the entity to delete.
+	 * @param version is the revision of the entity to delete.
 	 * @return the deleted Entity
 	 * @throws IllegalStateException if deleting an entity not in the model.
 	 */
-	public EntityDto deleteEntity(UUID uuid) throws Exception;
+	public EntityDto deleteEntity(UUID uuid, String version) throws Exception;
 
 	/**
 	 * Gets an iterator that iterates though all the entites.
 	 * 
 	 * @return an iterator for the entities.
 	 */
-	public Collection<EntityDto> getEntities();
+	public Collection<EntityDto> getEntities() throws Exception;
 
 	/**
 	 * DEBUG only
 	 * 
 	 * @return
 	 */
-	public int getEntityCount();
+	public int getEntityCount() throws Exception;
 
 	/**
 	 * Gets a list of entities corresponding to a given meta-entity.
@@ -88,7 +91,7 @@ public interface ModelPersistence {
 	 * @param meta is the meta-entity we want the entities for.
 	 * @return a list of all the entities of the given type.
 	 */
-	public List<EntityDto> getEntitiesOfType(UUID metaEntityKey);
+	public List<EntityDto> getEntitiesOfType(UUID metaEntityKey) throws Exception;
 
 	/**
 	 * Gets the relationship with the given key.
@@ -96,47 +99,50 @@ public interface ModelPersistence {
 	 * @param uuid is the key for the relationship.
 	 * @return the relationship corresponding to uuid or null if not in the model.
 	 */
-	public RelationshipDto getRelationship(UUID uuid);
+	public RelationshipDto getRelationship(UUID uuid) throws Exception;
 
 	/**
 	 * adds a new relationship to the collection
 	 * 
 	 * @param r is the relationship to add
+	 * @return the revision of the newly added relationship.
 	 * @throws IllegalStateException if the relationship is already in the model.
 	 */
-	public void addRelationship(RelationshipDto r) throws Exception;
+	public String addRelationship(RelationshipDto r) throws Exception;
 
 	/**
 	 * updates an existing relationship.
 	 * 
 	 * @param r is the relationship to update
+	 * @return the new revision of the relationship.
 	 * @throws IllegalStateException if the relationship is already in the model.
 	 */
-	public void updateRelationship(RelationshipDto r) throws Exception;
+	public String updateRelationship(RelationshipDto r) throws Exception;
 
 	/**
 	 * Deletes the relationship for a given key.
 	 * 
 	 * @param uuid is the key for the relationship to delete
+	 * @param version is the revision of the relationship to delete.
 	 * @return the deleted relationship.
 	 * @throws IllegalStateException if the key does not correspond to a
 	 *                               relationship in the model.
 	 */
-	public RelationshipDto deleteRelationship(UUID uuid) throws Exception;
+	public RelationshipDto deleteRelationship(UUID uuid, String version) throws Exception;
 
 	/**
 	 * Gets an iterator that iterates through all the relationships in the model.
 	 * 
 	 * @return an iterator.
 	 */
-	public Collection<RelationshipDto> getRelationships();
+	public Collection<RelationshipDto> getRelationships() throws Exception;
 
 	/**
 	 * Gets the number of relationships in the model.
 	 * 
 	 * @return the count of relationships.
 	 */
-	public int getRelationshipCount();
+	public int getRelationshipCount() throws Exception;
 
 	/**
 	 * Gets a list containing all the relationships in the model of a given type.
@@ -144,7 +150,7 @@ public interface ModelPersistence {
 	 * @param meta is the type of relationship required.
 	 * @return a list of all the corresponding relationships.
 	 */
-	public List<RelationshipDto> getRelationshipsOfType(UUID metaRelationshipKey);
+	public List<RelationshipDto> getRelationshipsOfType(UUID metaRelationshipKey) throws Exception;
 
 	/**
 	 * This gets the set of relationships that are connected to this entity in the
@@ -186,6 +192,6 @@ public interface ModelPersistence {
 	// Unique key for the whole model.
 	public UUID getKey();
 
-	public void setKey(UUID uuid);
+	public void setKey(UUID uuid) throws Exception;
 
 }

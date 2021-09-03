@@ -93,7 +93,9 @@ public class ImportMappings {
         }
 		String user = System.getProperty("user.name");
 		mapping.getVersion().createBy(user);
-        persistence.addMapping(mapping.toDto());
+        String version = persistence.addMapping(mapping.toDto());
+        mapping.getVersion().update(version);
+
         fireMappingAdded(mapping);
     }
 
@@ -105,7 +107,8 @@ public class ImportMappings {
         if(mapping == null){
             throw new NullPointerException("Can't add null mapping to ImportMappings");
         }
-        persistence.addMapping(mapping.toDto());
+        String version = persistence.addMapping(mapping.toDto());
+        mapping.getVersion().update(version);
     }
 
     public ImportMapping lookupMapping(UUID key) throws Exception {
@@ -122,7 +125,8 @@ public class ImportMappings {
         }
 		String user = System.getProperty("user.name");
 		mapping.getVersion().modifyBy(user);
-        persistence.updateMapping(mapping.toDto());
+		String version = persistence.updateMapping(mapping.toDto());
+        mapping.getVersion().update(version);
         fireMappingChanged(mapping);
     }
 
@@ -131,7 +135,7 @@ public class ImportMappings {
      * @param mapping is the ImportMapping to remove.
      */
     public void remove(ImportMapping mapping) throws Exception {
-        persistence.deleteMapping(mapping.getKey());
+        persistence.deleteMapping(mapping.getKey(), mapping.getVersion().getVersion());
         fireMappingDeleted(mapping);
     }
 

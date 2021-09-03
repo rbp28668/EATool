@@ -14,8 +14,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import alvahouse.eatool.util.UUID;
-
 /**
  * @author bruce_porteous
  *
@@ -28,8 +26,8 @@ public class VersionDto {
     private String createUser;
     private Date modifyDate;
     private String modifyUser;
-    private UUID version;
-    private UUID originalVersion;
+    private String version;
+    private String originalVersion;
 
 	/**
 	 * @return the createDate
@@ -116,61 +114,56 @@ public class VersionDto {
 	public void setModifyUser(String modifyUser) {
 		this.modifyUser = modifyUser;
 	}
-	/**
-	 * @return the version
-	 */
-	@JsonIgnore
-	public UUID getVersion() {
-		return version;
-	}
-	/**
-	 * @param version the version to set
-	 */
-	public void setVersion(UUID version) {
-		this.version = version;
-	}
-	/**
-	 * @return the originalVersion
-	 */
-	@JsonIgnore
-	public UUID getOriginalVersion() {
-		return originalVersion;
-	}
-	/**
-	 * @param originalVersion the originalVersion to set
-	 */
-	public void setOriginalVersion(UUID originalVersion) {
-		this.originalVersion = originalVersion;
-	}
-
+	
 	/**
 	 * @return the version
 	 */
 	@XmlAttribute(name="current", required = true)
 	@JsonProperty(value = "current")
-	public String getVersionJson() {
-		return version.asJsonId();
+	public String getVersion() {
+		return version;
 	}
 	/**
 	 * @param version the version to set
 	 */
-	public void setVersionJson(String version) {
-		this.version = UUID.fromJsonId(version);
+	public void setVersion(String version) {
+		this.version = version;
 	}
+	
 	/**
 	 * @return the originalVersion
 	 */
 	@XmlAttribute(name="previous", required = true)
 	@JsonProperty(value = "previous")
-	public String getOriginalVersionJson() {
-		return originalVersion.asJsonId();
+	public String getOriginalVersion() {
+		return originalVersion;
 	}
 	/**
 	 * @param originalVersion the originalVersion to set
 	 */
-	public void setOriginalVersionJson(String originalVersion) {
-		this.originalVersion = UUID.fromJsonId(originalVersion);
+	public void setOriginalVersion(String originalVersion) {
+		this.originalVersion = originalVersion;
+	}
+	
+	/**
+	 * @param string
+	 */
+	public String update(String newVersion) {
+		this.originalVersion = version;
+		this.version = newVersion;
+		return newVersion;
+	}
+	
+	/**
+	 * Mainly intended for in memory stores we we want to make sure that the
+	 * version that's being updated is valid.
+	 * @param other
+	 * @return
+	 */
+	public boolean sameVersionAs(VersionDto other) {
+		if(this.version == null && other.version == null) return true;
+		if(this.version == null || other.version == null) return false;
+		return this.version.equals(other.version);
 	}
 
-    
 }

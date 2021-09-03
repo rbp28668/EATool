@@ -11,6 +11,7 @@ import java.util.Map;
 
 import alvahouse.eatool.repository.dto.graphical.DiagramTypeDto;
 import alvahouse.eatool.repository.persist.DiagramTypePersistence;
+import alvahouse.eatool.repository.persist.StaleDataException;
 import alvahouse.eatool.util.UUID;
 
 /**
@@ -42,33 +43,46 @@ public class DiagramTypePersistenceMemory implements DiagramTypePersistence {
 	 * @see alvahouse.eatool.repository.persist.DiagramTypePersistence#addDiagramType(alvahouse.eatool.repository.graphical.DiagramType)
 	 */
 	@Override
-	public void addDiagramType(DiagramTypeDto dt) throws Exception {
+	public String addDiagramType(DiagramTypeDto dt) throws Exception {
 		UUID key = dt.getKey();
 		if(types.containsKey(key)) {
 			throw new IllegalArgumentException("Repository already contains a diagram type with key " + key);
 		}
+		String version = dt.getVersion().update(new UUID().asJsonId());
 		types.put(key, dt);
+		return version;
 	}
 
 	/* (non-Javadoc)
 	 * @see alvahouse.eatool.repository.persist.DiagramTypePersistence#updateDiagramType(alvahouse.eatool.repository.graphical.DiagramType)
 	 */
 	@Override
-	public void updateDiagramType(DiagramTypeDto dt) throws Exception {
+	public String updateDiagramType(DiagramTypeDto dt) throws Exception {
 		UUID key = dt.getKey();
-		if(!types.containsKey(key)) {
+		DiagramTypeDto original = types.get(key);
+		if (original == null) {
 			throw new IllegalArgumentException("Repository does not contain a diagram type with key " + key);
 		}
+		if(!dt.getVersion().sameVersionAs(original.getVersion())) {
+			throw new StaleDataException("Unable to update diagram type due to stale data");
+		}
+		
+		String version = dt.getVersion().update(new UUID().asJsonId());
 		types.put(key, dt);
+		return version;
 	}
 
 	/* (non-Javadoc)
 	 * @see alvahouse.eatool.repository.persist.DiagramTypePersistence#delete(alvahouse.eatool.util.UUID)
 	 */
 	@Override
-	public void delete(UUID key) throws Exception {
-		if(!types.containsKey(key)) {
+	public void delete(UUID key, String version) throws Exception {
+		DiagramTypeDto dt = types.get(key);
+		if(dt == null) {
 			throw new IllegalArgumentException("Repository does not contain a diagram type with key " + key);
+		}
+		if(!dt.getVersion().getVersion().equals(version)) {
+			throw new StaleDataException("Unable to delete diagram type due to stale data");
 		}
 		types.remove(key);
 	}

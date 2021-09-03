@@ -162,7 +162,7 @@ class TestImages {
 		images.addImage(image3);
 		assertEquals(3, images.getImageCount());
 
-		images.reset();
+		images.deleteContents();
 		
 		assertEquals(0, images.getImageCount());
 

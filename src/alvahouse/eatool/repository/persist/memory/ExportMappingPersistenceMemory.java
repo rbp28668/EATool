@@ -10,6 +10,7 @@ import java.util.Map;
 
 import alvahouse.eatool.repository.dto.mapping.ExportMappingDto;
 import alvahouse.eatool.repository.persist.ExportMappingPersistence;
+import alvahouse.eatool.repository.persist.StaleDataException;
 import alvahouse.eatool.util.UUID;
 
 /**
@@ -40,33 +41,46 @@ public class ExportMappingPersistenceMemory implements ExportMappingPersistence 
 	 * @see alvahouse.eatool.repository.persist.ExportMappingPersistence#addMapping(alvahouse.eatool.repository.mapping.ExportMapping)
 	 */
 	@Override
-	public void addMapping(ExportMappingDto mapping) throws Exception {
+	public String addMapping(ExportMappingDto mapping) throws Exception {
 		UUID key = mapping.getKey();
 		if(mappings.containsKey(key)) {
 			throw new IllegalArgumentException("Cannot add export mapping with key " + key + " as mapping already exists");
 		}
+		String version = mapping.getVersion().update(new UUID().asJsonId());
 		mappings.put(key, mapping);
+		return version;
 	}
 
 	/* (non-Javadoc)
 	 * @see alvahouse.eatool.repository.persist.ExportMappingPersistence#updateMapping(alvahouse.eatool.repository.mapping.ExportMapping)
 	 */
 	@Override
-	public void updateMapping(ExportMappingDto mapping) throws Exception {
+	public String updateMapping(ExportMappingDto mapping) throws Exception {
 		UUID key = mapping.getKey();
-		if(!mappings.containsKey(key)) {
+		ExportMappingDto original = mappings.get(key);
+		if (original == null) {
 			throw new IllegalArgumentException("Cannot update export mapping - key " + key + " not known to the repository");
 		}
+		if(!mapping.getVersion().sameVersionAs(original.getVersion())) {
+			throw new StaleDataException("Unable to update entity due to stale data");
+		}
+		
+		String version = mapping.getVersion().update(new UUID().asJsonId());
 		mappings.put(key, mapping);
+		return version;
 	}
 
 	/* (non-Javadoc)
 	 * @see alvahouse.eatool.repository.persist.ExportMappingPersistence#deleteMapping(alvahouse.eatool.util.UUID)
 	 */
 	@Override
-	public void deleteMapping(UUID key) throws Exception{
-		if(!mappings.containsKey(key)) {
+	public void deleteMapping(UUID key, String version) throws Exception{
+		ExportMappingDto mapping = mappings.get(key);
+		if (mapping == null) {
 			throw new IllegalArgumentException("Cannot delete export mapping - key " + key + " not known to the repository");
+		}
+		if(!mapping.getVersion().getVersion().equals(version)) {
+			throw new StaleDataException("Unable to delete entity due to stale data");
 		}
 		mappings.remove(key);
 	}

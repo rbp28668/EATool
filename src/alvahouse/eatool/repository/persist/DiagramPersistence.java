@@ -42,18 +42,21 @@ public interface DiagramPersistence {
 
 	/**
 	 * @param diagram
+	 * @return the revision number of the new record.
 	 */
-	public void addDiagram(DiagramDto diagram) throws Exception;
+	public String addDiagram(DiagramDto diagram) throws Exception;
 
 	/**
 	 * @param diagram
+	 * @return the revision number of the updated record.
 	 */
-	public void updateDiagram(DiagramDto diagram) throws Exception;
+	public String updateDiagram(DiagramDto diagram) throws Exception;
 
 	/**
-	 * @param key
+	 * @param key identifies the diagram to delete.
+	 * @param version is the revision number of the diagram to delete.
 	 */
-	public void deleteDiagram(UUID key) throws Exception;
+	public void deleteDiagram(UUID key, String version) throws Exception;
 
 	/**
 	 * 

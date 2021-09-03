@@ -18,24 +18,27 @@ public class EntityDeleteProxy implements IDeleteDependenciesProxy {
 	private final UUID targetKey;
 	private final String name;
 	private final Model model;
+	private final String version;
 
 	/** Creates a new proxy for deleting dependent entities
      * @param model TODO
      * @param me is the dependent entity
      */        
-    public EntityDeleteProxy(Model model, UUID targetKey, String name) {
+    public EntityDeleteProxy(Model model, UUID targetKey, String name, String version) {
         this.model = model;
 		this.targetKey = targetKey;
 		this.name = name;
+		this.version = version;
     }
     
-    public EntityDeleteProxy(Model model, DeleteProxyDto dao) {
-    	if(!NAME.equals(dao.getItemType())){
-    		throw new IllegalArgumentException("Invalid Delete proxy, expected " + NAME + " was " + dao.getItemType());
+    public EntityDeleteProxy(Model model, DeleteProxyDto dto) {
+    	if(!NAME.equals(dto.getItemType())){
+    		throw new IllegalArgumentException("Invalid Delete proxy, expected " + NAME + " was " + dto.getItemType());
     	}
     	this.model = model;
-    	this.targetKey = dao.getItemKey();
-    	this.name = dao.getName();
+    	this.targetKey = dto.getItemKey();
+    	this.name = dto.getName();
+    	this.version = dto.getVersion();
     }
     
     /** gets the name of the dependent  entity
@@ -48,7 +51,7 @@ public class EntityDeleteProxy implements IDeleteDependenciesProxy {
     /** deletes the dependent entity
      */
     public void delete() throws Exception {
-        this.model.deleteEntity(targetKey);
+        this.model.deleteEntity(targetKey, version);
     }
     
     /** gets the dependent entity

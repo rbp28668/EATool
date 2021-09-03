@@ -105,8 +105,11 @@ public class SearchEngine implements ModelChangeListener{
 		doc.add(Field.Keyword("metauuid",entity.getMeta().getKey().toString()));
 		StringBuffer all = new StringBuffer();
 		for(Property property : entity.getProperties()){
-			doc.add(Field.UnStored(property.getMeta().getName(), property.getValue()));
-			all.append(property.getValue());
+			String value = property.getValue();
+			if(value != null) {
+				doc.add(Field.UnStored(property.getMeta().getName(), value));
+				all.append(property.getValue());
+			}
 		}
 		doc.add(Field.UnStored("all",all.toString()));
 		

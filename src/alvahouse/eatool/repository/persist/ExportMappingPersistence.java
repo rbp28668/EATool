@@ -26,21 +26,24 @@ public interface ExportMappingPersistence {
 	 * Adds an export mapping to the repository.  The mapping
 	 * as identified by its key, should not exist in the repository.
 	 * @param mapping is the mapping to add.
+	 * @return the revision number of the new mapping.
 	 */
-	void addMapping(ExportMappingDto mapping) throws Exception;
+	String addMapping(ExportMappingDto mapping) throws Exception;
 
 	/**
 	 * Updates an existing export mapping in the repository.  The mapping
 	 * as identified by its key, must exist in the repository.
 	 * @param mapping is the mapping to update.
+	 * @return the revision number of the updated mapping.
 	 */
-	void updateMapping(ExportMappingDto mapping) throws Exception;
+	String updateMapping(ExportMappingDto mapping) throws Exception;
 
 	/**
 	 * Deletes the export mapping corresponding to the given key.
 	 * @param key is the key of the mapping to delete.
+	 * @param version is the revision number of the record to delete.
 	 */
-	void deleteMapping(UUID key) throws Exception;
+	void deleteMapping(UUID key, String version) throws Exception;
 
 	/**
 	 * Looks up an export mapping by key

@@ -49,7 +49,8 @@ public class Images {
         }
  		String user = System.getProperty("user.name");
 		image.getVersion().createBy(user);
-		persistence.addImage(image.toDto());
+		String version = persistence.addImage(image.toDto());
+		image.getVersion().update(version);
         fireImageAdded(image);
     }
     
@@ -61,7 +62,8 @@ public class Images {
         if(image == null){
             throw new NullPointerException("Can't add null Image");
         }
-		persistence.addImage(image.toDto());
+        String version = persistence.addImage(image.toDto());
+		image.getVersion().update(version);
     }
 
     /**
@@ -71,7 +73,8 @@ public class Images {
     public void updateImage(Image image) throws Exception {
  		String user = System.getProperty("user.name");
 		image.getVersion().modifyBy(user);
-		persistence.updateImage(image.toDto());
+		String version = persistence.updateImage(image.toDto());
+		image.getVersion().update(version);
         fireImageChanged(image);
     }
 
@@ -80,7 +83,7 @@ public class Images {
      * @param image is the image to remove.
      */
     public void removeImage(Image image) throws Exception{
-        persistence.deleteImage(image.getKey());
+        persistence.deleteImage(image.getKey(), image.getVersion().getVersion());
         fireImageRemoved(image);
     }
     
@@ -109,7 +112,7 @@ public class Images {
     /**
      * Removes all images from the collection. 
      */
-    public void reset() throws Exception{
+    public void deleteContents() throws Exception{
         persistence.dispose();
     }
     

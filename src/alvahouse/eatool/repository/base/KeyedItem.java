@@ -20,6 +20,6 @@ public interface KeyedItem {
     /** sets the key for this repository item
      * @param uuid is the key for the item
      */
-    public void setKey(UUID uuid);
+    public void setKey(UUID uuid) throws Exception;
 
 }

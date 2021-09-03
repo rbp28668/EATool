@@ -31,30 +31,31 @@ public interface ImagePersistence {
 	 * adds a new image to the collection.
 	 * 
 	 * @param s is the image to add.
+	 * @return the revision number of the new image record.
 	 * @throws IllegalStateException if the image already exists in the model.
 	 */
-	public void addImage(ImageDto image) throws Exception;
+	public String addImage(ImageDto image) throws Exception;
 
 	/**
 	 * Updates and existing image in the model.
 	 * 
 	 * @param s is the image to update.
+	 * @return the new revision number of the updated record.
 	 * @throws IllegalStateException if the image already exists in the model.
 	 */
-	public void updateImage(ImageDto image) throws Exception;
+	public String updateImage(ImageDto image) throws Exception;
 
 	/**
 	 * Deletes an image keyed by UUID.
 	 * 
 	 * @param key is the key of the image to delete.
+	 * @param version is the revision number of the record to delete.
 	 * @throws IllegalStateException if deleting a image not in the model.
 	 */
-	public void deleteImage(UUID key) throws Exception;
+	public void deleteImage(UUID key, String version) throws Exception;
 
 	/**
-	 * Gets an iterator that iterates though all the entites.
-	 * 
-	 * @return an iterator for the entities.
+	 * Get all the images.
 	 */
 	public Collection<ImageDto> getImages() throws Exception;
 

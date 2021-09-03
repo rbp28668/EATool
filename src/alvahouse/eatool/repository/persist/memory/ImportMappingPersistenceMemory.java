@@ -10,6 +10,7 @@ import java.util.Map;
 
 import alvahouse.eatool.repository.dto.mapping.ImportMappingDto;
 import alvahouse.eatool.repository.persist.ImportMappingPersistence;
+import alvahouse.eatool.repository.persist.StaleDataException;
 import alvahouse.eatool.util.UUID;
 
 /**
@@ -53,34 +54,49 @@ public class ImportMappingPersistenceMemory implements ImportMappingPersistence 
 	 * @see alvahouse.eatool.repository.persist.ImportMappingPersistence#addMapping(alvahouse.eatool.repository.mapping.ImportMapping)
 	 */
 	@Override
-	public void addMapping(ImportMappingDto mapping) throws Exception {
+	public String addMapping(ImportMappingDto mapping) throws Exception {
 		UUID key = mapping.getKey();
 		if(mappings.containsKey(key)) {
 			throw new IllegalArgumentException("Cannot add import mapping with key " + key + " as mapping already exists");
 		}
+		String version = mapping.getVersion().update(new UUID().asJsonId());
 		mappings.put(key, mapping);
+		return version;
 	}
 
 	/* (non-Javadoc)
 	 * @see alvahouse.eatool.repository.persist.ImportMappingPersistence#updateMapping(alvahouse.eatool.repository.mapping.ImportMapping)
 	 */
 	@Override
-	public void updateMapping(ImportMappingDto mapping) throws Exception {
+	public String updateMapping(ImportMappingDto mapping) throws Exception {
 		UUID key = mapping.getKey();
-		if(!mappings.containsKey(key)) {
+		ImportMappingDto original = mappings.get(key);
+		if(original == null) {
 			throw new IllegalArgumentException("Cannot update import mapping - key " + key + " not known to the repository");
 		}
+		
+		if(!mapping.getVersion().sameVersionAs(original.getVersion())) {
+			throw new StaleDataException("Unable to update import mapping due to stale data");
+		}
+		String version = mapping.getVersion().update(new UUID().asJsonId());
 		mappings.put(key, mapping);
+		return version;
 	}
 
 	/* (non-Javadoc)
 	 * @see alvahouse.eatool.repository.persist.ImportMappingPersistence#deleteMapping(alvahouse.eatool.util.UUID)
 	 */
 	@Override
-	public void deleteMapping(UUID key) throws Exception{
-		if(!mappings.containsKey(key)) {
+	public void deleteMapping(UUID key, String version) throws Exception{
+		
+		ImportMappingDto mapping = mappings.get(key);
+		if(mapping == null) {
 			throw new IllegalArgumentException("Cannot delete import mapping - key " + key + " not known to the repository");
 		}
+		if(!mapping.getVersion().getVersion().equals(version)) {
+			throw new StaleDataException("Unable to delete import mapping due to stale data");
+		}
+
 		mappings.remove(key);
 	}
 

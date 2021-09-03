@@ -400,7 +400,7 @@ public class TabularEntityEditor extends JInternalFrame {
                 RowState row = (RowState)iter.next();
                 Entity e = row.getEntity();
                 if(e != null){
-                    model.deleteEntity(e.getKey());
+                    model.deleteEntity(e.getKey(), e.getVersion().getVersion());
                 }
             }
         }

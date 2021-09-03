@@ -49,6 +49,11 @@ public interface Repository extends KeyedItem {
     public final static int PAGES = 512;
     public final static int IMAGES = 1024;
 
+    
+    public void initialiseNew();
+    public void bindToExisting();
+
+
     /** loads the repository from an XML stream obtained from the given uri.
      * @param uri is the resource identifier that determines where to read
      * the input data from.

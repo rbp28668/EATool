@@ -100,7 +100,7 @@ class TestMetaModelDao {
 		addProperties(dao);
 		
 		String asJson = Serialise.marshalToJSON(dao);
-		//System.out.println(asJson);
+		System.out.println(asJson);
 		MetaEntityDto copy = (MetaEntityDto) Serialise.unmarshalFromJson(asJson, MetaEntityDto.class);
 
 		assertThat( copy.getProperties(), hasSize(2));
@@ -180,7 +180,7 @@ class TestMetaModelDao {
 		addProperties(dao.getFinish());
 		
 		String asJson = Serialise.marshalToJSON(dao);
-		//System.out.println(asJson);
+		System.out.println(asJson);
 		MetaRelationshipDto copy = (MetaRelationshipDto) Serialise.unmarshalFromJson(asJson, MetaRelationshipDto.class);
 
 		assertThat( copy.getProperties(), hasSize(2));
@@ -331,10 +331,10 @@ class TestMetaModelDao {
 		VersionDto version = new VersionDto();
 		version.setCreateDate(new Date());
 		version.setCreateUser("fred");
-		version.setOriginalVersion(new UUID());
+		version.setOriginalVersion(new UUID().asJsonId());
 		version.setModifyDate(new Date());
 		version.setModifyUser("jim");
-		version.setVersion(new UUID());
+		version.setVersion(new UUID().asJsonId());
 		return version;
 	}
 
