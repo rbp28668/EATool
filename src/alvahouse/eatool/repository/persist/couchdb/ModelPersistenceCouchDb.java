@@ -3,25 +3,17 @@
  */
 package alvahouse.eatool.repository.persist.couchdb;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import alvahouse.eatool.repository.dto.DeleteDependenciesListDto;
 import alvahouse.eatool.repository.dto.DeleteProxyDto;
 import alvahouse.eatool.repository.dto.Serialise;
-import alvahouse.eatool.repository.dto.metamodel.MetaEntityDto;
-import alvahouse.eatool.repository.dto.metamodel.MetaRelationshipDto;
 import alvahouse.eatool.repository.dto.model.EntityDto;
 import alvahouse.eatool.repository.dto.model.RelationshipDto;
 import alvahouse.eatool.repository.persist.ModelPersistence;
@@ -128,67 +120,13 @@ public class ModelPersistenceCouchDb implements ModelPersistence {
 		
 	}
 
-	/**
-	 * Gets Entity DTOs from the result of querying a view.
-	 * @param json
-	 * @return
-	 * @throws IOException
-	 * @throws JacksonException
-	 * @throws JsonProcessingException
-	 */
-	private List<EntityDto> getEntitiesFromView(String json)
-			throws IOException, JacksonException, JsonProcessingException {
-		JsonNode root = Serialise.parseToJsonTree(json);
-		
-		int rowCount = root.get("total_rows").asInt();
-		List<EntityDto> dtos = new ArrayList<>(rowCount);
-
-		JsonNode rows = root.get("rows");
-		assert(rows.isArray());
-		for(JsonNode row : rows) {
-			JsonNode doc = row.get("doc");
-			EntityDto dto = Serialise.unmarshalFromJson(doc, EntityDto.class);
-			dto.getVersion().update(dto.getRev());
-			dtos.add(dto);
-		}
-		return dtos;
-	}
-
-	/**
-	 * Gets Relationship DTOs from the result of querying a view.
-	 * @param json
-	 * @return
-	 * @throws IOException
-	 * @throws JacksonException
-	 * @throws JsonProcessingException
-	 */
-	private List<RelationshipDto> getRelationshipsFromView(String json)
-			throws IOException, JacksonException, JsonProcessingException {
-		JsonNode root = Serialise.parseToJsonTree(json);
-		
-		int rowCount = root.get("total_rows").asInt();
-		List<RelationshipDto> dtos = new ArrayList<>(rowCount);
-
-		JsonNode rows = root.get("rows");
-		assert(rows.isArray());
-		for(JsonNode row : rows) {
-			JsonNode doc = row.get("doc");
-			RelationshipDto dto = Serialise.unmarshalFromJson(doc, RelationshipDto.class);
-			dto.getVersion().update(dto.getRev());
-			dtos.add(dto);
-		}
-		return dtos;
-	}
 
 	/* (non-Javadoc)
 	 * @see alvahouse.eatool.repository.persist.ModelPersistence#getEntity(alvahouse.eatool.util.UUID)
 	 */
 	@Override
 	public EntityDto getEntity(UUID uuid) throws Exception{
-		String json = couch.database().getDocument(database, uuid.asJsonId());
-		EntityDto dto = Serialise.unmarshalFromJson(json, EntityDto.class);
-		dto.getVersion().update(dto.getRev());
-		return dto;
+		return Helpers.get(couch, database, uuid, EntityDto.class);
 	}
 
 	/* (non-Javadoc)
@@ -196,10 +134,7 @@ public class ModelPersistenceCouchDb implements ModelPersistence {
 	 */
 	@Override
 	public String addEntity(EntityDto e) throws Exception {
-		String document = Serialise.marshalToJSON(e);
-		CouchDB.PutDocumentResponse response = couch.database().putDocument(database, e.getKeyJson(), document);
-		String revision = response.rev;
-		return revision;
+		return Helpers.add(couch, database, e);
 	}
 
 	/* (non-Javadoc)
@@ -207,10 +142,7 @@ public class ModelPersistenceCouchDb implements ModelPersistence {
 	 */
 	@Override
 	public String updateEntity(EntityDto e) throws Exception {
-		e.setRev(e.getVersion().getVersion());
-		String document = Serialise.marshalToJSON(e);
-		CouchDB.PutDocumentResponse response = couch.database().putDocument(database, e.getKeyJson(), document);
-		return response.rev;
+		return Helpers.add(couch, database, e);
 	}
 
 	/* (non-Javadoc)
@@ -218,10 +150,7 @@ public class ModelPersistenceCouchDb implements ModelPersistence {
 	 */
 	@Override
 	public EntityDto deleteEntity(UUID uuid, String version) throws Exception {
-		String json = couch.database().getDocument(database, uuid.asJsonId());
-		EntityDto dto = Serialise.unmarshalFromJson(json, EntityDto.class);
-		couch.database().deleteDocument(database, uuid.asJsonId(), version);
-		return dto;
+		return Helpers.delete(couch, database, uuid, version, EntityDto.class);
 	}
 
 	/* (non-Javadoc)
@@ -230,7 +159,7 @@ public class ModelPersistenceCouchDb implements ModelPersistence {
 	@Override
 	public Collection<EntityDto> getEntities() throws Exception{
 		String json = couch.database().queryView(database,"entities", "all", CouchDB.Query.INCLUDE_DOCS);
-		return getEntitiesFromView(json);
+		return Helpers.getViewCollectionFrom(json, EntityDto.class);
 	}
 
 
@@ -251,10 +180,10 @@ public class ModelPersistenceCouchDb implements ModelPersistence {
 	public List<EntityDto> getEntitiesOfType(UUID metaEntityKey) throws Exception{
 		String json = couch.database().queryView(database,"entities", "byMetaEntity",
 				new CouchDB.Query()
-				.add("key", metaEntityKey.asJsonId())
+				.addKey(metaEntityKey.asJsonId())
 				.add(CouchDB.Query.INCLUDE_DOCS)
 				.toString());
-		return getEntitiesFromView(json);
+		return Helpers.getViewCollectionFrom(json, EntityDto.class);
 	}
 
 	/* (non-Javadoc)
@@ -262,10 +191,7 @@ public class ModelPersistenceCouchDb implements ModelPersistence {
 	 */
 	@Override
 	public RelationshipDto getRelationship(UUID uuid) throws Exception{
-		String json = couch.database().getDocument(database, uuid.asJsonId());
-		RelationshipDto dto = Serialise.unmarshalFromJson(json, RelationshipDto.class);
-		dto.getVersion().update(dto.getRev());
-		return dto;
+		return Helpers.get(couch, database, uuid, RelationshipDto.class);
 	}
 
 	/* (non-Javadoc)
@@ -273,9 +199,7 @@ public class ModelPersistenceCouchDb implements ModelPersistence {
 	 */
 	@Override
 	public String addRelationship(RelationshipDto r) throws Exception {
-		String document = Serialise.marshalToJSON(r);
-		CouchDB.PutDocumentResponse response = couch.database().putDocument(database, r.getKeyJson(), document);
-		return response.rev;
+		return Helpers.add(couch, database, r);
 	}
 
 	/* (non-Javadoc)
@@ -283,10 +207,7 @@ public class ModelPersistenceCouchDb implements ModelPersistence {
 	 */
 	@Override
 	public String updateRelationship(RelationshipDto r) throws Exception {
-		r.setRev(r.getVersion().getVersion());
-		String document = Serialise.marshalToJSON(r);
-		CouchDB.PutDocumentResponse response = couch.database().putDocument(database, r.getKeyJson(), document);
-		return response.rev;
+		return Helpers.update(couch, database, r);
 	}
 
 	/* (non-Javadoc)
@@ -294,10 +215,7 @@ public class ModelPersistenceCouchDb implements ModelPersistence {
 	 */
 	@Override
 	public RelationshipDto deleteRelationship(UUID uuid, String version) throws Exception {
-		String json = couch.database().getDocument(database, uuid.asJsonId());
-		RelationshipDto dto = Serialise.unmarshalFromJson(json, RelationshipDto.class);
-		couch.database().deleteDocument(database, uuid.asJsonId(), version);
-		return dto;
+		return Helpers.delete(couch, database, uuid, version, RelationshipDto.class);
 	}
 
 	/* (non-Javadoc)
@@ -306,7 +224,7 @@ public class ModelPersistenceCouchDb implements ModelPersistence {
 	@Override
 	public Collection<RelationshipDto> getRelationships() throws Exception {
 		String json = couch.database().queryView(database,"relationships", "all", CouchDB.Query.INCLUDE_DOCS);
-		return getRelationshipsFromView(json);
+		return Helpers.getViewCollectionFrom(json, RelationshipDto.class);
 	}
 
 	/* (non-Javadoc)
@@ -325,10 +243,10 @@ public class ModelPersistenceCouchDb implements ModelPersistence {
 	public List<RelationshipDto> getRelationshipsOfType(UUID metaRelationshipKey) throws Exception {
 		String json = couch.database().queryView(database,"relationships", "byMetaRelationship",
 				new CouchDB.Query()
-				.add("key", metaRelationshipKey.asJsonId())
+				.addKey(metaRelationshipKey.asJsonId())
 				.add(CouchDB.Query.INCLUDE_DOCS)
 				.toString());
-		return getRelationshipsFromView(json);
+		return Helpers.getViewCollectionFrom(json, RelationshipDto.class);
 	}
 
 	/* (non-Javadoc)
@@ -338,11 +256,11 @@ public class ModelPersistenceCouchDb implements ModelPersistence {
 	public Set<RelationshipDto> getConnectedRelationships(UUID entityKey) throws Exception {
 		String json = couch.database().queryView(database,"relationships", "byEntity", 
 				new CouchDB.Query()
-				.add("key", entityKey.asJsonId())
+				.addKey(entityKey.asJsonId())
 				.add(CouchDB.Query.INCLUDE_DOCS)
 				.toString());
-		List<RelationshipDto> dtos = getRelationshipsFromView(json);
-		Set<RelationshipDto> unique = new HashSet<>();
+		List<RelationshipDto> dtos = Helpers.getViewCollectionFrom(json, RelationshipDto.class);
+		Set<RelationshipDto> unique = new HashSet<>(dtos.size());
 		unique.addAll(dtos);
 		return unique;
 	}
@@ -354,11 +272,11 @@ public class ModelPersistenceCouchDb implements ModelPersistence {
 	public Set<RelationshipDto> getConnectedRelationshipsOf(UUID entityKey, UUID metaRelationshipKey) throws Exception {
 		String json = couch.database().queryView(database,"relationships", "byEntityAndMetaRelationship", 
 				new CouchDB.Query()
-				.add("key", "[" + entityKey.asJsonId() + "," + metaRelationshipKey.asJsonId() + "]")
+				.addKey(entityKey.asJsonId(),metaRelationshipKey.asJsonId())
 				.add(CouchDB.Query.INCLUDE_DOCS)
 				.toString());
-		List<RelationshipDto> dtos = getRelationshipsFromView(json);
-		Set<RelationshipDto> unique = new HashSet<>();
+		List<RelationshipDto> dtos = Helpers.getViewCollectionFrom(json, RelationshipDto.class);
+		Set<RelationshipDto> unique = new HashSet<>(dtos.size());
 		unique.addAll(dtos);
 		return unique;
 	}

@@ -50,6 +50,7 @@ public class RelationshipDto extends PropertyContainerDto implements VersionedDt
 	 * @return the metaRelationshipKey
 	 */
 	@XmlElement(name="metaKey", required=true)
+	@JsonProperty("metaKey")
 	public String getMetaRelationshipKeyJson() {
 		return metaRelationshipKey.asJsonId();
 	}
