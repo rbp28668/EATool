@@ -89,7 +89,8 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
         e.setModel(this);
 		String user = System.getProperty("user.name");
 		e.getVersion().createBy(user);
-        persistence.addEntity(e.toDao());
+        String version = persistence.addEntity(e.toDao());
+        e.getVersion().update(version);
         fireEntityAdded(e);
         return e;
     }
@@ -101,7 +102,8 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
      */
     public void _add(Entity e) throws Exception {
         e.setModel(this);
-        persistence.addEntity(e.toDao());
+        String version = persistence.addEntity(e.toDao());
+        e.getVersion().update(version);
     }
 
     /** Updates and existing entity in the model.
@@ -113,7 +115,8 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
         e.setModel(this);
 		String user = System.getProperty("user.name");
 		e.getVersion().modifyBy(user);
-        persistence.updateEntity(e.toDao());
+        String version = persistence.updateEntity(e.toDao());
+        e.getVersion().update(version);
         fireEntityChanged(e);
         return e;
     }
@@ -192,7 +195,8 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
         r.setModel(this);
 		String user = System.getProperty("user.name");
 		r.getVersion().createBy(user);
-        persistence.addRelationship(r.toDao());
+        String version = persistence.addRelationship(r.toDao());
+        r.getVersion().update(version);
         fireRelationshipAdded(r);
         return r;
     }
@@ -204,7 +208,8 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
     */
    public void _add(Relationship r) throws Exception {
        r.setModel(this);
-       persistence.addRelationship(r.toDao());
+       String version = persistence.addRelationship(r.toDao());
+       r.getVersion().update(version);
    }
 
     /** updates an existing relationship.
@@ -216,7 +221,8 @@ public class Model extends MetaModelChangeAdapter implements KeyedItem{
         r.setModel(this);
 		String user = System.getProperty("user.name");
 		r.getVersion().modifyBy(user);
-        persistence.updateRelationship(r.toDao());
+        String version = persistence.updateRelationship(r.toDao());
+        r.getVersion().update(version);
         fireRelationshipAdded(r);
         return r;
     }

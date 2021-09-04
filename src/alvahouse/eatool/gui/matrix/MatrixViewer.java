@@ -454,7 +454,7 @@ public class MatrixViewer extends JInternalFrame  implements MatrixTableModelLis
 			Set<Relationship> relationships = e.getConnectedRelationshipsOf(metaRelationship);
 			for(Relationship r : relationships){
 				
-				if( r.start().connectsTo() == e){
+				if( r.start().connectsTo().equals(e)){
 					tableModel.link(e,r.finish().connectsTo());
 				}
 			}

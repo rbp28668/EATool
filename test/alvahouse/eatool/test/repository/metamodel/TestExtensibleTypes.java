@@ -6,7 +6,9 @@ package alvahouse.eatool.test.repository.metamodel;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.samePropertyValuesAs;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static alvahouse.eatool.test.Comparator.objectsEqual;
 
 import java.util.Collection;
@@ -104,10 +106,10 @@ class TestExtensibleTypes {
 	private void setVersionInfo(Version version) {
 		version.setCreateDate(new Date());
 		version.setCreateUser("fred");
-		version.setOriginalVersion(new UUID().asJsonId());
+		version.setOriginalVersion(null);
 		version.setModifyDate(new Date());
 		version.setModifyUser("jim");
-		version.setVersion(new UUID().asJsonId());
+		version.setVersion(null);
 	}
 
 	@Test
@@ -141,11 +143,18 @@ class TestExtensibleTypes {
 		RegexpCheckedType rct = createRegexpType();
 		TimeSeriesType tst = createTimeSeriesType();
 		
+		// Should create with null version
+		assertNull(clt.getVersion().getVersion());
+		assertNull(rct.getVersion().getVersion());
+		assertNull(tst.getVersion().getVersion());
+		
 		types.addType(clt);
 		types.addType(rct);
 		types.addType(tst);
 	
-		assertTrue(objectsEqual(clt,clt));
+		assertNotNull(clt.getVersion().getVersion());
+		assertNotNull(rct.getVersion().getVersion());
+		assertNotNull(tst.getVersion().getVersion());
 
 		
 		types.lookupList(ControlledListType.class).getTypes().forEach( copy -> {

@@ -31,6 +31,8 @@ import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import alvahouse.eatool.repository.dto.Serialise;
 
@@ -360,8 +362,20 @@ public class CouchDB {
 		
 		private List<String> parts = new LinkedList<>();
 		
+		Query addKey(String value) {
+			return add("key",value);
+		}
+		
+		Query addKey(String... values) {
+			return add("key", compoundKey(values));
+		}
+		
 		Query add(String name, String value) {
-			parts.add( name + "=\"" + value + "\""); // Quotes will be escaped to %22
+			if(value.startsWith("[") || value.startsWith("{")) {
+				parts.add( name + "=" + value); // no quotes for object or array key
+			} else {
+				parts.add( name + "=\"" + value + "\""); // Quotes will be escaped to %22
+			}
 			return this;
 		}
 		
@@ -381,6 +395,25 @@ public class CouchDB {
 			return builder.toString();
 		}
 		
+		/**
+		 * Converts an array of string values into a JSON array for use as a compound key.
+		 * @param values
+		 * @return
+		 */
+		private static String compoundKey(String... values ) {
+			StringBuilder builder = new StringBuilder();
+			builder.append('[');
+			for(String value : values) {
+				if(builder.length() > 1) {  // 1 to allow for leading [
+					builder.append(',');
+				}
+				builder.append('"');
+				builder.append(value);
+				builder.append('"');
+			}
+			builder.append(']');
+			return builder.toString();
+		}
 	}
 	
 	/**
@@ -399,28 +432,38 @@ public class CouchDB {
 		public String rev;
 	}
 	
-//	public static void main(String[] args) {
-//
-//		String loggerName = CouchDB.class.getName();
-//		System.out.println(loggerName);
-//	    Logger logger = LoggerFactory.getLogger(loggerName);
-//	    logger.info("Hello World");
-//
-//		
-//		try {
-//			CouchDB couch = new CouchDB();
-//			System.out.println(couch.info());
-//			System.out.println(couch.databases());
+	public static void main(String[] args) {
+
+		String loggerName = CouchDB.class.getName();
+		System.out.println(loggerName);
+	    Logger logger = LoggerFactory.getLogger(loggerName);
+	    logger.info("Hello World");
+
+		
+		try {
+			CouchDB couch = new CouchDB();
+			System.out.println(couch.info());
+			System.out.println(couch.databases());
+			
+			String entityKey = "bsrwZwnVYJ1Yj7E5umCFAd";
+			String metaKey = "j$KchdHBgqjFDNE5uKltHd";
+			String json = couch.database().queryView("test", "relationships", "byEntityAndMetaRelationship", 
+					new CouchDB.Query()
+					.addKey(entityKey, metaKey)
+					.add(CouchDB.Query.INCLUDE_DOCS)
+					.toString());
+			System.out.println(json);
+			
 //			System.out.println(couch.database().exists("playpen"));
 //			System.out.println(couch.database().exists("wombats"));
 //			System.out.println(couch.database().info("playpen"));
 //			System.out.println(couch.database().create("testdb"));
 //			System.out.println(couch.databases());
 //			System.out.println(couch.database().delete("testdb"));
-//		} catch (Exception e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//	}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 }

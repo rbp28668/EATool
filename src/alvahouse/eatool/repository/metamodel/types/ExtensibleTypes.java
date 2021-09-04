@@ -159,7 +159,8 @@ public class ExtensibleTypes {
         if(handler == null){
             throw new IllegalArgumentException("Type " + type.getClass().getCanonicalName() + " is not known");
         }
-        persistence.addType(handler.toDto(type));
+        String version = persistence.addType(handler.toDto(type));
+        type.getVersion().update(version);
     }
 
     /**
@@ -173,7 +174,8 @@ public class ExtensibleTypes {
 		String user = System.getProperty("user.name");
 		type.getVersion().createBy(user);
 
-        persistence.addType(handler.toDto(type));
+        String version = persistence.addType(handler.toDto(type));
+        type.getVersion().update(version);
         fireTypeAdded(type);
     }
 
@@ -189,7 +191,8 @@ public class ExtensibleTypes {
         String user = System.getProperty("user.name");
 		type.getVersion().modifyBy(user);
 
-        persistence.updateType(handler.toDto(type));
+        String version = persistence.updateType(handler.toDto(type));
+        type.getVersion().update(version);
         fireTypeChanged(type);
     }
 
