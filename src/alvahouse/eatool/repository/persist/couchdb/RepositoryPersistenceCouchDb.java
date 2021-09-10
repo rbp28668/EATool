@@ -33,7 +33,7 @@ import alvahouse.eatool.repository.persist.memory.ScriptPersistenceMemory;
  */
 public class RepositoryPersistenceCouchDb implements RepositoryPersistence {
 
-	private final CouchDB couch = new CouchDB();
+	private final CouchDB couch;
 	
 	
 	private final RepositoryPropertiesPersistence repositoryPropertiesPersistence;
@@ -55,8 +55,6 @@ public class RepositoryPersistenceCouchDb implements RepositoryPersistence {
 	
 	public static void initialiseDatabase(CouchDB couch, String database) throws Exception {
 		
-		couch.database().create(database);
-		
 		MetaModelPersistenceCouchDb.initialiseDatabase(couch, database);
 		ModelPersistenceCouchDb.initialiseDatabase(couch, database);
 		ScriptPersistenceCouchDb.initialiseDatabase(couch, database);
@@ -71,7 +69,9 @@ public class RepositoryPersistenceCouchDb implements RepositoryPersistence {
 	/**
 	 * 
 	 */
-	public RepositoryPersistenceCouchDb(String database) throws Exception {
+	public RepositoryPersistenceCouchDb(CouchDB couch, String database) throws Exception {
+		this.couch = couch;
+		
 		repositoryPropertiesPersistence = new RepositoryPropertiesPersistenceCouchDb(couch,  database);
 		eventMapPersistence = new EventMapPersistenceCouchDb(couch,  database, "events");
 		eventMapModelPersistence = new EventMapPersistenceCouchDb(couch,  database, "modelEvents");

@@ -23,8 +23,7 @@ import alvahouse.eatool.repository.LoadProgress;
 import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.RepositoryImpl;
 import alvahouse.eatool.repository.persist.RepositoryPersistence;
-import alvahouse.eatool.repository.persist.couchdb.CouchDB;
-import alvahouse.eatool.repository.persist.couchdb.RepositoryPersistenceCouchDb;
+import alvahouse.eatool.repository.persist.memory.RepositoryPersistenceMemory;
 import alvahouse.eatool.repository.scripting.ScriptManager;
 import alvahouse.eatool.util.SettingsManager;
 import alvahouse.eatool.util.UUID;
@@ -112,7 +111,7 @@ public class Main implements Application{
 		getSettings().save(path);
 	}
 
-	void setRepository(Repository repository) throws BSFException {
+	public void setRepository(Repository repository) throws BSFException {
 		assert(repository != null);
 		this.m_repository = repository;
 		
@@ -126,6 +125,7 @@ public class Main implements Application{
 		windowCoordinator.setRepository(repository);
 		commandFrame.setRepository(repository);
 	}
+	
 	
 	private void run(String args[]) {
 
@@ -164,27 +164,11 @@ public class Main implements Application{
 			// Make sure UUIDs are initialised.
 			initUUID();
 
-			boolean isNewRepository = false;
-
-			// Hack for testing.
-			CouchDB couch = new CouchDB();
-			couch.info();
-			String databases = couch.databases();
-			if(!databases.contains("test")) {
-				RepositoryPersistenceCouchDb.initialiseDatabase(couch, "test");
-				isNewRepository = true;
-			}
-			RepositoryPersistence persistence = new RepositoryPersistenceCouchDb("test");
 
 			// Create & configure the repository with a default in-memory persistence layer.
-			//RepositoryPersistence persistence = new RepositoryPersistenceMemory();
-
+			RepositoryPersistence persistence = new RepositoryPersistenceMemory();
 			m_repository = new RepositoryImpl(persistence, config);
-			if(isNewRepository) {
-				m_repository.initialiseNew();
-			} else {
-				m_repository.bindToExisting();
-			}
+			m_repository.initialiseNew();
 
 			// Make the app known to the script manager.
 			ScriptManager.getInstance().declareObject("app", 
