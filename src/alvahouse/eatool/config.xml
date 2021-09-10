@@ -7,7 +7,7 @@
 		<menus>
 			<menu display="File" mnemonic="F">
 				<menuitem 	action="FileNew" 
-							display="New"
+							display="New in memory Repository"
 							mnemonic="N"
 							accel="N"
 							accelmod="CTRL"/>
@@ -50,7 +50,38 @@
 							mnemonic="X"/>
 			</menu>
 
+			<menu display="Database" mnemonic="c">
+        		<menuitem 	action="CouchDBBindToDatabase"
+							display="Connect to Database"
+							mnemonic="C"
+							/>
 
+       		    <menuitem 	action="CouchDBChangePassword"
+							display="Change Password"
+							mnemonic="P"
+							/>
+ 
+        		<menuitem 	action="CouchDBConnectServer"
+							display="Connect to Server"
+							mnemonic="S"
+							/>
+        
+        		<menuitem 	action="CouchDBCreateDatabase"
+							display="Create Database"
+							mnemonic="D"
+							/>
+ 							
+        		<menuitem 	action="CouchDBCreateUser"
+							display="Create User"
+							mnemonic="U"
+							/>
+							
+        		<menuitem 	action="CouchDBCreateAdminUser"
+        					display="Create Admin User"
+							mnemonic="A"
+							/>
+        		
+			</menu>
 			<menu display="Model" mnemonic="o">
 				<menuitem 	action="ModelExplore" 
 							display="Explore"

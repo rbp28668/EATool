@@ -47,7 +47,7 @@ public class CouchDB {
 	private int port = 5984;
 	private Database database = new Database();
 	private String user = "admin";
-	private String password = "8HepHap952";
+	private String password = "admin";
 	
 	final CloseableHttpClient httpclient = HttpClients.createDefault();
 	
@@ -69,7 +69,15 @@ public class CouchDB {
 					throw new ClientProtocolException(ex);
 				}
 			} else {
-				throw new ClientProtocolException("Unexpected response status: " + status);
+				final HttpEntity entity = response.getEntity();
+				String value = null;
+				try {
+					value = entity != null ? EntityUtils.toString(entity) : null;
+				} catch (ParseException e) {
+					// NOP
+				}
+				value = (value == null) ? "" : (" ( " + value + " )") ;
+				throw new ClientProtocolException("Unexpected response status: " + status + value);
 			}
 		}
 
@@ -104,6 +112,36 @@ public class CouchDB {
 	public CouchDB() {
 	}
 
+	/**
+	 * @param host
+	 * @param port
+	 */
+	public void setLocation(String host, int port) {
+		this.host = host;
+		this.port = port;
+	}
+
+	
+	/**
+	 * @return the host
+	 */
+	public String getHost() {
+		return host;
+	}
+
+	/**
+	 * @return the port
+	 */
+	public int getPort() {
+		return port;
+	}
+
+	public void setCredentials(String user, String password) {
+		this.user = user;
+		this.password = password;
+	}
+	
+	
 	
 	public String info() throws Exception {
 		return Request.get(host, port, "/")
@@ -127,6 +165,9 @@ public class CouchDB {
     	private HttpUriRequestBase request;
     	
     	private void writeLog(String data) {
+    		if(data == null) {
+    			return;
+    		}
 			try (FileWriter writer = new FileWriter("couch_json.log",true)){
 				writer.write(data);
 				writer.write("\n");
@@ -249,11 +290,15 @@ public class CouchDB {
     
 	public class Database {
 		
-		boolean exists(String name) throws Exception {
-			return 200 == Request.head(host, port, "/" + name)
+		int databaseStatus(String name) throws Exception {
+			return Request.head(host, port, "/" + name)
 					.authorise(user, password)
 					.execute(httpclient, uncheckedResponseHandler)
 					.status;
+		}
+		
+		boolean exists(String name) throws Exception {
+			return 200 == databaseStatus(name);
 		}
 		
 		String info(String name) throws Exception {
@@ -465,5 +510,7 @@ public class CouchDB {
 			e.printStackTrace();
 		}
 	}
+
+
 
 }

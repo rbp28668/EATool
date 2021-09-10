@@ -224,10 +224,20 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     public void bindToExisting() {
     	key = new UUID(); // may be over-ridden later by load.
     	
-    	// TODO need to do something creative with search engine.
+        try {
+            search.indexModel(null,model);
+        } catch (IOException e) {
+            throw new InputException("Unable to index model: " + e.getMessage(),e);
+        }
 
-
+        try {
+            getEventMap().fireEvent(POST_LOAD_EVENT, scripts);
+        } catch (Exception ex) {
+            throw new InputException("Problem running post-load event script: " + ex.getMessage());
+        }
     }
+    
+    
 	/**
 	 * @param events
 	 */

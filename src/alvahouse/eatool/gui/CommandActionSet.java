@@ -10,6 +10,8 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import javax.swing.AbstractAction;
@@ -35,6 +37,7 @@ import alvahouse.eatool.gui.scripting.ScriptExplorer;
 import alvahouse.eatool.gui.types.TypesExplorer;
 import alvahouse.eatool.repository.LoadProgress;
 import alvahouse.eatool.repository.Repository;
+import alvahouse.eatool.repository.RepositoryImpl;
 import alvahouse.eatool.repository.RepositoryProperties;
 import alvahouse.eatool.repository.exception.InputException;
 import alvahouse.eatool.repository.mapping.ExportMapping;
@@ -44,10 +47,14 @@ import alvahouse.eatool.repository.mapping.ImportMappings;
 import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.repository.model.Entity;
+import alvahouse.eatool.repository.persist.RepositoryPersistence;
+import alvahouse.eatool.repository.persist.couchdb.CouchDbServer;
+import alvahouse.eatool.repository.persist.couchdb.RepositoryPersistenceCouchDb;
 import alvahouse.eatool.repository.scripting.EventMap;
 import alvahouse.eatool.repository.scripting.Scripts;
 import alvahouse.eatool.util.SettingsManager;
 import alvahouse.eatool.webexport.WebExport;
+import sun.security.krb5.Credentials;
 
 /**
  * CommandActionSet provides the ActionSet for the main EATool menus.
@@ -60,6 +67,8 @@ public class CommandActionSet extends ActionSet {
     private CommandFrame frame;
     private Application app;
     private Repository repository;
+    
+    private Map<String, Credentials> credentials = new HashMap<String, Credentials>();
 
     /** Creates new CommandActionSet */
     public CommandActionSet(CommandFrame f, Application app, Repository repository) {
@@ -80,6 +89,14 @@ public class CommandActionSet extends ActionSet {
         addAction("FileExport",actionFileExport);
         addAction("FileProperties",actionFileProperties);
         addAction("FileExit",actionFileExit);
+        
+        // -- CouchDB --
+        addAction("CouchDBConnectServer",actionConnectToCouchServer);
+        addAction("CouchDBCreateDatabase", actionCreateCouchDatabase);
+        addAction("CouchDBBindToDatabase", actionBindToCouchDatabase);
+        addAction("CouchDBCreateUser", actionCreateCouchUser);
+        addAction("CouchDBCreateAdminUser", actionCreateCouchAdminUser);
+        addAction("CouchDBChangePassword", actionChangeCouchPassword);
         
         // -- Meta Model --
         addAction("MetaModelExplore",actionMetaModelExplore);
@@ -537,6 +554,292 @@ public class CommandActionSet extends ActionSet {
         app.dispose(); // tidy up
         System.exit(0);
     }
+
+    /**
+     * Prompt for host/port (defaulted from settings).
+     * Connect to the couchdb server at that location, get and display its
+     * version, sha and UUID.
+     * Save the host/port.
+     */
+    private final Action actionConnectToCouchServer = new AbstractAction() {
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+            try {
+            	
+                SettingsManager settings = app.getSettings();
+                SettingsManager.Element cfg = settings.getOrCreateElement("/CouchDB/Host");
+                String host = cfg.attribute("host");
+                String port = cfg.attribute("post");
+
+                if(host == null) host = "localhost";
+                if(port == null) port = "5984";  // CouchDB default port
+                
+                CouchLocationDialog dialog = new CouchLocationDialog(frame, host, port);
+                dialog.setVisible(true);
+                if(dialog.wasEdited()) {
+                	host = dialog.getHost();
+                	port = dialog.getPort();
+    				CouchDbServer server = new CouchDbServer();
+    				server.connect(host, Integer.parseInt(port));
+    				
+    				CouchDbServer.Info info = server.getInstanceInfo();
+    				JOptionPane.showMessageDialog(frame, info.toString(), "Connected to CouchDB", JOptionPane.INFORMATION_MESSAGE);
+    				
+    				cfg.setAttribute("host", host);
+    				cfg.setAttribute("port", port);
+                } 
+            } catch(Throwable t) {
+                new ExceptionDisplay(frame,t);
+            }
+			
+		}
+    	
+    };
+
+     
+    /**
+     * Creates a new Couch database on the current server.
+     * Note that this doesn't become the current repository as usually the admin
+     * will want to add users etc.
+     */
+    private final Action actionCreateCouchDatabase = new AbstractAction() {
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+            try {
+                SettingsManager settings = app.getSettings();
+                CouchDbServer server = getServer(settings);
+
+                String database = "";
+				database = (String) JOptionPane.showInputDialog(
+			        	frame,  "Enter Database", "EATool",
+			        	JOptionPane.QUESTION_MESSAGE, null,
+			        	null, database
+			        );
+
+				if(database != null) {
+
+					Credentials creds = credentials.get("admin");
+					if(creds == null) {
+						creds = updateCredentials("admin");
+					} 
+					
+					if(creds != null ) {
+						server.setCredentials(creds.username, creds.password);
+						int status = server.testDatabase(database);
+						if(status == 404) { // not found so no name clash
+
+							try(WaitCursor cursor = new WaitCursor(frame)) {
+				                
+								// Create the base database.
+								server.createDatabase(database);
+				                
+								// Let the persistence layer set up what it needs.
+				                RepositoryPersistenceCouchDb.initialiseDatabase(server.getCouch(), database);
+				                
+				                // And now let the repository add anything it needs though the newly 
+				                // initialised persistence layer.
+				                RepositoryPersistenceCouchDb persistence = new RepositoryPersistenceCouchDb(server.getCouch(), database);
+				                RepositoryImpl rep = new RepositoryImpl(persistence, app.getConfig());
+				                rep.initialiseNew();
+				                
+				                // Now save the db name for future use.
+				                SettingsManager.Element cfgDb = settings.getOrCreateElement("/CouchDB/Database");
+				                cfgDb.setAttribute("name",database);
+							}
+			                Dialogs.message(frame, "Database " + database + " created");
+ 
+						} else if(status == 200) {
+							Dialogs.warning(frame, "Database " + database + " already exists");
+						} else if(status == 401) {
+							Dialogs.warning(frame, "Not authorised");
+						}
+					}
+				}
+            } catch(Throwable t) {
+                new ExceptionDisplay(frame,t);
+            }
+			
+		}
+    	
+    };
+    
+    /**
+     * Opens an existing couchDb database on the current server.
+     */
+    private final Action actionBindToCouchDatabase = new AbstractAction() {
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			
+				try {
+	                SettingsManager settings = app.getSettings();
+	                CouchDbServer server = getServer(settings);
+
+	                SettingsManager.Element cfgDb = settings.getOrCreateElement("/CouchDB/Database");
+	                String database = cfgDb.attribute("name");
+
+					
+					database = (String) JOptionPane.showInputDialog(
+				        	frame,  "Enter Database", "EATool",
+				        	JOptionPane.QUESTION_MESSAGE, null,
+				        	null, database
+				        );
+
+					if(database != null) {
+						cfgDb.setAttribute("name", database);
+
+						Credentials creds = credentials.get("user");
+						if(creds == null) {
+							creds = updateCredentials("user");
+						} 
+						
+						while(creds != null ) {
+							server.setCredentials(creds.username, creds.password);
+							int status = server.testDatabase(database);
+							if(status == 200) {
+								break;
+							}
+							if(status == 401 || status == 404) {
+								creds = updateCredentials("user");
+							}
+						}
+						
+						try(WaitCursor cursor = new WaitCursor(frame)) {
+							RepositoryPersistence persistence = new RepositoryPersistenceCouchDb(server.getCouch(), database);
+							
+							SettingsManager config = app.getConfig();
+							RepositoryImpl repository = new RepositoryImpl(persistence, config);
+							repository.bindToExisting();
+							app.setRepository(repository);
+						}
+						
+					}
+					
+				} catch (Exception x) {
+	                new ExceptionDisplay(frame,x);
+				}
+
+
+			}
+    	
+    };
+    
+    private Credentials updateCredentials(String type) {
+		Credentials creds = credentials.get(type);
+		String username = "";
+		String password = "";
+		if(creds != null) {
+			username = creds.username;
+			password = creds.password;
+		} 
+		CredentialsDialog dlg = new CredentialsDialog(frame, username, password);
+        dlg.setVisible(true);
+        if(dlg.wasEdited()) {
+        	creds = new Credentials();
+        	creds.username = dlg.getUsername();
+        	creds.password = dlg.getPassword();
+        	credentials.put(type, creds);
+        } else { // cancelled
+        	creds = null;
+        }
+        
+        return creds;
+    }
+    
+    /**
+     * Creates a new user in the couchDB server.
+     */
+    private final Action actionCreateCouchUser = new AbstractAction() {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+            try {
+                SettingsManager settings = app.getSettings();
+                CouchDbServer server = getServer(settings);
+
+				Credentials creds = credentials.get("admin");
+				if(creds == null) {
+					creds = updateCredentials("admin");
+				} 
+				
+				if(creds != null ) {
+					server.setCredentials(creds.username, creds.password);
+					
+					EditUserDialog dlg = new EditUserDialog(frame, "", "");
+			        dlg.setVisible(true);
+			        if(dlg.wasEdited()) {
+			        	String[] roles = {"reader","contributor","designer"}; //new String[0]; // TODO - what roles needed?
+			        	
+			        	server.createUser(dlg.getUsername(), dlg.getPassword(), roles);
+			        }
+				}
+				
+            } catch(Throwable t) {
+                new ExceptionDisplay(frame,t);
+            }
+		}
+    	
+    };
+    
+    private final Action actionCreateCouchAdminUser= new AbstractAction() {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+            try {
+    			// TODO Auto-generated method stub
+            } catch(Throwable t) {
+                new ExceptionDisplay(frame,t);
+            }
+		
+		}
+    	
+    	
+    };
+
+    /**
+     * Allows a user to change their own password.
+     * Different from having an admin update a user.
+     */
+    private final Action actionChangeCouchPassword = new AbstractAction() {
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+            try {
+                SettingsManager settings = app.getSettings();
+                CouchDbServer server = getServer(settings);
+
+                // User needs to authenticate as the user to change own pwd.
+				Credentials creds = credentials.get("user");
+				if(creds == null) {
+					creds = updateCredentials("user");
+				} 
+				
+				if(creds != null ) {
+					server.setCredentials(creds.username, creds.password);
+					ChangePasswordDialog dlg = new ChangePasswordDialog(frame,  "");
+			        dlg.setVisible(true);
+			        if(dlg.wasEdited()) {
+			        	server.changePassword(creds.username, dlg.getPassword());
+			        }
+				}
+            } catch(Throwable t) {
+                new ExceptionDisplay(frame,t);
+            }
+		}
+    	
+    	
+    };
+
     
     /** MetaModel Explore action - displays a tree view of the meta-model. */
     private final Action actionMetaModelExplore = new AbstractAction() {
@@ -1124,7 +1427,25 @@ public class CommandActionSet extends ActionSet {
     }
     
 
-    /** Help Contents action - displays help */
+    /**
+	 * @param settings
+	 * @return
+	 * @throws Exception
+	 */
+	private CouchDbServer getServer(SettingsManager settings) throws Exception {
+		SettingsManager.Element cfg = settings.getOrCreateElement("/CouchDB/Host");
+		String host = cfg.attribute("host");
+		String port = cfg.attribute("post");
+
+		if(host == null) host = "localhost";
+		if(port == null) port = "5984";  // CouchDB default port
+		
+		CouchDbServer server = new CouchDbServer();
+		server.connect(host, Integer.parseInt(port));
+		return server;
+	}
+
+	/** Help Contents action - displays help */
     private final Action actionHelpContents = new AbstractAction() {
         private static final long serialVersionUID = 1L;
         public void actionPerformed(ActionEvent e) {
@@ -1165,5 +1486,9 @@ public class CommandActionSet extends ActionSet {
         }
     };
 
+    private static class Credentials {
+    	String username;
+    	String password;
+    }
     
 }
