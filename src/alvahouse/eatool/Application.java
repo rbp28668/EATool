@@ -8,6 +8,7 @@ package alvahouse.eatool;
 
 import alvahouse.eatool.gui.CommandFrame;
 import alvahouse.eatool.gui.WindowCoordinator;
+import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.util.SettingsManager;
 
 public interface Application {
@@ -20,6 +21,8 @@ public interface Application {
 
     public CommandFrame getCommandFrame();
     
+    public void setRepository(Repository repository) throws Exception;
+
     /**
      * @return the currentPath
      */
