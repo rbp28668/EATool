@@ -12,7 +12,7 @@ class DesignDocument {
 	ObjectNode root;
 	ObjectNode views;
 	
-	DesignDocument(String name){
+	private DesignDocument(String name){
 		root = Serialise.createObjectNode();
 		root.put("_id", "_design/" + name);
 		root.put("language", "javascript");
@@ -33,6 +33,11 @@ class DesignDocument {
 		if(reduce != null) {
 			view.put("reduce", reduce);
 		}
+		return this;
+	}
+	
+	DesignDocument updateValidation(String function) {
+		root.put("validate_doc_update", function);
 		return this;
 	}
 	

@@ -43,30 +43,34 @@ public class GUIBuilder {
 	 */
     static public void buildMenuBar(JMenuBar menuBar, ActionSet actions, SettingsManager.Element root) {
         for(SettingsManager.Element menuElement : root.getChildren()){
-            if(menuElement.getName().compareTo("menu") != 0)
-                throw new IllegalArgumentException("Invalid menu element in configuration");
-            
-            String display = menuElement.attributeRequired("display");
-
-            JMenu jm = new JMenu();
-            jm.setText(display);
-            
-            //System.out.println("New menu: "+ display);
-            
-            String mnemonic = menuElement.attribute("mnemonic");
-            if(mnemonic != null)
-                jm.setMnemonic(mnemonic.charAt(0));
-            
-            String image = menuElement.attribute("image");
-            if(image != null) {
-                // TODO - fix this
-            }
+        	JMenu jm = createMenu(actions, menuElement);
             menuBar.add(jm);
-                
-            buildMenu(jm,actions,menuElement);
         }
     }
     
+    static private JMenu createMenu(ActionSet actions, SettingsManager.Element menuElement) {
+        if(menuElement.getName().compareTo("menu") != 0)
+            throw new IllegalArgumentException("Invalid menu element in configuration");
+        
+        String display = menuElement.attributeRequired("display");
+
+        JMenu jm = new JMenu();
+        jm.setText(display);
+        
+        //System.out.println("New menu: "+ display);
+        
+        String mnemonic = menuElement.attribute("mnemonic");
+        if(mnemonic != null)
+            jm.setMnemonic(mnemonic.charAt(0));
+        
+        String image = menuElement.attribute("image");
+        if(image != null) {
+            // TODO - fix this
+        }
+        buildMenu(jm,actions,menuElement);
+        return jm;
+    }
+
 	/**
 	 * Method buildToolbar constructs a toolbar using the settings file to determine which items are to 
 	 * be in the toolbar.  This method may be called multiple times with different action sets and
@@ -171,12 +175,15 @@ public class GUIBuilder {
      */
     static private void buildMenu(JMenu menu, ActionSet actions, SettingsManager.Element menuElement) {
         for(SettingsManager.Element menuItem : menuElement.getChildren()){
-
-            if(menuItem.getName().compareTo("separator") == 0) {
+        	String name = menuItem.getName();
+            if(name.equals("separator")) {
                 menu.addSeparator();
-            } else if(menuItem.getName().compareTo("menuitem") == 0) {
+            } else if(name.equals("menuitem")) {
                 JMenuItem jmi = buildMenuItem(actions,menuItem);
                 menu.add(jmi);
+            } else if(name.equals("menu")) {
+            	JMenu jm = createMenu(actions, menuItem);
+            	menu.add(jm);
             }
         }
     }

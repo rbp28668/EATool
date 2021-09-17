@@ -56,32 +56,43 @@
 							mnemonic="C"
 							/>
 
-       		    <menuitem 	action="CouchDBChangePassword"
-							display="Change Password"
-							mnemonic="P"
-							/>
- 
         		<menuitem 	action="CouchDBConnectServer"
 							display="Connect to Server"
 							mnemonic="S"
 							/>
-        
-        		<menuitem 	action="CouchDBCreateDatabase"
+
+        		<menuitem 	action="CouchDBLogoutUser"
+							display="Logout from Server"
+							mnemonic="L"
+							/>
+							
+				<menu display="Admin" mnemonic="a">			
+
+    	    		<menuitem 	action="CouchDBCreateDatabase"
 							display="Create Database"
 							mnemonic="D"
 							/>
  							
-        		<menuitem 	action="CouchDBCreateUser"
+        			<menuitem 	action="CouchDBCreateUser"
 							display="Create User"
 							mnemonic="U"
 							/>
 							
-        		<menuitem 	action="CouchDBCreateAdminUser"
+        			<menuitem 	action="CouchDBEditUser"
+							display="Edit User"
+							mnemonic="E"
+							/>
+        			<menuitem 	action="CouchDBCreateAdminUser"
         					display="Create Admin User"
 							mnemonic="A"
 							/>
-        		
+	        		<menuitem 	action="CouchDBLogoutAdmin"
+							display="Logout Admin"
+							mnemonic="L"
+							/>
+				</menu>
 			</menu>
+			
 			<menu display="Model" mnemonic="o">
 				<menuitem 	action="ModelExplore" 
 							display="Explore"

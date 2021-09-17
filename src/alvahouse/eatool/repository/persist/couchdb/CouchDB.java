@@ -322,12 +322,17 @@ public class CouchDB {
 					.status;
 		}
 
-		PutDocumentResponse putDocument(String name, String key,  String document) throws Exception {
-			String json =  Request.put(host, port, "/" + name + "/" + key)
+		String rawPutDocument(String name, String key,  String document) throws Exception {
+			String response =  Request.put(host, port, "/" + name + "/" + key)
 					.authorise(user, password)
 					.payload(document)
 					.execute(httpclient, responseHandler)
 					.value;
+			return response;
+		}
+
+		PutDocumentResponse putDocument(String name, String key,  String document) throws Exception {
+			String json =  rawPutDocument(name, key, document);
 			return Serialise.unmarshalFromJson(json, PutDocumentResponse.class);
 		}
 		
@@ -389,6 +394,19 @@ public class CouchDB {
 		 */
 		String queryView(String database, String designDoc, String viewName, String queryString) throws Exception{
 			String json =  Request.get(host, port, "/" + database + "/" + "_design/" + designDoc + "/_view/" + viewName, queryString)
+					.authorise(user, password)
+					.execute(httpclient, responseHandler)
+					.value;
+			return json;
+		}
+
+		/**
+		 * @param queryString 
+		 * @param string
+		 * @return
+		 */
+		String getAllDocs(String database, String queryString) throws Exception {
+			String json =  Request.get(host, port, "/" + database + "/_all_docs", queryString )
 					.authorise(user, password)
 					.execute(httpclient, responseHandler)
 					.value;
@@ -509,6 +527,14 @@ public class CouchDB {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * 
+	 */
+	public void clearCredentials() {
+		user = "";
+		password = "";
 	}
 
 

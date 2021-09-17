@@ -176,5 +176,6 @@ public abstract class BasicDialog extends javax.swing.JDialog{
         return box;
     }
     
+
     
 }

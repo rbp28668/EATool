@@ -196,22 +196,28 @@ public class RepositoryImpl implements TypeEventListener, Repository{
     	key = new UUID(); // may be over-ridden later by load.
          
         try {
+        	String user = System.getProperty("user.name");
+
         	// Create a blank repository properties.
         	RepositoryProperties props = new RepositoryProperties();
+        	props.getVersion().createBy(user);
         	updateProperties(props);
         	
  	        // Event maps need to be initialised with the allowable events
 	        // even if no handlers defined.
 	        EventMap events = new EventMap();
 	        ensureEvents(events);
+	        events.getVersion().createBy(user);
 	        persistence.getRepositoryEventMapPersistence().set(events.toDto());
 
 	        EventMap modelEvents = new EventMap();
 	        ModelDiagramType.defineEventMap(modelEvents);
+	        modelEvents.getVersion().createBy(user);
 	        persistence.getModelViewerEventMapPersistence().set(modelEvents.toDto());
 	        
 	        EventMap metaModelEvents = new EventMap();
 	        MetaModelDiagramType.defineEventMap(metaModelEvents);
+	        metaModelEvents.getVersion().createBy(user);
 	        persistence.getMetaModelViewerEventMapPersistence().set(metaModelEvents.toDto());
 	        
         } catch (Exception e) {
@@ -237,6 +243,10 @@ public class RepositoryImpl implements TypeEventListener, Repository{
         }
     }
     
+    @Override
+    public void disconnect() throws Exception{
+    	persistence.disconnect();
+    }
     
 	/**
 	 * @param events
