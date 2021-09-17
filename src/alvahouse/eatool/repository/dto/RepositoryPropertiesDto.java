@@ -15,6 +15,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
  * @author bruce_porteous
@@ -23,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @XmlRootElement(name = "repositoryProperties")
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(propOrder = { "properties", "version"})
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type_name")
 public class RepositoryPropertiesDto {
 
 	private String id;

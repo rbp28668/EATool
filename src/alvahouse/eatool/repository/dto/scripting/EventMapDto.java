@@ -15,6 +15,7 @@ import javax.xml.bind.annotation.XmlType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import alvahouse.eatool.repository.dto.VersionDto;
 import alvahouse.eatool.util.UUID;
@@ -26,8 +27,7 @@ import alvahouse.eatool.util.UUID;
 @XmlRootElement(name = "eventMap")
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(propOrder = { "handlers", "version"})
-
-
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type_name")
 public class EventMapDto {
 
 	private String id;

@@ -30,8 +30,8 @@ public class CredentialsDialog extends BasicDialog {
 	 * @param parent
 	 * @param title
 	 */
-	public CredentialsDialog(Component parent, String username, String password) {
-		super(parent, "Enter Credentials");
+	public CredentialsDialog(Component parent, String type, String username, String password) {
+		super(parent, "Enter Credentials (" + type + ")");
         panel = new CredentialsPanel(username, password);
         getContentPane().add(panel,BorderLayout.CENTER);
         

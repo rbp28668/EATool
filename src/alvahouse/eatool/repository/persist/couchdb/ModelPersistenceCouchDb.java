@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import alvahouse.eatool.repository.dto.DeleteDependenciesListDto;
@@ -351,6 +352,7 @@ public class ModelPersistenceCouchDb implements ModelPersistence {
 
 	// Class to hold data specific to the meta model (rather than its contents) such as it's UUID
 	// and possibly later security information.
+	@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type_name")
 	private static class ModelDto {
 		private UUID key;
 		private String rev;

@@ -260,7 +260,8 @@ public class MetaModelExplorerTreeModel extends ExplorerTreeModel
             insertNodeInto(new DefaultMutableTreeNode("mandatory: true"), tnProperty, idx++);
         if(mp.isReadOnly())
             insertNodeInto(new DefaultMutableTreeNode("read-only: true"), tnProperty, idx++);
-        if(mp.getDefaultValue().length() > 0)
+        String defaultValue = mp.getDefaultValue();
+        if(defaultValue != null && !defaultValue.isEmpty())
             insertNodeInto(new DefaultMutableTreeNode("default: " + mp.getDefaultValue()), tnProperty, idx++);
     }
 

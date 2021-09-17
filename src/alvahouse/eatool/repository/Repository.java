@@ -265,6 +265,12 @@ public interface Repository extends KeyedItem {
 
     public abstract Set<Entity> searchForEntitiesOfType(String query,
             Set<MetaEntity> contents) throws RepositoryException;
+	
+    /**
+     * Disconnects the repository from any remote storage.
+	 * @throws Exception
+	 */
+	void disconnect() throws Exception;
 
 
 

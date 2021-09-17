@@ -6,6 +6,10 @@
  */
 package alvahouse.eatool.gui.graphical.standard.metamodel;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.dto.graphical.DiagramTypeDto;
 import alvahouse.eatool.repository.graphical.DiagramType;
@@ -25,6 +29,7 @@ public class MetaModelDiagramTypes extends DiagramTypes {
 
 	public static final UUID FAMILY_KEY = new UUID("7E1EE25C-9E11-4c68-A44B-FF3F401916DC");
     private MetaModelDiagramFamily family;
+    private DiagramType theType;
     
     /**
      * constructor that sets up the single MetaModelDiagramType.
@@ -38,6 +43,47 @@ public class MetaModelDiagramTypes extends DiagramTypes {
     public void addDefaultType(Repository repository) throws Exception {
         family.add(MetaModelDiagramType.getInstance(repository));
     }
+    
+	/**
+	 * Adds a DiagramType.
+	 * @param dt is the DiagramType to register.
+	 */
+    @Override
+	public void add(DiagramType dt)  throws Exception {
+    	theType = dt;
+    }
+
+    @Override
+	public void update(DiagramType dt)  throws Exception {
+	}
+
+   /**
+     * @param diagramType
+     */
+    @Override
+    public void delete(DiagramType diagramType) throws Exception {
+    }
+
+	/**
+     * Allows type lookup by UUID.  Needed for effective de-serialization.
+     * @param typeID is the UUID of the type we want.
+     * @return the DiagramType given by the typeID or null if not found.
+     */
+    @Override
+    public DiagramType get(UUID typeID) throws Exception{
+    	return theType;
+    }
+	
+    /**
+     * @return
+     * @throws Exception
+     */
+    public Collection<DiagramType> getDiagramTypes() throws Exception{
+    	List<DiagramType> types = new ArrayList<>(1);
+    	types.add(theType);
+    	return types; 
+    }
+
     
     /**
      * MetaModelDiagramFamily is a DiagramTypeFamily hard-wired just to contain

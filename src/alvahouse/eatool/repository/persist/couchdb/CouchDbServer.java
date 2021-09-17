@@ -3,13 +3,19 @@
  */
 package alvahouse.eatool.repository.persist.couchdb;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import alvahouse.eatool.repository.dto.Serialise;
+import alvahouse.eatool.repository.persist.couchdb.CouchDB.Query;
 
 /**
  * Class for basic couch manipulation such as checking the server exists, creating databases etc.
@@ -70,18 +76,20 @@ public class CouchDbServer {
 	}
 	
 	public void createAdminUser(String user, String password) throws Exception{
-		
+		//> curl -X PUT $HOST/_node/_local/_config/admins/anna -d '"secret"'
+		// Note rawPutDocument as doesn't return a json response.
+		couch.database().rawPutDocument("_node", "_local/_config/admins/" + user, "\"" + password + "\"");
 	}
 	
-	public void createUser(String name, String password, String... roles) throws Exception{
-		User user = new User(name,password);
-		for(String role : roles) {
-			user.addRole(role);
-		}
+	public void createUser(CouchDbServer.User user) throws Exception{
 		
 		String document = Serialise.marshalToJSON(user);
-		String key = "org.couchdb.user:" + name;
+		String key = "org.couchdb.user:" + user.getName();
 		couch.database().putDocument("_users", key, document);
+	}
+
+	public void updateUser(CouchDbServer.User user) throws Exception {
+		createUser(user);
 	}
 
 	public void changePassword(String name, String password) throws Exception{
@@ -100,6 +108,42 @@ public class CouchDbServer {
 		
 		String document = Serialise.writeJsonTree(rootNode);
 		couch.database().putDocument("_users", key, document);
+	}
+	
+	public CouchDbServer.User getUser(String username) throws Exception{
+		String key = "org.couchdb.user:" + username;
+		String json = couch.database().getDocument("_users", key);
+		CouchDbServer.User user = Serialise.unmarshalFromJson(json, CouchDbServer.User.class);
+		return user;
+	}
+
+	public List<User> getAllUsers() throws Exception {
+		String json = couch.database().getAllDocs("_users", new Query()
+				.add("start_key", "org.couchdb.user")
+				.add(Query.INCLUDE_DOCS)
+				.toString());
+		JsonNode root = Serialise.parseToJsonTree(json);
+
+		int rowCount = root.get("total_rows").asInt(); // slightly more than needed due to design docs.
+		List<User> users = new ArrayList<>(rowCount);
+
+		JsonNode rows = root.get("rows");
+		assert (rows.isArray());
+		for (JsonNode row : rows) {
+			JsonNode doc = row.get("doc");
+			User user = Serialise.unmarshalFromJson(doc, User.class);
+			users.add(user);
+		}
+		return users;
+	}
+
+	/**
+	 * @param database
+	 * @param security
+	 */
+	public void setDabaseSecurity(String database, Security security) throws Exception{
+		String document = Serialise.marshalToJSON(security);
+		couch.database().putDocument(database, "_security", document);
 	}
 
 	public CouchDB getCouch() {
@@ -178,7 +222,15 @@ public class CouchDbServer {
 		}
 	}
 	
+	/**
+	 * A user in couch.
+	 * @author bruce_porteous
+	 *
+	 */
+	@JsonIgnoreProperties(ignoreUnknown=true)
 	public static class User {
+		private String id;
+		private String rev;
 		private String name;
 		private String password;
 		private List<String> roles = new LinkedList<>();
@@ -187,6 +239,9 @@ public class CouchDbServer {
 		private String contactPhone;
 		private String contactEmail;
 	
+		public User() {
+			this.type = "user";
+		}
 		
 		public User(String name, String password) {
 			this.name = name;
@@ -196,6 +251,38 @@ public class CouchDbServer {
 		
 		void addRole(String role) {
 			roles.add(role);
+		}
+
+		
+		
+		/**
+		 * @return the id
+		 */
+		@JsonProperty("_id")
+		public String getId() {
+			return id;
+		}
+
+		/**
+		 * @param id the id to set
+		 */
+		public void setId(String id) {
+			this.id = id;
+		}
+
+		/**
+		 * @return the rev
+		 */
+		@JsonProperty("_rev")
+		public String getRev() {
+			return rev;
+		}
+
+		/**
+		 * @param rev the rev to set
+		 */
+		public void setRev(String rev) {
+			this.rev = rev;
 		}
 
 		/**
@@ -296,6 +383,9 @@ public class CouchDbServer {
 			this.contactEmail = contactEmail;
 		}
 		
+		public String toString() {
+			return name + " (" + fullName + ")";
+		}
 		
 	}
 	
@@ -304,6 +394,7 @@ public class CouchDbServer {
 	 * @author bruce_porteous
 	 *
 	 */
+	@JsonInclude(Include.ALWAYS)
 	public static class Security {
 		private Users admins = new Users();
 		private Users members = new Users();
@@ -314,6 +405,8 @@ public class CouchDbServer {
 			/**
 			 * @return the names
 			 */
+			@JsonProperty
+			@JsonInclude(Include.ALWAYS)
 			public List<String> getNames() {
 				return names;
 			}
@@ -326,6 +419,8 @@ public class CouchDbServer {
 			/**
 			 * @return the roles
 			 */
+			@JsonProperty
+			@JsonInclude(Include.ALWAYS)
 			public List<String> getRoles() {
 				return roles;
 			}
@@ -341,6 +436,7 @@ public class CouchDbServer {
 		/**
 		 * @return the admins
 		 */
+		@JsonInclude(Include.ALWAYS)
 		public Users getAdmins() {
 			return admins;
 		}
@@ -355,6 +451,7 @@ public class CouchDbServer {
 		/**
 		 * @return the members
 		 */
+		@JsonInclude(Include.ALWAYS)
 		public Users getMembers() {
 			return members;
 		}
@@ -365,7 +462,17 @@ public class CouchDbServer {
 		public void setMembers(Users members) {
 			this.members = members;
 		}
-		
-		
 	}
+	
+	public static enum Roles {
+		READER,
+		CONTRIBUTOR,
+		DESIGNER,
+		DB_ADMIN;
+		
+		public String toString() {
+			return super.toString().toLowerCase();
+		}
+	}
+
 }
