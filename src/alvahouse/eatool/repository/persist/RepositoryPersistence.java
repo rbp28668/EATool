@@ -71,5 +71,10 @@ public interface RepositoryPersistence {
 	 * @return
 	 */
 	DiagramTypePersistence getDiagramTypePersistence();
+
+	/**
+	 * @throws Exception
+	 */
+	void disconnect() throws Exception;
 	
 }

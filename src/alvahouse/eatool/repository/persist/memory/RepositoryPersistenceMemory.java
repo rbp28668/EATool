@@ -157,4 +157,12 @@ public class RepositoryPersistenceMemory implements RepositoryPersistence {
 		return diagramTypePersistence;
 	}
 
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.persist.RepositoryPersistence#disconnect()
+	 */
+	@Override
+	public void disconnect() throws Exception {
+		// Nop for in-memory repository.
+	}
+
 }

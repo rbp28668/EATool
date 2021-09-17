@@ -76,7 +76,10 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 	public String addMetaEntity(MetaEntityDto me) throws Exception {
 		if (metaEntities.containsKey(me.getKey()))
 			throw new IllegalStateException("Meta Entity already exists in meta-model");
-		String version = me.getVersion().update(new UUID().toString());
+		String version = null;
+		if(me.getVersion().notVersioned()) {
+			version = me.getVersion().update(new UUID().toString());
+		}
 		metaEntities.put(me.getKey(), me);
 		sortedEntities.add(me);
 		return version;
@@ -187,7 +190,10 @@ public class MetaModelPersistenceMemory implements MetaModelPersistence {
 			throw new IllegalStateException("Saving meta relationship that references meta-entities not in the model");
 		}
 		
-		String version = mr.getVersion().update(new UUID().toString());
+		String version = null;
+		if(mr.getVersion().notVersioned()) {
+			version = mr.getVersion().update(new UUID().toString());
+		}
 
 		// And save
 		metaRelationships.put(mr.getKey(), mr);

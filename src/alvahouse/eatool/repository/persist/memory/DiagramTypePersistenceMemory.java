@@ -48,7 +48,10 @@ public class DiagramTypePersistenceMemory implements DiagramTypePersistence {
 		if(types.containsKey(key)) {
 			throw new IllegalArgumentException("Repository already contains a diagram type with key " + key);
 		}
-		String version = dt.getVersion().update(new UUID().asJsonId());
+		String version = null;
+		if(dt.getVersion().notVersioned()) {
+			version = dt.getVersion().update(new UUID().asJsonId());
+		}
 		types.put(key, dt);
 		return version;
 	}

@@ -11,6 +11,7 @@ import java.awt.Insets;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
@@ -18,23 +19,25 @@ import javax.swing.JTextField;
  * @author bruce_porteous
  *
  */
-public class EditUserDialog extends BasicDialog {
+public class EditCouchAdminDialog extends BasicDialog {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private CredentialsPanel panel;
+	private UserDetailsPanel panel;
 
 	/**
+	 * To create a new user or edit an existing user.
 	 * @param parent
-	 * @param title
+	 * @param user is the couchdb user to edit.
 	 */
-	public EditUserDialog(Component parent, String username, String password) {
-		super(parent, "Edit User Information");
-        panel = new CredentialsPanel(username, password);
+	public EditCouchAdminDialog(Component parent) {
+		super(parent, "Create or update CouchDB Administrator");
+		
+        panel = new UserDetailsPanel();
+
         getContentPane().add(panel,BorderLayout.CENTER);
-        
         getContentPane().add(getOKCancelPanel(), BorderLayout.EAST);
         pack();
 	}
@@ -54,6 +57,7 @@ public class EditUserDialog extends BasicDialog {
 		return panel.validateInput();
 	}
 	
+	
     String getUsername() {
         return panel.getUsername();
     }
@@ -63,14 +67,16 @@ public class EditUserDialog extends BasicDialog {
     }
 
 
-	private class CredentialsPanel extends javax.swing.JPanel {
+	private class UserDetailsPanel extends JPanel {
 
 		private static final long serialVersionUID = 1L;
 		
         private JTextField usernameField;
         private JTextField passwordField;
-
-	    public CredentialsPanel(String username, String password) {
+        private JTextField passwordField2;
+        
+       
+	    public UserDetailsPanel() {
 	        GridBagLayout grid = new GridBagLayout();
 	        GridBagConstraints c = new GridBagConstraints();
 	        
@@ -80,13 +86,20 @@ public class EditUserDialog extends BasicDialog {
 	        c.weighty = 1.0;
 	        c.insets = new Insets(5,10,5,10);
 
+	        String username = "";
+	        String password = "";
 	        
             usernameField = new JTextField(username);
             usernameField.setColumns(40);
+            
             passwordField = new JPasswordField(password);
             passwordField.setColumns(40);
+            passwordField2 = new JPasswordField(password);
+            passwordField2.setColumns(40);
+            
             addField(grid, c, "Username", usernameField);
             addField(grid, c, "Password", passwordField);
+            addField(grid, c, "Retype Password", passwordField2);
 	    }
 
 		/**
@@ -109,7 +122,7 @@ public class EditUserDialog extends BasicDialog {
 	     * @return true if input is valid, false if invalid
 	     **/
 	    public boolean validateInput() {
-	        if(getUsername().length() == 0) {
+	        if(usernameField.getText().isEmpty()) {
 	            JOptionPane.showMessageDialog(this,
 	                "Please enter a value for the name", 
 	                "EATool", JOptionPane.INFORMATION_MESSAGE);
@@ -117,13 +130,30 @@ public class EditUserDialog extends BasicDialog {
 	            return false;
 	        }
 
-	        if(getPassword().length() == 0) {
+	        if(passwordField.getText().isEmpty()) {
 	            JOptionPane.showMessageDialog(this,
 	                "Please enter a value for the password", 
 	                "EATool", JOptionPane.INFORMATION_MESSAGE);
 	            passwordField.requestFocus();
 	            return false;
 	        }
+	        
+	        if(passwordField2.getText().isEmpty()) {
+	            JOptionPane.showMessageDialog(this,
+	                "Please repeat the password", 
+	                "EATool", JOptionPane.INFORMATION_MESSAGE);
+	            passwordField2.requestFocus();
+	            return false;
+	        }
+	        
+	        if(!passwordField.getText().equals(passwordField2.getText())) {
+	            JOptionPane.showMessageDialog(this,
+		                "Passwords do not match", 
+		                "EATool", JOptionPane.INFORMATION_MESSAGE);
+		            passwordField.requestFocus();
+		            return false;
+	        }
+
 	        return true;
 	    }
 	    

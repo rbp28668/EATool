@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -27,6 +29,7 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpEntityContainer;
 import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.MessageHeaders;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
@@ -48,6 +51,9 @@ public class CouchDB {
 	private Database database = new Database();
 	private String user = "admin";
 	private String password = "admin";
+	private String authCookie = null;
+	private long authCookieTime = 0;
+	private static long AUTH_TIMEOUT = 8 * 60 * 1000l; // cookie times out in 10 mins, refresh if after 8.
 	
 	final CloseableHttpClient httpclient = HttpClients.createDefault();
 	
@@ -64,7 +70,7 @@ public class CouchDB {
 				final HttpEntity entity = response.getEntity();
 				try {
 					String value = entity != null ? EntityUtils.toString(entity) : null;
-					return new Response(status, value);
+					return new Response(status, value, response);
 				} catch (final ParseException ex) {
 					throw new ClientProtocolException(ex);
 				}
@@ -101,7 +107,7 @@ public class CouchDB {
 					throw new ClientProtocolException(ex);
 				}
 			}
-			return new Response(status, value);
+			return new Response(status, value, response);
 		}
 
 	};
@@ -156,11 +162,43 @@ public class CouchDB {
 				.value;
 	}
 
+	public String login() throws Exception {
+		
+		String payload = "name=" + URLEncoder.encode(user, StandardCharsets.UTF_8.toString())
+				+ "&password=" + URLEncoder.encode(password, StandardCharsets.UTF_8.toString());
+		
+		Response response =  Request.post(host, port, "/_session")
+				.payload(payload, ContentType.APPLICATION_FORM_URLENCODED)
+				.execute(httpclient, responseHandler)
+				;
+		
+		Header cookieHeader = response.headers.getFirstHeader("Set-Cookie");
+		if(cookieHeader == null) {
+			throw new ClientProtocolException("No cookie returned from CouchDB");
+		}
+		
+		String[] parts = cookieHeader.getValue().split(";");
+		authCookie = null;
+		for(String part : parts) {
+			if(part.startsWith("AuthSession=")) {
+				authCookie = part.substring("AuthSession=".length());
+				authCookieTime = System.currentTimeMillis();
+			}
+		}
+		
+		return response.value;
+	}
+	
 	public Database database() {
 		return database;
 	}
 	
 
+    /**
+     * Private class to help build HTTP requests.
+     * @author bruce_porteous
+     *
+     */
     private static class Request {
     	private HttpUriRequestBase request;
     	
@@ -207,9 +245,43 @@ public class CouchDB {
     	}
 
 
+    	/**
+    	 * Sets up a basic authentication header.
+    	 * @param user
+    	 * @param password
+    	 * @return
+    	 * @throws UnsupportedEncodingException
+    	 */
     	Request authorise(String user, String password) throws UnsupportedEncodingException {
     		String auth = "Basic " + Base64.encodeBase64String( (user + ":" + password).getBytes("UTF-8"));
     		request.addHeader("Authorization", auth);
+    		return this;
+    	}
+
+    	/**
+    	 * Authorises using a stored cookie if one is available, otherwise it logs in with the
+    	 * stored username and password and then sets up the correct header.
+    	 * @param couch
+    	 * @return
+    	 * @throws Exception
+    	 */
+    	Request authorise(CouchDB couch) throws Exception {
+    		boolean needCookie = false;
+    		if(couch.authCookie == null) {
+    			needCookie = true;
+    		} else { // we've got a cookie - is it still valid?
+    			long now = System.currentTimeMillis();
+    			if(now - couch.authCookieTime > AUTH_TIMEOUT) {
+    				needCookie = true;
+    			}
+    		}
+    		
+    		if(needCookie) {
+    			couch.login(); // sets the cookie & resets timer as side effects
+    		}
+    		
+    		String auth = "AuthSession=" + couch.authCookie;
+    		request.addHeader("Cookie", auth);
     		return this;
     	}
 
@@ -220,7 +292,7 @@ public class CouchDB {
     		return this;
     	}
 
-    	Request payload(String jsonPayload) {
+    	Request jsonPayload(String jsonPayload) {
     		if(request instanceof HttpEntityContainer) {
     			HttpEntityContainer container = (HttpEntityContainer)request;
     			HttpEntity entity = new StringEntity(jsonPayload, ContentType.APPLICATION_JSON);
@@ -232,7 +304,20 @@ public class CouchDB {
     		return this;
 
     	}
-    	
+
+    	Request payload(String payload, ContentType contentType) {
+    		if(request instanceof HttpEntityContainer) {
+    			HttpEntityContainer container = (HttpEntityContainer)request;
+    			HttpEntity entity = new StringEntity(payload, contentType);
+    			container.setEntity(entity);
+    			request.addHeader("Content-Type",contentType.getMimeType());
+    		} else {
+    			throw new IllegalStateException("Method does not accept an entity");
+    		}
+    		return this;
+
+    	}
+
     	Response execute(CloseableHttpClient httpclient, HttpClientResponseHandler<Response> responseHandler) throws IOException, URISyntaxException, ParseException {
     		logRequest();
     		Response response =  httpclient.execute(request, responseHandler);
@@ -273,26 +358,33 @@ public class CouchDB {
     }
 	
     private static class Response {
-    	int status;
-    	String value;
+    	final int status;
+    	final String value;
+    	final MessageHeaders headers;
 		/**
 		 * @param status
 		 * @param value
 		 */
-		Response(int status, String value) {
+		Response(int status, String value, MessageHeaders headers) {
 			super();
 			this.status = status;
 			this.value = value;
+			this.headers = headers;
 		}
     }
  
     
     
+	/**
+	 * Part of the CouchDB API for manipulating a database (rather than a node or cluster).
+	 * @author bruce_porteous
+	 *
+	 */
 	public class Database {
 		
 		int databaseStatus(String name) throws Exception {
 			return Request.head(host, port, "/" + name)
-					.authorise(user, password)
+					.authorise(CouchDB.this)
 					.execute(httpclient, uncheckedResponseHandler)
 					.status;
 		}
@@ -303,37 +395,42 @@ public class CouchDB {
 		
 		String info(String name) throws Exception {
 			return Request.get(host, port, "/" + name)
-					.authorise(user, password)
+					.authorise(CouchDB.this)
 					.execute(httpclient, responseHandler)
 					.value;
 		}
 		
 		String create(String name) throws Exception {
 			return Request.put(host, port, "/" + name)
-					.authorise(user, password)
+					.authorise(CouchDB.this)
 					.execute(httpclient, responseHandler)
 					.value;
 		}
 		
 		boolean delete(String name) throws Exception {
 			return 200 == Request.delete(host, port, "/" + name)
-					.authorise(user, password)
+					.authorise(CouchDB.this)
 					.execute(httpclient, uncheckedResponseHandler)
 					.status;
 		}
 
-		PutDocumentResponse putDocument(String name, String key,  String document) throws Exception {
-			String json =  Request.put(host, port, "/" + name + "/" + key)
-					.authorise(user, password)
-					.payload(document)
+		String rawPutDocument(String name, String key,  String document) throws Exception {
+			String response =  Request.put(host, port, "/" + name + "/" + key)
+					.authorise(CouchDB.this)
+					.jsonPayload(document)
 					.execute(httpclient, responseHandler)
 					.value;
+			return response;
+		}
+
+		PutDocumentResponse putDocument(String name, String key,  String document) throws Exception {
+			String json =  rawPutDocument(name, key, document);
 			return Serialise.unmarshalFromJson(json, PutDocumentResponse.class);
 		}
 		
 		String getDocument(String name, String key) throws Exception {
 			String json =  Request.get(host, port, "/" + name + "/" + key)
-					.authorise(user, password)
+					.authorise(CouchDB.this)
 					.execute(httpclient, responseHandler)
 					.value;
 			return json;
@@ -341,7 +438,7 @@ public class CouchDB {
 
 		boolean documentExists(String name, String key) throws Exception {
 			return 200 == Request.head(host, port, "/" + name + "/" + key)
-					.authorise(user, password)
+					.authorise(CouchDB.this)
 					.execute(httpclient, uncheckedResponseHandler)
 					.status;
 		}
@@ -354,7 +451,7 @@ public class CouchDB {
 		 */
 		void deleteDocument(String name, String key, String version) throws Exception{
 			Request.delete(host, port, "/" + name + "/" + key)
-					.authorise(user, password)
+					.authorise(CouchDB.this)
 					.version(version)
 					.execute(httpclient, responseHandler);
 		}
@@ -368,8 +465,8 @@ public class CouchDB {
 		 */
 		void bulkUpdate(String name, String docs) throws Exception {
 			Request.post(host, port, "/" + name + "/_bulk_docs")
-				.authorise(user, password)
-				.payload(docs)
+				.authorise(CouchDB.this)
+				.jsonPayload(docs)
 				.execute(httpclient, responseHandler);
 		}
 		
@@ -389,7 +486,20 @@ public class CouchDB {
 		 */
 		String queryView(String database, String designDoc, String viewName, String queryString) throws Exception{
 			String json =  Request.get(host, port, "/" + database + "/" + "_design/" + designDoc + "/_view/" + viewName, queryString)
-					.authorise(user, password)
+					.authorise(CouchDB.this)
+					.execute(httpclient, responseHandler)
+					.value;
+			return json;
+		}
+
+		/**
+		 * @param queryString 
+		 * @param string
+		 * @return
+		 */
+		String getAllDocs(String database, String queryString) throws Exception {
+			String json =  Request.get(host, port, "/" + database + "/_all_docs", queryString )
+					.authorise(CouchDB.this)
 					.execute(httpclient, responseHandler)
 					.value;
 			return json;
@@ -509,6 +619,16 @@ public class CouchDB {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * 
+	 */
+	public void clearCredentials() {
+		user = "";
+		password = "";
+		authCookie = null;
+		authCookieTime = 0;
 	}
 
 

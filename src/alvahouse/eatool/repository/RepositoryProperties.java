@@ -8,9 +8,7 @@ package alvahouse.eatool.repository;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.Set;
 
 import alvahouse.eatool.repository.dto.RepositoryPropertiesDto;
 import alvahouse.eatool.repository.version.Version;
@@ -27,7 +25,6 @@ import alvahouse.eatool.util.XMLWriter;
  */
 public class RepositoryProperties  implements Versionable{
 
-    private static final long serialVersionUID = 1L;
     public final static String NAME = "Repository Name";
     public final static String ORIGINATOR = "Originator";
     

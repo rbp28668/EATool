@@ -67,6 +67,7 @@ public interface Version {
      */
     public void setVersion(String version);
 
+    
     /**
      * Gets the previous version that was in play before the current one.  
      * Intended to help diagnose conflicts.
@@ -94,6 +95,8 @@ public interface Version {
     
 	/**
 	 * Call when persistence layer provides a version string from a create or update operation.
+	 * If version is null then the version is not updated. This is to support in memory 
+	 * repository where you don't want to update the version every time you load from disk.
 	 * @param version
 	 */
 	public void update(String version);

@@ -3,6 +3,13 @@
  */
 package alvahouse.eatool.repository.persist.couchdb;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
 import alvahouse.eatool.repository.persist.DiagramPersistence;
 import alvahouse.eatool.repository.persist.DiagramTypePersistence;
 import alvahouse.eatool.repository.persist.EventMapPersistence;
@@ -15,17 +22,6 @@ import alvahouse.eatool.repository.persist.ModelPersistence;
 import alvahouse.eatool.repository.persist.RepositoryPersistence;
 import alvahouse.eatool.repository.persist.RepositoryPropertiesPersistence;
 import alvahouse.eatool.repository.persist.ScriptPersistence;
-import alvahouse.eatool.repository.persist.memory.DiagramPersistenceMemory;
-import alvahouse.eatool.repository.persist.memory.DiagramTypePersistenceMemory;
-import alvahouse.eatool.repository.persist.memory.EventMapPersistenceMemory;
-import alvahouse.eatool.repository.persist.memory.ExportMappingPersistenceMemory;
-import alvahouse.eatool.repository.persist.memory.HTMLPagePersistenceMemory;
-import alvahouse.eatool.repository.persist.memory.ImagePersistenceMemory;
-import alvahouse.eatool.repository.persist.memory.ImportMappingPersistenceMemory;
-import alvahouse.eatool.repository.persist.memory.MetaModelPersistenceMemory;
-import alvahouse.eatool.repository.persist.memory.ModelPersistenceMemory;
-import alvahouse.eatool.repository.persist.memory.RepositoryPropertiesPersistenceMemory;
-import alvahouse.eatool.repository.persist.memory.ScriptPersistenceMemory;
 
 /**
  * @author bruce_porteous
@@ -54,7 +50,23 @@ public class RepositoryPersistenceCouchDb implements RepositoryPersistence {
 	
 	
 	public static void initialiseDatabase(CouchDB couch, String database) throws Exception {
+
+		// Close down write access on the new database.
+	    StringBuilder textBuilder = new StringBuilder();
+		try(InputStream is = RepositoryPersistenceCouchDb.class.getResourceAsStream("validation.js")) {
+		    try (Reader reader = new BufferedReader(new InputStreamReader
+		      (is, Charset.forName(StandardCharsets.UTF_8.name())))) {
+		        int c = 0;
+		        while ((c = reader.read()) != -1) {
+		            textBuilder.append((char) c);
+		        }
+		    }
+		}
 		
+		DesignDocument.create("_auth")
+		.updateValidation(textBuilder.toString())
+		.save(couch, database);
+
 		MetaModelPersistenceCouchDb.initialiseDatabase(couch, database);
 		ModelPersistenceCouchDb.initialiseDatabase(couch, database);
 		ScriptPersistenceCouchDb.initialiseDatabase(couch, database);
@@ -64,6 +76,8 @@ public class RepositoryPersistenceCouchDb implements RepositoryPersistence {
 		DiagramTypePersistenceCouchDb.initialiseDatabase(couch, database);
 		ExportMappingPersistenceCouchDb.initialiseDatabase(couch, database);
 		ImportMappingPersistenceCouchDb.initialiseDatabase(couch, database);
+
+
 	}
 	
 	/**
@@ -89,6 +103,11 @@ public class RepositoryPersistenceCouchDb implements RepositoryPersistence {
 
 	}
 
+	@Override
+	public void disconnect() throws Exception{
+		couch.clearCredentials();
+	}
+	
 	/* (non-Javadoc)
 	 * @see alvahouse.eatool.repository.persist.RepositoryPersistence#getRepositoryPropertiesPersistence()
 	 */

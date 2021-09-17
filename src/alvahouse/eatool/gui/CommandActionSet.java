@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -54,7 +55,6 @@ import alvahouse.eatool.repository.scripting.EventMap;
 import alvahouse.eatool.repository.scripting.Scripts;
 import alvahouse.eatool.util.SettingsManager;
 import alvahouse.eatool.webexport.WebExport;
-import sun.security.krb5.Credentials;
 
 /**
  * CommandActionSet provides the ActionSet for the main EATool menus.
@@ -96,6 +96,9 @@ public class CommandActionSet extends ActionSet {
         addAction("CouchDBBindToDatabase", actionBindToCouchDatabase);
         addAction("CouchDBCreateUser", actionCreateCouchUser);
         addAction("CouchDBCreateAdminUser", actionCreateCouchAdminUser);
+        addAction("CouchDBEditUser", actionEditCouchUser);
+        addAction("CouchDBLogoutUser", actionLogoutCouchUser);
+        addAction("CouchDBLogoutAdmin", actionLogoutCouchAdmin);
         addAction("CouchDBChangePassword", actionChangeCouchPassword);
         
         // -- Meta Model --
@@ -206,7 +209,8 @@ public class CommandActionSet extends ActionSet {
         public void actionPerformed(ActionEvent e) {
             try {
                 fileNew();
-                showMetaModel();
+                //showMetaModel();
+                frame.setTitle("EATool - Using in-memory repository");
             } catch(Throwable t) {
                 new ExceptionDisplay(frame,t);
             }
@@ -581,10 +585,14 @@ public class CommandActionSet extends ActionSet {
                 if(dialog.wasEdited()) {
                 	host = dialog.getHost();
                 	port = dialog.getPort();
-    				CouchDbServer server = new CouchDbServer();
-    				server.connect(host, Integer.parseInt(port));
-    				
-    				CouchDbServer.Info info = server.getInstanceInfo();
+
+                	CouchDbServer.Info info = null;
+					try(WaitCursor cursor = new WaitCursor(frame)) {
+	    				CouchDbServer server = new CouchDbServer();
+	    				server.connect(host, Integer.parseInt(port));
+	    				info = server.getInstanceInfo();
+					}
+					
     				JOptionPane.showMessageDialog(frame, info.toString(), "Connected to CouchDB", JOptionPane.INFORMATION_MESSAGE);
     				
     				cfg.setAttribute("host", host);
@@ -613,21 +621,20 @@ public class CommandActionSet extends ActionSet {
                 SettingsManager settings = app.getSettings();
                 CouchDbServer server = getServer(settings);
 
-                String database = "";
-				database = (String) JOptionPane.showInputDialog(
-			        	frame,  "Enter Database", "EATool",
-			        	JOptionPane.QUESTION_MESSAGE, null,
-			        	null, database
-			        );
+				Credentials creds = credentials.get("admin");
+				if(creds == null) {
+					creds = updateCredentials("admin");
+				} 
 
-				if(database != null) {
-
-					Credentials creds = credentials.get("admin");
-					if(creds == null) {
-						creds = updateCredentials("admin");
-					} 
-					
-					if(creds != null ) {
+				if(creds != null ) {
+	                String database = "";
+					database = (String) JOptionPane.showInputDialog(
+				        	frame,  "Enter Database", "EATool",
+				        	JOptionPane.QUESTION_MESSAGE, null,
+				        	null, database
+				        );
+	
+					if(database != null) {
 						server.setCredentials(creds.username, creds.password);
 						int status = server.testDatabase(database);
 						if(status == 404) { // not found so no name clash
@@ -651,11 +658,24 @@ public class CommandActionSet extends ActionSet {
 				                cfgDb.setAttribute("name",database);
 							}
 			                Dialogs.message(frame, "Database " + database + " created");
- 
+
+							List<CouchDbServer.User> users = server.getAllUsers();
+							CouchDbServer.Security security = new CouchDbServer.Security();
+							EditCouchSecurityDialog dlg = new EditCouchSecurityDialog(frame, database, users, security);
+							dlg.setVisible(true);
+							if(dlg.wasEdited()) {
+								try(WaitCursor cursor = new WaitCursor(frame)) {
+									dlg.updateSecurity(security);
+									server.setDabaseSecurity(database, security);
+								}
+							}
+			                
+			                
 						} else if(status == 200) {
 							Dialogs.warning(frame, "Database " + database + " already exists");
 						} else if(status == 401) {
 							Dialogs.warning(frame, "Not authorised");
+							credentials.put("admin",null);
 						}
 					}
 				}
@@ -716,6 +736,7 @@ public class CommandActionSet extends ActionSet {
 							RepositoryImpl repository = new RepositoryImpl(persistence, config);
 							repository.bindToExisting();
 							app.setRepository(repository);
+							frame.setTitle("EATool - using database " + database + " at " + server.getCouch().getHost() + ":" + server.getCouch().getPort());
 						}
 						
 					}
@@ -737,7 +758,7 @@ public class CommandActionSet extends ActionSet {
 			username = creds.username;
 			password = creds.password;
 		} 
-		CredentialsDialog dlg = new CredentialsDialog(frame, username, password);
+		CredentialsDialog dlg = new CredentialsDialog(frame, type, username, password);
         dlg.setVisible(true);
         if(dlg.wasEdited()) {
         	creds = new Credentials();
@@ -772,12 +793,12 @@ public class CommandActionSet extends ActionSet {
 				if(creds != null ) {
 					server.setCredentials(creds.username, creds.password);
 					
-					EditUserDialog dlg = new EditUserDialog(frame, "", "");
+					EditCouchUserDialog dlg = new EditCouchUserDialog(frame);
 			        dlg.setVisible(true);
 			        if(dlg.wasEdited()) {
-			        	String[] roles = {"reader","contributor","designer"}; //new String[0]; // TODO - what roles needed?
-			        	
-			        	server.createUser(dlg.getUsername(), dlg.getPassword(), roles);
+			        	CouchDbServer.User user = new CouchDbServer.User();
+			        	dlg.updateUser(user);
+			        	server.createUser(user);
 			        }
 				}
 				
@@ -788,6 +809,47 @@ public class CommandActionSet extends ActionSet {
     	
     };
     
+    private final Action actionEditCouchUser= new AbstractAction() {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+            try {
+                SettingsManager settings = app.getSettings();
+                CouchDbServer server = getServer(settings);
+
+                // User needs to authenticate as an admin to change user details
+				Credentials creds = credentials.get("admin");
+				if(creds == null) {
+					creds = updateCredentials("admin");
+				} 
+				
+				if(creds != null ) {
+					server.setCredentials(creds.username, creds.password);
+					
+					List<CouchDbServer.User> users = server.getAllUsers();
+					CouchDbServer.User[] asArray = users.toArray(new CouchDbServer.User[users.size()]);
+					CouchDbServer.User user = (CouchDbServer.User)JOptionPane.showInputDialog(frame, 
+							"Select user", "EATool", JOptionPane.QUESTION_MESSAGE, null, asArray, null);
+					//CouchDbServer.User user = server.getUser(user.getName());
+					EditCouchUserDialog dlg = new EditCouchUserDialog(frame,  user);
+			        dlg.setVisible(true);
+			        if(dlg.wasEdited()) {
+			        	dlg.updateUser(user);
+			        	server.updateUser(user);
+			        }
+				}
+            } catch(Throwable t) {
+                new ExceptionDisplay(frame,t);
+            }
+		
+		}
+    	
+    	
+    };
+
+    
     private final Action actionCreateCouchAdminUser= new AbstractAction() {
 
 		private static final long serialVersionUID = 1L;
@@ -795,7 +857,23 @@ public class CommandActionSet extends ActionSet {
 		@Override
 		public void actionPerformed(ActionEvent e) {
             try {
-    			// TODO Auto-generated method stub
+                SettingsManager settings = app.getSettings();
+                CouchDbServer server = getServer(settings);
+
+                // User needs to authenticate as the admin to create another admin.
+				Credentials creds = credentials.get("admin");
+				if(creds == null) {
+					creds = updateCredentials("admin");
+				} 
+				
+				if(creds != null ) {
+					EditCouchAdminDialog dlg = new EditCouchAdminDialog(frame);
+					dlg.setVisible(true);
+					if(dlg.wasEdited()) {
+						server.setCredentials(creds.username, creds.password);
+						server.createAdminUser(dlg.getUsername(), dlg.getPassword());
+					}
+				}
             } catch(Throwable t) {
                 new ExceptionDisplay(frame,t);
             }
@@ -806,6 +884,7 @@ public class CommandActionSet extends ActionSet {
     };
 
     /**
+     * Unfortunately this doesn't work as a standard couch user can't edit their own user doc.
      * Allows a user to change their own password.
      * Different from having an admin update a user.
      */
@@ -839,6 +918,37 @@ public class CommandActionSet extends ActionSet {
     	
     	
     };
+
+    private final Action actionLogoutCouchUser = new AbstractAction() {
+ 		private static final long serialVersionUID = 1L;
+
+ 		@Override
+ 		public void actionPerformed(ActionEvent e) {
+             try {
+            	 credentials.remove("user");
+                 repository.disconnect();
+              } catch(Throwable t) {
+                 new ExceptionDisplay(frame,t);
+             }
+ 		}
+     	
+     	
+     };
+
+     private final Action actionLogoutCouchAdmin = new AbstractAction() {
+  		private static final long serialVersionUID = 1L;
+
+  		@Override
+  		public void actionPerformed(ActionEvent e) {
+              try {
+            	  credentials.remove("admin");
+               } catch(Throwable t) {
+                  new ExceptionDisplay(frame,t);
+              }
+  		}
+      	
+      	
+      };
 
     
     /** MetaModel Explore action - displays a tree view of the meta-model. */
