@@ -138,7 +138,7 @@ public class VersionImpl implements Version {
         this.version = version;
     }
     
-    /**
+	/**
      * @return the originalVersion
      */
     public String getOriginalVersion() {
@@ -177,8 +177,10 @@ public class VersionImpl implements Version {
 	 */
 	@Override
 	public void update(String version) {
-		this.originalVersion = this.version;
-		this.version = version;
+		if(version != null) {
+			this.originalVersion = this.version;
+			this.version = version;
+		}
 	}
 	
 
@@ -201,8 +203,8 @@ public class VersionImpl implements Version {
         out.addAttribute("createDate",TIME_FORMAT.format(getCreateDate()));
         out.addAttribute("modifyUser",getModifyUser());
         out.addAttribute("modifyDate",TIME_FORMAT.format(getModifyDate()));
-        out.addAttribute("version", getVersion().toString());    
-        out.addAttribute("originalVersion", getOriginalVersion().toString());    
+        out.addAttribute("version", (version == null) ? "" : version.toString());    
+        out.addAttribute("originalVersion", (originalVersion == null) ? "" : originalVersion.toString());    
         out.stopEntity();
     }
     

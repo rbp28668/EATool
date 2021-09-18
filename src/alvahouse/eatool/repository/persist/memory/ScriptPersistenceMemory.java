@@ -58,7 +58,10 @@ public class ScriptPersistenceMemory implements ScriptPersistence {
     		throw new IllegalArgumentException("Duplicate script -" + s.getName());
     	} 
     	
-    	String version = s.getVersion().update(new UUID().asJsonId());
+		String version = null;
+		if(s.getVersion().notVersioned()) {
+    		version = s.getVersion().update(new UUID().asJsonId());
+		}
     	scripts.put(key, s);
     	return version;
 	}

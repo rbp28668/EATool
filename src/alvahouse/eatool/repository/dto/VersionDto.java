@@ -165,5 +165,13 @@ public class VersionDto {
 		if(this.version == null || other.version == null) return false;
 		return this.version.equals(other.version);
 	}
+	
+	/**
+	 * See if the DTO has version information.
+	 * @return true if not set.
+	 */
+	public boolean notVersioned() {
+		return version == null;
+	}
 
 }

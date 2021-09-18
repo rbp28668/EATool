@@ -16,7 +16,6 @@ import alvahouse.eatool.repository.dto.DeleteDependenciesListDto;
 import alvahouse.eatool.repository.dto.DeleteProxyDto;
 import alvahouse.eatool.repository.dto.model.EntityDto;
 import alvahouse.eatool.repository.dto.model.RelationshipDto;
-import alvahouse.eatool.repository.model.RelationshipDeleteProxy;
 import alvahouse.eatool.repository.persist.ModelPersistence;
 import alvahouse.eatool.repository.persist.StaleDataException;
 import alvahouse.eatool.util.UUID;
@@ -68,7 +67,10 @@ public class ModelPersistenceMemory implements ModelPersistence {
 		if (entities.containsKey(e.getKey()))
 			throw new IllegalStateException("Entity " + e.getKey() + " already exists in model");
 		
-		String version = e.getVersion().update(new UUID().asJsonId());
+		String version = null;
+		if(e.getVersion().notVersioned()) {
+			version = e.getVersion().update(new UUID().asJsonId());
+		}
 		entities.put(e.getKey(), e);
 		entityCacheByType.remove(e.getMetaEntityKey());
 		return version;
@@ -191,7 +193,10 @@ public class ModelPersistenceMemory implements ModelPersistence {
 		if (relationships.containsKey(r.getKey()))
 			throw new IllegalStateException("Relationship " + r.getKey() + " already exists in model");
 
-		String version = r.getVersion().update(new UUID().asJsonId());
+		String version = null;
+		if(r.getVersion().notVersioned()) {
+			version = r.getVersion().update(new UUID().asJsonId());
+		}
 		relationships.put(r.getKey(), r);
 		relationshipCacheByType.remove(r.getMetaRelationshipKey());
 		return version;
