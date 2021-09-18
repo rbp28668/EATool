@@ -84,7 +84,10 @@ public class DiagramPersistenceMemory implements DiagramPersistence {
 			throw new IllegalArgumentException("Can't add Diagram with key " + key + " it is already in the repository");
 		}
 		
-		String version = diagram.getVersion().update(new UUID().asJsonId());
+		String version = null;
+		if(diagram.getVersion().notVersioned()) {
+			version = diagram.getVersion().update(new UUID().asJsonId());
+		}
 
 		UUID typeKey = diagram.getTypeKey();
 		Map<UUID,DiagramDto> ofType = diagramsByType.get(typeKey);

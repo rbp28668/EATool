@@ -57,7 +57,10 @@ public class HTMLPagePersistenceMemory implements HTMLPagePersistence {
 		if(pages.containsKey(key)) {
 			throw new IllegalArgumentException("HTML Page with key " + key + " already exists in repository");
 		}
-		String version = page.getVersion().update(new UUID().asJsonId());
+		String version = null;
+		if(page.getVersion().notVersioned()) {
+			version = page.getVersion().update(new UUID().asJsonId());
+		}
 		pages.put(key, page);
 		return version;
 	}

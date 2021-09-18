@@ -82,7 +82,6 @@ public class CouchDbServer {
 	}
 	
 	public void createUser(CouchDbServer.User user) throws Exception{
-		
 		String document = Serialise.marshalToJSON(user);
 		String key = "org.couchdb.user:" + user.getName();
 		couch.database().putDocument("_users", key, document);

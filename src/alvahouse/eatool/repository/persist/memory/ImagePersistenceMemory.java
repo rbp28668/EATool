@@ -59,7 +59,10 @@ public class ImagePersistenceMemory implements ImagePersistence {
 			throw new IllegalArgumentException("Image with key " + key + " already exists in repository");
 		}
 		
-		String version = image.getVersion().update(new UUID().asJsonId());
+		String version = null;
+		if(image.getVersion().notVersioned()) {
+			version = image.getVersion().update(new UUID().asJsonId());
+		}
 		images.put(key, image);
 		return version;
 	}

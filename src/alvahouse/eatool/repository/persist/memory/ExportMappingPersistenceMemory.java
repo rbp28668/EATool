@@ -46,7 +46,10 @@ public class ExportMappingPersistenceMemory implements ExportMappingPersistence 
 		if(mappings.containsKey(key)) {
 			throw new IllegalArgumentException("Cannot add export mapping with key " + key + " as mapping already exists");
 		}
-		String version = mapping.getVersion().update(new UUID().asJsonId());
+		String version = null;
+		if(mapping.getVersion().notVersioned()) {
+			version = mapping.getVersion().update(new UUID().asJsonId());
+		}
 		mappings.put(key, mapping);
 		return version;
 	}
