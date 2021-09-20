@@ -10,3 +10,7 @@ build/**
 # Eclipse
 .metadata/**
 /bin/
+
+couch_json.log
+
+
