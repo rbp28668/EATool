@@ -9,8 +9,7 @@ package alvahouse.eatool.gui;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Vector;
 
@@ -25,9 +24,10 @@ import javax.swing.JTextField;
  */
 public class PropertiesEditPanel extends JPanel {
 
-    private Properties properties;
-    private Vector labels;
-    private Vector fields;
+	private static final long serialVersionUID = 1L;
+	private Properties properties;
+    private Vector<JLabel> labels;
+    private Vector<JTextField> fields;
     /**
      * 
      */
@@ -46,12 +46,11 @@ public class PropertiesEditPanel extends JPanel {
         
         
         int rows = properties.size();
-        labels = new Vector(rows);
-        fields = new Vector(rows);
+        labels = new Vector<JLabel>(rows);
+        fields = new Vector<JTextField>(rows);
         
         int idx = 0;
-        for(Iterator iter = properties.entrySet().iterator(); iter.hasNext();){
-            Map.Entry entry = (Map.Entry)iter.next();
+        for(Entry<Object, Object> entry : properties.entrySet()){
             JLabel label = new JLabel((String)entry.getKey());
             JTextField text = new JTextField((String)entry.getValue());
             text.setColumns(40);
@@ -81,4 +80,7 @@ public class PropertiesEditPanel extends JPanel {
         }
     }
 
+    public Properties getProperties() {
+    	return properties;
+    }
 }

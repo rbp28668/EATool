@@ -113,7 +113,7 @@ public class DiagramExplorer extends JInternalFrame implements Explorer{
     /** Call when the meta model changes to get the explorer to re-build
      * it's internal representation
      */
-    public void refresh() {
+    public void refresh() throws Exception{
         treeModel.refresh();
     }
 

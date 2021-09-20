@@ -15,6 +15,7 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.xml.transform.stream.StreamResult;
 
@@ -34,6 +35,7 @@ import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.model.Entity;
 import alvahouse.eatool.repository.model.Model;
+import alvahouse.eatool.repository.scripting.EventMap;
 import alvahouse.eatool.repository.scripting.ScriptContext;
 import alvahouse.eatool.repository.scripting.ScriptManager;
 import alvahouse.eatool.scripting.proxy.ScriptWrapper;
@@ -78,22 +80,24 @@ public class WebExport {
         
         MetaModel meta = repository.getMetaModel();
         Model model = repository.getModel();
-        
-        // Always start with a clean folder.
-        File outputFolder = new File(path);
-        if(outputFolder.exists()){
-            outputFolder.delete();
-        }
-        outputFolder.mkdirs();
-        
-        // Try and get page titles from repository properties.
-        title = "Repository Export";
-        String t2 = repository.getProperties().getProperty(RepositoryProperties.NAME);
-        if(t2 != null && t2.length() > 0){
-            title = t2;
-        }
-        
+
         try {
+
+	        // Always start with a clean folder.
+	        File outputFolder = new File(path);
+	        if(outputFolder.exists()){
+	            outputFolder.delete();
+	        }
+	        outputFolder.mkdirs();
+	        
+	        // Try and get page titles from repository properties.
+	        title = "Repository Export";
+	        Properties props = repository.getProperties().get(); 
+	        String t2 = props.getProperty(RepositoryProperties.NAME);
+	        if(t2 != null && t2.length() > 0){
+	            title = t2;
+	        }
+        
             
             writeIndex(repository, outputFolder);
             writeMetaEntities(meta, model, outputFolder);
@@ -105,7 +109,7 @@ public class WebExport {
             
         } catch (FileNotFoundException e) {
             throw new OutputException("Unable to generate web output",e);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new OutputException("Unable to generate web output",e);
         }
 
@@ -118,7 +122,7 @@ public class WebExport {
      * @param outputFolder
      * @throws IOException
      */
-    private void writeEntities(Model model, File outputFolder) throws IOException {
+    private void writeEntities(Model model, File outputFolder) throws Exception {
         File subFolder = new File(outputFolder,"entity");
         subFolder.mkdirs();
         
@@ -148,7 +152,7 @@ public class WebExport {
      * @param outputFolder
      * @throws IOException
      */
-    private void writeMetaEntityTables(MetaModel meta, Model model, File outputFolder) throws IOException {
+    private void writeMetaEntityTables(MetaModel meta, Model model, File outputFolder) throws Exception {
         File subFolder = new File(outputFolder,"metaEntityTable");
         subFolder.mkdirs();
         
@@ -173,7 +177,7 @@ public class WebExport {
      * @param outputFolder
      * @throws IOException
      */
-    private void writeMetaEntities(MetaModel meta, Model model, File outputFolder) throws IOException {
+    private void writeMetaEntities(MetaModel meta, Model model, File outputFolder) throws Exception {
 
         File subFolder = new File(outputFolder,"metaEntity");
         subFolder.mkdirs();
@@ -198,7 +202,7 @@ public class WebExport {
      * @param outputFolder
      * @throws IOException
      */
-    private void writeIndex(Repository repository, File outputFolder) throws IOException {
+    private void writeIndex(Repository repository, File outputFolder) throws Exception {
         XMLWriter writer = getWriter(outputFolder,INDEX_PAGE, INDEX_XFORM);
         MetaModel meta = repository.getMetaModel();
         try {
@@ -291,7 +295,7 @@ public class WebExport {
         }
     }
     
-    private void writeDiagrams(Repository repository, File outputFolder) throws IOException {
+    private void writeDiagrams(Repository repository, File outputFolder) throws Exception {
         
         File imageDir = new File(outputFolder,"diagrams");
         imageDir.mkdirs();
@@ -318,7 +322,7 @@ public class WebExport {
      * @param type
      * @throws IOException
      */
-    private void writeDiagramsOfType(Repository repository, File imageDir, DiagramExportProxy proxy, DiagramType type) throws IOException {
+    private void writeDiagramsOfType(Repository repository, File imageDir, DiagramExportProxy proxy, DiagramType type) throws Exception {
         Collection<Diagram> diagrams = repository.getDiagrams().getDiagramsOfType(type);
         
         for(Diagram diagram : diagrams){
@@ -346,16 +350,17 @@ public class WebExport {
      * @param repository
      * @param outputFolder
      */
-    private void writePages(Repository repository, File outputFolder) throws IOException {
+    private void writePages(Repository repository, File outputFolder) throws Exception {
     	File pageDir = new File(outputFolder,"pages");
     	pageDir.mkdirs();
 
     	for(HTMLPage page : repository.getPages().getPages()){
     		PageExportProxy proxy = new PageExportProxy(page);
     		String file =  page.getKey().toString() + ".html";
-
-    		ScriptContext context = page.getEventMap().getContextFor(HTMLPage.ON_DISPLAY_EVENT);
-    		if(context != null) {
+    		
+    		EventMap eventMap = page.getEventMap();
+    		if(eventMap.hasHandler(HTMLPage.ON_DISPLAY_EVENT)) {
+    			ScriptContext context = page.getEventMap().getContextFor(HTMLPage.ON_DISPLAY_EVENT, repository.getScripts());
     			try {
     				proxy.setDestination(pageDir, file);
     				Object wrapped = ScriptWrapper.wrap(page);

@@ -12,6 +12,8 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 
 import alvahouse.eatool.repository.base.KeyedItem;
+import alvahouse.eatool.repository.dto.graphical.DiamondSymbolDto;
+import alvahouse.eatool.repository.dto.graphical.SymbolDto;
 import alvahouse.eatool.repository.graphical.standard.AbstractSymbol;
 import alvahouse.eatool.repository.graphical.standard.DimensionFloat;
 import alvahouse.eatool.repository.graphical.standard.SymbolType;
@@ -45,6 +47,14 @@ public class DiamondSymbol extends AbstractSymbol {
     }
     
 	/**
+	 * @param csd
+	 */
+	public DiamondSymbol(KeyedItem item, SymbolType type, DiamondSymbolDto dsd) {
+		super(item, type, dsd);
+	}
+
+
+	/**
 	 * Gets the outline of the symbol.
 	 * @return Shape containing the outline symbol.
 	 */
@@ -62,7 +72,7 @@ public class DiamondSymbol extends AbstractSymbol {
 	 * @param g
 	 * @param scale
 	 */
-	public void draw(Graphics2D g, float scale) {
+	public void draw(Graphics2D g, float scale) throws Exception {
 		
 		sizeSymbolFor(g);
 		
@@ -95,7 +105,7 @@ public class DiamondSymbol extends AbstractSymbol {
 		
 	}
 	
-	public void sizeWith(Graphics2D g) {
+	public void sizeWith(Graphics2D g) throws Exception {
 	    if(hasText()){
 	        DimensionFloat size = new DimensionFloat();
 	        sizeTextBox(g , size);
@@ -110,6 +120,26 @@ public class DiamondSymbol extends AbstractSymbol {
 		
 		setSize(width,height);
 	}
+
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.graphical.standard.Symbol#toDto()
+	 */
+	@Override
+	public SymbolDto toDto() {
+		DiamondSymbolDto dto = new DiamondSymbolDto();
+		copyTo(dto);
+		return dto;
+	}
     
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.graphical.standard.AbstractSymbol#clone()
+	 */
+	@Override
+	public Object clone() {
+		DiamondSymbol s = new DiamondSymbol();
+		cloneTo(s);
+		return s;
+	}
 
 }

@@ -46,7 +46,7 @@ public class Menu {
      */
     @Scripted(description="Adds a script to the menu."
     		+ " Parameters are the key for the script and the text to display in the menu item.")
-    public void addScript(String uuid, String display){
+    public void addScript(String uuid, String display) throws Exception{
         Scripts scripts = repository.getScripts(); 
         Script script = scripts.lookupScript(new UUID(uuid));
         
@@ -68,7 +68,7 @@ public class Menu {
     @Scripted(description="Inserts a script into the menu."
     		+ " Parameters are the key for the script, the text to display in the menu item."
     		+ " and the zero based index where the menu item should be inserted.")
-    public void insertScript(String uuid, String display, int pos){
+    public void insertScript(String uuid, String display, int pos) throws Exception{
         Scripts scripts = repository.getScripts(); 
         Script script = scripts.lookupScript(new UUID(uuid));
         

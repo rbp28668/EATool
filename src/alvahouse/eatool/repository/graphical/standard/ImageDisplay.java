@@ -13,8 +13,11 @@ import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 
 import alvahouse.eatool.repository.base.RepositoryItem;
+import alvahouse.eatool.repository.dto.graphical.ImageDisplayDto;
+import alvahouse.eatool.repository.dto.graphical.StandardDiagramDto;
 import alvahouse.eatool.repository.graphical.GraphicalObject;
 import alvahouse.eatool.repository.images.Image;
+import alvahouse.eatool.repository.images.Images;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
@@ -43,11 +46,27 @@ public class ImageDisplay extends RepositoryItem implements GraphicalObject {
     public ImageDisplay(UUID key) {
         super(key);
     }
-   
+
+    public ImageDisplay(Images images, ImageDisplayDto dto) throws Exception{
+    	super(dto);
+    	this.x = dto.getX();
+    	this.y = dto.getY();
+    	this.width = dto.getWidth();
+    	this.height = dto.getHeight();
+    	this.image = images.lookupImage(dto.getImageKey());
+    }
+    
+
+	public ImageDisplayDto toDto() {
+    	ImageDisplayDto dto = new ImageDisplayDto();
+    	copyTo(dto);
+    	return dto;
+    }
+    
     public void setImage(Image image){
         this.image = image;
-        int width = image.getImage().getWidth(null);
-        int height = image.getImage().getHeight(null);
+        width = image.getImage().getWidth(null);
+        height = image.getImage().getHeight(null);
     }
     
     /* (non-Javadoc)
@@ -188,4 +207,33 @@ public class ImageDisplay extends RepositoryItem implements GraphicalObject {
         out.stopEntity();
     }
 
+	protected void cloneTo(ImageDisplay copy) {
+		super.cloneTo(copy);
+		copy.x = x;
+		copy.y = y;
+		copy.width = width;
+		copy.height = height;
+		copy.image = image;
+	}
+
+	protected void copyTo(ImageDisplayDto dto) {
+		super.copyTo(dto);
+		dto.setX(x);
+		dto.setY(y);
+		dto.setWidth(width);
+		dto.setHeight(height);
+		dto.setImageKey(image.getKey());
+	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	protected Object clone() {
+		ImageDisplay copy = new ImageDisplay(getKey());
+		cloneTo(copy);
+		return copy;
+	}
+
+    
 }

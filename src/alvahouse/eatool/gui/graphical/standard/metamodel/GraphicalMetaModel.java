@@ -60,7 +60,7 @@ public class GraphicalMetaModel extends StandardDiagram {
 	 * @see alvahouse.eatool.repository.graphical.Diagram#scriptsUpdated()
 	 */
 	@Override
-	public void scriptsUpdated() {
+	public void scriptsUpdated() throws Exception {
 		getEventMap().cloneTo(repository.getMetaModelViewerEvents());
 	}
 

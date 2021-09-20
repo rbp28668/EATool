@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import alvahouse.eatool.gui.graphical.layout.Arc;
 import alvahouse.eatool.repository.base.KeyedItem;
+import alvahouse.eatool.repository.dto.graphical.ConnectorDto;
 import alvahouse.eatool.repository.graphical.GraphicalObject;
 import alvahouse.eatool.repository.graphical.GraphicalProxy;
 import alvahouse.eatool.util.UUID;
@@ -83,4 +84,11 @@ public interface Connector extends Arc, GraphicalObject, GraphicalProxy, KeyedIt
      */
     public abstract UUID getKey();
 	
+    
+    public Object clone();
+
+	/**
+	 * @return
+	 */
+	public abstract ConnectorDto toDto();
 }

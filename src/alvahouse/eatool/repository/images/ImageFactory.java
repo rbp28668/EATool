@@ -11,6 +11,7 @@ import org.xml.sax.Attributes;
 import alvahouse.eatool.repository.ProgressCounter;
 import alvahouse.eatool.repository.base.NamedRepositoryItemFactory;
 import alvahouse.eatool.repository.exception.InputException;
+import alvahouse.eatool.repository.version.VersionImpl;
 import alvahouse.eatool.util.IXMLContentHandler;
 import alvahouse.eatool.util.UUID;
 
@@ -49,6 +50,8 @@ public class ImageFactory extends NamedRepositoryItemFactory implements IXMLCont
             getCommonFields(currentImage,attrs);
             String format = attrs.getValue("format");
             currentImage.setFormat(format); 
+        } else if(local.equals("Version")) {
+        	VersionImpl.readXML(attrs, currentImage);
         }
     }
 
@@ -59,7 +62,7 @@ public class ImageFactory extends NamedRepositoryItemFactory implements IXMLCont
         if(local.equals("Image")){
             try {
                 currentImage.readDataFrom(text);
-                images.addImage(currentImage);
+                images._add(currentImage);
             } catch (Exception e) {
                 throw new InputException("Unable to read image data ",e);
             } finally {

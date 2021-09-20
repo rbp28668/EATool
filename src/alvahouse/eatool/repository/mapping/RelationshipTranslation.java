@@ -8,7 +8,10 @@ package alvahouse.eatool.repository.mapping;
 
 import java.io.IOException;
 
+import alvahouse.eatool.repository.dto.mapping.RelationshipTranslationDto;
+import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
+import alvahouse.eatool.repository.metamodel.MetaRelationshipProxy;
 import alvahouse.eatool.util.XMLWriter;
 
 
@@ -42,7 +45,7 @@ import alvahouse.eatool.util.XMLWriter;
 public class RelationshipTranslation {
 
     private String type="";             	   // what the "type" attribute of the input record is
-    private MetaRelationship meta = null;      // maps to this meta relationship 
+    private MetaRelationshipProxy meta = new MetaRelationshipProxy();      // maps to this meta relationship 
     private RoleTranslation startRoleTranslation = null;
     private RoleTranslation finishRoleTranslation = null;
 
@@ -51,12 +54,29 @@ public class RelationshipTranslation {
      * Creates an empty RelationshipTranslation.
      */
     public RelationshipTranslation() {
-        
-        startRoleTranslation = new RoleTranslation();
-        finishRoleTranslation = new RoleTranslation();
+        startRoleTranslation = new RoleTranslation(this);
+        finishRoleTranslation = new RoleTranslation(this);
     }
 
     /**
+	 * @param rtdto
+	 */
+	public RelationshipTranslation(RelationshipTranslationDto rtdto) {
+		type = rtdto.getType();
+		meta = new MetaRelationshipProxy();
+		meta.setKey(rtdto.getMetaRelationshipKey());
+		startRoleTranslation = new RoleTranslation(this, rtdto.getStartRoleTranslation());
+		finishRoleTranslation = new RoleTranslation(this, rtdto.getFinishRoleTranslation());
+	}
+
+	public RelationshipTranslationDto toDto() {
+		RelationshipTranslationDto dto = new RelationshipTranslationDto();
+		copyTo(dto);
+		return dto;
+	}
+	
+
+	/**
      * Gets the type name used to identify the relationship in the input XML.
      * @return the input type name.
      */
@@ -69,8 +89,8 @@ public class RelationshipTranslation {
      * type name will be mapped to.
      * @return the target MetaRelationship.
      */
-    public MetaRelationship getMeta() {
-        return meta;
+    public MetaRelationship getMeta(MetaModel metaModel) throws Exception{
+        return meta.get(metaModel);
     }
     
     /**
@@ -130,7 +150,7 @@ public class RelationshipTranslation {
      * @see java.lang.Object#toString()
      */
     public String toString() {
-        return "Relationship " + type + " to " + meta.getName();
+        return "Relationship " + type + " to " + meta.getKey();
     }
 
     /**
@@ -140,7 +160,7 @@ public class RelationshipTranslation {
         if(meta == null){
             throw new NullPointerException("Can't set null Meta in EntityTranslation");
         }
-        this.meta = meta;
+        this.meta.set(meta);
     }
 
     /**
@@ -161,12 +181,38 @@ public class RelationshipTranslation {
     public void writeXML(XMLWriter writer) throws IOException {
         writer.startEntity("RelationshipTranslation");
         writer.addAttribute("type",getTypeName());
-        writer.addAttribute("uuid",getMeta().getKey().toString());
+        writer.addAttribute("uuid",meta.getKey().toString());
 
         getStart().writeXML(writer);
         getFinish().writeXML(writer);
         
         writer.stopEntity();
     }
+    
+    @Override
+    public Object clone() {
+    	RelationshipTranslation copy = new RelationshipTranslation();
+    	cloneTo(copy);
+        return copy;
+    }
+    
+    protected void cloneTo(RelationshipTranslation copy) {
+        copy.type = type;
+        copy.meta = (MetaRelationshipProxy)meta.clone(); 
+        copy.startRoleTranslation = (RoleTranslation) startRoleTranslation.clone();
+        copy.finishRoleTranslation = (RoleTranslation) finishRoleTranslation.clone();
+   }
+    
+	/**
+	 * @param dto
+	 */
+	protected void copyTo(RelationshipTranslationDto dto) {
+		dto.setType(type);
+		dto.setMetaRelationshipKey(meta.getKey());
+		dto.setStartRoleTranslation(startRoleTranslation.toDto());
+		dto.setFinishRoleTranslation(finishRoleTranslation.toDto());
+		
+	}
+    
 
 }

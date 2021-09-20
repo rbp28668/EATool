@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import alvahouse.eatool.repository.dto.metamodel.MetaEntityDisplayHintDto;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 /**
@@ -26,14 +27,37 @@ public class MetaEntityDisplayHint {
     	this.target = target;
     }
 
-//    /** Creates a copy of the MetaEntityDisplayHint
-//     * @return a new MetaEntityDisplayHint 
-//     */
-//    public Object clone() {
-//        MetaEntityDisplayHint copy = new MetaEntityDisplayHint(this.target);
-//        cloneTo(copy);
-//        return copy;
-//    }
+    /**
+	 * @param medhDao
+	 */
+	public MetaEntityDisplayHint(MetaEntity target, MetaEntityDisplayHintDto medhDao) {
+		this.target = target;
+		keys.addAll(medhDao.getKeys());
+	}
+
+	public MetaEntityDisplayHintDto toDao() {
+		MetaEntityDisplayHintDto medhDao = new MetaEntityDisplayHintDto();
+		medhDao.getKeys().addAll(keys);
+		return medhDao;
+	}
+
+	/** Creates a copy of the MetaEntityDisplayHint
+     * @return a new MetaEntityDisplayHint 
+     */
+    public Object clone() {
+        MetaEntityDisplayHint copy = new MetaEntityDisplayHint(this.target);
+        cloneTo(copy);
+        return copy;
+    }
+    
+    /**
+     * In conjunction with clone, allow the copy to be bound to
+     * a new MetaEntity.
+     * @param target is the new meta entity to bind to.
+     */
+    void reBindTo(MetaEntity target) {
+    	this.target = target;
+    }
 //    
 //    /** Updates this meta entity from a copy.  Used for editing - the 
 //     * copy should be edited (use clone to get the copy) and only if the
@@ -103,16 +127,16 @@ public class MetaEntityDisplayHint {
   
     }
     
-//	/**
-//	 * Method cloneTo implements a copy from one 
-//	 * MetaEntityDisplayHint to another
-//	 * @param copy is the MetaEntityDisplayHint to be copied
-//	 * to.
-//	 */
-//    private void cloneTo(MetaEntityDisplayHint copy) {
-//    	copy.target = target;
-//    	copy.keys = new LinkedList();
-//    	copy.keys.addAll(keys);
-//    }
+	/**
+	 * Method cloneTo implements a copy from one 
+	 * MetaEntityDisplayHint to another
+	 * @param copy is the MetaEntityDisplayHint to be copied
+	 * to.
+	 */
+    private void cloneTo(MetaEntityDisplayHint copy) {
+    	copy.target = target;
+    	copy.keys = new LinkedList<UUID>();
+    	copy.keys.addAll(keys);
+    }
 }
 

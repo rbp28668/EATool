@@ -125,7 +125,7 @@
 	<target name="script-docs" depends="makejar">
 		<javadoc sourcepath="${src.dir}" 
 			destdir="${script.docs}" 
-			source="1.5" 
+			source="8" 
 			access="public" 
 			
 			>

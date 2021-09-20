@@ -31,17 +31,13 @@ public class RelationshipEditor extends BasicDialog {
     /** Panel for handling relationship edit - presented in the relationships tab */
     private RelationshipPanel relationshipPanel;
     
-    /** */
-    private Model model;
-    
 	/**
 	 * Constructor for RelationshipEditor.
 	 * @param parent
 	 * @param title
 	 */
-    public RelationshipEditor(Component parent, Relationship r, Model model) {
+    public RelationshipEditor(Component parent, Relationship r, Model model)  throws Exception{
 		super(parent, "Edit Relationship");
-		this.model = model;
 		
         originalRelationship = r;
         
@@ -98,7 +94,7 @@ public class RelationshipEditor extends BasicDialog {
 		 * Method RelationshipsPanel.
 		 * @param e
 		 */
-        RelationshipPanel(Relationship r, Model model) {
+        RelationshipPanel(Relationship r, Model model)  throws Exception{
 
 			relationship = r;
 			
@@ -142,8 +138,7 @@ public class RelationshipEditor extends BasicDialog {
         	if(propertiesPanel != null) {
         		propertiesPanel.onOK();
         	}
-        	model.fireRelationshipChanged(relationship);
-        }
+         }
         
 		/**
 		 * validateInput determines whether the input is valid and the user can

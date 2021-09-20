@@ -15,6 +15,8 @@ import java.util.LinkedList;
 import java.util.Set;
 
 import alvahouse.eatool.repository.base.RepositoryItem;
+import alvahouse.eatool.repository.dto.model.PropertyContainerDto;
+import alvahouse.eatool.repository.dto.model.PropertyDto;
 import alvahouse.eatool.repository.metamodel.MetaProperty;
 import alvahouse.eatool.repository.metamodel.MetaPropertyContainer;
 import alvahouse.eatool.util.UUID;
@@ -38,12 +40,36 @@ public abstract class PropertyContainer extends RepositoryItem{
         super(uuid);
     }
     
+    public PropertyContainer(PropertyContainerDto dao, MetaPropertyContainer meta) throws Exception{
+    	super(dao);
+    	for(PropertyDto pdao : dao.getProperties()) {
+    		addProperty(new Property(pdao, this, meta));
+    	}
+    }
+    
     /** Gets a child property given its key (UUID)
      * @param uuidMeta is the key for the property
      * @return the property corresponding to the key
      */
     public Property getPropertyByMeta(UUID uuidMeta) {
         return (Property)properties.get(uuidMeta);
+    }
+
+    /** Gets a child property given its corresponding MetaProperty.
+     * If the property doesn't exist (possible if a new MetaProperty has been created)
+     * then a new one is created and initialised.
+     * @param mp is the meta property to get the property value for.
+     * @return the property corresponding to the key
+     */
+    public Property getPropertyByMeta(MetaProperty mp) {
+        Property p = properties.get(mp.getKey());
+        if(p == null) {
+            p = new Property(new UUID(), mp);
+            p.setContainer(this);
+            properties.put(mp.getKey(),p);
+            propertyList.add(p);
+        }
+        return p;
     }
 
     /** gets an iterator that can be used to retrieve all the -properties
@@ -81,12 +107,17 @@ public abstract class PropertyContainer extends RepositoryItem{
      * to a change in the meta-model.
      * @param p is the property to add.
      */
-    protected void addProperty(Property p){
+    public void addProperty(Property p){
         if(p == null){
             throw new NullPointerException("Can't add null property");
         }
+        UUID metaKey = p.getMeta().getKey();
+        if(properties.containsKey(metaKey)) {
+        	throw new IllegalArgumentException("Properties already contains property of type " + p.getMeta().getName());
+        }
+        
         propertyList.add(p);
-        properties.put(p.getMeta().getKey(), p);
+        properties.put(metaKey, p);
     }
     
     /**
@@ -99,27 +130,38 @@ public abstract class PropertyContainer extends RepositoryItem{
         properties.remove(p.getMeta().getKey());
     }
     
-//    /** copies this entity to a copy.
-//     * @param copy is the entity to copy to.
-//     */
-//    protected void cloneTo(PropertyContainer copy) {
-//        super.cloneTo(copy);
-//        
-//        copy.propertyList.clear();
-//        copy.properties.clear();
-//        for(Iterator iter = propertyList.iterator(); iter.hasNext();) {
-//            Property p = (Property)(((Property)iter.next()).clone());
-//            copy.propertyList.addLast(p);
-//            copy.properties.put(p.getMeta().getKey(), p);
-//            p.setContainer(copy);
-//        }
-//    }
+    /** copies this entity to a copy.
+     * @param copy is the entity to copy to.
+     */
+    protected void cloneTo(PropertyContainer copy) {
+        super.cloneTo(copy);
+        
+        copy.propertyList.clear();
+        copy.properties.clear();
+        for(Property property : propertyList) {
+            Property p = (Property) property.clone();
+            copy.propertyList.addLast(p);
+            copy.properties.put(p.getMeta().getKey(), p);
+            p.setContainer(copy);
+        }
+    }
     
+    /**
+     * Copies the property container to its corresponding DAO
+     * @param dao is the corresponding DAO to initialise from this container.
+     */
+    protected void copyTo(PropertyContainerDto dao) {
+ 	   super.copyTo(dao);
+       for(Property property : propertyList) {
+    	   dao.getProperties().add( property.toDao());
+       }
+    }
+
     /** Method for adding default properties to a new meta-entity. Note that getMetaProperties
      * recurses through any base classes therefore this doesn't need to.
      * @param m is the meta-entity to add properties from.
      */
-    protected void addDefaultProperties(MetaPropertyContainer meta) {
+    protected void addDefaultProperties(MetaPropertyContainer meta) throws Exception {
 
         for(MetaProperty mp : meta.getMetaProperties()){
             Property p = new Property(new UUID(), mp);
@@ -135,7 +177,7 @@ public abstract class PropertyContainer extends RepositoryItem{
      * properties this <b>should</b> have.
      * @return true if changed, false if not.
      */
-    boolean revalidate(MetaPropertyContainer meta){
+    boolean revalidate(MetaPropertyContainer meta) throws Exception{
         Collection<MetaProperty> metaProperties = meta.getMetaProperties();
         
         Set<MetaProperty> template = new HashSet<MetaProperty>();

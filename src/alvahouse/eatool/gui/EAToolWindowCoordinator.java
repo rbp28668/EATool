@@ -58,7 +58,7 @@ public class EAToolWindowCoordinator extends WindowCoordinator {
         
         addFactory( new WindowFactory () {
             public JInternalFrame createFrame()  throws Exception{
-                StandardDiagramType diagramType = MetaModelDiagramType.getInstance();
+                StandardDiagramType diagramType = MetaModelDiagramType.getInstance(repository);
                 GraphicalMetaModel gmm = new GraphicalMetaModel(rep, rep.getMetaModel(),diagramType, new UUID());
                 rep.getMetaModelViewerEvents().cloneTo(gmm.getEventMap());
                 return new MetaModelViewer(gmm, app, rep);
@@ -67,7 +67,7 @@ public class EAToolWindowCoordinator extends WindowCoordinator {
 
         addFactory( new WindowFactory () {
             public JInternalFrame createFrame() throws Exception{
-				StandardDiagramType diagramType = new ModelDiagramType(rep.getMetaModel());
+				StandardDiagramType diagramType = new ModelDiagramType(repository);
 				GraphicalModel gm = new GraphicalModel(rep, rep.getModel(),diagramType,new UUID());
 				rep.getModelViewerEvents().cloneTo(gm.getEventMap());
                 return new ModelViewer(gm, app, rep);
@@ -99,13 +99,13 @@ public class EAToolWindowCoordinator extends WindowCoordinator {
         },"MetaDiagramExplorer");
         
         addFactory( new WindowFactory () {
-            public JInternalFrame createFrame() {
+            public JInternalFrame createFrame() throws Exception {
                 return new ImportMappingExplorer(app, rep);
             }
         },"ImportMappingExplorer");
 
         addFactory( new WindowFactory () {
-            public JInternalFrame createFrame() {
+            public JInternalFrame createFrame() throws Exception {
                 return new ExportMappingExplorer(app, rep);
             }
         },"ExportMappingExplorer");
@@ -129,7 +129,7 @@ public class EAToolWindowCoordinator extends WindowCoordinator {
         },"ScriptEditor");
 
         addFactory( new WindowFactory () {
-            public JInternalFrame createFrame() {
+            public JInternalFrame createFrame() throws Exception {
                 return new ScriptExplorer(app, rep);
             }
         },"ScriptExplorer");
@@ -141,7 +141,7 @@ public class EAToolWindowCoordinator extends WindowCoordinator {
         },"FunctionHelpBrowser");
 
         addFactory( new WindowFactory () {
-            public JInternalFrame createFrame() {
+            public JInternalFrame createFrame() throws Exception {
                 return new TypesExplorer(rep.getExtensibleTypes(), app);
             }
         },"TypesExplorer");
@@ -160,18 +160,29 @@ public class EAToolWindowCoordinator extends WindowCoordinator {
 
         
         addFactory( new WindowFactory() {
-           public JInternalFrame createFrame(){
+           public JInternalFrame createFrame() throws Exception{
                return new HTMLPagesExplorer(rep.getPages(),app, rep);
            }
         },"PageExplorer");
         
         addFactory( new WindowFactory () {
-            public JInternalFrame createFrame() {
+            public JInternalFrame createFrame() throws Exception  {
                 return new ImageExplorer(app, rep);
             }
         },"ImageExplorer");
         
     }
+
+    
+	/**
+	 * Updates the window coordinator to use a new repository. Note that
+	 * any and all existing windows are closed.
+	 * @param repository
+	 */
+	public void setRepository(Repository repository) {
+		removeAll();
+		rep = repository;
+	}
 
 //            addFrame(new MetaModelExplorerFrame(m_repository.getMetaModel()), "MetaModelExplorer");
 //            addFrame(new ModelExplorer(m_repository.getModel(), m_repository.getMetaModel()),"ModelExplorer");

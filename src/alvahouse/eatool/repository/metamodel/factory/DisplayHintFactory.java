@@ -7,6 +7,7 @@ import alvahouse.eatool.repository.exception.InputException;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaEntityDisplayHint;
 import alvahouse.eatool.repository.metamodel.MetaModel;
+import alvahouse.eatool.repository.metamodel.MetaProperty;
 import alvahouse.eatool.util.IXMLContentHandler;
 import alvahouse.eatool.util.UUID;
 
@@ -52,10 +53,15 @@ public class DisplayHintFactory implements IXMLContentHandler {
 	 */
     public void endElement(String uri, String local) throws InputException {
         if(local.compareTo("DisplayHint") == 0) {
-            targetMetaEntity.setDisplayHint(currentHint);
-            targetMetaEntity = null;
-            currentHint = null;
-            counter.count("Display Hint");
+            try {
+				targetMetaEntity.setDisplayHint(currentHint);
+				metaModel._update(targetMetaEntity);
+				targetMetaEntity = null;
+				currentHint = null;
+				counter.count("Display Hint");
+			} catch (Exception e) {
+				throw new InputException("Unable to update meta entity with display hint",e);
+			}
         }
     }
     
@@ -71,7 +77,13 @@ public class DisplayHintFactory implements IXMLContentHandler {
             if(attr == null)
                 throw new InputException("missing meta-entity key in display hint");
             
-            targetMetaEntity = metaModel.getMetaEntity(new UUID(attr));
+            targetMetaEntity = null;
+            try {
+            	targetMetaEntity = metaModel.getMetaEntity(new UUID(attr));
+            } catch (Exception e) {
+            	throw new InputException("Unable to find target meta-entity for display hint", e);
+            }
+            
             if(targetMetaEntity == null)
                 throw new InputException("unable to find target meta-entity for display hint - key: "
                 + attr);
@@ -82,7 +94,13 @@ public class DisplayHintFactory implements IXMLContentHandler {
                 throw new InputException("missing key value for name key in display hint");
             
             UUID key = new UUID(attr);
-            if(targetMetaEntity.getMetaProperty(key) == null)
+            MetaProperty target = null;
+            try {
+            	target = targetMetaEntity.getMetaProperty(key);
+            } catch (Exception e) {
+            	throw new InputException("Unable to get meta property with key " + key + " loading display hint");
+            }
+            if(target == null)
                 throw new InputException("Invalid key in display hint for " + targetMetaEntity.getName());
             
             currentHint.addPropertyKey(key);

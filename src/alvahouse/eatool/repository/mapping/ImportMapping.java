@@ -10,6 +10,14 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
+import alvahouse.eatool.repository.base.NamedRepositoryItem;
+import alvahouse.eatool.repository.dto.mapping.EntityTranslationDto;
+import alvahouse.eatool.repository.dto.mapping.ImportMappingDto;
+import alvahouse.eatool.repository.dto.mapping.RelationshipTranslationDto;
+import alvahouse.eatool.repository.version.Version;
+import alvahouse.eatool.repository.version.VersionImpl;
+import alvahouse.eatool.repository.version.Versionable;
+import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
 /**
@@ -17,39 +25,51 @@ import alvahouse.eatool.util.XMLWriter;
  * 
  * @author rbp28668
  */
-public class ImportMapping {
-    private String name="";
-    private String description="";
+public class ImportMapping extends NamedRepositoryItem implements Versionable{
     private String parserName="XML";
     private String transformPath = null;
     private List<EntityTranslation> entityTranslations = new LinkedList<EntityTranslation>();
     private List<RelationshipTranslation> relationshipTranslations = new LinkedList<RelationshipTranslation>();
-
+    private VersionImpl version = new VersionImpl();
+    
     public ImportMapping(){
+    	super(new UUID());
     }
 
+    public ImportMapping(UUID key){
+    	super(key);
+    }
 
-    /**
-     * Gets the name of this import mapping.
-     * @return the mappings's name.
-     */
-    public String getName() {
-        return name;
+    public ImportMapping(ImportMappingDto dto) {
+    	super(dto);
+    	this.parserName = dto.getParserName();
+    	this.transformPath = dto.getTransformPath();
+    	for(EntityTranslationDto etdto : dto.getEntityTranslations()) {
+    		EntityTranslation et = new EntityTranslation(etdto);
+    		entityTranslations.add(et);
+    	}
+    	for(RelationshipTranslationDto rtdto : dto.getRelationshipTranslations()) {
+    		RelationshipTranslation rt = new RelationshipTranslation(rtdto);
+    		relationshipTranslations.add(rt);
+    	}
+    	this.version.fromDto(dto.getVersion());
     }
     
-    /**
-     * Sets this import mapping's name.
-     * @param name is the name to set.
-     */
-    public void setName(String name){
-        this.name = name;
-    }
+	/**
+	 * @return
+	 */
+	public ImportMappingDto toDto() {
+		ImportMappingDto dto = new ImportMappingDto();
+		copyTo(dto);
+		return dto;
+	}
+
     
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */
     public String toString() {
-        return name;
+        return getName();
     }
     /**
      * @return Returns the entityTranslations.
@@ -63,20 +83,6 @@ public class ImportMapping {
      */
     public List<RelationshipTranslation> getRelationshipTranslations() {
         return relationshipTranslations;
-    }
-    /**
-     * Gets the description of this import mapping.
-     * @return Returns the description.
-     */
-    public String getDescription() {
-        return description;
-    }
-    /**
-     * Sets the description of this import mapping.
-     * @param description The description to set.
-     */
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     /**
@@ -184,9 +190,7 @@ public class ImportMapping {
      */
     public void writeXML(XMLWriter writer) throws IOException {
         writer.startEntity("ImportTranslation");
-        writer.addAttribute("name",getName());
-        
-        writer.textEntity("Description",description);
+        super.writeAttributesXML(writer);
         writer.textEntity("Parser", parserName);
         if(transformPath != null){
             writer.textEntity("Transform",transformPath);
@@ -207,6 +211,50 @@ public class ImportMapping {
         
     }
 
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.version.Versionable#getVersion()
+	 */
+	@Override
+	public Version getVersion() {
+		return version;
+	}
+
+	public Object clone() {
+		ImportMapping copy = new ImportMapping(getKey());
+		cloneTo(copy);
+		return copy;
+	}
+	
+	protected void cloneTo(ImportMapping copy) {
+		super.cloneTo(copy);
+		copy.parserName = parserName;
+		copy.transformPath = transformPath;
+		copy.entityTranslations = new LinkedList<EntityTranslation>();
+		for(EntityTranslation et : entityTranslations) {
+			copy.entityTranslations.add( (EntityTranslation) et.clone());
+		}
+    	copy.relationshipTranslations = new LinkedList<RelationshipTranslation>();
+    	for(RelationshipTranslation rt : relationshipTranslations) {
+    		copy.relationshipTranslations.add( (RelationshipTranslation) rt.clone());
+    	}
+    	version.cloneTo(copy.version);
+	}
+
+	protected void copyTo(ImportMappingDto dto) {
+		super.copyTo(dto);
+		dto.setParserName(parserName);
+		dto.setTransformPath(transformPath);
+		for(EntityTranslation et : entityTranslations) {
+			dto.getEntityTranslations().add(et.toDto());
+		}
+    	for(RelationshipTranslation rt : relationshipTranslations) {
+    		dto.getRelationshipTranslations().add(rt.toDto());
+    	}
+    	dto.setVersion(version.toDto());
+
+		
+	}
 
     
 }

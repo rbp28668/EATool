@@ -11,6 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import alvahouse.eatool.repository.dto.metamodel.RegexpCheckedTypeDto;
 import alvahouse.eatool.repository.exception.InputException;
 import alvahouse.eatool.util.ClassUtils;
 import alvahouse.eatool.util.UUID;
@@ -43,12 +44,25 @@ public class RegexpCheckedType extends ExtensibleMetaPropertyType {
         fieldLength = super.getDisplayLength();
     }
 
+    public RegexpCheckedType(RegexpCheckedTypeDto dto) {
+    	super(dto);
+    	this.pattern = dto.getPattern();
+    	this.defaultValue = dto.getDefaultValue();
+    	this.fieldLength = dto.getFieldLength();
+    }
+    
+    public RegexpCheckedTypeDto toDto() {
+    	RegexpCheckedTypeDto dto = new RegexpCheckedTypeDto();
+    	copyTo(dto);
+    	return dto;
+    }
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.metamodel.types.ExtensibleMetaPropertyType#writeXML(alvahouse.eatool.util.XMLWriter)
      */
     public void writeXML(XMLWriter out) throws IOException {
         out.startEntity(ClassUtils.baseClassNameOf(this));
         writeAttributesXML(out);
+        writeVersionXML(out);
         out.textEntity("Pattern",pattern.pattern());
         out.textEntity("Default", defaultValue);
         out.textEntity("FieldLength",Integer.toString(fieldLength));
@@ -133,13 +147,28 @@ public class RegexpCheckedType extends ExtensibleMetaPropertyType {
      */
     public void endElement(String uri, String local) throws InputException {
         if(local.equals("Pattern")){
-            setPattern(getXMLValue());
+            setPattern(getXmlValue());
         } else if(local.equals("Default")){
-            setDefaultValue(getXMLValue());
+            setDefaultValue(getXmlValue());
         } else if(local.equals("FieldLength")){
-            setFieldLength(Integer.parseInt(getXMLValue()));
+            setFieldLength(Integer.parseInt(getXmlValue()));
         }
     }
 
- 
+    @Override
+    public Object clone() {
+    	RegexpCheckedType copy = new RegexpCheckedType(getKey());
+    	super.cloneTo(copy);
+    	copy.pattern = pattern;
+    	copy.defaultValue = defaultValue;
+    	copy.fieldLength = fieldLength;
+    	return copy;
+    }
+
+    protected void copyTo(RegexpCheckedTypeDto dto) {
+    	super.copyTo(dto);
+    	dto.setPattern(pattern);
+    	dto.setDefaultValue(defaultValue);
+    	dto.setFieldLength(fieldLength);
+    }
  }

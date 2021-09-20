@@ -13,6 +13,8 @@ import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 import alvahouse.eatool.gui.graphical.layout.Arc;
@@ -20,6 +22,7 @@ import alvahouse.eatool.gui.graphical.layout.Node;
 import alvahouse.eatool.gui.graphical.standard.UnitVector;
 import alvahouse.eatool.repository.base.KeyedItem;
 import alvahouse.eatool.repository.base.RepositoryItem;
+import alvahouse.eatool.repository.dto.graphical.ConnectorDto;
 import alvahouse.eatool.repository.graphical.Handle;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
@@ -38,9 +41,10 @@ public abstract class AbstractConnector extends RepositoryItem implements Connec
 	private KeyedItem item;
 	private ConnectorType type;
 	private float length = 0;
-	private Node[] nodes = new Node[2];
-	protected ConnectorEnd start = ConnectorEnd.getNullObject();
-	protected ConnectorEnd finish = ConnectorEnd.getNullObject();
+	private Symbol start = null;
+	private Symbol finish = null;
+	protected ConnectorEnd startEnd = ConnectorEnd.getNullObject();
+	protected ConnectorEnd finishEnd = ConnectorEnd.getNullObject();
 
 	/** The drawing strategy currently used to draw this connector */
 	private ConnectorStrategy drawingStrategy;
@@ -67,16 +71,30 @@ public abstract class AbstractConnector extends RepositoryItem implements Connec
 	public AbstractConnector(UUID key, KeyedItem item, ConnectorEnd start, ConnectorEnd finish, ConnectorType type) {
 		super(key);
 		this.item = item;
-		this.start = start;
-		this.finish = finish;
+		this.startEnd = start;
+		this.finishEnd = finish;
 		this.type = type;
 		drawingStrategy = new CubicConnectorStrategy();
 	}
 	
-	public void initialise(KeyedItem item, ConnectorEnd start, ConnectorEnd finish) {
-		setItem(item);
+	/**
+	 * @param dto
+	 */
+	public AbstractConnector(KeyedItem item, ConnectorType type, Symbol start, Symbol finish, ConnectorDto dto) {
+		super(dto);
+		this.type = type;
+		this.item = item;
+		this.startEnd = ConnectorEndFactory.fromDto(dto.getStartEnd());
+		this.finishEnd = ConnectorEndFactory.fromDto(dto.getFinishEnd());
 		this.start = start;
 		this.finish = finish;
+		this.drawingStrategy = ConnectorStrategyFactory.fromDto(dto.getDrawingStrategy());
+	}
+
+	public void initialise(KeyedItem item, ConnectorEnd start, ConnectorEnd finish) {
+		setItem(item);
+		this.startEnd = start;
+		this.finishEnd = finish;
 	}
 
     /** Gets the user object associated with this arc.
@@ -99,10 +117,10 @@ public abstract class AbstractConnector extends RepositoryItem implements Connec
      * @param finish is the end node of the arc.
      */
     public void setEnds(Node start, Node finish) {
-        nodes[0] = start;
-        nodes[1] = finish;
-		endMoved((Symbol)start);
-		endMoved((Symbol)finish);
+        this.start = (Symbol)start;
+        this.finish = (Symbol)finish;
+		endMoved(this.start);
+		endMoved(this.finish);
    
     }
 
@@ -111,8 +129,8 @@ public abstract class AbstractConnector extends RepositoryItem implements Connec
      * @return the arc length.
      */
     public float getLength() {
-        float dx = nodes[1].getX() - nodes[0].getX();
-        float dy = nodes[1].getY() - nodes[0].getY();
+        float dx = finish.getX() - start.getX();
+        float dy = finish.getY() - start.getY();
         return (float)Math.sqrt(dx * dx + dy * dy);
     }
     
@@ -120,14 +138,14 @@ public abstract class AbstractConnector extends RepositoryItem implements Connec
      * @return the arc's start node.
      */
     public Node getStartEnd() {
-        return nodes[0];
+        return start;
     }
     
     /** gets the finish node of the arc
      * @return the arc's finish node.
      */
     public Node getFinishEnd() {
-        return nodes[1];
+        return finish;
     }
     
     /** Given the node on one end of the arc, this gets the node on the other
@@ -136,10 +154,10 @@ public abstract class AbstractConnector extends RepositoryItem implements Connec
      * @return the node at the other end from thisEnd.
      */
     public Node getOtherEnd(Node thisEnd) {
-        if(thisEnd == nodes[0])
-            return nodes[1];
+        if(thisEnd == start)
+            return finish;
         else
-            return nodes[0];
+            return start;
     }
     
     /**
@@ -150,10 +168,10 @@ public abstract class AbstractConnector extends RepositoryItem implements Connec
 	public void draw(Graphics g, float scale){
         //System.out.println("Drawing arc ");
 
-        g.drawLine((int)Math.round(nodes[0].getX() * scale),
-                   (int)Math.round(nodes[0].getY() * scale),
-                   (int)Math.round(nodes[1].getX() * scale),
-                   (int)Math.round(nodes[1].getY() * scale));
+        g.drawLine((int)Math.round(start.getX() * scale),
+                   (int)Math.round(start.getY() * scale),
+                   (int)Math.round(finish.getX() * scale),
+                   (int)Math.round(finish.getY() * scale));
     }
     
 
@@ -163,10 +181,10 @@ public abstract class AbstractConnector extends RepositoryItem implements Connec
      */
     public boolean intersects(Arc other) {
         // First line (x0 + u.dx0, y0 + u.dy0)
-        float x0 = nodes[0].getX();
-        float y0 = nodes[0].getY();
-        float dx0 = nodes[1].getX() - x0;
-        float dy0 = nodes[1].getY() - y0;
+        float x0 = start.getX();
+        float y0 = start.getY();
+        float dx0 = finish.getX() - x0;
+        float dy0 = finish.getY() - y0;
         
         // second line
         float x1 = other.getStartEnd().getX();
@@ -206,11 +224,11 @@ public abstract class AbstractConnector extends RepositoryItem implements Connec
 	}
 	
 	public ConnectorEnd getStartConnectorEnd(){
-		return start;
+		return startEnd;
 	}
 
 	public ConnectorEnd getFinishConnectorEnd(){
-		return finish;
+		return finishEnd;
 	}
 
 	/**
@@ -225,8 +243,8 @@ public abstract class AbstractConnector extends RepositoryItem implements Connec
 		KeyedItem represents = getItem();
 		out.addAttribute("represents",represents.getKey().toString());
 		
-		out.addAttribute("start",((KeyedItem)nodes[0]).getKey().toString());
-		out.addAttribute("finish",((KeyedItem)nodes[1]).getKey().toString());
+		out.addAttribute("start",((KeyedItem)start).getKey().toString());
+		out.addAttribute("finish",((KeyedItem)finish).getKey().toString());
 		
 		drawingStrategy.writeXML(out);
 		
@@ -286,7 +304,7 @@ public abstract class AbstractConnector extends RepositoryItem implements Connec
 
 	private void drawEnds(Graphics2D g, float zoom, boolean selected){
 		Shape curve = drawingStrategy.getShape(1.0f);
-		Vector curveSegments = shapeToLineSegments(curve);
+		List<Line2D.Float> curveSegments = shapeToLineSegments(curve);
 
 		Symbol startEnd = (Symbol)getStartEnd();
 		Shape startShape = startEnd.getOutlineShape();
@@ -322,8 +340,8 @@ public abstract class AbstractConnector extends RepositoryItem implements Connec
 //			y + (int) (pos.getDirectionY() * 20));
 //	}
 
-	private UnitVector intersect(Vector curve, Shape symbolShape){
-		Vector shapeSegments = shapeToLineSegments(symbolShape);
+	private UnitVector intersect(List<Line2D.Float> curve, Shape symbolShape){
+		List<Line2D.Float> shapeSegments = shapeToLineSegments(symbolShape);
 	
 		// one end or other of this curve should lie in the symbol.
 		Point2D start = ((Line2D.Float)curve.get(0)).getP1();
@@ -334,7 +352,7 @@ public abstract class AbstractConnector extends RepositoryItem implements Connec
 
 		if(forward){
 			for(int i=0; i<nSegs; ++i){
-				Line2D.Float segment = (Line2D.Float)curve.get(i);
+				Line2D.Float segment = curve.get(i);
 				if(symbolShape.contains(segment.getP1()) && !symbolShape.contains(segment.getP2())){
 					intersectingSegment = segment;
 					break;
@@ -342,7 +360,7 @@ public abstract class AbstractConnector extends RepositoryItem implements Connec
 			}
 		} else { // start at other end.
 			for(int i=nSegs-1; i>=0; --i){
-				Line2D.Float segment = (Line2D.Float)curve.get(i);
+				Line2D.Float segment = curve.get(i);
 				if(symbolShape.contains(segment.getP2()) && !symbolShape.contains(segment.getP1())){
 					intersectingSegment = segment;
 					break;
@@ -413,13 +431,13 @@ public abstract class AbstractConnector extends RepositoryItem implements Connec
 		return new Point2D.Float(x1 + v * dx1, y1 + v * dy1);
 	}
 		
-	private Vector shapeToLineSegments(Shape curve) {
+	private ArrayList<Line2D.Float> shapeToLineSegments(Shape curve) {
 
 		float[] coords = new float[6]; // 6 - see PathIterator docs.
 		float currX = 0, currY = 0;
 		float moveX = 0, moveY = 0;
-		Line2D segment;
-		Vector segments = new Vector(32); // 32 covered all cubics in tests
+		Line2D.Float segment;
+		ArrayList<Line2D.Float> segments = new ArrayList<>(32); // 32 covered all cubics in tests
 		for (PathIterator pathCurve = curve.getPathIterator(null, 1.0);
 			!pathCurve.isDone();
 			pathCurve.next()) {
@@ -436,7 +454,7 @@ public abstract class AbstractConnector extends RepositoryItem implements Connec
 
 					// line is (currX,currY) -> (newX, newY)
 					segment = new Line2D.Float(currX, currY, newX, newY);
-					segments.addElement(segment);
+					segments.add(segment);
 					currX = newX;
 					currY = newY;
 					break;
@@ -444,7 +462,7 @@ public abstract class AbstractConnector extends RepositoryItem implements Connec
 				case PathIterator.SEG_CLOSE :
 					// Line from (currX, currY) -> (moveX, moveY)
 					segment = new Line2D.Float(currX, currY, moveX, moveY);
-					segments.addElement(segment);
+					segments.add(segment);
 					currX = moveX;
 					currY = moveY;
 					break;
@@ -593,11 +611,11 @@ public abstract class AbstractConnector extends RepositoryItem implements Connec
      * @see alvahouse.eatool.gui.graphical.Connector#setStrategy(alvahouse.eatool.gui.graphical.ConnectorStrategy)
      */
     public void setStrategy(ConnectorStrategy connectorStrategy) {
-//        if(nodes[0] == null || nodes[1] == null){
+//        if(start == null || finish == null){
 //            throw new IllegalStateException("Cannot set drawing strategy if ends not set");
 //        }
-//	    connectorStrategy.setStart(nodes[0].getX(), nodes[0].getY());
-//	    connectorStrategy.setFinish(nodes[1].getX(), nodes[1].getY());
+//	    connectorStrategy.setStart(start.getX(), start.getY());
+//	    connectorStrategy.setFinish(finish.getX(), finish.getY());
 	    drawingStrategy = connectorStrategy;
     }
     
@@ -615,14 +633,36 @@ public abstract class AbstractConnector extends RepositoryItem implements Connec
     }
     /* (non-Javadoc)
      * @see alvahouse.eatool.gui.graphical.GraphicalObject#getX()
+     * Just returns the midpoint of the connector.
      */
     public float getX() {
-        return (nodes[0].getX() + nodes[nodes.length-1].getX())/2;
+        return (start.getX() + finish.getX())/2;
     }
     /* (non-Javadoc)
      * @see alvahouse.eatool.gui.graphical.GraphicalObject#getY()
-     */
+     * Just returns the midpoint of the connector.
+    */
     public float getY() {
-        return (nodes[0].getY() + nodes[nodes.length-1].getY())/2;
+        return (start.getY() + finish.getY())/2;
+    }
+    
+    public abstract Object clone();
+    
+    protected void cloneTo(AbstractConnector copy) {
+    	super.cloneTo(copy);
+    	copy.type = type;
+    	copy.item = item;
+    	copy.startEnd = startEnd;
+    	copy.finishEnd = finishEnd;
+    }
+    
+    protected void copyTo(ConnectorDto dto) {
+    	super.copyTo(dto);
+    	dto.setConnectorTypeKey(type.getKey());
+    	dto.setReferencedItemKey(item.getKey());
+    	dto.setStartSymbolKey(start.getKey());
+    	dto.setFinishSymbolKey(finish.getKey());
+    	dto.setStartEnd(startEnd.toDto());
+    	dto.setFinishEnd(finishEnd.toDto());
     }
 }

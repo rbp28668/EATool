@@ -19,7 +19,8 @@ import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
 
 /**
- * Editor for a MetaRelationship.
+ * Editor for a MetaRelationship. This edits the meta relationship "in place" and does
+ * not explicitly update the meta model.
  * @author  rbp28668
  */
 public class MetaRelationshipEditor extends BasicDialog {
@@ -44,7 +45,7 @@ public class MetaRelationshipEditor extends BasicDialog {
     }
            
     /** Creates new form MetaRelationshipEditor */
-    public MetaRelationshipEditor(Component parent, MetaRelationship mr , Repository repository) {
+    public MetaRelationshipEditor(Component parent, MetaRelationship mr , Repository repository)  throws Exception{
         super(parent,"Edit Meta-Relationship"); 
 
         mrOriginal = mr;
@@ -89,7 +90,7 @@ public class MetaRelationshipEditor extends BasicDialog {
         private MetaRoleEditor.RolePanel rpStart;
         private MetaRoleEditor.RolePanel rpFinish;
 
-        public RolesPanel(MetaRelationship mr, Repository repository) {
+        public RolesPanel(MetaRelationship mr, Repository repository)  throws Exception{
             setLayout(new GridLayout(2,1));
             rpStart = new MetaRoleEditor.RolePanel(mr.start(),repository);
             rpFinish = new MetaRoleEditor.RolePanel(mr.finish(),repository);

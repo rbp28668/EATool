@@ -30,6 +30,7 @@ import alvahouse.eatool.repository.graphical.standard.StandardDiagram;
 import alvahouse.eatool.repository.graphical.standard.Symbol;
 import alvahouse.eatool.repository.graphical.standard.TextBox;
 import alvahouse.eatool.repository.graphical.standard.TextObjectSettings;
+import alvahouse.eatool.repository.scripting.EventMap;
 import alvahouse.eatool.repository.scripting.ScriptContext;
 import alvahouse.eatool.repository.scripting.ScriptManager;
 import alvahouse.eatool.scripting.proxy.ScriptWrapper;
@@ -55,7 +56,7 @@ final class StandardDiagramViewerMouseHandler extends MouseInputAdapter {
 	private GraphicalObject selected = null;
 	private Connector selectedConnector = null;
 	private RubberBand rubberBand = new RubberBand();
-	private Set selectedObjects = new HashSet();
+	private Set<GraphicalObject> selectedObjects = new HashSet<>();
 	
 	/**
 	 * @param StandardDiagramViewerProxy.ViewerPane
@@ -105,8 +106,7 @@ final class StandardDiagramViewerMouseHandler extends MouseInputAdapter {
 		selectedConnector = diagram.getConnectorAt(mx, my, zoom);
 		
 		if(selectedConnector != null){
-			for(Iterator iter = diagram.getConnectors().iterator(); iter.hasNext(); ){
-				Connector c = (Connector) iter.next();
+			for(Connector c : diagram.getConnectors() ){
 				if(c == selectedConnector){
 					selectedConnector.onSelect(e.getX(), e.getY(), zoom);
 				} else {
@@ -116,8 +116,7 @@ final class StandardDiagramViewerMouseHandler extends MouseInputAdapter {
 				}
 			}
 		} else {
-			for(Iterator iter = diagram.getConnectors().iterator(); iter.hasNext(); ){
-				Connector c = (Connector) iter.next();
+			for(Connector c : diagram.getConnectors()){
 				if(c.isSelected()){
 					c.clearSelect();
 				}
@@ -139,8 +138,7 @@ final class StandardDiagramViewerMouseHandler extends MouseInputAdapter {
 		Connector selected = null;
 		float zoom = viewPane.getZoom();
 		StandardDiagram diagram = viewPane.getDiagram();
-		for(Iterator iter = diagram.getConnectors().iterator(); iter.hasNext(); ){
-			Connector c = (Connector)iter.next();
+		for(Connector c : diagram.getConnectors()){
 			if(c.hitTest(e.getX(),e.getY(),zoom)){
 				selected = c;
 				break;
@@ -154,7 +152,7 @@ final class StandardDiagramViewerMouseHandler extends MouseInputAdapter {
 	 * @param e is the mouse down event to select with
 	 * @return true if a symbol is selected.
 	 */
-	private boolean selectGraphicalObject(MouseEvent e, Collection objects) {
+	private boolean selectGraphicalObject(MouseEvent e, Collection<GraphicalObject> objects) {
 		
 		selected = hitTestGraphicalObject(e,objects);
 		
@@ -184,12 +182,10 @@ final class StandardDiagramViewerMouseHandler extends MouseInputAdapter {
 	 * @return if there is an object at the given mouse position then it
 	 * is returned, otherwise null is returned.
 	 */
-	private GraphicalObject hitTestGraphicalObject(MouseEvent e, Collection objects) {
+	private GraphicalObject hitTestGraphicalObject(MouseEvent e, Collection<? extends GraphicalObject> objects) {
 		GraphicalObject selected = null;
 		float zoom = viewPane.getZoom();
-		StandardDiagram diagram = viewPane.getDiagram();
-		for(Iterator iter = objects.iterator(); iter.hasNext(); ){
-			GraphicalObject s = (GraphicalObject)iter.next();
+		for(GraphicalObject s : objects){
 			if(s.hitTest(e.getX(),e.getY(),zoom)){
 				selected = s;
 				break;
@@ -235,9 +231,8 @@ final class StandardDiagramViewerMouseHandler extends MouseInputAdapter {
      * selection is indicated by being in the selectedObjects set.
      * @param c is the collection of objects to (conditionally) clear.
      */
-    private void clearUnselected(Collection c){
-        for(Iterator iter = c.iterator(); iter.hasNext();){
-            GraphicalObject object = (GraphicalObject)iter.next();
+    private void clearUnselected(Collection<? extends GraphicalObject> c){
+        for(GraphicalObject object : c){
             if(!selectedObjects.contains(object)){
                 object.clearSelect();
             }
@@ -248,8 +243,7 @@ final class StandardDiagramViewerMouseHandler extends MouseInputAdapter {
      * Clears the selection status of all the selected objects.
      */
     private void clearSelectedExcept( GraphicalObject sel){
-        for(Iterator iter = selectedObjects.iterator(); iter.hasNext();){
-            GraphicalObject object = (GraphicalObject)iter.next();
+        for(GraphicalObject object : selectedObjects){
             assert(object.isSelected());
             if(sel != object){
                 object.clearSelect();
@@ -323,8 +317,9 @@ final class StandardDiagramViewerMouseHandler extends MouseInputAdapter {
 						    Object target = ScriptWrapper.wrapObject(item);
 						    Object diagram = ScriptWrapper.wrap(viewPane.getDiagram());
 						    
-						    ScriptContext context = viewPane.getDiagram().getEventMap().getContextFor(event);
-						    if(context != null){
+						    EventMap eventMap = viewPane.getDiagram().getEventMap();
+						    if(eventMap.hasHandler(event)) {
+						    	ScriptContext context = eventMap.getContextFor(event, viewer.getScripts());
 							    context.addObject("target",target,target.getClass());
 							    context.addObject("diagram", diagram, diagram.getClass());
 
@@ -332,7 +327,6 @@ final class StandardDiagramViewerMouseHandler extends MouseInputAdapter {
 							    context.setErrorHandler(errHandler);
 							    
 							    ScriptManager.getInstance().runScript(context);
-							    
 						    }
 						}
 					} else if (e.isAltDown()) {

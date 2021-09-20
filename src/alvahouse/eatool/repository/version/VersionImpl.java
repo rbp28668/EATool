@@ -13,8 +13,8 @@ import java.util.Date;
 
 import org.xml.sax.Attributes;
 
+import alvahouse.eatool.repository.dto.VersionDto;
 import alvahouse.eatool.repository.exception.InputException;
-import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
 /**
@@ -32,14 +32,43 @@ public class VersionImpl implements Version {
     private String createUser = ANON;
     private Date modifyDate = START;
     private String modifyUser = ANON;
-    private UUID version = new UUID();
-    private UUID originalVersion = new UUID();
+    private String version = null;
+    private String originalVersion = null;
     
     private final static String TIME_FORMAT_STR = "yyyyMMddHHmmssSSS";
     private static SimpleDateFormat TIME_FORMAT = new SimpleDateFormat(TIME_FORMAT_STR);
     
     
-    /* (non-Javadoc)
+    public VersionImpl() {
+    }
+
+    /**
+	 * @param dao
+	 */
+	public VersionImpl(VersionDto dto) {
+		fromDto(dto);
+	}
+	
+	public VersionDto toDto() {
+		VersionDto dao = new VersionDto();
+		dao.setCreateDate(createDate);
+		dao.setCreateUser(createUser);
+		dao.setModifyDate(modifyDate);
+		dao.setModifyUser(modifyUser);
+		dao.setVersion(version);
+		dao.setOriginalVersion(originalVersion);
+		return dao;
+	}
+
+	public void fromDto(VersionDto dto) {
+		createDate = dto.getCreateDate();
+		createUser = dto.getCreateUser();
+		modifyDate = dto.getModifyDate();
+		modifyUser = dto.getModifyUser();
+		version = dto.getVersion();
+		originalVersion = dto.getOriginalVersion();
+	}
+	/* (non-Javadoc)
      * @see alvahouse.eatool.repository.version.Versionable#getCreateDate()
      */
     public Date getCreateDate() {
@@ -98,28 +127,28 @@ public class VersionImpl implements Version {
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.version.Versionable#getVersion()
      */
-    public UUID getVersion() {
+    public String getVersion() {
         return version;
     }
 
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.version.Versionable#setVersion(alvahouse.eatool.util.UUID)
      */
-    public void setVersion(UUID version) {
+    public void setVersion(String version) {
         this.version = version;
     }
     
-    /**
+	/**
      * @return the originalVersion
      */
-    public UUID getOriginalVersion() {
+    public String getOriginalVersion() {
         return originalVersion;
     }
 
     /**
      * @param originalVersion the originalVersion to set
      */
-    public void setOriginalVersion(UUID originalVersion) {
+    public void setOriginalVersion(String originalVersion) {
         this.originalVersion = originalVersion;
     }
     
@@ -130,7 +159,8 @@ public class VersionImpl implements Version {
     public void createBy(String user){
         createUser = modifyUser = user;
         createDate = modifyDate = new Date();
-        version = new UUID();
+        originalVersion = null;
+        version = null;
     }
 
     /* (non-Javadoc)
@@ -139,16 +169,28 @@ public class VersionImpl implements Version {
     public void modifyBy(String user){
         modifyUser = user;
         modifyDate = new Date();
-        version = new UUID();
     }
+
     
-    public void cloneTo(VersionImpl other){
+    /* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.version.Version#update(java.lang.String)
+	 */
+	@Override
+	public void update(String version) {
+		if(version != null) {
+			this.originalVersion = this.version;
+			this.version = version;
+		}
+	}
+	
+
+	public void cloneTo(VersionImpl other){
         other.createUser = createUser;
         other.createDate = new Date(createDate.getTime());
         other.modifyUser = modifyUser;
         other.modifyDate = new Date(modifyDate.getTime());
-        other.version = new UUID(version.toString());
-        other.originalVersion = new UUID(originalVersion.toString());
+        other.version = version;
+        other.originalVersion = originalVersion;
     }
     
     /**
@@ -161,8 +203,8 @@ public class VersionImpl implements Version {
         out.addAttribute("createDate",TIME_FORMAT.format(getCreateDate()));
         out.addAttribute("modifyUser",getModifyUser());
         out.addAttribute("modifyDate",TIME_FORMAT.format(getModifyDate()));
-        out.addAttribute("version", getVersion().toString());    
-        out.addAttribute("originalVersion", getOriginalVersion().toString());    
+        out.addAttribute("version", (version == null) ? "" : version.toString());    
+        out.addAttribute("originalVersion", (originalVersion == null) ? "" : originalVersion.toString());    
         out.stopEntity();
     }
     
@@ -187,15 +229,12 @@ public class VersionImpl implements Version {
             throw new InputException("Invalid date/time in version");
         }
         
-        UUID ver = new UUID(verStr);
-        UUID origVer = new UUID(origVerStr);
-        
         version.setCreateDate(createDate);
         version.setCreateUser(createUser);
         version.setModifyDate(modifyDate);
         version.setModifyUser(modifyUser);
-        version.setVersion(ver);
-        version.setOriginalVersion(origVer);
+        version.setVersion(verStr);
+        version.setOriginalVersion(origVerStr);
     }
 
 

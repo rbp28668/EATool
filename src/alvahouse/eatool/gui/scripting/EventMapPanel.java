@@ -10,8 +10,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.util.Iterator;
-import java.util.Map;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.JComboBox;
@@ -25,6 +23,7 @@ import javax.swing.table.TableModel;
 import alvahouse.eatool.repository.scripting.EventMap;
 import alvahouse.eatool.repository.scripting.Script;
 import alvahouse.eatool.repository.scripting.Scripts;
+import alvahouse.eatool.util.UUID;
 
 /**
  * EventMapPanel
@@ -33,24 +32,22 @@ import alvahouse.eatool.repository.scripting.Scripts;
  */
 public class EventMapPanel extends JPanel implements ItemListener {
 
-    private EventMap eventMap;
-    private Scripts scripts;
+ 	private static final long serialVersionUID = 1L;
+	private EventMap eventMap;
     private JTable table;
-    private static final String NONE = "--NONE--";
+    private static final Script NONE = new Script(UUID.NULL); 
 
     /**
      * 
      */
-    public EventMapPanel(EventMap eventMap, Scripts scripts) {
+    public EventMapPanel(EventMap eventMap, Scripts scripts) throws Exception {
         super();
         this.eventMap = eventMap;
-        this.scripts = scripts;
-        
-        table = new JTable( new EventMapTableModel());
+        NONE.setName("--NONE--");
+        table = new JTable( new EventMapTableModel(scripts));
         table.setDefaultEditor(Script.class, new HandlerCellEditor(scripts,this));
         JScrollPane scroll = new JScrollPane(table);
         add(scroll,BorderLayout.CENTER);
-        
     }
 
     /**
@@ -93,20 +90,20 @@ public class EventMapPanel extends JPanel implements ItemListener {
 
     private class EventMapTableModel extends AbstractTableModel{
 
-        private final String[] headers = {"Event", "Handler"};
+ 		private static final long serialVersionUID = 1L;
+		private final String[] headers = {"Event", "Handler"};
         private  String[] events;
         private Script[] handlers; 
 
-        EventMapTableModel(){
+        EventMapTableModel(Scripts scripts) throws Exception{
             int count = eventMap.getEventCount();
             events = new String[count];
             handlers = new Script[count];
             
             int idx = 0;
-            for(Iterator iter = eventMap.getMap().entrySet().iterator(); iter.hasNext();){
-                Map.Entry entry = (Map.Entry)iter.next();
-                events[idx] = (String)entry.getKey();
-                handlers[idx] = (Script)entry.getValue();
+            for(String event : eventMap.getEvents()){
+                events[idx] = event;
+                handlers[idx] = eventMap.hasHandler(event) ? null : eventMap.get(event, scripts);
                 ++idx;
             }
         }
@@ -160,7 +157,7 @@ public class EventMapPanel extends JPanel implements ItemListener {
         /* (non-Javadoc)
          * @see javax.swing.table.TableModel#getColumnClass(int)
          */
-        public Class getColumnClass(int column) {
+        public Class<?> getColumnClass(int column) {
             if(column == 0){
                 return String.class;
             } else if (column == 1){
@@ -182,17 +179,16 @@ public class EventMapPanel extends JPanel implements ItemListener {
 
     public static class HandlerCellEditor extends AbstractCellEditor implements TableCellEditor {
 
-        private JComboBox combo;
-        private Scripts scripts;
+ 		private static final long serialVersionUID = 1L;
+		private JComboBox<Script> combo;
         private int currentRow;
         private int currentColumn;
         private ItemListener listener;
         
-        HandlerCellEditor(Scripts scripts, ItemListener listener){
-            this.scripts = scripts;
+        HandlerCellEditor(Scripts scripts, ItemListener listener) throws Exception{
             this.listener = listener;
             
-            combo = new JComboBox();
+            combo = new JComboBox<Script>();
             combo.addItem(NONE);
 
             // Do a bit of translation of the ItemEvents so they end up
@@ -205,8 +201,7 @@ public class EventMapPanel extends JPanel implements ItemListener {
                 
             });
             
-            for(Iterator iter = scripts.getScripts().iterator(); iter.hasNext();){
-                Script script = (Script)iter.next();
+            for(Script script : scripts.getScripts()){
                 combo.addItem(script);
             }
         }

@@ -7,8 +7,8 @@
 package alvahouse.eatool.gui.graphical.standard.model;
 
 import java.awt.Color;
-import java.util.Iterator;
 
+import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.graphical.standard.BasicConnector;
 import alvahouse.eatool.repository.graphical.standard.ConnectorType;
 import alvahouse.eatool.repository.graphical.standard.StandardDiagram;
@@ -33,18 +33,18 @@ public class ModelDiagramType extends StandardDiagramType {
     /**
      * 
      */
-    public ModelDiagramType(MetaModel metaModel) {
-        super();
-        init(metaModel);
+    public ModelDiagramType(Repository repository)  throws Exception{
+        super(repository);
+        init(repository.getMetaModel());
     }
 
     /**
      * @param name
      * @param uuid
      */
-    public ModelDiagramType(MetaModel metaModel, String name, UUID uuid) {
-        super(name, uuid);
-        init(metaModel);
+    public ModelDiagramType(Repository repository, String name, UUID uuid)  throws Exception{
+        super(repository, name, uuid);
+        init(repository.getMetaModel());
     }
 
     /**
@@ -52,7 +52,7 @@ public class ModelDiagramType extends StandardDiagramType {
      * @param metaModel is the meta-model that is used to set up a complete set
      * of symbol types and connector types.
      */
-    private void init(MetaModel metaModel) {
+    private void init(MetaModel metaModel)  throws Exception{
         
         float h = 0.0f;
         float s = 0.3f;
@@ -79,10 +79,10 @@ public class ModelDiagramType extends StandardDiagramType {
     
     public static void defineEventMap(EventMap eventMap) {
         eventMap.clear();
-	    eventMap.addEvent(StandardDiagram.ON_DISPLAY_EVENT);
-	    eventMap.addEvent(StandardDiagram.ON_CLOSE_EVENT);
-	    eventMap.addEvent("Entity");
-	    eventMap.addEvent("Relationship");
+	    eventMap.ensureEvent(StandardDiagram.ON_DISPLAY_EVENT);
+	    eventMap.ensureEvent(StandardDiagram.ON_CLOSE_EVENT);
+	    eventMap.ensureEvent("Entity");
+	    eventMap.ensureEvent("Relationship");
     }
 
 }

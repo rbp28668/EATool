@@ -70,7 +70,11 @@ public abstract class BasicDialog extends javax.swing.JDialog{
         // OK Button
         btnOK.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-				fireOK();
+            	try {
+            		fireOK();
+            	} catch (Exception e) {
+            		new ExceptionDisplay(BasicDialog.this, e);
+            	}
             }
         });
         
@@ -106,14 +110,14 @@ public abstract class BasicDialog extends javax.swing.JDialog{
 	 * the dialog contains valid input (determined by validateInput()).
 	 * This must be over-ridden in the sub-class.
 	 */
-    protected abstract void onOK();
+    protected abstract void onOK() throws Exception;
     
 	/**
 	 * Method validateInput checks whether the dialog contains
 	 * valid input or not. It must be implemented by the sub-class.
 	 * @return boolean, true if the input is valid, false otherwise.
 	 */
-    protected abstract boolean validateInput();
+    protected abstract boolean validateInput() throws Exception;
     
     /** Closes the dialog */
     protected void closeDialog() {
@@ -125,7 +129,7 @@ public abstract class BasicDialog extends javax.swing.JDialog{
 	 * allows subclasses to simulate pressing the OK button.  This
 	 * allows dialogs to implement double click for select & close.
 	 */
-	protected void fireOK() {
+	protected void fireOK() throws Exception{
 		if(validateInput()) {
 			onOK();
 			edited = true;
@@ -172,5 +176,6 @@ public abstract class BasicDialog extends javax.swing.JDialog{
         return box;
     }
     
+
     
 }

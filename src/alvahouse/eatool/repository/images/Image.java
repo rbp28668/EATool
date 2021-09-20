@@ -9,13 +9,16 @@ package alvahouse.eatool.repository.images;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 import javax.imageio.ImageIO;
 
-import org.apache.commons.codec.binary.Base64;
-
 import alvahouse.eatool.repository.base.NamedRepositoryItem;
+import alvahouse.eatool.repository.dto.images.ImageDto;
+import alvahouse.eatool.repository.version.Version;
+import alvahouse.eatool.repository.version.VersionImpl;
+import alvahouse.eatool.repository.version.Versionable;
+import alvahouse.eatool.util.Base64InputStream;
+import alvahouse.eatool.util.Base64OutputStream;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
@@ -25,10 +28,11 @@ import alvahouse.eatool.util.XMLWriter;
  * 
  * @author rbp28668
  */
-public class Image extends NamedRepositoryItem {
+public class Image extends NamedRepositoryItem implements Versionable{
 
     private BufferedImage image;
     private String format = "png";
+    private VersionImpl version = new VersionImpl();
         
     /**
      * Creates an empty Image.  Call importImage or readFrom to 
@@ -39,12 +43,32 @@ public class Image extends NamedRepositoryItem {
         super(uuid);
     }
 
+    public Image(ImageDto dto) {
+    	super(dto);
+    	this.image = dto.getImage();
+    	this.format = dto.getFormat();
+    	this.version = new VersionImpl(dto.getVersion());
+    }
+    
+    public ImageDto toDto(){
+    	ImageDto dto = new ImageDto();
+    	copyTo(dto);
+    	return dto;
+    }
     /**
      * Gets the underlying image.
      * @return the Image.
      */
     public java.awt.Image getImage(){
         return image;
+    }
+    
+    /**
+     * Allows the image to be set directly.
+     * @param img
+     */
+    public void setImage(BufferedImage img) {
+    	this.image = img;
     }
     
     /**
@@ -110,6 +134,7 @@ public class Image extends NamedRepositoryItem {
         out.startEntity("Image");
         super.writeAttributesXML(out);
         out.addAttribute("format",format);
+        version.writeXML(out);
         out.text(writeDataAsString());
         out.stopEntity();
     }
@@ -120,80 +145,43 @@ public class Image extends NamedRepositoryItem {
     public String toString(){
         return getName() + ": " + image.getWidth() + " by " + image.getHeight(); 
     }
-    
-    /**
-     * Base64InputStream presents a base64 encoded string
-     * as an InputStream. 
-     * 
-     * @author rbp28668
-     */
-    private static class Base64InputStream extends InputStream{
-        private byte[] decoded;
-        int pos = 0;
-        
-        Base64InputStream(String base64){
-            decoded = Base64.decodeBase64(base64.getBytes());
-        }
 
-        /* (non-Javadoc)
-         * @see java.io.InputStream#read()
-         */
-        public int read() throws IOException {
-            if(pos >= decoded.length){
-                return -1;
-            } 
-            byte val = decoded[pos++];
-            if(val < 0){
-                return (int)val + 256;
-            }
-            return val;
-        }
-    }
-    
-    /**
-     * Base64OutputStream provides an OutputStream which collects
-     * the output and presents it as a base64 encoded string.
-     * 
-     * @author rbp28668
-     */
-    private static class Base64OutputStream extends OutputStream {
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.version.Versionable#getVersion()
+	 */
+	@Override
+	public Version getVersion() {
+		return version;
+	}
 
-        // Note output chunking in 76 character blocks.
-        static final int LIMIT = 76 * 128 * 3;  // Must be multiple of 3 to stop internal padding.
-        private byte[] buff = new byte[LIMIT];
-        private int pos = 0;
-        private StringBuffer output = new StringBuffer();
-        
-        
-        /* (non-Javadoc)
-         * @see java.io.OutputStream#write(int)
-         */
-        public void write(int val) throws IOException {
-           if(val < -128 || val >127){
-                throw new IOException("Value out of range [-128..127]: " + val);
-            }
-            buff[pos++] = (byte)val;
-            if(pos == LIMIT){
-                output.append(new String(Base64.encodeBase64Chunked(buff)));
-                pos = 0;
-            }
-        }
-        
-        /**
-         * Gets the data written to the output stream in a base64 encoded
-         * string.
-         * @return
-         */
-        public String getData(){
-            if(pos > 0) {
-                byte[] data = new byte[pos];
-                System.arraycopy(buff,0,data,0,pos);
-                output.append(new String(Base64.encodeBase64Chunked(data)));
-                pos = 0;
-            }
-            return output.toString();
-        }
-        
-    }
+	/**
+	 * Copies the data from this object to a copy.
+	 * @param copy
+	 */
+	protected void cloneTo(Image copy) {
+		super.cloneTo(copy);
+		copy.format = format;
+		version.cloneTo(copy.version);
+		copy.image = new BufferedImage(image.getWidth(), image.getHeight(),image.getType());
+		image.copyData(copy.image.getRaster());
+		
+	}
+	protected void copyTo(ImageDto dto) {
+		super.copyTo(dto);
+		dto.setFormat(format);
+		dto.setImage(image);
+		dto.setVersion(version.toDto());
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		Image copy = new Image(getKey());
+		cloneTo(copy);
+		return copy;
+	}
+
 
 }

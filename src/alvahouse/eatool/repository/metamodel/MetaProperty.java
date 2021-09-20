@@ -1,94 +1,220 @@
 /*
  * MetaProperty.java
- * Project: EATool
- * Created on 24 Dec 2007
  *
+ * Created on 10 January 2002, 21:31
  */
+
 package alvahouse.eatool.repository.metamodel;
+
 
 import java.io.IOException;
 
-import alvahouse.eatool.repository.base.NamedItem;
+import alvahouse.eatool.repository.base.NamedRepositoryItem;
+import alvahouse.eatool.repository.dto.metamodel.MetaPropertyDto;
 import alvahouse.eatool.repository.metamodel.types.MetaPropertyType;
+import alvahouse.eatool.repository.metamodel.types.MetaPropertyTypes;
+import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
-public interface MetaProperty extends NamedItem{
+/**
+ * MetaProperty describes a property of an Entity.
+ * @author  rbp28668
+ */
+public class MetaProperty  extends NamedRepositoryItem  {
 
+    private MetaPropertyContainer container = null;
+    private MetaPropertyType m_type;
+    private String m_default = "";
+    private boolean m_mandatory = false;
+    private boolean readOnly = false;
+    private boolean summary = false;
+    
+    /** Creates new MetaProperty with default type of string.
+     *  @param uuid is the UUID that identifies this MetaProperty.
+    */
+    public MetaProperty(UUID uuid) {
+        super(uuid);
+        m_type = MetaPropertyTypes.getBuiltInType("string"); // use string as default type.
+    }
+
+    /**
+	 * @param mpdao
+	 */
+	public MetaProperty(MetaPropertyDto mpdao, MetaPropertyTypes types) throws Exception {
+		super(mpdao);
+		m_type = types.typeFromName(mpdao.getTypeKey().toString());
+		m_default = mpdao.getDefaultValue();
+		m_mandatory = mpdao.isMandatory();
+		readOnly = mpdao.isReadOnly();
+		summary = mpdao.isSummary();
+	}
+
+	public MetaPropertyDto toDao() {
+		MetaPropertyDto dao = new MetaPropertyDto();
+		copyTo(dao);
+		return dao;
+	}
+	
+	
+	/* (non-Javadoc)
+     * @see java.lang.Object#clone()
+     */
+    public Object clone() {
+        MetaProperty copy = new MetaProperty(getKey());
+        cloneTo(copy);
+        return copy;
+    }
+//
+//    /**
+//     * Updates this MetaProperty from a copy.  For example a copy
+//     * may be made for editing and the original is then updated on
+//     * OK.
+//     * @param copy is the copy to copy from.
+//     */
+//    public void updateFromCopy(MetaProperty copy) {
+//        // copy back maintaining orignal parent
+//        MetaPropertyContainer parent = container;
+//        copy.cloneTo(this);
+//        container = parent;
+//    }
+        
     /**
      * Gets the data type of this MetaProperty. 
      * @return the MetaPropertyType giving the data type.
      */
-    public abstract MetaPropertyType getMetaPropertyType();
-
+    public MetaPropertyType getMetaPropertyType() {
+        return m_type;
+    }
+    
     /**
      * Sets the data type of this MetaProperty.
      * @param type is the MetaPropertyType to set.
      */
-    public abstract void setMetaPropertyType(MetaPropertyType type);
+    public void setMetaPropertyType(MetaPropertyType type) {
+        m_type = type;
+    }
 
     /**
      * Get whether Properties of this type are mandatory.
      * @return true if mandatory.
      */
-    public abstract boolean isMandatory();
-
+    public boolean isMandatory() {
+        return m_mandatory;
+    }
+    
     /**
      * Sets whether Properties of this type are mandatory.
      * @param isMandatory is true if mandatory.
      */
-    public abstract void setMandatory(boolean isMandatory);
-
+    public void setMandatory( boolean isMandatory ) {
+        m_mandatory = isMandatory;
+    }
+    
     /**
      * Gets whether properties of this type should be read-only.
      * @return Returns the read-only status.
      */
-    public abstract boolean isReadOnly();
-
+    public boolean isReadOnly() {
+        return readOnly;
+    }
+    
     /**
      * Sets whether properties of this type should be read-only.
      * @param readOnly sets the read-only status.
      */
-    public abstract void setReadOnly(boolean readOnly);
-
+    public void setReadOnly(boolean readOnly) {
+        this.readOnly = readOnly;
+    }
+    
+    
     /**
      * Gets whether properties of this type should be included in a summary of the entity.
      * @return Returns the summary status.
      */
-    public abstract boolean isSummary();
+	public boolean isSummary() {
+		return summary;
+	}
 
     /**
      * Sets whether properties of this type should be included in a summary of the entity.
      * @param summary sets the summary status.
      */
-    public abstract void setSummary(boolean summary);
+	public void setSummary(boolean summary) {
+		this.summary = summary;
+	}
 
     /**
      * Get the default value for any new Properties of this type.
      * @return the default value.
      */
-    public abstract String getDefaultValue();
-
+    public String getDefaultValue() {
+        return m_default;
+    }
+    
     /**
      * Sets the default value for any new Properties of this type.
      * @param def is the default value.
      */
-    public abstract void setDefaultValue(String def);
-
-    /**
-     * Writes the MetaProperty out as XML
-     * @param out is the XMLWriterDirect to write the XML to
+    public void setDefaultValue(String def) {
+        m_default = def;
+    }
+    
+     /* (non-Javadoc)
+     * @see alvahouse.eatool.repository.metamodel.MetaProperty#writeXML(alvahouse.eatool.util.XMLWriter)
      */
-    public abstract void writeXML(XMLWriter out) throws IOException;
+    public void writeXML(XMLWriter out) throws IOException {
+        out.startEntity("MetaProperty");
+        super.writeAttributesXML(out);
+        out.addAttribute("type",m_type.getKey().toString());
 
-    /** gets the parent meta entity for this property
-     * @return the parent meta entity
+        if(getDefaultValue().length() != 0)    
+            out.addAttribute("default",getDefaultValue());
+        if(isMandatory())  
+            out.addAttribute("mandatory","true");
+        if(isReadOnly()){
+            out.addAttribute("readonly","true");
+        }
+        if(isSummary()){
+        	out.addAttribute("summary","true");
+        }
+        
+        out.stopEntity();
+    }
+
+    /** copies the values of one instance to a copy
+     * @param copy is the meta-property to copy the values to
      */
-    public abstract MetaPropertyContainer getContainer();
+    protected void cloneTo(MetaProperty copy) {
+        super.cloneTo(copy);
+        copy.m_type = m_type;
+        copy.m_mandatory = m_mandatory;
+        copy.readOnly = readOnly;
+        copy.m_default = new String(m_default);
+        copy.container = null;
+    }
 
-    /** sets the parent meta entity for this property
-     * package scope so that the meta-model can maintain its integrety
+    protected void copyTo(MetaPropertyDto dao) {
+        super.copyTo(dao);
+        dao.setTypeKey(m_type.getKey());
+        dao.setMandatory(m_mandatory);
+        dao.setReadOnly(readOnly);
+        dao.setDefaultValue(m_default);
+    }
+
+    
+    /** sets the parent meta entity / meta relationship for this property
      * @param me is the parent meta-entity for this meta-property
      */
-    public abstract  void setContainer(MetaPropertyContainer container);
-
+    public void setContainer(MetaPropertyContainer container) {
+        this.container = container;
+    }
+    
+    /** gets the parent container (meta entity or meta relationship) for this property
+     * @return the parent meta property container
+     */
+    public MetaPropertyContainer getContainer() {
+        return container;
+    }
+    
+     
 }

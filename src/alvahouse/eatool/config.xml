@@ -7,7 +7,7 @@
 		<menus>
 			<menu display="File" mnemonic="F">
 				<menuitem 	action="FileNew" 
-							display="New"
+							display="New in memory Repository"
 							mnemonic="N"
 							accel="N"
 							accelmod="CTRL"/>
@@ -50,7 +50,49 @@
 							mnemonic="X"/>
 			</menu>
 
+			<menu display="Database" mnemonic="c">
+        		<menuitem 	action="CouchDBBindToDatabase"
+							display="Connect to Database"
+							mnemonic="C"
+							/>
 
+        		<menuitem 	action="CouchDBConnectServer"
+							display="Connect to Server"
+							mnemonic="S"
+							/>
+
+        		<menuitem 	action="CouchDBLogoutUser"
+							display="Logout from Server"
+							mnemonic="L"
+							/>
+							
+				<menu display="Admin" mnemonic="a">			
+
+    	    		<menuitem 	action="CouchDBCreateDatabase"
+							display="Create Database"
+							mnemonic="D"
+							/>
+ 							
+        			<menuitem 	action="CouchDBCreateUser"
+							display="Create User"
+							mnemonic="U"
+							/>
+							
+        			<menuitem 	action="CouchDBEditUser"
+							display="Edit User"
+							mnemonic="E"
+							/>
+        			<menuitem 	action="CouchDBCreateAdminUser"
+        					display="Create Admin User"
+							mnemonic="A"
+							/>
+	        		<menuitem 	action="CouchDBLogoutAdmin"
+							display="Logout Admin"
+							mnemonic="L"
+							/>
+				</menu>
+			</menu>
+			
 			<menu display="Model" mnemonic="o">
 				<menuitem 	action="ModelExplore" 
 							display="Explore"
@@ -856,7 +898,7 @@
 							/>
 			</popup>
 			
-			<popup name="MetaEntityImpl">
+			<popup name="MetaEntity">
 				<menuitem 	action="MetaEntityEdit" 
 							display="Edit"
 							mnemonic="E"
@@ -886,7 +928,7 @@
 							mnemonic="K"
 							/>
 			</popup>
-			<popup name="MetaPropertyImpl">
+			<popup name="MetaProperty">
 				<menuitem 	action="MetaPropertyEdit" 
 							display="Edit"
 							mnemonic="E"
@@ -896,7 +938,7 @@
 							mnemonic="K"
 							/>
 						</popup>
-			<popup name="MetaRelationshipImpl">
+			<popup name="MetaRelationship">
 				<menuitem 	action="MetaRelationshipEdit" 
 							display="Edit"
 							mnemonic="E"
@@ -961,6 +1003,10 @@
 				<menuitem 	action="EntityEdit" 
 							display="Edit"
 							mnemonic="E"
+							/>
+				<menuitem 	action="EntityClone" 
+							display="Clone"
+							mnemonic="C"
 							/>
 				<menuitem 	action="EntityDelete" 
 							display="Delete"

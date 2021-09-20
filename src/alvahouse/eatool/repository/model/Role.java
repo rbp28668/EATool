@@ -8,6 +8,7 @@ package alvahouse.eatool.repository.model;
 
 import java.io.IOException;
 
+import alvahouse.eatool.repository.dto.model.RoleDto;
 import alvahouse.eatool.repository.metamodel.MetaRole;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
@@ -22,35 +23,59 @@ public class Role extends PropertyContainer implements Cloneable{
 
     private MetaRole meta;              // that this role is an instance of
     private Relationship relationship;  // that this role belongs to.
-    private Entity connection;          // that this role connects to.
+    private EntityProxy connection = new EntityProxy();   // that this role connects to.
     
     /** Creates new RelationshipEnd */
-    public Role(UUID uuid, MetaRole mr) {
+    public Role(UUID uuid, MetaRole mr) throws Exception {
         super(uuid);
         addDefaultProperties(mr);
         meta = mr;
     }
 
     /** Creates new RelationshipEnd */
-    public Role(MetaRole mr) {
+    public Role(MetaRole mr) throws Exception{
         super(new UUID());
         addDefaultProperties(mr);
         meta = mr;
     }
 
-//    public Object clone() {
-//        Role copy = new Role(getKey(),meta);
-//        cloneTo(copy);
-//        return copy;
-//    }
-//    
-//    public void updateFromCopy(Role copy) {
-//        // copy back maintaining same parent.
-//        Relationship parent = relationship;
-//        copy.cloneTo(this);
-//        relationship = parent;
-//    }
+    /**
+     * Private constructor for clone.
+     * @param uuid
+     */
+    private Role(UUID uuid) {
+    	super(uuid);
+    }
+    
+    /**
+     * Creates a role from its dto.
+	 * @param dto is the data transfer object
+	 * @param r
+	 * @param meta
+	 */
+	public Role(RoleDto dto, Relationship r, MetaRole meta) throws Exception {
+		super(dto, meta);
+		this.relationship = r;
+		this.connection.setKey(dto.getConnects());
+		this.meta = meta;
+	}
 
+	/**
+	 * @return
+	 */
+	public RoleDto toDao() {
+		RoleDto dao = new RoleDto();
+		copyTo(dao);
+		return dao;
+	}
+
+	public Object clone() {
+        Role copy = new Role(getKey());
+        
+        cloneTo(copy);
+        return copy;
+    }
+    
     /** sets the entity this role connects to
      * @param e is the entity to connect to
      */
@@ -58,21 +83,38 @@ public class Role extends PropertyContainer implements Cloneable{
         if(e == null) {
             throw new NullPointerException("Connecting Role to null Entity");
         }
-        connection = e;
+        connection.set(e);
+    }
+    
+    /**
+     * Sets the key for the connected entity so that it can be l
+     * @param key
+     */
+    public void setConnectionKey(UUID key) {
+    	connection.setKey(key);
     }
     
     /**
      * Disconnects the entity from this role.
      */
     public void disconnect(){
-        connection = null;
+        connection.set(null);
     }
     
     /** gets the entity this role connects to
      * @return the connected entity
      */
-    public Entity connectsTo() {
-        return connection;
+    public Entity connectsTo() throws Exception {
+        return connection.get(relationship.getModel());
+    }
+    
+    /**
+     * Gets the key corresponding to the connected Entity without
+     * needing to fetch the entity itself.
+     * @return
+     */
+    public UUID connectionKey() {
+    	return connection.getKey();
     }
     
 //    /** sets the meta Role that this Role is an instance of
@@ -116,14 +158,20 @@ public class Role extends PropertyContainer implements Cloneable{
         return relationship;
     }
     
-//    protected void cloneTo(Role copy) {
-//        super.cloneTo(copy);
-//        copy.connection = connection;
-//        copy.meta = meta;               // must be same type
-//        copy.relationship = null;   // possible different parent.
-//    }
+    protected void cloneTo(Role copy) {
+        super.cloneTo(copy);
+        copy.connection = (EntityProxy)connection.clone();
+        copy.meta = meta;               // must be same type
+        copy.relationship = null;   // possible different parent.
+    }
+
+    protected void copyTo(RoleDto dao) {
+    	super.copyTo(dao);
+    	dao.setConnects(connection.getKey());
+    }
     
     public String toString(){
         return meta.getName();
     }
+
 }

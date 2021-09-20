@@ -31,9 +31,10 @@ public class MetaModelViewer extends StandardDiagramViewer {
     private static final String WINDOW_SETTINGS = "Windows/MetaModelViewer";
 
     /** Creates new form MetaModelViewer */
-    public MetaModelViewer(StandardDiagram diagram, Application app, Repository repository) {
+    public MetaModelViewer(StandardDiagram diagram, Application app, Repository repository) throws Exception {
         super(diagram, 
-                new MetaModelViewerItemHandler(MetaModelDiagramType.getInstance(), app, repository),
+                new MetaModelViewerItemHandler(MetaModelDiagramType.getInstance(repository), 
+                		app, repository),
                 app,
                 repository
         );
@@ -84,7 +85,7 @@ public class MetaModelViewer extends StandardDiagramViewer {
 		/* (non-Javadoc)
 		 * @see alvahouse.eatool.gui.WindowCoordinator.WindowFactory#createFrame()
 		 */
-		public JInternalFrame createFrame() {
+		public JInternalFrame createFrame() throws Exception {
 			return new MetaModelViewer((StandardDiagram)diagram, app, repository);
 		}
    	

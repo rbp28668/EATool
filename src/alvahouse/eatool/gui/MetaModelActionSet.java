@@ -14,14 +14,13 @@ import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import alvahouse.eatool.Application;
-import alvahouse.eatool.Main;
 import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.base.DeleteDependenciesList;
+import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaEntityDisplayHint;
+import alvahouse.eatool.repository.metamodel.MetaProperty;
+import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.repository.metamodel.MetaRole;
-import alvahouse.eatool.repository.metamodel.impl.MetaEntityImpl;
-import alvahouse.eatool.repository.metamodel.impl.MetaPropertyImpl;
-import alvahouse.eatool.repository.metamodel.impl.MetaRelationshipImpl;
 import alvahouse.eatool.util.UUID;
 
 /**
@@ -63,9 +62,11 @@ public class MetaModelActionSet extends ActionSet {
      * MetaEntity New action
      */
     public final Action actionMetaEntityNew = new AbstractAction() {
-        public void actionPerformed(ActionEvent e) {
+ 		private static final long serialVersionUID = 1L;
+
+		public void actionPerformed(ActionEvent e) {
             try {
-                MetaEntityImpl me = new MetaEntityImpl(new UUID());
+                MetaEntity me = new MetaEntity(new UUID());
                 MetaEntityEditor editor;
                 (editor = new MetaEntityEditor(explorer, me, repository)).setVisible(true);
                 if(editor.wasEdited()) {
@@ -81,13 +82,15 @@ public class MetaModelActionSet extends ActionSet {
      * MetaEntity Edit action
      */
     public final Action actionMetaEntityEdit = new AbstractAction() {
-        public void actionPerformed(ActionEvent e) {
+ 		private static final long serialVersionUID = 1L;
+
+		public void actionPerformed(ActionEvent e) {
             try {
-                MetaEntityImpl me = (MetaEntityImpl)explorer.getSelectedNode().getUserObject();
+                MetaEntity me = (MetaEntity)explorer.getSelectedNode().getUserObject();
                 MetaEntityEditor editor;
                 (editor = new MetaEntityEditor(explorer, me, repository)).setVisible(true);
                 if(editor.wasEdited()) {
-                	repository.getMetaModel().fireMetaEntityChanged(me);
+                	repository.getMetaModel().updateMetaEntity(me);
                 }
             } catch(Throwable t) {
                 new ExceptionDisplay(explorer,t);
@@ -99,9 +102,11 @@ public class MetaModelActionSet extends ActionSet {
      * MetaEntityDisplayHint Edit action
      */
     public final Action actionMetaEntityDisplayHintEdit = new AbstractAction() {
-        public void actionPerformed(ActionEvent e) {
+ 		private static final long serialVersionUID = 1L;
+
+		public void actionPerformed(ActionEvent e) {
             try {
-                MetaEntityImpl me = (MetaEntityImpl)explorer.getSelectedNode().getUserObject();
+                MetaEntity me = (MetaEntity)explorer.getSelectedNode().getUserObject();
                 MetaEntityDisplayHint dh = me.getDisplayHint();
                 if(dh == null){
                     dh = new MetaEntityDisplayHint(me);
@@ -110,6 +115,7 @@ public class MetaModelActionSet extends ActionSet {
                 editor.setVisible(true);
                 if(editor.wasEdited()){
                     me.setDisplayHint(dh);
+                    repository.getMetaModel().updateMetaEntity(me);
                 }
             } catch(Throwable t) {
                 new ExceptionDisplay(explorer,t);
@@ -121,16 +127,19 @@ public class MetaModelActionSet extends ActionSet {
      * MetaEntity Delete action
      */
     public final Action actionMetaEntityDelete = new AbstractAction() {
-        public void actionPerformed(ActionEvent e) {
+ 		private static final long serialVersionUID = 1L;
+
+		public void actionPerformed(ActionEvent e) {
             //System.out.println("MetaEntityDelete called.");
             try {
                 DefaultMutableTreeNode node = explorer.getSelectedNode();
-                MetaEntityImpl me = (MetaEntityImpl)node.getUserObject();
+                MetaEntity me = (MetaEntity)node.getUserObject();
 
                 DeleteDependenciesList dependencies = repository.getDeleteDependencies(me);
 
-                DeleteConfirmationDialog dlg;
-                (dlg = new DeleteConfirmationDialog(explorer, dependencies)).setVisible(true);
+                DeleteConfirmationDialog dlg = new DeleteConfirmationDialog(explorer, dependencies);
+                dlg.setVisible(true);
+                
             } catch(Throwable t) {
                 new ExceptionDisplay(explorer,t);
             }
@@ -141,16 +150,18 @@ public class MetaModelActionSet extends ActionSet {
      * MetaEntity Rename action
      */
     public final Action actionMetaEntityRename = new AbstractAction() {
-        public void actionPerformed(ActionEvent e) {
+ 		private static final long serialVersionUID = 1L;
+
+		public void actionPerformed(ActionEvent e) {
             try {
                 DefaultMutableTreeNode node = explorer.getSelectedNode();
-                MetaEntityImpl me = (MetaEntityImpl)node.getUserObject();
+                MetaEntity me = (MetaEntity)node.getUserObject();
                 String newName = JOptionPane.showInputDialog(null,
                     "Rename Meta-entity " + me.getName(),"EATool",
                     JOptionPane.QUESTION_MESSAGE);
                 if(newName != null) {
                     me.setName(newName);
-                    repository.getMetaModel().fireMetaEntityChanged(me);
+                    repository.getMetaModel().updateMetaEntity(me);
                 }
             } catch(Throwable t) {
                 new ExceptionDisplay(explorer,t);
@@ -162,17 +173,20 @@ public class MetaModelActionSet extends ActionSet {
      * MetaEntity add Property action
      */
     public final Action actionMetaEntityAddProperty = new AbstractAction() {
-        public void actionPerformed(ActionEvent e) {
+ 		private static final long serialVersionUID = 1L;
+
+		public void actionPerformed(ActionEvent e) {
             //System.out.println("MetaEntityAddProperty called.");
             try {
                 DefaultMutableTreeNode node = explorer.getSelectedNode();
-                MetaEntityImpl me = (MetaEntityImpl)node.getUserObject();
+                MetaEntity me = (MetaEntity)node.getUserObject();
 
-                MetaPropertyImpl mp = new MetaPropertyImpl(new UUID());
+                MetaProperty mp = new MetaProperty(new UUID());
                 MetaPropertyEditor editor;
                 (editor = new MetaPropertyEditor(explorer, mp, repository)).setVisible(true);
                 if(editor.wasEdited()) {
                     me.addMetaProperty(mp);
+                    repository.getMetaModel().updateMetaEntity(me);
                 }
             } catch(Throwable t) {
                 new ExceptionDisplay(explorer,t);
@@ -184,11 +198,13 @@ public class MetaModelActionSet extends ActionSet {
      * MetaRelationship Add action
      */
     public final Action actionMetaEntityAddRelationship = new AbstractAction() {
-        public void actionPerformed(ActionEvent e) {
+		private static final long serialVersionUID = 1L;
+
+		public void actionPerformed(ActionEvent e) {
             //System.out.println("MetaEntityAddRelationship called.");
             try {
-                MetaEntityImpl me = (MetaEntityImpl)explorer.getSelectedNode().getUserObject();
-                MetaRelationshipImpl mr = new MetaRelationshipImpl(new UUID());
+                MetaEntity me = (MetaEntity)explorer.getSelectedNode().getUserObject();
+                MetaRelationship mr = new MetaRelationship(new UUID());
                 mr.getMetaRole(new UUID()).setConnection(me);
                 mr.getMetaRole(new UUID());
                 MetaRelationshipEditor editor;
@@ -206,9 +222,11 @@ public class MetaModelActionSet extends ActionSet {
      * MetaRelationship New action
      */
     public final Action actionMetaRelationshipNew = new AbstractAction() {
-        public void actionPerformed(ActionEvent e) {
+ 		private static final long serialVersionUID = 1L;
+
+		public void actionPerformed(ActionEvent e) {
             try {
-                MetaRelationshipImpl mr = new MetaRelationshipImpl(new UUID());
+                MetaRelationship mr = new MetaRelationship(new UUID());
                 mr.getMetaRole(new UUID());
                 mr.getMetaRole(new UUID());
                 MetaRelationshipEditor editor;
@@ -226,11 +244,16 @@ public class MetaModelActionSet extends ActionSet {
      * MetaRelationship Edit action
      */
     public final Action actionMetaRelationshipEdit  = new AbstractAction() {
-        public void actionPerformed(ActionEvent e) {
+ 		private static final long serialVersionUID = 1L;
+
+		public void actionPerformed(ActionEvent e) {
             try {
-                MetaRelationshipImpl mr = (MetaRelationshipImpl)explorer.getSelectedNode().getUserObject();
+                MetaRelationship mr = (MetaRelationship)explorer.getSelectedNode().getUserObject();
                 MetaRelationshipEditor editor;
                 (editor = new MetaRelationshipEditor(explorer, mr, repository)).setVisible(true);
+                if(editor.wasEdited()) {
+                	repository.getMetaModel().updateMetaRelationship(mr);
+                }
             } catch(Throwable t) {
                 new ExceptionDisplay(explorer,t);
             }
@@ -238,11 +261,25 @@ public class MetaModelActionSet extends ActionSet {
     };   
    
     public final Action actionMetaPropertyEdit = new AbstractAction() {
-        public void actionPerformed(ActionEvent e) {
+ 		private static final long serialVersionUID = 1L;
+
+		public void actionPerformed(ActionEvent e) {
             try {
-                MetaPropertyImpl mp = (MetaPropertyImpl)explorer.getSelectedNode().getUserObject();
+                MetaProperty mp = (MetaProperty)explorer.getSelectedNode().getUserObject();
                 MetaPropertyEditor editor;
                 (editor = new MetaPropertyEditor(explorer, mp, repository)).setVisible(true);
+                if(editor.wasEdited()) {
+                	if(mp.getContainer() instanceof MetaEntity) {
+                		MetaEntity me = (MetaEntity)mp.getContainer();
+                		repository.getMetaModel().updateMetaEntity(me);
+                	} else if(mp.getContainer() instanceof MetaRelationship) {
+                		MetaRelationship mr = (MetaRelationship)mp.getContainer();
+                		repository.getMetaModel().updateMetaRelationship(mr);
+                	} else if(mp.getContainer() instanceof MetaRole) {
+                		MetaRole mr = (MetaRole)mp.getContainer();
+                		repository.getMetaModel().updateMetaRelationship(mr.getMetaRelationship());
+                 	}
+                }
             } catch(Throwable t) {
                 new ExceptionDisplay(explorer,t);
             }
@@ -254,10 +291,12 @@ public class MetaModelActionSet extends ActionSet {
      * MetaRelationship Delete action
      */
     public final Action actionMetaRelationshipDelete = new AbstractAction() {
-        public void actionPerformed(ActionEvent e) {
+ 		private static final long serialVersionUID = 1L;
+
+		public void actionPerformed(ActionEvent e) {
             try {
                 DefaultMutableTreeNode node = explorer.getSelectedNode();
-                MetaRelationshipImpl mr = (MetaRelationshipImpl)node.getUserObject();
+                MetaRelationship mr = (MetaRelationship)node.getUserObject();
                 DeleteDependenciesList dependencies = repository.getDeleteDependencies(mr);
                 DeleteConfirmationDialog dlg = new DeleteConfirmationDialog(explorer, dependencies);
                 dlg.setVisible(true);
@@ -268,11 +307,19 @@ public class MetaModelActionSet extends ActionSet {
     };   
     
     public final Action actionMetaRoleEdit = new AbstractAction() {
-        public void actionPerformed(ActionEvent e) {
+        /**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		public void actionPerformed(ActionEvent e) {
             try {
                 MetaRole mr = (MetaRole)explorer.getSelectedNode().getUserObject();
                 MetaRoleEditor editor;
                 (editor = new MetaRoleEditor(explorer, mr, repository)).setVisible(true);
+                if(editor.wasEdited()) {
+                	repository.getMetaModel().updateMetaRelationship(mr.getMetaRelationship());
+                }
             } catch(Throwable t) {
                 new ExceptionDisplay(explorer,t);
             }
@@ -280,7 +327,9 @@ public class MetaModelActionSet extends ActionSet {
     };   
 
     public final Action actionTest = new AbstractAction() {
-        public void actionPerformed(ActionEvent e) {
+ 		private static final long serialVersionUID = 1L;
+
+		public void actionPerformed(ActionEvent e) {
             System.out.println("Test called from " 
                 + e.getSource().getClass().getName()
                 + ", " + e.getActionCommand());

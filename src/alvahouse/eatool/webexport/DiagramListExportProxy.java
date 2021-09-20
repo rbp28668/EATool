@@ -38,12 +38,16 @@ public class DiagramListExportProxy implements ExportProxy {
     public void export(XMLWriter out) throws IOException {
         out.startEntity("DiagramTypes");
         
-        DiagramTypes types = repository.getDiagramTypes();
-        for(DiagramTypeFamily family : types.getDiagramTypeFamilies()){
-            for(DiagramType type : family.getDiagramTypes()){
-                exportDiagramsOfType(out, type);
-            }
-        }
+        try {
+			DiagramTypes types = repository.getDiagramTypes();
+			for(DiagramTypeFamily family : types.getDiagramTypeFamilies()){
+			    for(DiagramType type : family.getDiagramTypes()){
+			        exportDiagramsOfType(out, type);
+			    }
+			}
+		} catch (Exception e) {
+			throw new IOException("Unable to export diagram types",e);
+		}
         
         out.stopEntity();
     }
@@ -51,9 +55,9 @@ public class DiagramListExportProxy implements ExportProxy {
     /**
      * @param out
      * @param type
-     * @throws IOException
+     * @throws Exception
      */
-    private void exportDiagramsOfType(XMLWriter out, DiagramType type) throws IOException {
+    private void exportDiagramsOfType(XMLWriter out, DiagramType type) throws Exception {
         Collection<Diagram> diagrams = repository.getDiagrams().getDiagramsOfType(type);
         if(diagrams.size() > 0){
             out.startEntity("DiagramType");

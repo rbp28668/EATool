@@ -20,7 +20,9 @@ import alvahouse.eatool.repository.RepositoryProperties;
  */
 public class RepositoryPropertiesDialog extends BasicDialog {
 
-    private PropertiesEditPanel panel;
+	private static final long serialVersionUID = 1L;
+	private PropertiesEditPanel panel;
+	private RepositoryProperties properties;
     /**
      * @param parent
      * @param title
@@ -40,8 +42,9 @@ public class RepositoryPropertiesDialog extends BasicDialog {
     }
 
     private void init(RepositoryProperties properties){
+    	this.properties = properties;
         setLayout(new BorderLayout());
-        panel = new PropertiesEditPanel(properties);
+        panel = new PropertiesEditPanel(properties.get());
         add(panel, BorderLayout.CENTER);
         add(getOKCancelPanel(), BorderLayout.EAST);
         pack();
@@ -52,6 +55,7 @@ public class RepositoryPropertiesDialog extends BasicDialog {
      */
     protected void onOK() {
         panel.onOK();
+        properties.set(panel.getProperties());
     }
 
     /* (non-Javadoc)

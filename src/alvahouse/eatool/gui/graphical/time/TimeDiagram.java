@@ -27,12 +27,17 @@ import java.util.Map;
 import java.util.Set;
 
 import alvahouse.eatool.gui.graphical.time.TimeDiagramType.TypeEntry;
+import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.base.KeyedItem;
+import alvahouse.eatool.repository.dto.graphical.TimeDiagramDto;
+import alvahouse.eatool.repository.dto.graphical.TimeDiagramEntryDto;
 import alvahouse.eatool.repository.graphical.Diagram;
 import alvahouse.eatool.repository.graphical.DiagramType;
 import alvahouse.eatool.repository.graphical.GraphicalProxy;
+import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.metamodel.MetaProperty;
 import alvahouse.eatool.repository.model.Entity;
+import alvahouse.eatool.repository.model.Model;
 import alvahouse.eatool.repository.model.Property;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
@@ -44,13 +49,14 @@ import alvahouse.eatool.util.XMLWriter;
  */
 public class TimeDiagram extends Diagram {
 
+	private Repository repository;
     private List<Property> properties = new LinkedList<Property>();  // of Property
     private List<TimeBar> bars = new LinkedList<TimeBar>();		// of TimeBar
     private Map<Property, TimeBar> barLookup = new HashMap<Property, TimeBar>();		// of TimeBar keyed by Property
     private TimeDiagramType type;
     private float timeAxis = SCALE_DAY;
 
-    private transient float zoom = 1.0f;
+    //private transient float zoom = 1.0f;
     private transient Date startDate;
     private transient Date finishDate;
     private transient Set<MetaProperty> allowableMetaProperties = null;
@@ -199,12 +205,36 @@ public class TimeDiagram extends Diagram {
     /**
      * @param uuid
      */
-    public TimeDiagram(DiagramType type, UUID key) {
+    public TimeDiagram(Repository repository, DiagramType type, UUID key) {
         super(type,key);
+    	this.repository = repository;
         this.type = (TimeDiagramType)type;
 		font = new Font("SansSerif", Font.PLAIN,10);
     }
 
+    public TimeDiagram( Repository repository, TimeDiagramType type, TimeDiagramDto dto) throws Exception {
+    	super(type, dto);
+    	this.repository = repository;
+    	this.type = type;
+    	this.timeAxis = dto.getTimeAxis();
+		font = new Font("SansSerif", Font.PLAIN,10);
+		
+		Model model = repository.getModel();
+		for(TimeDiagramEntryDto entry : dto.getProperties()) {
+			Entity e = model.getEntity(entry.getEntityKey());
+			Property p = e.getPropertyByMeta(entry.getMetaPropertyKey());
+			if(p != null) {
+				addProperty(p);
+			}
+		}
+    }
+    
+    public TimeDiagramDto toDto() {
+    	TimeDiagramDto dto = new TimeDiagramDto();
+    	copyTo(dto);
+    	return dto;
+    }
+    
     /**
      * Low level method for adding a property to the diagram without firing any events etc.
      * Intended for deserialising TimeDiagrams.
@@ -232,13 +262,13 @@ public class TimeDiagram extends Diagram {
  	/* (non-Javadoc)
  	 * @see alvahouse.eatool.gui.graphical.Diagram#draw(java.awt.Graphics2D, float)
  	 */
- 	public void draw(Graphics2D g, float zoom) {
+ 	public void draw(Graphics2D g, float zoom) throws Exception{
 	    if(layoutRequired){
-	        layout(g,zoom);
+	    	MetaModel mm = repository.getMetaModel();
+	        layout(mm, g,zoom);
 	    }
 	    
-	    for(Iterator iter = bars.iterator(); iter.hasNext();){
-	        TimeBar bar = (TimeBar)iter.next();
+	    for(TimeBar bar : bars){
 	        bar.draw(g,zoom);
 	    }
 	}
@@ -248,15 +278,14 @@ public class TimeDiagram extends Diagram {
  	 * @param g
  	 * @param zoom
  	 */
- 	public void drawCaptions(Graphics2D g, float zoom) {
+ 	public void drawCaptions(MetaModel mm, Graphics2D g, float zoom) throws Exception{
 	    if(layoutRequired){
-	        layout(g,zoom);
+	        layout(mm, g,zoom);
 	    }
 	    
 	    Font localFont = deriveFont(zoom);
-	    for(Iterator iter = bars.iterator(); iter.hasNext();){
-	        TimeBar bar = (TimeBar)iter.next();
-	        bar.drawCaption(g, localFont, zoom);
+	    for(TimeBar bar : bars){
+	        bar.drawCaption(mm, g, localFont, zoom);
 	    }
 	}
 
@@ -311,10 +340,10 @@ public class TimeDiagram extends Diagram {
      * @param bounds
      * @param zoom2
      */
-    public void drawTimeScale(Graphics2D g, Rectangle bounds, float zoom) {
+    public void drawTimeScale(Graphics2D g, Rectangle bounds, float zoom) throws Exception {
 
 	    if(layoutRequired){
-	        layout(g,zoom);
+	        layout(repository.getMetaModel(), g,zoom);
 	    }
         
         assert(startDate != null);
@@ -335,7 +364,7 @@ public class TimeDiagram extends Diagram {
 		long rightTime = posToTime(right, unitWidth);
 
 		Calendar leftCal = Calendar.getInstance();
-		Calendar rightCal = Calendar.getInstance();
+		//Calendar rightCal = Calendar.getInstance();
 		Calendar time = Calendar.getInstance();
 		
 		for(int i=0; i<captions.length; ++i){
@@ -439,7 +468,7 @@ public class TimeDiagram extends Diagram {
 	    Date finish = null;
 	    boolean hasRange = false;
 	    
-	    Iterator iter = bars.iterator();
+	    Iterator<TimeBar> iter = bars.iterator();
 	    if(iter.hasNext()){
 	        hasRange = true;
 	        TimeBar bar = (TimeBar)iter.next();
@@ -477,8 +506,7 @@ public class TimeDiagram extends Diagram {
 		
 		Rectangle2D.Float bounds = new Rectangle2D.Float();
 
-	    for(Iterator iter = bars.iterator(); iter.hasNext();){
-	        TimeBar bar = (TimeBar)iter.next();
+	    for(TimeBar bar : bars){
 	        bounds.add(bar.getBounds());
 	    }
 
@@ -499,7 +527,7 @@ public class TimeDiagram extends Diagram {
 	 * @param g
 	 * @param zoom
 	 */
-	private void layout(Graphics2D g, float zoom){
+	private void layout(MetaModel mm, Graphics2D g, float zoom) throws Exception{
 	    
 	    setDateRange();
         layoutTimeScale(g,zoom);
@@ -515,8 +543,7 @@ public class TimeDiagram extends Diagram {
 		float y = captionsHeight;
     	widthCaptions = 0;
 		
-		for(Iterator iter = bars.iterator(); iter.hasNext();){
-	        TimeBar bar = (TimeBar)iter.next();
+		for(TimeBar bar : bars){
 	        Date s = bar.getStartDate();
 	        Date f = bar.getFinishDate();
 
@@ -526,7 +553,7 @@ public class TimeDiagram extends Diagram {
 	        bar.setPosition((barStart + barEnd)/2 , y);
 	        bar.setSize(barEnd - barStart, unitHeight);
 
-	        String caption = bar.getCaption();
+	        String caption = bar.getCaption(mm);
 	        int width = fontMetrics.stringWidth(caption);
 	        if(width > widthCaptions){
 	            widthCaptions = width;
@@ -576,22 +603,21 @@ public class TimeDiagram extends Diagram {
      /* (non-Javadoc)
      * @see alvahouse.eatool.gui.graphical.Diagram#addNodeForObject(java.lang.Object)
      */
-    public GraphicalProxy addNodeForObject(KeyedItem item) {
+    public GraphicalProxy addNodeForObject(KeyedItem item) throws Exception {
         Entity e = (Entity)item;
         
+        MetaModel metaModel = repository.getMetaModel();
         if(allowableMetaProperties == null){
-            allowableMetaProperties = new HashSet();
+            allowableMetaProperties = new HashSet<MetaProperty>();
             TimeDiagramType diagramType = (TimeDiagramType)getType();
-            Collection targets = diagramType.getTargets();
-            for(Iterator iter = targets.iterator(); iter.hasNext();){
-                TimeDiagramType.TypeEntry entry = (TimeDiagramType.TypeEntry)iter.next();
-                allowableMetaProperties.add(entry.getTargetProperty());
+            Collection<TypeEntry> targets = diagramType.getTargets();
+            for(TimeDiagramType.TypeEntry entry : targets){
+                allowableMetaProperties.add(entry.getTargetProperty(metaModel));
             }
         }
         
         GraphicalProxy added = null;
-        for(Iterator iter = e.getProperties().iterator(); iter.hasNext();){
-            Property p = (Property)iter.next();
+        for(Property p : e.getProperties()){
             if(allowableMetaProperties.contains(p.getMeta())){
                 added = addProperty(p);
             }
@@ -609,8 +635,7 @@ public class TimeDiagram extends Diagram {
     public void removeNodeForObject(KeyedItem item) {
         Entity e = (Entity)item;
         
-        for(Iterator iter = e.getProperties().iterator(); iter.hasNext();){
-            Property p = (Property)iter.next();
+        for(Property p : e.getProperties()){
             properties.remove(p);
         }
         
@@ -635,8 +660,7 @@ public class TimeDiagram extends Diagram {
      */
     public void writeXML(XMLWriter out) throws IOException {
         super.startXML(out);
-        for(Iterator iter = properties.iterator(); iter.hasNext();){
-            Property p = (Property)iter.next();
+        for(Property p : properties){
             Entity e = (Entity)p.getContainer();
             out.startEntity("Property");
             out.addAttribute("uuidMeta", p.getMeta().getKey().toString());
@@ -689,27 +713,25 @@ public class TimeDiagram extends Diagram {
      * Returns the bars list to the ordering of the properties.
      */
     public void sortDefault() {
-        List sortedBars = new LinkedList();
+        List<TimeBar> sortedBars = new LinkedList<>();
 
         if(properties.size() == barLookup.size()){
             // Then there are no duplicate properties and this simple
             // algorithm works.
-	        for(Iterator iter = properties.iterator(); iter.hasNext();){
-	            Property p = (Property)iter.next();
+	        for(Property p : properties){
 	            TimeBar bar = (TimeBar)barLookup.get(p);
 	            sortedBars.add(bar);
 	        }
         } else {
             // duplicates - more housekeeping needed!
-	        for(Iterator iter = properties.iterator(); iter.hasNext();){
-	            Property p = (Property)iter.next();
+	        for(Property p : properties){
 	            TimeBar bar = (TimeBar)barLookup.get(p);
 	            bars.remove(bar);
 	            if(bar != null){
 	                barLookup.remove(p);
 	            } else { // duplicate - already removed - find the right TimeBar by linear search.
-	                for(Iterator iterBar = bars.iterator(); iterBar.hasNext();){
-	                    bar = (TimeBar)iterBar.next();
+	                for(Iterator<TimeBar> iterBar = bars.iterator(); iterBar.hasNext();){
+	                    bar = iterBar.next();
 	                    if(bar.getProperty() == p){
 	                        bars.remove(bar);
 	                        break;
@@ -719,8 +741,7 @@ public class TimeDiagram extends Diagram {
 	            sortedBars.add(bar);
 	        }
 	        barLookup.clear();
-	        for(Iterator iter = sortedBars.iterator(); iter.hasNext();){
-	            TimeBar bar = (TimeBar)iter.next();
+	        for(TimeBar bar : sortedBars){
 	            barLookup.put(bar.getProperty(),bar);
 	        }
         }
@@ -731,32 +752,60 @@ public class TimeDiagram extends Diagram {
     }
 
 
-    private class AlphabeticalComparator implements Comparator{
+    private class AlphabeticalComparator implements Comparator<TimeBar>{
 
         /* (non-Javadoc)
          * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
          */
-        public int compare(Object arg0, Object arg1) {
-            TimeBar tb0 = (TimeBar)arg0;
-            TimeBar tb1 = (TimeBar)arg1;
-            return tb0.getCaption().compareTo(tb1.getCaption());
+        public int compare(TimeBar tb0, TimeBar tb1){
+        	try {
+				MetaModel mm = repository.getMetaModel();
+				return tb0.getCaption(mm).compareTo(tb1.getCaption(mm));
+			} catch (Exception e) {
+				return 0;
+			}
         }
         
     }
 
-    private class TimeComparator implements Comparator{
+    private class TimeComparator implements Comparator<TimeBar>{
 
         /* (non-Javadoc)
          * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
          */
-        public int compare(Object arg0, Object arg1) {
-            TimeBar tb0 = (TimeBar)arg0;
-            TimeBar tb1 = (TimeBar)arg1;
+        public int compare(TimeBar tb0, TimeBar tb1) {
             return tb0.getStartDate().compareTo(tb1.getStartDate());
         }
         
     }
 
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.graphical.Diagram#clone()
+	 */
+	@Override
+	public Object clone() {
+		TimeDiagram copy = new TimeDiagram(repository, getType(), getKey());
+		cloneTo(copy);
+		return copy;
+	}
+
+	protected void cloneTo(TimeDiagram copy) {
+		super.cloneTo(copy);
+		for(Property p : properties) {
+			copy.addProperty(p);
+		}
+	}
+    
+	protected void copyTo(TimeDiagramDto dto) {
+		super.copyTo(dto);
+		for(Property p : properties) {
+			TimeDiagramEntryDto entry = new TimeDiagramEntryDto();
+			entry.setEntityKey(p.getContainer().getKey());
+			entry.setMetaPropertyKey(p.getMeta().getKey());
+			dto.getProperties().add(entry);
+		}
+	}
+    
     private static class CaptionMarker{
         
         /** name for diagnostic or debug */
@@ -830,6 +879,12 @@ public class TimeDiagram extends Diagram {
             result.add(calendarField,segment);
             return result;
         }
+        
+        @Override
+        public String toString() {
+        	return name;
+        }
     }
+
 
  }

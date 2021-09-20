@@ -15,7 +15,7 @@ import alvahouse.eatool.Application;
 import alvahouse.eatool.gui.ExceptionDisplay;
 import alvahouse.eatool.gui.graphical.DiagramViewerActionSet;
 import alvahouse.eatool.repository.Repository;
-import alvahouse.eatool.repository.exception.LogicException;
+import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.model.Model;
 import alvahouse.eatool.repository.model.Property;
 
@@ -26,13 +26,15 @@ import alvahouse.eatool.repository.model.Property;
  */
 public class TimeDiagramViewerActionSet extends DiagramViewerActionSet {
 
-    private Model model;
+	private final MetaModel metaModel;
+    private final Model model;
 
     /**
      * 
      */
     public TimeDiagramViewerActionSet(TimeDiagramViewer viewer, Application app, Repository repository) {
         super(viewer,app.getSettings(), repository);
+        this.metaModel = repository.getMetaModel();
         this.model = repository.getModel();
         
 		addAction("AddNewItem", actionAddNewItem);
@@ -235,13 +237,13 @@ public class TimeDiagramViewerActionSet extends DiagramViewerActionSet {
 	};
 
 	
-    private Property[] selectProperties(Model model) throws LogicException {
+    private Property[] selectProperties(Model model) throws Exception {
         
         	TimeDiagramViewer viewer = (TimeDiagramViewer)getViewer();
         	TimeDiagram diagram = (TimeDiagram)viewer.getDiagram();
         	TimeDiagramType type = (TimeDiagramType)diagram.getType();
       		
-    		PropertySelectionDialog dlg = new PropertySelectionDialog(viewer, type, model);
+    		PropertySelectionDialog dlg = new PropertySelectionDialog(viewer, type, metaModel, model);
     		dlg.setVisible(true);
 
     		Property[] properties = null;

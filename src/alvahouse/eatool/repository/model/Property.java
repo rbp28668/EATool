@@ -9,7 +9,9 @@ package alvahouse.eatool.repository.model;
 import java.io.IOException;
 
 import alvahouse.eatool.repository.base.RepositoryItem;
+import alvahouse.eatool.repository.dto.model.PropertyDto;
 import alvahouse.eatool.repository.metamodel.MetaProperty;
+import alvahouse.eatool.repository.metamodel.MetaPropertyContainer;
 import alvahouse.eatool.repository.metamodel.types.MetaPropertyType;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
@@ -31,14 +33,31 @@ public class Property extends RepositoryItem  implements Cloneable  {
         value = mp.getMetaPropertyType().initialise();
     }
 
-//    /* (non-Javadoc)
-//     * @see java.lang.Object#clone()
-//     */
-//    public Object clone() {
-//        Property copy = new Property(getKey(),meta);
-//        cloneTo(copy);
-//        return copy;
-//    }
+    /** Creates new Property */
+    public Property(PropertyDto dao, PropertyContainer container, MetaPropertyContainer meta) throws Exception {
+        super(dao);
+        this.meta = meta.getMetaProperty(dao.getMetaPropertyKey());
+        this.value = dao.getValue();
+        this.container = container;
+    }
+
+ 	/**
+	 * @return
+	 */
+	public PropertyDto toDao() {
+		PropertyDto dao = new PropertyDto();
+		copyTo(dao);
+		return dao;
+	}
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#clone()
+     */
+    public Object clone() {
+        Property copy = new Property(getKey(),meta);
+        cloneTo(copy);
+        return copy;
+    }
 //
 //    /**
 //     * Update this Property from a copy while retaining any original
@@ -101,7 +120,7 @@ public class Property extends RepositoryItem  implements Cloneable  {
     /** sets the parent entity for this property
      * e is the parent entity
      */
-    void setContainer(PropertyContainer container) {
+    public void setContainer(PropertyContainer container) {
         this.container = container;
     }
     
@@ -124,15 +143,25 @@ public class Property extends RepositoryItem  implements Cloneable  {
         out.stopEntity();
     }
 
-//    /** copies the values of one instance to a copy
-//     * @param copy is the property to copy the values to
-//     */
-//    protected void cloneTo(Property copy) {
-//        super.cloneTo(copy);
-//        copy.container = null; // disconnect copy
-//        copy.meta = meta;
-//        copy.value = value; // no clone as strings immutable
-//     }
+    /** copies the values of one instance to a copy
+     * @param copy is the property to copy the values to
+     */
+    protected void cloneTo(Property copy) {
+        super.cloneTo(copy);
+        copy.container = null; // disconnect copy
+        copy.meta = meta;
+        copy.value = value; // no clone as strings immutable
+     }
+    
+    /**
+     * Copies the property to a corresponding DAO.
+     * @param dao receives the values from property.
+     */
+    protected void copyTo(PropertyDto dao) {
+    	super.copyTo(dao);
+    	dao.setMetaPropertyKey(meta.getKey());
+    	dao.setValue(value);
+    }
     
     /**
      * Process this property assuming the data type has changed.

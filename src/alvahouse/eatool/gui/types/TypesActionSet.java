@@ -26,14 +26,14 @@ import alvahouse.eatool.repository.metamodel.types.RegexpCheckedType;
 import alvahouse.eatool.repository.metamodel.types.TimeSeriesType;
 
 /**
- * TypesActionSet
+ * TypesActionSet provides UI actions for creating, editing and deleting extensible types.
  * 
  * @author rbp28668
  */
 public class TypesActionSet extends ActionSet {
 
     private TypesExplorer explorer;
-    private Map editorClasses = new HashMap();
+    private Map< Class<? extends ExtensibleMetaPropertyType>, Class<? extends ExtensibleTypeDialog>> editorClasses = new HashMap<>();
     /**
      * 
      */
@@ -45,14 +45,15 @@ public class TypesActionSet extends ActionSet {
         addAction("DeleteType", actionDeleteType);
         
         // Setup lookup to identify appropriate dialogs to use.
-        // TODO make configurable.
         editorClasses.put(ControlledListType.class,ControlledListTypeDialog.class);
         editorClasses.put(RegexpCheckedType.class, RegexpCheckedTypeDialog.class);
         editorClasses.put(TimeSeriesType.class, TimeSeriesTypeDialog.class);
     }
     
     private final Action actionNewType = new AbstractAction() {
-        public void actionPerformed(ActionEvent e) {
+ 		private static final long serialVersionUID = 1L;
+
+		public void actionPerformed(ActionEvent e) {
             try {
                 ExtensibleTypeList types = (ExtensibleTypeList)explorer.getSelectedNode().getUserObject();
                 ExtensibleMetaPropertyType type = types.createNew();
@@ -72,6 +73,8 @@ public class TypesActionSet extends ActionSet {
     };   
 
     private final Action actionEditType = new AbstractAction() {
+		private static final long serialVersionUID = 1L;
+
         public void actionPerformed(ActionEvent e) {
             try {
                 ExtensibleMetaPropertyType type = (ExtensibleMetaPropertyType)explorer.getSelectedNode().getUserObject();
@@ -80,7 +83,7 @@ public class TypesActionSet extends ActionSet {
                 editor.setVisible(true);
                 
                 if(editor.wasEdited()){
-                    explorer.getTypes().fireTypeChanged(type);
+                    explorer.getTypes().updateType(type);
 
                 }
                 
@@ -92,6 +95,8 @@ public class TypesActionSet extends ActionSet {
     };   
 
     private final Action actionDeleteType = new AbstractAction() {
+		private static final long serialVersionUID = 1L;
+
         public void actionPerformed(ActionEvent e) {
             try {
                 ExtensibleMetaPropertyType type = (ExtensibleMetaPropertyType)explorer.getSelectedNode().getUserObject();
@@ -117,10 +122,10 @@ public class TypesActionSet extends ActionSet {
      * @throws IllegalArgumentException
      */
     private ExtensibleTypeDialog getEditorFor(ExtensibleMetaPropertyType type) throws SecurityException, NoSuchMethodException, IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
-        Class implementingClass = type.getClass();
-        Class editorClass = (Class)editorClasses.get(implementingClass);
-        Class[] paramTypes = new Class[] {Component.class, String.class};
-        Constructor constructor = editorClass.getConstructor(paramTypes);
+        Class<? extends ExtensibleMetaPropertyType> implementingClass = type.getClass();
+        Class<? extends ExtensibleTypeDialog> editorClass = editorClasses.get(implementingClass);
+        Class<?>[] paramTypes = new Class[] {Component.class, String.class};
+        Constructor<? extends ExtensibleTypeDialog> constructor = editorClass.getConstructor(paramTypes);
         Object[] params = new Object[] {explorer, "Edit " + type.getTypeName()};
         ExtensibleTypeDialog editor = (ExtensibleTypeDialog) constructor.newInstance(params);
         editor.setMetaPropertyType(type);

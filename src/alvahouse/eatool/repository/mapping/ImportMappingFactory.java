@@ -16,6 +16,7 @@ import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.metamodel.MetaProperty;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.repository.metamodel.MetaRole;
+import alvahouse.eatool.repository.version.VersionImpl;
 import alvahouse.eatool.util.IXMLContentHandler;
 import alvahouse.eatool.util.UUID;
 
@@ -73,6 +74,11 @@ public class ImportMappingFactory extends FactoryBase implements
             }
             mapping.setName(attr);
 
+            attr = attrs.getValue("description");
+            if(attr != null) {
+            	mapping.setDescription(attr);
+            }
+
         } else if (local.equals("Description")) {
             text.delete(0,text.length());
 
@@ -83,16 +89,34 @@ public class ImportMappingFactory extends FactoryBase implements
             text.delete(0,text.length());
 
         } else if (local.equals("EntityTranslation")){
-            startEntityTranslation(attrs);
+        	try {
+        		startEntityTranslation(attrs);
+        	}catch (Exception e) {
+        		throw new InputException("Unable to start entity translation",e);
+        	}
            
         } else if (local.equals("RelationshipTranslation")){
-            startRelationshipTranslation(attrs);
+        	try {
+        		startRelationshipTranslation(attrs);
+        	} catch (Exception e) {
+        		throw new InputException("Unable to start relationship translation",e);
+        	}
             
         } else if (local.equals("RoleTranslation")){
-            startRoleTranslation(attrs);
+        	try {
+        		startRoleTranslation(attrs);
+        	} catch (Exception e) {
+        		throw new InputException("Unable to start role translation",e);
+        	}
             
         } else if (local.equals("PropertyTranslation")){
-            startPropertyTranslation(attrs);
+        	try {
+        		startPropertyTranslation(attrs);
+        	} catch (Exception e) {
+        		throw new InputException("Unable to start property translation",e);
+        	}
+        } else if (local.equals("Version")) {
+        	VersionImpl.readXML(attrs, mapping);
         }
 
     }
@@ -102,7 +126,11 @@ public class ImportMappingFactory extends FactoryBase implements
      */
     public void endElement(String uri, String local) throws InputException {
         if(local.equals("ImportTranslation")){
-            mappings.add(mapping);
+        	try {
+        		mappings._add(mapping);
+        	} catch (Exception e) {
+        		throw new InputException("Unable to load import mapping",e);
+        	}
             mapping = null;
             counter.count("Import Mapping");
         } else if (local.equals("Description")) {
@@ -159,7 +187,7 @@ public class ImportMappingFactory extends FactoryBase implements
      * @param uri
      * @param attrs
      */
-    private void startPropertyTranslation(Attributes attrs) {
+    private void startPropertyTranslation(Attributes attrs) throws Exception{
         if(currentPTC == null){
             throw new InputException("PropertyTranslation outside its container");
         }
@@ -197,12 +225,12 @@ public class ImportMappingFactory extends FactoryBase implements
      * @param uri
      * @param attrs
      */
-    private void startRoleTranslation(Attributes attrs) {
+    private void startRoleTranslation(Attributes attrs) throws Exception{
         if(currentRelationshipTranslation == null){
             throw new InputException("RoleTranslation outside RelationshipTranslation");
         }
         
-        currentRoleTranslation = new RoleTranslation();
+        currentRoleTranslation = new RoleTranslation(currentRelationshipTranslation);
         currentPTC = currentRoleTranslation;
         
         String attr = attrs.getValue("type");
@@ -215,7 +243,7 @@ public class ImportMappingFactory extends FactoryBase implements
         if(attr == null) {
             throw new InputException("Missing uuid attribute on RelationshipTranslation");
         }
-        MetaRole mr = currentRelationshipTranslation.getMeta().getMetaRole(new UUID(attr));  
+        MetaRole mr = currentRelationshipTranslation.getMeta(metaModel).getMetaRole(new UUID(attr));  
         if(mr == null) {
             throw new InputException("UUID does not identify a known MetaRelationship");
         }
@@ -228,7 +256,7 @@ public class ImportMappingFactory extends FactoryBase implements
      * @param uri
      * @param attrs
      */
-    private void startRelationshipTranslation(Attributes attrs) {
+    private void startRelationshipTranslation(Attributes attrs)  throws Exception{
         if(mapping == null) {
             throw new InputException("RelationshipTranslation outside ImportMapping");
         }
@@ -260,7 +288,7 @@ public class ImportMappingFactory extends FactoryBase implements
      * @param uri
      * @param attrs
      */
-    private void startEntityTranslation(Attributes attrs) {
+    private void startEntityTranslation(Attributes attrs)  throws Exception{
         if(mapping == null) {
             throw new InputException("EntityTranslation outside ImportMapping");
         }

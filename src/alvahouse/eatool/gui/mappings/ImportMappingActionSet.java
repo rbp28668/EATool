@@ -26,6 +26,7 @@ import alvahouse.eatool.repository.mapping.PropertyTranslationCollection;
 import alvahouse.eatool.repository.mapping.RelationshipTranslation;
 import alvahouse.eatool.repository.mapping.RoleTranslation;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
+import alvahouse.eatool.repository.metamodel.MetaRole;
 
 /**
  * ImportMappingActionSet provides action handlers for the import
@@ -88,15 +89,16 @@ public class ImportMappingActionSet extends ActionSet {
          * @param parentNode
          * @return
          */
-        private MetaEntity getControllingMetaEntity(DefaultMutableTreeNode parentNode) {
+        private MetaEntity getControllingMetaEntity(DefaultMutableTreeNode parentNode) throws Exception{
             Object parent = parentNode.getUserObject();
             MetaEntity me = null;
             if(parent instanceof EntityTranslation){
                 EntityTranslation parentTranslation = (EntityTranslation)parent;
-            	me = parentTranslation.getMeta();
+            	me = parentTranslation.getMeta(repository.getMetaModel());
             } else if (parent instanceof RoleTranslation){
                 RoleTranslation parentTranslation = (RoleTranslation)parent;
-                me = parentTranslation.getMeta().connectsTo();
+                MetaRole mr = parentTranslation.getMeta(repository.getMetaModel());
+                me = mr.connectsTo();
             }
             if(me == null){
                 throw new IllegalStateException("PropertyTranslation parent is of invalid type " + parent.getClass().getName());
@@ -131,7 +133,7 @@ public class ImportMappingActionSet extends ActionSet {
                     ImportMappingDialog dialog = new ImportMappingDialog(explorer,"New Import Mapping",mapping,app,repository);
                     dialog.setVisible(true);
                     if(dialog.wasEdited()){
-                        mappings.fireUpdated();
+                        mappings.update(mapping);
                     }
                 } catch(Throwable t) {
     				new ExceptionDisplay(explorer,t);

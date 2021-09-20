@@ -10,9 +10,14 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.bsf.BSFException;
 
+import alvahouse.eatool.repository.dto.scripting.EventMapDto;
+import alvahouse.eatool.repository.version.Version;
+import alvahouse.eatool.repository.version.VersionImpl;
+import alvahouse.eatool.repository.version.Versionable;
 import alvahouse.eatool.util.XMLWriter;
 
 /**
@@ -28,27 +33,47 @@ import alvahouse.eatool.util.XMLWriter;
  * 
  * @author rbp28668
  */
-public class EventMap {
+public class EventMap implements Versionable{
 
-    private Map<String,Script> handlers = new HashMap<String,Script>(); // keyed by event name.
-    
+    private final Map<String,ScriptProxy> handlers = new HashMap<String,ScriptProxy>(); // keyed by event name.
+    private final VersionImpl version = new VersionImpl();
     /**
      * Creates a new, empty event handler.
+     * @param scripts is the scripts collection used to look up any scripts if an event is fired
+     * or script accessed.
      */
     public EventMap() {
         super();
     }
 
+    public EventMap(EventMapDto dto) {
+    	handlers.clear();
+    	for(EventMapDto.EventMapHandlerDto handler : dto.getHandlers()) {
+    		handlers.put(handler.getEvent(), new ScriptProxy(handler.getHandler()));
+    	}
+    	version.fromDto(dto.getVersion());
+    }
+    
+    public EventMapDto toDto() {
+    	EventMapDto dto = new EventMapDto();
+    	for(Map.Entry<String,ScriptProxy> entry : handlers.entrySet()) {
+    		EventMapDto.EventMapHandlerDto handlerDto = new EventMapDto.EventMapHandlerDto();
+    		handlerDto.setEvent(entry.getKey());
+    		ScriptProxy sp = entry.getValue();
+    		handlerDto.setHandler(sp.isNull() ? null : sp.getKey());
+    		dto.getHandlers().add(handlerDto);
+    	}
+    	dto.setVersion(version.toDto());
+    	return dto;
+    }
     /**
-     * Adds an event to the event map.  The event is given a null handler.
+     * Adds an event to the map with a null handler if it doesn't already exist.
      * @param event is the event name to add.
-     * @throws IllegalStateException if the event already exists in the event map.
      */
-    public void addEvent(String event){
-        if(handlers.containsKey(event)){
-            throw new IllegalStateException("Event map already contains the event " + event);
+    public void ensureEvent(String event){
+        if(!handlers.containsKey(event)){
+            handlers.put(event,new ScriptProxy());
         }
-        handlers.put(event,null);
     }
     
     /**
@@ -64,7 +89,9 @@ public class EventMap {
         if(handler == null){
             throw new NullPointerException("Can't set a null event handler");
         }
-        handlers.put(event,handler);
+        ScriptProxy proxy = new ScriptProxy();
+        proxy.set(handler);
+        handlers.put(event,proxy);
     }
     
     /**
@@ -76,7 +103,7 @@ public class EventMap {
         if(!handlers.containsKey(event)){
             throw new IllegalStateException("Event map does not contain the event " + event);
         }
-        handlers.put(event,null);
+        handlers.put(event,new ScriptProxy());
     }
     
     /**
@@ -98,10 +125,57 @@ public class EventMap {
      * Gets the event map of <code>Script</code> keyed by the event names.
      * @return an unmodifiable event map.
      */
-    public Map<String,Script> getMap(){
-        return Collections.unmodifiableMap(handlers);
+    public Set<String> getEvents(){
+        return Collections.unmodifiableSet(handlers.keySet());
+    }
+
+    /**
+     * Determines whether there's a handler for the given event.
+     * @param event is the event (name) to check for.
+     * @return true if there's a handler, false if not or if the event doesn't exist.
+     */
+    public boolean hasHandler(String event) {
+    	ScriptProxy proxy = handlers.get(event);
+    	if(proxy == null) return false;
+    	return !proxy.isNull();
+    }
+    /**
+     * Gets a script for the given event.
+     * @param event
+     * @return
+     * @throws Exception
+     */
+    public Script get(String event, Scripts scripts) throws Exception {
+    	ScriptProxy proxy = handlers.get(event);
+
+    	if(proxy == null){
+            throw new IllegalStateException("Event map does not contain the event " + event);
+        }
+
+    	return proxy.get(scripts);
     }
     
+    /**
+     * Gets a ScriptContext for an event where the caller needs to add some more
+     * context around the event.
+     * @param event is the event that is being fired.
+     * @return a ScriptContext for the event or null if no handler registered.
+     */
+    public ScriptContext getContextFor(String event, Scripts scripts) throws Exception{
+
+    	ScriptProxy proxy = handlers.get(event);
+
+    	if(proxy == null){
+            throw new IllegalStateException("Event map does not contain the event " + event);
+        }
+        ScriptContext context = null;
+        Script handler = proxy.get(scripts);
+        if(handler != null) {
+            context = new ScriptContext(handler);
+        }
+        return context;
+    }
+
     /**
      * Fires an event - if the event has a handler that handler script is run
      * by the scripting engine.
@@ -110,11 +184,14 @@ public class EventMap {
      * @throws BSFException if there is an error in the script.
      * @throws IllegalStateException if the event map does not contain the given event.
      */
-    public void fireEvent(String event) throws BSFException{
-        if(!handlers.containsKey(event)){
+    public void fireEvent(String event, Scripts scripts) throws Exception{
+        ScriptProxy proxy = handlers.get(event);
+    	
+    	if(proxy == null){
             throw new IllegalStateException("Event map does not contain the event " + event);
         }
-        Script handler = (Script)handlers.get(event);
+        
+        Script handler = proxy.get(scripts);
         if(handler != null) {
             ScriptManager.getInstance().runScript(handler);
         }
@@ -137,12 +214,44 @@ public class EventMap {
      */
     public void writeXML(XMLWriter out, String tag) throws IOException {
         out.startEntity(tag);
+
+        version.writeXML(out);
         
-        for(Map.Entry<String,Script> entry : handlers.entrySet()){
-            Script handler = (Script)entry.getValue();
-            if(handler != null){
+        for(Map.Entry<String,ScriptProxy> entry : handlers.entrySet()){
+            ScriptProxy handler = entry.getValue();
+            if(handler != null && !handler.isNull()){
                 out.startEntity("Event");
-                out.addAttribute("name",(String)entry.getKey());
+                out.addAttribute("name", entry.getKey().toString());
+                out.addAttribute("handler", handler.getKey().toString());
+                out.stopEntity();
+            }
+        }
+
+        out.stopEntity();
+    }
+
+    /**
+     * Writes the EventMap out as XML
+     * @param out is the XMLWriterDirect to write the XML to
+     */
+    public void writeXMLUnversioned(XMLWriter out) throws IOException {
+        writeXMLUnversioned(out,"EventMap");
+    }
+
+    /**
+     * Writes the EventMap out as XML using the given tag but without version
+     * information for when the event map is embedded in another versioned component.
+     * @param out is the XMLWriterDirect to write the XML to
+     * @param tag is the element name to use.
+     */
+    public void writeXMLUnversioned(XMLWriter out, String tag) throws IOException {
+        out.startEntity(tag);
+        
+        for(Map.Entry<String,ScriptProxy> entry : handlers.entrySet()){
+            ScriptProxy handler = entry.getValue();
+            if(handler != null && !handler.isNull()){
+                out.startEntity("Event");
+                out.addAttribute("name", entry.getKey().toString());
                 out.addAttribute("handler", handler.getKey().toString());
                 out.stopEntity();
             }
@@ -164,27 +273,36 @@ public class EventMap {
      * @param copy is the destination of the copy.
      */
     public void cloneTo(EventMap copy) {
+        version.cloneTo(copy.version);
         copy.handlers.clear();
-        copy.handlers.putAll(handlers);
+        for( Map.Entry<String,ScriptProxy> entry: handlers.entrySet()) {
+        	String key = entry.getKey();
+        	ScriptProxy script = entry.getValue();
+        	script =  (ScriptProxy)script.clone();
+        	copy.handlers.put(key, script);
+        }
     }
 
     /**
-     * Gets a ScriptContext for an event where the caller needs to add some more
-     * context around the event.
-     * @param event is the event that is being fired.
-     * @return a ScriptContext for the event or null if no handler registered.
+     * Clones the event map and ties it to a scripts collection that will be used
+     * to access any script (lazy loading)
+     * @param scripts will be the source of any scripts if an event is fired or script accessed.
+     * @return a clone of the event map bound to the given scripts collection.
      */
-    public ScriptContext getContextFor(String event) {
-        if(!handlers.containsKey(event)){
-            throw new IllegalStateException("Event map does not contain the event " + event);
-        }
-        ScriptContext context = null;
-        Script handler = (Script)handlers.get(event);
-        if(handler != null) {
-            context = new ScriptContext(handler);
-        }
-        return context;
+    @Override
+    public Object clone() {
+    	EventMap copy = new EventMap();
+    	cloneTo(copy);
+    	return copy;
     }
+ 
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.version.Versionable#getVersion()
+	 */
+	@Override
+	public Version getVersion() {
+		return version;
+	}
     
     
 }

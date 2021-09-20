@@ -8,9 +8,11 @@ package alvahouse.eatool.repository.graphical.standard;
 
 import java.awt.Shape;
 import java.io.IOException;
+import java.util.Collection;
 
 import alvahouse.eatool.gui.graphical.layout.Node;
 import alvahouse.eatool.repository.base.KeyedItem;
+import alvahouse.eatool.repository.dto.graphical.SymbolDto;
 import alvahouse.eatool.repository.graphical.GraphicalObject;
 import alvahouse.eatool.repository.graphical.GraphicalProxy;
 import alvahouse.eatool.util.UUID;
@@ -71,5 +73,17 @@ public interface Symbol extends Node, GraphicalObject, GraphicalProxy, TextObjec
      */
     public void mustSizeSymbol(boolean b);
     
- 	
+    /**
+     * Gets the connectors that are connected to this symbol.
+     * @return collection, may be empty, never null.
+     */
+    Collection<Connector> getConnectors();
+    
+    
+ 	public Object clone(); //throws CloneNotSupportedException;
+
+	/**
+	 * @return
+	 */
+	public SymbolDto toDto();
 }

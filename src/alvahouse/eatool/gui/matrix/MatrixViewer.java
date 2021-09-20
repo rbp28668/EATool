@@ -385,7 +385,7 @@ public class MatrixViewer extends JInternalFrame  implements MatrixTableModelLis
 	 * @param model
 	 * @param metaRelationship
 	 */
-	private MatrixViewer(Model model, MetaRelationship metaRelationship, Application app){
+	private MatrixViewer(Model model, MetaRelationship metaRelationship, Application app) throws Exception{
 		
 		super("Matrix: " + metaRelationship.getName());
 
@@ -439,7 +439,7 @@ public class MatrixViewer extends JInternalFrame  implements MatrixTableModelLis
      * @param metaRelationship
      * @return the new MatrixTableModel.
      */
-    private MatrixTableModel buildTableModel(Model model, MetaRelationship metaRelationship) {
+    private MatrixTableModel buildTableModel(Model model, MetaRelationship metaRelationship) throws Exception{
 		MetaEntity rowMeta = metaRelationship.start().connectsTo();
 		MetaEntity colMeta = metaRelationship.finish().connectsTo();
 		
@@ -454,7 +454,7 @@ public class MatrixViewer extends JInternalFrame  implements MatrixTableModelLis
 			Set<Relationship> relationships = e.getConnectedRelationshipsOf(metaRelationship);
 			for(Relationship r : relationships){
 				
-				if( r.start().connectsTo() == e){
+				if( r.start().connectsTo().equals(e)){
 					tableModel.link(e,r.finish().connectsTo());
 				}
 			}
@@ -519,7 +519,7 @@ public class MatrixViewer extends JInternalFrame  implements MatrixTableModelLis
         for(Relationship r : relationshipsToDelete){
             r.start().disconnect();
             r.finish().disconnect();
-            model.deleteRelationship(r.getKey());
+            model.deleteRelationship(r.getKey(), r.getVersion().getVersion());
          }
         
     }
@@ -531,7 +531,7 @@ public class MatrixViewer extends JInternalFrame  implements MatrixTableModelLis
      * @param columnEntity is the second entity to match.
      * @return any matching relationship or null if none foun d.
      */
-    private Relationship find(Set<Relationship> relationships, Entity rowEntity, Entity columnEntity) {
+    private Relationship find(Set<Relationship> relationships, Entity rowEntity, Entity columnEntity) throws Exception{
         Relationship found = null;
         for(Relationship r  : relationships){
             if(r.start().connectsTo().equals(rowEntity) && r.finish().connectsTo().equals(columnEntity)){
@@ -645,7 +645,7 @@ public class MatrixViewer extends JInternalFrame  implements MatrixTableModelLis
 		/* (non-Javadoc)
 		 * @see alvahouse.eatool.gui.WindowCoordinator.WindowFactory#createFrame()
 		 */
-		public JInternalFrame createFrame() {
+		public JInternalFrame createFrame() throws Exception {
 			return new MatrixViewer(model,metaRelationship, app);
 		}
     	

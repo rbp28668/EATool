@@ -41,7 +41,7 @@ public class PropertyMappingDialog extends BasicDialog {
      * @param parent
      * @param title
      */
-    public PropertyMappingDialog(JDialog parent, String title, MetaEntity parentEntity, PropertyTranslation mapping) {
+    public PropertyMappingDialog(JDialog parent, String title, MetaEntity parentEntity, PropertyTranslation mapping) throws Exception {
         super(parent, title);
         init(parentEntity, mapping);
     }
@@ -50,7 +50,7 @@ public class PropertyMappingDialog extends BasicDialog {
      * @param parent
      * @param title
      */
-    public PropertyMappingDialog(Component parent, String title, MetaEntity parentEntity, PropertyTranslation mapping) {
+    public PropertyMappingDialog(Component parent, String title, MetaEntity parentEntity, PropertyTranslation mapping) throws Exception{
         super(parent, title);
         init(parentEntity, mapping);
     }
@@ -59,7 +59,7 @@ public class PropertyMappingDialog extends BasicDialog {
      * The main initialiser for the dialog.
      * @param mapping is the EntityTranslation to edit.
      */
-    private void init(MetaEntity parentEntity, PropertyTranslation mapping) {
+    private void init(MetaEntity parentEntity, PropertyTranslation mapping) throws Exception{
         if(mapping == null){
             throw new NullPointerException("Can't edit null property translation");
         }
@@ -96,12 +96,12 @@ public class PropertyMappingDialog extends BasicDialog {
         private static final long serialVersionUID = 1L;
         private JTextField txtName;
         private JCheckBox keySel;
-        private JComboBox propertySel;
+        private JComboBox<MetaProperty> propertySel;
 
         /**
          * Create a new MainPanel.
          */
-        MainPanel() {
+        MainPanel() throws Exception{
             GridBagLayout gridbag = new GridBagLayout();
             setLayout(gridbag);
             GridBagConstraints c = new GridBagConstraints();
@@ -138,8 +138,8 @@ public class PropertyMappingDialog extends BasicDialog {
             gridbag.setConstraints(label,c);
             add(label);
 
-            propertySel = new JComboBox(parentEntity.getMetaProperties().toArray());
-            propertySel.setSelectedItem(mapping.getMeta());
+            propertySel = new JComboBox<MetaProperty>(parentEntity.getMetaPropertiesAsArray());
+            propertySel.setSelectedItem(parentEntity.getMetaProperty(mapping.getMetaPropertyKey()));
             c.gridwidth = GridBagConstraints.REMAINDER;
             gridbag.setConstraints(propertySel,c);
             add(propertySel);

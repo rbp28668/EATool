@@ -17,14 +17,23 @@ import alvahouse.eatool.gui.graphical.layout.Arc;
 import alvahouse.eatool.gui.graphical.layout.Node;
 import alvahouse.eatool.gui.graphical.layout.NodeGraph;
 import alvahouse.eatool.repository.base.KeyedItem;
+import alvahouse.eatool.repository.dto.graphical.ConnectorDto;
+import alvahouse.eatool.repository.dto.graphical.DiagramDto;
+import alvahouse.eatool.repository.dto.graphical.ImageDisplayDto;
+import alvahouse.eatool.repository.dto.graphical.StandardDiagramDto;
+import alvahouse.eatool.repository.dto.graphical.SymbolDto;
+import alvahouse.eatool.repository.dto.graphical.TextBoxDto;
 import alvahouse.eatool.repository.exception.LogicException;
 import alvahouse.eatool.repository.graphical.Diagram;
 import alvahouse.eatool.repository.graphical.DiagramType;
 import alvahouse.eatool.repository.graphical.GraphicalObject;
 import alvahouse.eatool.repository.graphical.GraphicalProxy;
+import alvahouse.eatool.repository.graphical.symbols.SymbolFactory;
+import alvahouse.eatool.repository.images.Images;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.repository.model.Entity;
+import alvahouse.eatool.repository.model.Model;
 import alvahouse.eatool.repository.model.Relationship;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
@@ -56,6 +65,47 @@ public class StandardDiagram extends Diagram implements NodeGraph{
 		super(type,key);
 	}
 
+	public StandardDiagram(Model model, StandardDiagramType type, Images imagesCollection, StandardDiagramDto dto) throws Exception{
+		super(type, dto);
+		
+		for(SymbolDto symbolDto : dto.getSymbols()) {
+			Entity e = model.getEntity(	symbolDto.getReferencedItemKey());
+			SymbolType st = type.getSymbolType(symbolDto.getSymbolTypeKey());
+			Symbol s = SymbolFactory.fromDto(e, st, symbolDto);
+			symbols.add( s);
+			nodeMap.put(s.getItem(), s);   // allow node lookup by user object
+			symbolsByUUID.put(s.getKey(),s);
+		}
+		
+		for(ConnectorDto connectorDto : dto.getConnectors()) {
+			Relationship r = model.getRelationship( connectorDto.getReferencedItemKey());
+			ConnectorType ct = type.getConnectorType(connectorDto.getConnectorTypeKey());
+			Symbol start = symbolsByUUID.get(connectorDto.getStartSymbolKey());
+			Symbol finish = symbolsByUUID.get(connectorDto.getFinishSymbolKey());
+			Connector c = new BasicConnector(r, ct, start, finish, connectorDto);
+			connectors.add(c);
+			arcMap.put(c.getItem(),c);
+			connectorsByUUID.put(c.getKey(),c);
+		}
+		
+		for(TextBoxDto textBox : dto.getTextBoxes()) {
+			textBoxes.add(new TextBox(textBox));
+		}
+		
+		for(ImageDisplayDto image : dto.getImages()) {
+			images.add(new ImageDisplay(imagesCollection, image));
+		}
+	}
+	
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.graphical.Diagram#toDto()
+	 */
+	@Override
+	public DiagramDto toDto() {
+		StandardDiagramDto dto = new StandardDiagramDto();
+		copyTo(dto);
+		return dto;
+	}
 	/**
 	 * Gets the symbols in this diagram.
 	 * @return an unmodifiable collection of symbols.
@@ -161,7 +211,7 @@ public class StandardDiagram extends Diagram implements NodeGraph{
 	/**
 	 * @param g
 	 */
-	public void sizeWith(Graphics2D g){
+	public void sizeWith(Graphics2D g) throws Exception{
 		for(Connector c : connectors){
 			c.sizeWith(g);
 		}
@@ -179,7 +229,7 @@ public class StandardDiagram extends Diagram implements NodeGraph{
 	/* (non-Javadoc)
 	 * @see alvahouse.eatool.gui.graphical.Diagram#draw(java.awt.Graphics2D, float)
 	 */
-	public void draw(Graphics2D g, float zoom) {
+	public void draw(Graphics2D g, float zoom) throws Exception {
 		g.setBackground(getBackgroundColour());
 		
 		for(TextBox box : textBoxes){
@@ -683,6 +733,56 @@ public class StandardDiagram extends Diagram implements NodeGraph{
     public void deleteImage(ImageDisplay image){
         images.remove(image);
     }
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.graphical.Diagram#clone()
+	 */
+	@Override
+	public Object clone() {
+		StandardDiagram copy = new StandardDiagram(getType(),getKey());
+		cloneTo(copy);
+		return copy;
+	}
+	
+	protected void cloneTo(StandardDiagram copy) {
+		super.cloneTo(copy);
+		for(Symbol s : symbols) {
+			s = (Symbol)s.clone();
+			copy.symbols.add(s);
+			copy.nodeMap.put(s.getItem(), s);   // allow node lookup by user object
+			copy.symbolsByUUID.put(s.getKey(),s);
+		}
+		for(Connector c : connectors) {
+			c = (Connector) c.clone();
+			copy.connectors.add(c);
+			copy.arcMap.put(c.getItem(),c);
+			copy.connectorsByUUID.put(c.getKey(),c);
+		}
+		for(TextBox t : textBoxes) {
+			copy.textBoxes.add((TextBox) t.clone());
+		}
+		for(ImageDisplay id : images) {
+			copy.images.add((ImageDisplay) id.clone());
+		}
+		
+	}
+
+	protected void copyTo(StandardDiagramDto dto) {
+		super.copyTo(dto);
+		for(Symbol s : symbols) {
+			dto.getSymbols().add(s.toDto());
+		}
+		for(Connector c : connectors) {
+			dto.getConnectors().add(c.toDto());
+		}
+		for(TextBox t : textBoxes) {
+			dto.getTextBoxes().add(t.toDto());
+		}
+		for(ImageDisplay id : images) {
+			dto.getImages().add(id.toDto());
+		}
+		
+	}
 
      
 }

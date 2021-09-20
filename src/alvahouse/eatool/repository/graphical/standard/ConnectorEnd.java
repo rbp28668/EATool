@@ -5,62 +5,43 @@ import java.awt.Graphics2D;
 import java.io.IOException;
 
 import alvahouse.eatool.gui.graphical.standard.UnitVector;
+import alvahouse.eatool.repository.base.RepositoryItem;
+import alvahouse.eatool.repository.dto.graphical.ConnectorEndDto;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
 /**
  * A ConnectorEnd decorates the end of a connector where
  * it joins a symbol.  Used for things such as cardinality
- * and optinality display.
+ * and optionality display or inheritance/composition/aggregation in UML.
  * @author bruce.porteous
  *
  */
-public abstract class ConnectorEnd {
+public abstract class ConnectorEnd extends RepositoryItem{
 
 	/** Font used for basic unit of size so that independent of device
 	 * resolution, things scale properly.
 	 */
 	protected static Font scaleFont = new Font("SansSerif", Font.PLAIN,10);
 
-	/**
-	 * NullConnectorEnd implements the null object pattern to make
-	 * it easier for connectors to use the null end rather than
-	 * have an explicit null.
-	 * @author Bruce.Porteous
-	 *
-	 */
-	private static class NullConnectorEnd extends ConnectorEnd{
-		NullConnectorEnd(){
-		}
-		
-		public void draw(Graphics2D g, UnitVector pos, float zoom){
-			// NOP.
-		}
-
-	}
-	
 	private static ConnectorEnd nullObject = new NullConnectorEnd();
 	
 	public static ConnectorEnd getNullObject() {
 		return nullObject;
 	}
-	
-	private UUID uuid;
+
 	/**
 	 * Constructor for ConnectorEnd.
 	 */
 	public ConnectorEnd() {
-		super();
-		uuid = new UUID();
+		super(new UUID());
 	}
 
-	/**
-	 * Gets the unique key for this connector end.
-	 * @return UUID representing this connector end.
-	 */
-	public UUID getKey() {
-		return uuid;
+	public ConnectorEnd(ConnectorEndDto dto) {
+		super(dto);
 	}
+	
+	public abstract ConnectorEndDto toDto();
 	
 	/**
 	 * Implementation of draw that draws the decoration of the connector end.  The derived class must
@@ -82,5 +63,6 @@ public abstract class ConnectorEnd {
 		
 		out.stopEntity();
 	}
+
 
 }

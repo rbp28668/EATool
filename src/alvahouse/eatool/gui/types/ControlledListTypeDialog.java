@@ -41,7 +41,11 @@ import alvahouse.eatool.repository.metamodel.types.ExtensibleMetaPropertyType;
  */
 public class ControlledListTypeDialog extends ExtensibleTypeDialog {
 
-    private ControlledListType type;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private ControlledListType type;
     private ListPanel listPanel;
     private NamedRepositoryItemPanel nriPanel;
     

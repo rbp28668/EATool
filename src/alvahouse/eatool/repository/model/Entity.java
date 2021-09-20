@@ -8,9 +8,9 @@ package alvahouse.eatool.repository.model;
 
 import java.io.IOException;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Set;
 
+import alvahouse.eatool.repository.dto.model.EntityDto;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaEntityDisplayHint;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
@@ -38,7 +38,7 @@ public class Entity extends PropertyContainer implements Versionable {
     /** Creates new Entity of a given type.
      * @param me is the  MetaEntity that describes the type of the entity.
     */
-    public Entity(MetaEntity me) {
+    public Entity(MetaEntity me) throws Exception{
         super(new UUID());
         addDefaultProperties(me);
         meta = me;
@@ -50,27 +50,45 @@ public class Entity extends PropertyContainer implements Versionable {
      * this Entity.
      * @param me is the MetaEntity that describes the type of the entity.
      * */
-    public Entity(UUID uuid, MetaEntity me) {
+    public Entity(UUID uuid, MetaEntity me) throws Exception{
         super(uuid);
         addDefaultProperties(me);
         meta = me;
     }
 
-//	/**
-//	 * Copy constructor for clone.
-//	 * @param source is the Entity to clone from.
-//	 */
-//	protected Entity(Entity source){
-//		super(source.getKey());
-//		source.cloneTo(this);
-//	}
+	/**
+	 * Copy constructor for clone.
+	 * @param source is the Entity to clone from.
+	 */
+	protected Entity(Entity source){
+		super(source.getKey());
+		source.cloneTo(this);
+	}
+	
+	public Entity(EntityDto dao, MetaEntity me) throws Exception {
+		super(dao, me);
+		this.meta = me;
+		this.version = new VersionImpl(dao.getVersion());
+	}
+	
+	public EntityDto toDao() {
+		EntityDto dao = new EntityDto();
+		copyTo(dao);
+		return dao;
+	}
 	
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */
     public String toString() {
         MetaEntity me = getMeta();
-        MetaEntityDisplayHint dh = me.getDisplayHint();
+        MetaEntityDisplayHint dh = null;
+        try {
+        	dh = me.getDisplayHint();
+        } catch (Exception e) {
+        	// NOP
+        }
+        
         if(dh != null)
             return getName(dh);
         else
@@ -100,33 +118,14 @@ public class Entity extends PropertyContainer implements Versionable {
             return buff.toString();
     }
 
-//    /** Creates a copy of the entity
-//     * @return a new entity (with the same key)
-//     */
-//    public Object clone() {
-//        Entity copy = new Entity(this);
-//        return copy;
-//    }
+    /** Creates a copy of the entity
+     * @return a new entity (with the same key)
+     */
+    public Object clone() {
+        Entity copy = new Entity(this);
+        return copy;
+    }
     
-//    /** Updates this meta entity from a copy.  Used for editing - the 
-//     * copy should be edited (use clone to get the copy) and only if the
-//     * edit is successful should the original be updated by calling this
-//     * method on the original meta-entity.  This ensures that any listeners
-//     * are updated properly.
-//     * @param copy is the meta-entity to copy from
-//     */
-//    public void updateFromCopy(Entity copy) {
-//
-//        // Update from copy - cloneTo clears model so save & restore
-//        Model parent = getModel();
-//        copy.cloneTo(this);
-//        setModel(parent);
-//       
-//        // Fire change events.
-//        if(model != null){
-//            model.fireEntityChanged(this);
-//        }
-//    }
     
     /** gets the meta entity that this entity is an instance of.
      * @return the associated meta entity
@@ -148,41 +147,7 @@ public class Entity extends PropertyContainer implements Versionable {
         
         out.stopEntity();
     }
-
-//    /** This adds a new Property to the Entity. This replaces the existing property
-//     * that shares the same meta-property.
-//     * @param prop is the property to be added.
-//     */
-//    public Property addProperty(Property prop)
-//    {
-//        Property propOld = (Property)properties.get(prop.getMeta().uuid());
-//        if(propOld == null)
-//            throw new IllegalArgumentException("Can't find property to replace when updating entity");
-//        
-//        int idx = propertyList.indexOf(propOld);
-//        propertyList.set(idx, prop);
-//        properties.put(prop.getMeta().uuid(), prop);
-//
-//        prop.setEntity(this);
-//        if(model != null)
-//            model.firePropertyChanged(prop);
-//        return prop;
-//    }
-
-    
-//    /** This deletes a named Property from the Entity.
-//     * @param name is the name of the property to delete
-//     * @returns the delete Property or null if no match for the name
-//     */
-//    public Property deleteProperty(UUID uuid) {
-//         Property prop = (Property)properties.remove(uuid);
-//        propertyList.remove(prop);
-//        if(model != null)
-//            model.firePropertyDeleted(prop);
-//        return prop;
-//    }
-
-     
+  
      /** Sets the parent model
      * @param m is the model to set
      */
@@ -197,91 +162,51 @@ public class Entity extends PropertyContainer implements Versionable {
         return model;
     }
 
-//    /** where properties exist in the source entity, they are copied to
-//     * the destination entity.  Note that this is not the same as a clone!
-//     * @param source is the source entity to copy from.
-//     */
-//    public void updatePropertiesFrom(Entity source) {
-//        
-//        if(getMeta() != source.getMeta())
-//            throw new IllegalArgumentException("Cannot update Entity type " 
-//                + getMeta().getName() + " from type " + source.getMeta().getName());
-//        
-//        Iterator iter = source.getProperties().iterator();
-//        while(iter.hasNext()) {
-//            Property p = (Property)iter.next();
-//            
-//            boolean propertyExists = false;
-//
-//            // Look for property to update - should share the same meta-property
-//            Iterator iterProperty = getProperties().iterator();
-//            while(iterProperty.hasNext()) {
-//                Property dest = (Property)iter.next();
-//                if(dest.getMeta() == p.getMeta()) {
-//                    dest.setValue(p.getValue());
-//                    propertyExists = true;
-//                    break;
-//                }
-//            }
-//            if(!propertyExists)
-//                throw new IllegalArgumentException("Unable to update properties from instance of " + source.getMeta().getName());
-//        }
-//        if(model != null) model.fireEntityChanged(this);
-//    }
     
     /** This gets the set of relationships that are connected to this entity in the model
      * that the entity belongs to.  Note - this is in no-way optimised.
      * @return the set of connected relationships.
      */
-    public Set<Relationship> getConnectedRelationships() {
+    public Set<Relationship> getConnectedRelationships() throws Exception {
         if(model == null){
             throw new IllegalStateException("Cannot get connected relationships for Entity not connected to a model");
         }
-        Set<Relationship> rels = new HashSet<Relationship>();
-        for(Relationship rel : model.getRelationships()) {
-            if(rel.start().connectsTo().equals(this) ||
-                rel.finish().connectsTo().equals(this)) {
-                rels.add(rel);
-            }
-        }
-        return rels;
+        return model.getConnectedRelationships(this);
     }
 
     /** This gets the set of relationships that are connected to this entity in the model
      * that the entity belongs to.  Note - this is in no-way optimised.
      * @return the set of connected relationships.
      */
-    public Set<Relationship> getConnectedRelationshipsOf(MetaRelationship meta) {
+    public Set<Relationship> getConnectedRelationshipsOf(MetaRelationship meta) throws Exception{
         if(model == null){
             throw new IllegalStateException("Cannot get connected relationships for Entity not connected to a model");
         }
-        Set<Relationship> rels = new HashSet<Relationship>();
-        for(Relationship rel :  model.getRelationships()) {
-            if((rel.start().connectsTo().equals(this) ||
-                rel.finish().connectsTo().equals(this)) &&
-                rel.getMeta().equals(meta)) {
-                rels.add(rel);
-            }
-        }
-        return rels;
+        return model.getConnectedRelationshipsOf(this, meta);
     }
     
-//     /** copies this entity to a copy.
-//     * @param copy is the entity to copy to.
-//     */
-//    protected void cloneTo(Entity copy) {
-//        super.cloneTo(copy);
-//        
-//        copy.meta = meta;   // must be same type
-//        copy.model = null;  // always disconnect copies from model
-//        version.cloneTo(copy.version);
-//        super.cloneTo(copy);
-//    }
+     /** copies this entity to a copy.
+     * @param copy is the entity to copy to.
+     */
+    protected void cloneTo(Entity copy) {
+        copy.meta = meta;   // must be same type
+        copy.model = null;  // always disconnect copies from model
+        version.cloneTo(copy.version);
+        super.cloneTo(copy);
+    }
 
+    /** copies this entity to a DAO.
+    * @param copy is the entity dao to copy to.
+    */
+   protected void copyTo(EntityDto dao) {
+	   super.copyTo(dao);
+       dao.setMetaEntityKey(meta.getKey());
+       dao.setVersion(version.toDto());
+   }
     
 
     /**
-     * Compare is a Comparator class to allow sorting etc of Entities. 
+     * CompareByName is a Comparator class to allow sorting etc of Entities. 
      * 
      * @author rbp28668
      */

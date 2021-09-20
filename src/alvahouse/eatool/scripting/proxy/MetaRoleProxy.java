@@ -34,7 +34,7 @@ public class MetaRoleProxy {
      * @return the connected MetaEntity.
      */
     @Scripted(description="Gets the type of meta-entity this role connects to.")
-    public MetaEntityProxy connectsTo(){
+    public MetaEntityProxy connectsTo() throws Exception{
         return new MetaEntityProxy( metaRole.connectsTo());
     }
 

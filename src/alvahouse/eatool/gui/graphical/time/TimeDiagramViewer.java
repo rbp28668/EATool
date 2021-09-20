@@ -61,7 +61,7 @@ public class TimeDiagramViewer extends DiagramViewer {
 	private static final String WINDOW_SETTINGS = "Windows/TimeDiagramViewer";
 
 
-    public TimeDiagramViewer(TimeDiagram diagram, Application app, Repository repository) {
+    public TimeDiagramViewer(TimeDiagram diagram, Application app, Repository repository) throws Exception {
 		super(getViewerTitle(diagram), diagram);
 
 		this.diagram = (TimeDiagram)diagram;
@@ -69,7 +69,7 @@ public class TimeDiagramViewer extends DiagramViewer {
 		this.repository = repository;
  
 		try {
-            diagram.getEventMap().fireEvent(Diagram.ON_DISPLAY_EVENT);
+            diagram.getEventMap().fireEvent(Diagram.ON_DISPLAY_EVENT, repository.getScripts());
         } catch (BSFException e) {
             new ExceptionDisplay(app.getCommandFrame(),e);
         }
@@ -195,18 +195,29 @@ public class TimeDiagramViewer extends DiagramViewer {
 
     public void dispose() {
  		try {
-            diagram.getEventMap().fireEvent(Diagram.ON_CLOSE_EVENT);
-        } catch (BSFException e) {
+            diagram.getEventMap().fireEvent(Diagram.ON_CLOSE_EVENT, repository.getScripts());
+        } catch (Exception e) {
             new ExceptionDisplay(app.getCommandFrame(),e);
         }
 
+ 		complete();
+ 		
 	    GUIBuilder.saveBounds(this,WINDOW_SETTINGS,app);
         app.getWindowCoordinator().removeFrame(this);
         viewPane.dispose();
         labelPane.dispose();
     }
     
-    /** internal pane to hold the view of a model
+    /* (non-Javadoc)
+	 * @see alvahouse.eatool.gui.graphical.DiagramViewer#complete()
+	 */
+	@Override
+	protected void complete() {
+		runCompletion();
+		
+	}
+
+	/** internal pane to hold the view of a model
      */
     class ViewerPane extends JPanel {
         private static final long serialVersionUID = 1L;
@@ -235,21 +246,26 @@ public class TimeDiagramViewer extends DiagramViewer {
         /* (non-Javadoc)
          * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
          */
-        public void paintComponent(Graphics g) {
- 			this.setBackground(diagram.getBackgroundColour());
-            super.paintComponent(g);
+        public void paintComponent(Graphics g){
+ 			try {
+				this.setBackground(diagram.getBackgroundColour());
+				super.paintComponent(g);
 
-            Rectangle windowBounds;
-            Container parent = getParent();
-            if(parent instanceof JViewport){
-                windowBounds = ((JViewport)parent).getViewRect();
-            } else {
-                windowBounds = getBounds();
-            }
-            //g.setClip(windowBounds.x,windowBounds.y, windowBounds.width, windowBounds.height); 
-            g.setColor(Color.black);
-            diagram.drawTimeScale((Graphics2D)g,windowBounds,zoom);
-            diagram.draw((Graphics2D)g, zoom);
+				Rectangle windowBounds;
+				Container parent = getParent();
+				if(parent instanceof JViewport){
+				    windowBounds = ((JViewport)parent).getViewRect();
+				} else {
+				    windowBounds = getBounds();
+				}
+				//g.setClip(windowBounds.x,windowBounds.y, windowBounds.width, windowBounds.height); 
+				g.setColor(Color.black);
+				diagram.drawTimeScale((Graphics2D)g,windowBounds,zoom);
+				diagram.draw((Graphics2D)g, zoom);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
        }
 
 		/**
@@ -288,11 +304,17 @@ public class TimeDiagramViewer extends DiagramViewer {
             repaint();
         }
         
-        public void paintComponent(Graphics g) {
- 			this.setBackground(diagram.getBackgroundColour());
-            super.paintComponent(g);
-            diagram.drawCaptions((Graphics2D)g, zoom);
+        public void paintComponent(Graphics g)  {
+ 			try {
+				this.setBackground(diagram.getBackgroundColour());
+				super.paintComponent(g);
+				diagram.drawCaptions(repository.getMetaModel(), (Graphics2D)g, zoom);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
        }
+        
 
         /* (non-Javadoc)
 		 * @see java.awt.Component#getPreferredSize()
@@ -351,7 +373,7 @@ public class TimeDiagramViewer extends DiagramViewer {
 		/* (non-Javadoc)
 		 * @see alvahouse.eatool.gui.WindowCoordinator.WindowFactory#createFrame()
 		 */
-		public JInternalFrame createFrame() {
+		public JInternalFrame createFrame() throws Exception {
 		    if(diagram == null || repository == null){
 		        throw new IllegalStateException("Model viewer not intitialised");  
 		    }

@@ -12,16 +12,27 @@ package alvahouse.eatool.repository.base;
  */
 import java.io.IOException;
 
+import alvahouse.eatool.repository.dto.NamedRepositoryItemDto;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
 public class NamedRepositoryItem extends RepositoryItem implements  Comparable<NamedItem>, NamedItem  {
 
+    private String m_name = "";
+    private String m_description = "";
+
     /** Creates new RepositoryItemBase */
     public NamedRepositoryItem(UUID uuid) {
         super(uuid);
     }
-    
+
+    /** Creates new NamedRespositoryItem from a DAO */
+    public NamedRepositoryItem(NamedRepositoryItemDto dao) {
+        super(dao);
+        m_name = dao.getName();
+        m_description = dao.getDescription();
+    }
+
     protected void writeAttributesXML(XMLWriter out) throws IOException {
         if(getName().length() > 0) 
             out.addAttribute("name",getName());
@@ -31,12 +42,18 @@ public class NamedRepositoryItem extends RepositoryItem implements  Comparable<N
         }
     }
 
-//    protected void cloneTo(NamedRepositoryItem copy) {
-//        super.cloneTo(copy);
-//        copy.m_name = new String(m_name);
-//        copy.m_description = new String(m_description);
-//    }
-    
+    protected void cloneTo(NamedRepositoryItem copy) {
+        super.cloneTo(copy);
+        copy.m_name = new String(m_name);
+        copy.m_description = new String(m_description);
+    }
+
+    protected void copyTo(NamedRepositoryItemDto dao) {
+        super.copyTo(dao);
+        dao.setName(m_name);
+        dao.setDescription(m_description);
+    }
+
     /* (non-Javadoc)
      * @see alvahouse.eatool.repository.base.NamedItem#getName()
      */
@@ -78,6 +95,4 @@ public class NamedRepositoryItem extends RepositoryItem implements  Comparable<N
         return getKey().compareTo(other.getKey());
     }
     
-    private String m_name = "";
-    private String m_description = "";
 }

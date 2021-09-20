@@ -12,6 +12,8 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.RoundRectangle2D;
 
 import alvahouse.eatool.repository.base.KeyedItem;
+import alvahouse.eatool.repository.dto.graphical.RoundedSymbolDto;
+import alvahouse.eatool.repository.dto.graphical.SymbolDto;
 import alvahouse.eatool.repository.graphical.standard.AbstractSymbol;
 import alvahouse.eatool.repository.graphical.standard.DimensionFloat;
 import alvahouse.eatool.repository.graphical.standard.SymbolType;
@@ -46,6 +48,14 @@ public class RoundedSymbol extends AbstractSymbol {
     }
 
 	/**
+ * @param csd
+ */
+public RoundedSymbol(KeyedItem item, SymbolType type, RoundedSymbolDto rsd) {
+	super(item, type, rsd);
+}
+
+
+	/**
 	 * Gets the outline of the symbol.
 	 * @return Shape containing the outline symbol.
 	 */
@@ -63,7 +73,7 @@ public class RoundedSymbol extends AbstractSymbol {
 	 * @param g
 	 * @param scale
 	 */
-	public void draw(Graphics2D g, float scale) {
+	public void draw(Graphics2D g, float scale) throws Exception{
 		
 		sizeSymbolFor(g);
 
@@ -95,7 +105,7 @@ public class RoundedSymbol extends AbstractSymbol {
 		}
 	}
 	
-	public void sizeWith(Graphics2D g) {
+	public void sizeWith(Graphics2D g) throws Exception{
 	    if(hasText()){
 	        DimensionFloat size = new DimensionFloat();
 	        sizeTextBox(g , size);
@@ -111,5 +121,26 @@ public class RoundedSymbol extends AbstractSymbol {
 		
 		setSize(width,height);
 	}
+
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.graphical.standard.Symbol#toDto()
+	 */
+	@Override
+	public SymbolDto toDto() {
+		RoundedSymbolDto dto = new RoundedSymbolDto();
+		copyTo(dto);
+		return dto;
+	}
     
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.graphical.standard.AbstractSymbol#clone()
+	 */
+	@Override
+	public Object clone() {
+		RoundedSymbol s = new RoundedSymbol();
+		cloneTo(s);
+		return s;
+	}
+
 }

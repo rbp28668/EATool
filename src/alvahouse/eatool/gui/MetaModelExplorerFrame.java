@@ -10,7 +10,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 import alvahouse.eatool.Application;
 import alvahouse.eatool.repository.Repository;
-import alvahouse.eatool.repository.metamodel.impl.MetaModelImpl;
 import alvahouse.eatool.util.SettingsManager;
 
 /**
@@ -62,7 +61,7 @@ public class MetaModelExplorerFrame extends javax.swing.JInternalFrame implement
     /** Call when the meta model changes to get the explorer to re-build
      * it's internal representation
      */
-    public void refresh() {
+    public void refresh()  throws Exception{
         treeModel.refresh();
     }
 

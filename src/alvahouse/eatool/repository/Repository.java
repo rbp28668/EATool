@@ -9,6 +9,7 @@ package alvahouse.eatool.repository;
 import java.io.IOException;
 import java.util.Set;
 
+import alvahouse.eatool.gui.graphical.standard.metamodel.MetaModelDiagramTypes;
 import alvahouse.eatool.repository.base.DeleteDependenciesList;
 import alvahouse.eatool.repository.base.KeyedItem;
 import alvahouse.eatool.repository.exception.InputException;
@@ -47,6 +48,11 @@ public interface Repository extends KeyedItem {
     public final static int TYPES = 256;
     public final static int PAGES = 512;
     public final static int IMAGES = 1024;
+
+    
+    public void initialiseNew();
+    public void bindToExisting();
+
 
     /** loads the repository from an XML stream obtained from the given uri.
      * @param uri is the resource identifier that determines where to read
@@ -89,6 +95,12 @@ public interface Repository extends KeyedItem {
     public abstract MetaModel getMetaModel();
 
     public abstract Diagrams getMetaModelDiagrams();
+    
+	/**
+	 * @return
+	 */
+	public abstract MetaModelDiagramTypes getMetaModelDiagramTypes();
+
 
     /**
      * Gets the repository's diagrams.
@@ -124,33 +136,62 @@ public interface Repository extends KeyedItem {
      * Gets the repository event map.
      * @return the event map.
      */
-    public abstract EventMap getEventMap();
+    public abstract EventMap getEventMap() throws Exception;
+
+    /**
+     * Updates the repository event map.
+     * @param events is the new event map.
+     */
+    public abstract void setEventMap(EventMap events) throws Exception;
 
     /**
      * Gets the event map that should be used for any meta-model viewer.
      * Allows event handlers to be created in the dynamic meta-model viewer.
      * @return
      */
-    public abstract EventMap getMetaModelViewerEvents();
+    public abstract EventMap getMetaModelViewerEvents() throws Exception;
+
+    /**
+     * Sets the events for the meta model viewer.  As the diagram type for meta model viewer isn't
+     * persisted, the repository manages the events on its behalf.
+     * @param metaModelViewerEvents are the events to use in the meta model. Typically this will
+     * contain the reference to a script to display the meta model in a pleasing and eye catching fashion!
+     * @throws Exception
+     */
+    public abstract void setMetaModelViewerEvents(EventMap metaModelViewerEvents) throws Exception;
 
     /**
      * Gets the event map that should be used for any model viewer.
      * Allows event handlers to be created in the dynamic model viewer.
      * @return
      */
-    public abstract EventMap getModelViewerEvents();
-    
+    public abstract EventMap getModelViewerEvents() throws Exception;
+
+    /**
+     * Sets the events for the model viewer. As the diagram type for the model viewer isn't persisted,
+     * the repository manages the events on its behalf.
+     * @param modelViewerEvents is the value to set.
+     * @throws Exception
+     */
+    public abstract void setModelViewerEvents(EventMap modelViewerEvents) throws Exception;
+
     /**
      * Get the repository properties.
      * @return the properties.
      */
-    public abstract RepositoryProperties getProperties();
+    public abstract RepositoryProperties getProperties() throws Exception;
+
+	/**
+	 * Updates the repository properties.
+	 * @param properties
+	 */
+	public abstract void updateProperties(RepositoryProperties properties) throws Exception;
 
     /**
      * Gets the types associated with this repository.
      * @return the MetaPropertyTypes.
      */
-    public abstract MetaPropertyTypes getTypes();
+    public abstract MetaPropertyTypes getTypes() throws Exception;
 
     /**
      * Gets the extensible types in the repository.
@@ -178,7 +219,7 @@ public interface Repository extends KeyedItem {
      * @param e is the Entity that may be deleted.
      * @return a new DeleteDependenciesList with the delete dependencies.
      */
-    public abstract DeleteDependenciesList getDeleteDependencies(Entity e);
+    public abstract DeleteDependenciesList getDeleteDependencies(Entity e) throws Exception;
 
     /**
      * Gets all the delete dependencies for a given Relationship.
@@ -188,7 +229,7 @@ public interface Repository extends KeyedItem {
      * @param r is the Relationship that may be deleted.
      * @return a new DeleteDependenciesList with the delete dependencies.
      */
-    public abstract DeleteDependenciesList getDeleteDependencies(Relationship r);
+    public abstract DeleteDependenciesList getDeleteDependencies(Relationship r) throws Exception;
 
     /**
      * Gets all the delete dependencies for a given MetaEntity.
@@ -198,7 +239,7 @@ public interface Repository extends KeyedItem {
      * @param me is the MetaEntity that may be deleted.
      * @return a new DeleteDependenciesList with the delete dependencies.
      */
-    public abstract DeleteDependenciesList getDeleteDependencies(MetaEntity me);
+    public abstract DeleteDependenciesList getDeleteDependencies(MetaEntity me) throws Exception;
 
     /**
      * Gets all the delete dependencies for a given MetaRelationship.
@@ -209,7 +250,7 @@ public interface Repository extends KeyedItem {
      * @return a new DeleteDependenciesList with the delete dependencies.
      */
     public abstract DeleteDependenciesList getDeleteDependencies(
-            MetaRelationship mr);
+            MetaRelationship mr) throws Exception;
 
     /**
      * Deletes all the contents of the repository.
@@ -224,5 +265,13 @@ public interface Repository extends KeyedItem {
 
     public abstract Set<Entity> searchForEntitiesOfType(String query,
             Set<MetaEntity> contents) throws RepositoryException;
+	
+    /**
+     * Disconnects the repository from any remote storage.
+	 * @throws Exception
+	 */
+	void disconnect() throws Exception;
+
+
 
 }

@@ -6,10 +6,13 @@
 
 package alvahouse.eatool;
 
+import java.awt.Frame;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+
+import org.apache.bsf.BSFException;
 
 import alvahouse.eatool.gui.CommandFrame;
 import alvahouse.eatool.gui.EAToolWindowCoordinator;
@@ -19,6 +22,8 @@ import alvahouse.eatool.gui.scripting.proxy.ApplicationProxy;
 import alvahouse.eatool.repository.LoadProgress;
 import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.RepositoryImpl;
+import alvahouse.eatool.repository.persist.RepositoryPersistence;
+import alvahouse.eatool.repository.persist.memory.RepositoryPersistenceMemory;
 import alvahouse.eatool.repository.scripting.ScriptManager;
 import alvahouse.eatool.util.SettingsManager;
 import alvahouse.eatool.util.UUID;
@@ -31,7 +36,7 @@ import alvahouse.eatool.util.UUID;
  */
 public class Main implements Application{
 
-	private WindowCoordinator windowCoordinator;
+	private EAToolWindowCoordinator windowCoordinator;
 	private Repository m_repository;
 	private SettingsManager config;
 	private SettingsManager settings;
@@ -64,6 +69,10 @@ public class Main implements Application{
 		if (app == null)
 			app = new Main();
 		return app;
+	}
+	
+	public static Frame getAppFrame() {
+		return getApp().getCommandFrame();
 	}
 
 	public SettingsManager getConfig() {
@@ -102,6 +111,22 @@ public class Main implements Application{
 		getSettings().save(path);
 	}
 
+	public void setRepository(Repository repository) throws BSFException {
+		assert(repository != null);
+		this.m_repository = repository;
+		
+		// Make the app and updated repository known to the script manager.
+		ScriptManager.getInstance().declareObject("app", 
+	                new ApplicationProxy(this,m_repository), 
+	                ApplicationProxy.class);
+
+
+		// Init the GUI
+		windowCoordinator.setRepository(repository);
+		commandFrame.setRepository(repository);
+	}
+	
+	
 	private void run(String args[]) {
 
 		try {
@@ -140,8 +165,10 @@ public class Main implements Application{
 			initUUID();
 
 
-			// Create & configure the repository.
-			m_repository = new RepositoryImpl(config);
+			// Create & configure the repository with a default in-memory persistence layer.
+			RepositoryPersistence persistence = new RepositoryPersistenceMemory();
+			m_repository = new RepositoryImpl(persistence, config);
+			m_repository.initialiseNew();
 
 			// Make the app known to the script manager.
 			ScriptManager.getInstance().declareObject("app", 

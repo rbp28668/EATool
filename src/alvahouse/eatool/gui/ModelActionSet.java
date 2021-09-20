@@ -7,7 +7,6 @@
 package alvahouse.eatool.gui;
 
 import java.awt.event.ActionEvent;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -20,11 +19,12 @@ import alvahouse.eatool.Application;
 import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.base.DeleteDependenciesList;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
-import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
 import alvahouse.eatool.repository.model.Entity;
 import alvahouse.eatool.repository.model.Model;
+import alvahouse.eatool.repository.model.Property;
 import alvahouse.eatool.repository.model.Relationship;
+import alvahouse.eatool.util.UUID;
 
 /**
  * This is the set of actions for the model explorer.  It allows these
@@ -53,6 +53,7 @@ public class ModelActionSet extends ActionSet {
         addAction("EntityNewFromMeta",actionEntityNewFromMeta);
         addAction("EntityBrowse", actionEntityBrowse);
         addAction("EntityEdit", actionEntityEdit);
+        addAction("EntityClone", actionEntityClone);
         addAction("EntityDelete", actionEntityDelete);
         addAction("RelationshipNew", actionRelationshipNew);
         addAction("RelationshipNewFromMeta", actionRelationshipNewFromMeta);
@@ -64,14 +65,13 @@ public class ModelActionSet extends ActionSet {
     }
 
     private final Action actionEntityNew = new AbstractAction() {
+ 		private static final long serialVersionUID = 1L;
         public void actionPerformed(ActionEvent e) {
             try {
             	// Get a list of all non-abstract entities (i.e.ones we
             	// can create entities for.
-                List metaList = new LinkedList();
-                for(Iterator iter = repository.getMetaModel().getMetaEntities().iterator();
-                iter.hasNext();) {
-                    MetaEntity me = (MetaEntity)iter.next();
+                List<MetaEntity> metaList = new LinkedList<>();
+                for(MetaEntity me : repository.getMetaModel().getMetaEntities()) {
                     if(!me.isAbstract())
                         metaList.add(me);
                 }
@@ -81,10 +81,11 @@ public class ModelActionSet extends ActionSet {
                 
                 if(meta != null) {
                     Entity entity = new Entity(meta);
-                    EntityEditor editor;
-                    (editor = new EntityEditor(explorer, entity, repository)).setVisible(true);
+                    EntityEditor editor = new EntityEditor(explorer, entity, repository); 
+                    editor.setVisible(true);
                     if(editor.wasEdited()) {
                         repository.getModel().addEntity(entity);
+                   		editor.persistRelationships(repository.getModel());
                     }
                 }
             } catch(Throwable t) {
@@ -95,6 +96,7 @@ public class ModelActionSet extends ActionSet {
     };   
 
     private final Action actionMetaEntityBrowse = new AbstractAction() {
+ 		private static final long serialVersionUID = 1L;
         public void actionPerformed(ActionEvent e) {
             try {
                MetaEntity meta = (MetaEntity)explorer.getSelectedNode().getUserObject();
@@ -116,6 +118,7 @@ public class ModelActionSet extends ActionSet {
      * Comment for <code>actionMetaEntityTable</code>
      */
     private final Action actionMetaEntityTable = new AbstractAction() {
+ 		private static final long serialVersionUID = 1L;
         public void actionPerformed(ActionEvent e) {
             try {
                 MetaEntity meta = (MetaEntity)explorer.getSelectedNode().getUserObject();
@@ -141,16 +144,18 @@ public class ModelActionSet extends ActionSet {
     };
     
     private final Action actionEntityNewFromMeta = new AbstractAction() {
+ 		private static final long serialVersionUID = 1L;
         public void actionPerformed(ActionEvent e) {
             try {
                 MetaEntity meta = (MetaEntity)explorer.getSelectedNode().getUserObject();
                  
                 if(meta != null) {
                     Entity entity = new Entity(meta);
-                    EntityEditor editor;
-                    (editor = new EntityEditor(explorer, entity,repository)).setVisible(true);
+                    EntityEditor editor = new EntityEditor(explorer, entity,repository); 
+                    editor.setVisible(true);
                     if(editor.wasEdited()) {
                   		repository.getModel().addEntity(entity);
+                   		editor.persistRelationships(repository.getModel());
                     }
                 }
             } catch(Throwable t) {
@@ -160,6 +165,7 @@ public class ModelActionSet extends ActionSet {
     };   
     
     private final Action actionEntityBrowse = new AbstractAction() {
+ 		private static final long serialVersionUID = 1L;
         public void actionPerformed(ActionEvent e) {
             try {
                 Entity entity = (Entity)explorer.getSelectedNode().getUserObject();
@@ -173,18 +179,54 @@ public class ModelActionSet extends ActionSet {
     };
     
     private final Action actionEntityEdit = new AbstractAction() {
+ 		private static final long serialVersionUID = 1L;
         public void actionPerformed(ActionEvent e) {
             try {
                 Entity entity = (Entity)explorer.getSelectedNode().getUserObject();
-                EntityEditor editor;
-                (editor = new EntityEditor(explorer, entity,repository)).setVisible(true);
+                EntityEditor editor = new EntityEditor(explorer, entity,repository);
+                editor.setVisible(true);
+                if(editor.wasEdited()) {
+              		repository.getModel().updateEntity(entity);
+              		editor.persistRelationships(repository.getModel());
+                }
+
             } catch(Throwable t) {
                 new ExceptionDisplay(explorer,t);
             }
         }
     };   
+
+    private final Action actionEntityClone = new AbstractAction() {
+ 		private static final long serialVersionUID = 1L;
+
+		public void actionPerformed(ActionEvent e) {
+            try {
+                Entity source = (Entity)explorer.getSelectedNode().getUserObject();
+                MetaEntity meta = source.getMeta();
+                Entity entity = new Entity(meta);
+
+                // Default the values of the new entity from the old.
+                for(Property p : source.getProperties()) {
+                	UUID uuidMeta = p.getMeta().getKey();
+                	Property destProperty = entity.getPropertyByMeta(uuidMeta);
+                	destProperty.setValue( p.getValue());
+                }
+                
+                EntityEditor editor = new EntityEditor(explorer, entity,repository);
+                editor.setVisible(true);
+                if(editor.wasEdited()) {
+              		repository.getModel().addEntity(entity);
+              		editor.persistRelationships(repository.getModel());
+                }
+            } catch(Throwable t) {
+                new ExceptionDisplay(explorer,t);
+            }
+        }
+    };   
+
     
     private final Action actionEntityDelete = new AbstractAction() {
+ 		private static final long serialVersionUID = 1L;
         public void actionPerformed(ActionEvent e) {
             try {
                 DefaultMutableTreeNode node = explorer.getSelectedNode();
@@ -192,8 +234,8 @@ public class ModelActionSet extends ActionSet {
 
                 DeleteDependenciesList dependencies = repository.getDeleteDependencies(entity);
 
-                DeleteConfirmationDialog dlg;
-                (dlg = new DeleteConfirmationDialog(explorer, dependencies)).setVisible(true);
+                DeleteConfirmationDialog dlg = new DeleteConfirmationDialog(explorer, dependencies);
+                dlg.setVisible(true);
             } catch(Throwable t) {
                 new ExceptionDisplay(explorer,t);
             }
@@ -201,6 +243,7 @@ public class ModelActionSet extends ActionSet {
     };   
     
     private final Action actionRelationshipNew = new AbstractAction() {
+ 		private static final long serialVersionUID = 1L;
         public void actionPerformed(ActionEvent e) {
         	try {
 	            MetaRelationship meta = Dialogs.selectMetaRelationship(explorer, repository);
@@ -230,6 +273,7 @@ public class ModelActionSet extends ActionSet {
     };
     
     private final Action actionRelationshipNewFromMeta = new AbstractAction() {
+ 		private static final long serialVersionUID = 1L;
         public void actionPerformed(ActionEvent e) {
         	try {
 	            MetaRelationship meta = (MetaRelationship)explorer.getSelectedNode().getUserObject();
@@ -250,17 +294,22 @@ public class ModelActionSet extends ActionSet {
     };   
     
     private final Action actionRelationshipEdit = new AbstractAction() {
+ 		private static final long serialVersionUID = 1L;
         public void actionPerformed(ActionEvent e) {
              try {
                 Relationship relationship = (Relationship)explorer.getSelectedNode().getUserObject();
                 RelationshipEditor editor;
                 (editor = new RelationshipEditor(explorer, relationship, repository.getModel())).setVisible(true);
+                if(editor.wasEdited()) {
+                	repository.getModel().updateRelationship(relationship);
+                }
             } catch(Throwable t) {
                 new ExceptionDisplay(explorer,t);
             }
        }
     };   
     private final Action actionRelationshipDelete = new AbstractAction() {
+ 		private static final long serialVersionUID = 1L;
         public void actionPerformed(ActionEvent e) {
             try {
                 DefaultMutableTreeNode node = explorer.getSelectedNode();
@@ -270,6 +319,9 @@ public class ModelActionSet extends ActionSet {
 
                 DeleteConfirmationDialog dlg;
                 (dlg = new DeleteConfirmationDialog(explorer, dependencies)).setVisible(true);
+                if(dlg.wasEdited()) {
+                	repository.getModel().deleteRelationship(r.getKey(), r.getVersion().getVersion());
+                }
             } catch(Throwable t) {
                 new ExceptionDisplay(explorer,t);
             }
@@ -277,6 +329,7 @@ public class ModelActionSet extends ActionSet {
     };   
     
     private final Action actionTest = new AbstractAction() {
+ 		private static final long serialVersionUID = 1L;
         public void actionPerformed(ActionEvent e) {
             System.out.println("Test called from " 
                 + e.getSource().getClass().getName()

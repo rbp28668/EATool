@@ -17,6 +17,7 @@ import java.util.StringTokenizer;
 
 import alvahouse.eatool.repository.base.FactoryBase;
 import alvahouse.eatool.repository.base.RepositoryItem;
+import alvahouse.eatool.repository.dto.graphical.TextualObjectDto;
 import alvahouse.eatool.repository.graphical.GraphicalObject;
 import alvahouse.eatool.repository.graphical.Handle;
 import alvahouse.eatool.util.UUID;
@@ -52,7 +53,21 @@ public abstract class TextualObject extends RepositoryItem implements GraphicalO
 		mustSizeSymbol = true;
     }
 
-    public abstract String getText();
+    /**
+	 * @param dto
+	 */
+	public TextualObject(TextualObjectDto dto) {
+		super(dto);
+		x = dto.getX();
+		y = dto.getY();
+		size = new DimensionFloat(dto.getWidth(), dto.getHeight());
+		backColour = dto.getBackColour();
+		textColour = dto.getTextColour();
+		borderColour = dto.getBorderColour();
+		font = dto.getFont();
+	}
+	
+	public abstract String getText();
 
 	/**
 	 * Draws handles round the symbol.
@@ -98,7 +113,7 @@ public abstract class TextualObject extends RepositoryItem implements GraphicalO
 	 * Calculates the required size of the symbol.
      * @param g is the Graphics2D to size for.
      */
-    protected void sizeSymbolFor(Graphics2D g) {
+    protected void sizeSymbolFor(Graphics2D g) throws Exception{
         // Want to size object by breaking string so that we have symbols about 1.5
 		// width:height.  Arbitrary but looks ok!
 		if(mustSizeSymbol){
@@ -268,7 +283,7 @@ public abstract class TextualObject extends RepositoryItem implements GraphicalO
     /* (non-Javadoc)
      * @see alvahouse.eatool.gui.graphical.GraphicalObject#draw(java.awt.Graphics2D, float)
      */
-	public void draw(Graphics2D g, float scale) {
+	public void draw(Graphics2D g, float scale) throws Exception{
 		
 		sizeSymbolFor(g);
 		
@@ -289,7 +304,7 @@ public abstract class TextualObject extends RepositoryItem implements GraphicalO
     /* (non-Javadoc)
      * @see alvahouse.eatool.gui.graphical.GraphicalObject#sizeWith(java.awt.Graphics2D)
      */
-    public void sizeWith(Graphics2D g) {
+    public void sizeWith(Graphics2D g) throws Exception{
 		sizeTextBox(g , size);
     }
 
@@ -514,5 +529,26 @@ public abstract class TextualObject extends RepositoryItem implements GraphicalO
 		this.font = font;
 	}
     
-	
+	protected void cloneTo(TextualObject copy) {
+		super.cloneTo(copy);
+	    copy.x = x;
+	    copy.y = y;
+		copy.size = new DimensionFloat(size.getWidth(), size.getHeight());
+		copy.textColour = textColour;
+		copy.backColour = backColour;
+		copy.borderColour = borderColour;
+		copy.font = font;
+	}
+
+	protected void copyTo(TextualObjectDto dto) {
+		super.copyTo(dto);
+		dto.setX(x);
+		dto.setY(y);
+		dto.setWidth(size.getWidth());
+		dto.setHeight(size.getHeight());
+		dto.setBackColour(backColour);
+		dto.setTextColour(textColour);
+		dto.setBorderColour(borderColour);
+		dto.setFont(font);
+	}
 }

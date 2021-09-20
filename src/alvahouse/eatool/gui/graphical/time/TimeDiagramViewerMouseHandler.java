@@ -18,6 +18,7 @@ import alvahouse.eatool.gui.PositionalPopup;
 import alvahouse.eatool.gui.graphical.EventErrorHandler;
 import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.base.KeyedItem;
+import alvahouse.eatool.repository.scripting.EventMap;
 import alvahouse.eatool.repository.scripting.ScriptContext;
 import alvahouse.eatool.repository.scripting.ScriptManager;
 import alvahouse.eatool.scripting.proxy.ScriptWrapper;
@@ -77,11 +78,10 @@ public class TimeDiagramViewerMouseHandler extends MouseInputAdapter {
 						    Object target = ScriptWrapper.wrapObject(item);
 						    Object diagram = ScriptWrapper.wrap(viewer.getDiagram());
 						    
-						    ScriptManager manager = ScriptManager.getInstance();
-						    
-						    ScriptContext context = viewer.getDiagram().getEventMap().getContextFor(event);
-						    if(context != null){
-							    context.addObject("target",target,target.getClass());
+						    EventMap eventMap = viewer.getDiagram().getEventMap();
+						    if(eventMap.hasHandler(event)) {
+						    	ScriptContext context = eventMap.getContextFor(event, repository.getScripts());
+						        context.addObject("target",target,target.getClass());
 							    context.addObject("diagram", diagram, diagram.getClass());
 
 							    EventErrorHandler errHandler = new EventErrorHandler(viewer);

@@ -20,7 +20,6 @@ import alvahouse.eatool.gui.ItemSelectionDialog;
 import alvahouse.eatool.gui.MetaEntityEditor;
 import alvahouse.eatool.gui.MetaRelationshipEditor;
 import alvahouse.eatool.gui.PositionalPopup;
-import alvahouse.eatool.gui.graphical.layout.Arc;
 import alvahouse.eatool.gui.graphical.standard.ItemHandler;
 import alvahouse.eatool.gui.graphical.standard.StandardDiagramViewer;
 import alvahouse.eatool.repository.Repository;
@@ -33,8 +32,6 @@ import alvahouse.eatool.repository.graphical.standard.Symbol;
 import alvahouse.eatool.repository.graphical.standard.SymbolType;
 import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaRelationship;
-import alvahouse.eatool.repository.metamodel.impl.MetaEntityImpl;
-import alvahouse.eatool.repository.metamodel.impl.MetaRelationshipImpl;
 import alvahouse.eatool.util.SettingsManager;
 import alvahouse.eatool.util.UUID;
 
@@ -45,7 +42,7 @@ import alvahouse.eatool.util.UUID;
  */
 public class MetaModelViewerItemHandler implements ItemHandler {
 
-    private  StandardDiagramType diagramType;
+    //private  StandardDiagramType diagramType;
     private SettingsManager.Element cfg;
     private Application app;
     private Repository repository;
@@ -55,7 +52,7 @@ public class MetaModelViewerItemHandler implements ItemHandler {
      */
     public MetaModelViewerItemHandler(StandardDiagramType diagramType, Application app, Repository repository) {
         super();
-        this.diagramType = diagramType;
+        //this.diagramType = diagramType;
         this.app = app;
         this.repository = repository;
         
@@ -71,7 +68,7 @@ public class MetaModelViewerItemHandler implements ItemHandler {
 		editor.setVisible(true);
         boolean edited = editor.wasEdited();
         if(edited) {
-        	repository.getMetaModel().fireMetaEntityChanged(me);
+        	repository.getMetaModel().updateMetaEntity(me);
         }
 
         editor.dispose();
@@ -81,10 +78,10 @@ public class MetaModelViewerItemHandler implements ItemHandler {
     /* (non-Javadoc)
      * @see alvahouse.eatool.gui.graphical.ItemHandler#addSymbolAt(java.awt.Component, int, int)
      */
-    public Symbol[] addSymbolsAt(Component parent, int x, int y) throws LogicException {
+    public Symbol[] addSymbolsAt(Component parent, int x, int y) throws Exception {
         Symbol[] symbols = null;
         
-		ItemSelectionDialog dlg = new ItemSelectionDialog(parent, "Select Meta-Entities", repository.getMetaModel().getMetaEntities());
+		ItemSelectionDialog<MetaEntity> dlg = new ItemSelectionDialog<>(parent, "Select Meta-Entities", repository.getMetaModel().getMetaEntities());
 		dlg.setVisible(true);
 		
 		if(dlg.wasEdited()){
@@ -95,7 +92,7 @@ public class MetaModelViewerItemHandler implements ItemHandler {
 		    int inRow = 0;
 		    int startX = x;
 		    int idx = 0;
-		    MetaModelDiagramType type = MetaModelDiagramType.getInstance();
+		    MetaModelDiagramType type = MetaModelDiagramType.getInstance(repository);
 		    
 		    for(MetaEntity metaEntity : selected){
 				
@@ -121,11 +118,12 @@ public class MetaModelViewerItemHandler implements ItemHandler {
     /* (non-Javadoc)
      * @see alvahouse.eatool.gui.graphical.ItemHandler#addConnector(java.awt.Component, alvahouse.eatool.gui.graphical.Symbol, alvahouse.eatool.gui.graphical.Symbol)
      */
-    public Connector addConnector(Component parent, Symbol first, Symbol second) throws LogicException {
+    public Connector addConnector(Component parent, Symbol first, Symbol second) throws Exception {
         
         MetaEntity meFirst = (MetaEntity)first.getItem();
         MetaEntity meSecond = (MetaEntity)second.getItem();
         
+        // Figure out the set of MetaRelationships that can join the MetaEntities identified by the 2 symbols.
         Set<MetaRelationship> cmrFirst = repository.getMetaModel().getMetaRelationshipsFor(meFirst);
         Set<MetaRelationship> cmrSecond = repository.getMetaModel().getMetaRelationshipsFor(meSecond);
         Set<MetaRelationship> allowed = new HashSet<MetaRelationship>();
@@ -134,11 +132,13 @@ public class MetaModelViewerItemHandler implements ItemHandler {
         
         // remove any meta-relationships already connecting these
         // 2 meta-entities.
-        Set<Arc> existing = new HashSet<Arc>();
-        existing.addAll(first.getArcs());
-        existing.retainAll(second.getArcs());
+        Set<Connector> existing = new HashSet<>();
+        existing.addAll(first.getConnectors());
+        existing.retainAll(second.getConnectors());
+        for(Connector c : existing) {
+        	allowed.remove(c.getItem());
+        }
         
-        allowed.removeAll(existing);
         
         // intersection should now contain all the MetaRelationships that
         // can join the 2 meta-entities.
@@ -173,7 +173,7 @@ public class MetaModelViewerItemHandler implements ItemHandler {
 		// If the user has selected a new meta-relationship then magic one up
 		// and get the user to edit it.
 		if(selectNew) { 
-		    MetaRelationship mr = new MetaRelationshipImpl(new UUID());
+		    MetaRelationship mr = new MetaRelationship(new UUID());
 			mr.start().setConnection(meFirst);
 			mr.finish().setConnection(meSecond);
 		
@@ -194,7 +194,7 @@ public class MetaModelViewerItemHandler implements ItemHandler {
 			selected = mr;
 		} 
 
-		ConnectorType ct = MetaModelDiagramType.getInstance().getConnectorType();
+		ConnectorType ct = MetaModelDiagramType.getInstance(repository).getConnectorType();
 		Connector con = ct.newConnector(new UUID());
 		con.setItem(selected);
 		return con;
@@ -221,8 +221,8 @@ public class MetaModelViewerItemHandler implements ItemHandler {
     /* (non-Javadoc)
      * @see alvahouse.eatool.gui.graphical.ItemHandler#addSymbolNewItem(java.awt.Component, int, int)
      */
-    public Symbol addSymbolNewItem(Component parent, int x, int y) throws LogicException {
-		MetaEntity metaEntity = new MetaEntityImpl(new UUID());
+    public Symbol addSymbolNewItem(Component parent, int x, int y) throws Exception {
+		MetaEntity metaEntity = new MetaEntity(new UUID());
 		MetaEntityEditor editor = new MetaEntityEditor(parent, metaEntity, repository);
 		editor.setVisible(true);
         boolean edited = editor.wasEdited();
@@ -231,7 +231,7 @@ public class MetaModelViewerItemHandler implements ItemHandler {
         Symbol symbol = null;
         if(edited){
 			// Need to get the correct symbol type for this entity.
-		    MetaModelDiagramType type = MetaModelDiagramType.getInstance();
+		    MetaModelDiagramType type = MetaModelDiagramType.getInstance(repository);
 			SymbolType st = type.getSymbolType();
 			symbol = st.newSymbol(metaEntity, x, y);
 			

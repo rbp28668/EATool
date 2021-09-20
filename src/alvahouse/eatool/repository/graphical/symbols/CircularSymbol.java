@@ -12,6 +12,8 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Arc2D;
 
 import alvahouse.eatool.repository.base.KeyedItem;
+import alvahouse.eatool.repository.dto.graphical.CircularSymbolDto;
+import alvahouse.eatool.repository.dto.graphical.SymbolDto;
 import alvahouse.eatool.repository.graphical.standard.AbstractSymbol;
 import alvahouse.eatool.repository.graphical.standard.DimensionFloat;
 import alvahouse.eatool.repository.graphical.standard.SymbolType;
@@ -44,6 +46,13 @@ public class CircularSymbol extends AbstractSymbol {
     }
 
 	/**
+	 * @param csd
+	 */
+	public CircularSymbol(KeyedItem item, SymbolType type, CircularSymbolDto csd) {
+		super(item, type, csd);
+	}
+
+	/**
 	 * Gets the outline of the symbol.
 	 * @return Shape containing the outline symbol.
 	 */
@@ -61,7 +70,7 @@ public class CircularSymbol extends AbstractSymbol {
 	 * @param g
 	 * @param scale
 	 */
-	public void draw(Graphics2D g, float scale) {
+	public void draw(Graphics2D g, float scale) throws Exception{
 		
 		sizeSymbolFor(g);
 		// Possible that still may need to init extra settings
@@ -93,7 +102,7 @@ public class CircularSymbol extends AbstractSymbol {
 		
 	}
 	
-	public void sizeWith(Graphics2D g) {
+	public void sizeWith(Graphics2D g) throws Exception {
 	    if(hasText()){
 	        DimensionFloat size = new DimensionFloat();
 	        sizeTextBox(g , size);
@@ -111,6 +120,26 @@ public class CircularSymbol extends AbstractSymbol {
 		float height = width * textHeight/textWidth;
 		
 		setSize(width,height);
+	}
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.graphical.standard.Symbol#toDto()
+	 */
+	@Override
+	public SymbolDto toDto() {
+		CircularSymbolDto dto = new CircularSymbolDto();
+		copyTo(dto);
+		return dto;
+	}
+
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.graphical.standard.AbstractSymbol#clone()
+	 */
+	@Override
+	public Object clone() {
+		CircularSymbol s = new CircularSymbol();
+		cloneTo(s);
+		return s;
 	}
 
 	

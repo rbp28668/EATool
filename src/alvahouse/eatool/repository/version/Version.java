@@ -52,32 +52,33 @@ public interface Version {
     public void setModifyUser(String modifyUser);
     
     /**
-     * Get the version key for the versionable object.  The version key should
-     * be updated whenever the object is modified.  A modified object can then
-     * be detected by version != originalVersion.
+     * Get the version key for the versionable object. 
+     * The version key should be supplied by the persistence mechanism.  Used for
+     * optimistic locking - if a modified object is written back to persistent 
+     * store but the supplied version does not match the version in the 
+     * persistent store then the persistent store has been modified (and will
+     * result in  stale data exception).
      * @return the version
      */
-    public UUID getVersion();
+    public String getVersion();
     
     /**
      * @param version the version to set
      */
-    public void setVersion(UUID version);
+    public void setVersion(String version);
 
+    
     /**
-     * Get an original version as stored in a persistence mechanism.  Used for
-     * optimistic locking - if a modified object is written back to persistent 
-     * store but the original version does not match the version in the 
-     * persistent store then the persistent store has been modified.
-     * @return the original version as stored in a persistence mechanism.
+     * Gets the previous version that was in play before the current one.  
+     * Intended to help diagnose conflicts.
      */
-    public UUID getOriginalVersion();
+    public String getOriginalVersion();
     
     /**
      * Sets the original version.
      * @param version the version to set
      */
-    public void setOriginalVersion(UUID version);
+    public void setOriginalVersion(String version);
     
     
     /**
@@ -91,4 +92,12 @@ public interface Version {
      * @param user is the user modifying the object.
      */
     public void modifyBy(String user);
+    
+	/**
+	 * Call when persistence layer provides a version string from a create or update operation.
+	 * If version is null then the version is not updated. This is to support in memory 
+	 * repository where you don't want to update the version every time you load from disk.
+	 * @param version
+	 */
+	public void update(String version);
 }

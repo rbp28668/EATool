@@ -15,6 +15,8 @@ import java.util.Set;
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
 
+import alvahouse.eatool.repository.Repository;
+
 /**
  * WindowCoordinator
  * Has repsonsibility for tracking which top-level windows exist in the application
@@ -22,6 +24,10 @@ import javax.swing.JInternalFrame;
  * @author  rbp28668
  */
 public class WindowCoordinator {
+
+    private Map<String, JInternalFrame> frames = new HashMap<String, JInternalFrame>();
+    private Map<String, WindowFactory> factories = new HashMap<String, WindowFactory>();
+    private JDesktopPane desktopPane = null;
 
     /** Creates new WindowCoordinator */
     public WindowCoordinator() {
@@ -121,10 +127,9 @@ public class WindowCoordinator {
      * @param is the frame to remove.
      */
     public void removeFrame(JInternalFrame frame) {
-        for(Iterator<Map.Entry<String, JInternalFrame>> iter = frames.entrySet().iterator(); iter.hasNext();) {
-            Map.Entry<String, JInternalFrame> entry = iter.next();
+        for(Map.Entry<String, JInternalFrame> entry : frames.entrySet()) {
             if(entry.getValue() == frame) {
-                frames.remove((String)entry.getKey());
+                frames.remove(entry.getKey());
                 break;
             }
         }
@@ -147,6 +152,14 @@ public class WindowCoordinator {
         }
     }
     
+    /**
+     * Removes all windows.  Use when swapping between repositories.
+     */
+    public void removeAll() {
+    	closeAll();
+    	frames.clear();
+    }
+    
     /** Adds a factory to the window coordinator so windows can be created by
      * type name.  
      * @param factory is the window factory that will create new windows.
@@ -160,6 +173,17 @@ public class WindowCoordinator {
             throw new IllegalArgumentException("Empty name for window factory");
         
         factories.put(internalName, factory);
+    }
+    
+    /**
+     * Determines whether a window factory exists for a given internal name.  Used
+     * to support dynamic factories - e.g. for scripts where you want to have
+     * separate windows for each script.
+     * @param internalName is the name to check.
+     * @return true if there's a window factory registered for the given name.
+     */
+    public boolean hasFactory(String internalName) {
+    	return factories.containsKey(internalName);
     }
     
     /** sets the desktop pane so that windows can be automatically added
@@ -186,7 +210,4 @@ public class WindowCoordinator {
         public JInternalFrame createFrame() throws Exception;
     }
     
-    private Map<String, JInternalFrame> frames = new HashMap<String, JInternalFrame>();
-    private Map<String, WindowFactory> factories = new HashMap<String, WindowFactory>();
-    private JDesktopPane desktopPane = null;
 }

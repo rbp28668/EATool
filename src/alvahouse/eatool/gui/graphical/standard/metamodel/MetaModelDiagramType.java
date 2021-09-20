@@ -8,6 +8,7 @@ package alvahouse.eatool.gui.graphical.standard.metamodel;
 
 import java.awt.Color;
 
+import alvahouse.eatool.repository.Repository;
 import alvahouse.eatool.repository.graphical.standard.BasicConnector;
 import alvahouse.eatool.repository.graphical.standard.ConnectorType;
 import alvahouse.eatool.repository.graphical.standard.StandardDiagram;
@@ -28,14 +29,14 @@ public class MetaModelDiagramType extends StandardDiagramType {
 
     private SymbolType symbolType;
     private ConnectorType connectorType;
-
     private static MetaModelDiagramType instance = null;
+    
     
     /**
      * 
      */
-    private MetaModelDiagramType() {
-        super();
+    MetaModelDiagramType(Repository repository) {
+        super(repository);
         init();
     }
 
@@ -43,8 +44,8 @@ public class MetaModelDiagramType extends StandardDiagramType {
      * @param name
      * @param uuid
      */
-    private MetaModelDiagramType(String name, UUID uuid) {
-        super(name, uuid);
+    private MetaModelDiagramType(Repository repository, String name, UUID uuid) {
+        super(repository, name, uuid);
         init();
     }
 
@@ -52,9 +53,9 @@ public class MetaModelDiagramType extends StandardDiagramType {
      * Singleton accessor.
      * @return the singleton instance of MetaModelDiagramType.
      */
-    public static MetaModelDiagramType getInstance(){
+    public static MetaModelDiagramType getInstance(Repository repository){
         if(instance == null){
-            instance = new MetaModelDiagramType("Meta-Model Diagrams", new UUID());
+            instance = new MetaModelDiagramType(repository, "Meta-Model Diagrams", new UUID());
         }
         return instance;
     }
@@ -71,10 +72,10 @@ public class MetaModelDiagramType extends StandardDiagramType {
 
     public static void defineEventMap(EventMap eventMap) {
     	eventMap.clear();
-	    eventMap.addEvent(StandardDiagram.ON_DISPLAY_EVENT);
-	    eventMap.addEvent(StandardDiagram.ON_CLOSE_EVENT);
-	    eventMap.addEvent("MetaEntity");
-	    eventMap.addEvent("MetaRelationship");
+	    eventMap.ensureEvent(StandardDiagram.ON_DISPLAY_EVENT);
+	    eventMap.ensureEvent(StandardDiagram.ON_CLOSE_EVENT);
+	    eventMap.ensureEvent("MetaEntity");
+	    eventMap.ensureEvent("MetaRelationship");
     }
     
     /**
@@ -139,4 +140,10 @@ public class MetaModelDiagramType extends StandardDiagramType {
         return me == null;
     }
 
+    // Note that as this is immutable we just return this.
+    @Override
+    public Object clone() {
+    	return this;
+    }
+    
 }

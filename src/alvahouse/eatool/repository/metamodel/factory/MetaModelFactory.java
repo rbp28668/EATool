@@ -32,7 +32,11 @@ public class MetaModelFactory extends FactoryBase implements IXMLContentHandler 
 	public void startElement(String uri, String local, Attributes attrs) throws InputException {
         String attr = attrs.getValue("uuid");
         if(attr != null) {
-        	metaModel.setKey(new UUID(attr));
+        	try {
+				metaModel.setKey(new UUID(attr));
+			} catch (Exception e) {
+				throw new InputException("Unable to set meta-model key",e);
+			}
         }
 	}
 

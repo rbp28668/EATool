@@ -1,6 +1,7 @@
 package alvahouse.eatool.repository.graphical;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -8,12 +9,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import alvahouse.eatool.repository.metamodel.MetaEntity;
+import alvahouse.eatool.repository.Repository;
+import alvahouse.eatool.repository.dto.graphical.DiagramTypeDto;
 import alvahouse.eatool.repository.metamodel.MetaModel;
 import alvahouse.eatool.repository.metamodel.MetaModelChangeAdapter;
 import alvahouse.eatool.repository.metamodel.MetaModelChangeEvent;
-import alvahouse.eatool.repository.metamodel.MetaRelationship;
-import alvahouse.eatool.repository.metamodel.MetaRole;
+import alvahouse.eatool.repository.persist.DiagramTypePersistence;
 import alvahouse.eatool.util.SettingsManager;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
@@ -26,11 +27,16 @@ import alvahouse.eatool.util.XMLWriter;
  */
 public class DiagramTypes extends MetaModelChangeAdapter {
 
+	private final Repository repository;
+	private final DiagramTypePersistence persistence;
+
+	// Manage type families locally rather than in persistence
 	private List<DiagramTypeFamily> diagramClasses = new LinkedList<DiagramTypeFamily>(); // of DiagramTypeFamily.
-	private Map<UUID,DiagramType> typeLookup = new HashMap<UUID,DiagramType>(); // of DiagramType by UUID
-	private List<DiagramsChangeListener> changeListeners = new LinkedList<DiagramsChangeListener>(); // of DiagramsChangeListener
 	private Map<UUID,DiagramTypeFamily> familyLookup = new HashMap<UUID,DiagramTypeFamily>(); // of DiagramTypeFamily by UUID.
 
+//	private Map<UUID,DiagramType> typeLookup = new HashMap<UUID,DiagramType>(); // of DiagramType by UUID
+	private List<DiagramsChangeListener> changeListeners = new LinkedList<DiagramsChangeListener>(); // of DiagramsChangeListener
+	
 	
 	
 	/**
@@ -38,10 +44,13 @@ public class DiagramTypes extends MetaModelChangeAdapter {
 	 * DiagramTypeClasses from the config file - this list should not
 	 * change while the program is running so additions will not trigger
 	 * events.
+	 * @param diagramTypePersistence 
 	 * @throws ClassNotFoundException
 	 */
-	public DiagramTypes(){
+	public DiagramTypes(Repository repository, DiagramTypePersistence diagramTypePersistence){
 	    super();
+	    this.repository = repository;
+	    this.persistence = diagramTypePersistence;
 	}
 	
 	/**
@@ -80,7 +89,7 @@ public class DiagramTypes extends MetaModelChangeAdapter {
 	 * Adds a DiagramTypeFamily to the list of available type families.
 	 * @param typeClass
 	 */
-	protected void addDiagramFamily(DiagramTypeFamily typeClass){
+	public void addDiagramFamily(DiagramTypeFamily typeClass){
 	    if(typeClass == null){
 	        throw new NullPointerException("Can't add null DiagramTypeFamily");
 	    }
@@ -90,37 +99,63 @@ public class DiagramTypes extends MetaModelChangeAdapter {
 	}
 	
 	/**
-	 * Register a DiagramType so that it can be looked up by its key using
-	 * get(UUID).
+	 * Adds a DiagramType.
 	 * @param dt is the DiagramType to register.
 	 */
-	public void registerType(DiagramType dt)  throws Exception {
+	public void add(DiagramType dt)  throws Exception {
 		if(dt == null) {
 			throw new NullPointerException("Adding null diagram type");
 		}
-		typeLookup.put(dt.getKey(),dt);
+ 		String user = System.getProperty("user.name");
+		dt.getVersion().createBy(user);
+
+		DiagramTypeDto dto = dt.toDto();
+		String version = persistence.addDiagramType(dto);
+		dt.getVersion().update(version);
 		fireDiagramTypeAdded(dt);
 	}
-	
+
 	/**
-	 * Removes the registration for a DiagramType.  After calling this
-	 * it will no longer be able to look it up using get(UUID).
-	 * @param dt is the DiagramType to un-register.
+	 * Adds a diagram type without setting version, firing events etc.
+	 * @param dt
+	 * @throws Exception
 	 */
-	public void unregisterType(DiagramType dt)  throws Exception {
+	public void _add(DiagramType dt)  throws Exception {
 		if(dt == null) {
-			throw new NullPointerException("Can't remove null diagram type");
+			throw new NullPointerException("Adding null diagram type");
 		}
-		typeLookup.remove(dt.getKey());
-		fireDiagramTypeDeleted(dt);
+		DiagramTypeDto dto = dt.toDto();
+		String version = persistence.addDiagramType(dto);
+		dt.getVersion().update(version);
 	}
+
+	/**
+	 * @param dt
+	 * @throws Exception
+	 */
+	public void update(DiagramType dt)  throws Exception {
+		if(dt == null) {
+			throw new NullPointerException("Adding null diagram type");
+		}
+ 		String user = System.getProperty("user.name");
+		dt.getVersion().modifyBy(user);
+
+		DiagramTypeDto dto = dt.toDto();
+		String version = persistence.updateDiagramType(dto);
+		dt.getVersion().update(version);
+		fireDiagramTypeChanged(dt);
+	}
+
 
    /**
      * @param diagramType
      */
     public void delete(DiagramType diagramType) throws Exception {
-        DiagramTypeFamily family = diagramType.getFamily();
-        family.remove(diagramType); // calls unregisterType(DiagramType);
+		if(diagramType == null) {
+			throw new NullPointerException("Can't remove null diagram type");
+		}
+        persistence.delete(diagramType.getKey(), diagramType.getVersion().getVersion());
+		fireDiagramTypeDeleted(diagramType);
     }
 
 	/**
@@ -128,10 +163,36 @@ public class DiagramTypes extends MetaModelChangeAdapter {
      * @param typeID is the UUID of the type we want.
      * @return the DiagramType given by the typeID or null if not found.
      */
-    public DiagramType get(UUID typeID) {
-        return typeLookup.get(typeID);
+    public DiagramType get(UUID typeID) throws Exception{
+    	DiagramTypeDto dto = persistence.getDiagramType(typeID);
+    	
+    	DiagramTypeFamily family = familyLookup.get(dto.getFamilyKey());
+    	if(family == null) {
+    		throw new IllegalStateException("Type families does not include family returned by persistence - not initialised?");
+    	}
+    	DiagramType type = family.newDiagramType(repository, dto);
+    	
+        return type;
     }
 	
+    /**
+     * @return
+     * @throws Exception
+     */
+    public Collection<DiagramType> getDiagramTypes() throws Exception{
+    	Collection<DiagramTypeDto> dtos = persistence.getTypes();
+    	List<DiagramType> types = new ArrayList<>(dtos.size());
+    	for(DiagramTypeDto dto : dtos) {
+	    	DiagramTypeFamily family = familyLookup.get(dto.getFamilyKey());
+	    	if(family == null) {
+	    		throw new IllegalStateException("Type families does not include family returned by persistence - not initialised?");
+	    	}
+	    	DiagramType type = family.newDiagramType(repository, dto);
+	    	types.add(type);
+    	}
+    	return types; 
+    }
+    
 	/**
 	 * Adds a listener to be notified of any changes to diagram types.
 	 * @param listener is the listener to add.
@@ -151,15 +212,23 @@ public class DiagramTypes extends MetaModelChangeAdapter {
 		changeListeners.remove(listener);
 	}
 	
-	
 	/**
-	 * Allows anything (such as a dialog) that edits a DiagramType to
-	 * fire the event to any registered listeners.
-	 * @param dt is the edited DiagramType.
+	 * Determines if the given change listener is active i.e. registered.
+	 * @param listener
+	 * @return
 	 */
-	public void signalEdited(DiagramType dt) throws Exception{
-		fireDiagramTypeChanged(dt);
+	public boolean isActive(DiagramsChangeListener listener) {
+		return changeListeners.contains(listener);
 	}
+	
+//	/**
+//	 * Allows anything (such as a dialog) that edits a DiagramType to
+//	 * fire the event to any registered listeners.
+//	 * @param dt is the edited DiagramType.
+//	 */
+//	public void signalEdited(DiagramType dt) throws Exception{
+//		fireDiagramTypeChanged(dt);
+//	}
 	
 	/**
 	 * Get the collection of all DiagramTypeFamily.  Iterate through
@@ -175,10 +244,7 @@ public class DiagramTypes extends MetaModelChangeAdapter {
 	 * deletes all the diagram types.
 	 */
 	public void deleteContents()  throws Exception{
-	    typeLookup.clear();
-	    for(DiagramTypeFamily family : diagramClasses){
-	        family.deleteContents();
-	    }
+	    persistence.dispose();
 		fireTypesUpdated();
 	}
 	
@@ -190,8 +256,12 @@ public class DiagramTypes extends MetaModelChangeAdapter {
 	 */
 	public void writeXML(XMLWriter out) throws IOException {
 		out.startEntity("DiagramTypes");
-		for( DiagramType dt : typeLookup.values()) {
-			dt.writeXML(out);
+		try {
+			for( DiagramType dt : getDiagramTypes()) {
+				dt.writeXML(out);
+			}
+		} catch (Exception e) {
+			throw new IOException("Unable to write Diagram Types to XML",e);
 		}
 		out.stopEntity();
 	}
@@ -217,10 +287,11 @@ public class DiagramTypes extends MetaModelChangeAdapter {
     public void metaEntityDeleted(MetaModelChangeEvent e) {
         // Need to remove any SymbolType that reference the deleted
         // Meta Entity.
-        MetaEntity meta = (MetaEntity)e.getSource();
-        for(DiagramType type : typeLookup.values()){
-            type.removeSymbolsFor(meta);
-        }
+    	// TODO review this approach
+//        MetaEntity meta = (MetaEntity)e.getSource();
+//        for(DiagramType type : typeLookup.values()){
+//            type.removeSymbolsFor(meta);
+//        }
     }
 
 
@@ -228,13 +299,13 @@ public class DiagramTypes extends MetaModelChangeAdapter {
      * @see alvahouse.eatool.repository.metamodel.MetaModelChangeListener#metaRelationshipChanged(alvahouse.eatool.repository.metamodel.MetaModelChangeEvent)
      */
     @Override
-    public void metaRelationshipChanged(MetaModelChangeEvent e) {
+    public void metaRelationshipChanged(MetaModelChangeEvent e) throws Exception{
         // If the roles change attached type then potentially 
         // some meta-roles are invalid.
-        MetaRelationship meta = (MetaRelationship)e.getSource();
-        for(DiagramType type : typeLookup.values()){
-            type.validate(meta);
-        }
+//        MetaRelationship meta = (MetaRelationship)e.getSource();
+//        for(DiagramType type : typeLookup.values()){
+//            type.validate(meta);
+//        }
     }
 
     /* (non-Javadoc)
@@ -243,10 +314,10 @@ public class DiagramTypes extends MetaModelChangeAdapter {
     @Override
     public void metaRelationshipDeleted(MetaModelChangeEvent e) {
         // Must remove associated ConnectorTypes.
-        MetaRelationship meta = (MetaRelationship)e.getSource();
-        for(DiagramType type : typeLookup.values()){
-            type.removeConnectorsFor(meta);
-        }
+//        MetaRelationship meta = (MetaRelationship)e.getSource();
+//        for(DiagramType type : typeLookup.values()){
+//            type.removeConnectorsFor(meta);
+//        }
         
     }
 
@@ -254,12 +325,12 @@ public class DiagramTypes extends MetaModelChangeAdapter {
       * Call if a meta-role has changed to allow validation of parent relationship.
      * @param e
      */
-    public void metaRoleChanged(MetaModelChangeEvent e) {
+    public void metaRoleChanged(MetaModelChangeEvent e) throws Exception {
         // If Attached class has changed then invalidate 
-        MetaRole meta = (MetaRole)e.getSource();
-        for(DiagramType type :  typeLookup.values()){
-            type.validate(meta.getMetaRelationship());
-        }
+//        MetaRole meta = (MetaRole)e.getSource();
+//        for(DiagramType type :  typeLookup.values()){
+//            type.validate(meta.getMetaRelationship());
+//        }
         
     }
     
@@ -305,6 +376,30 @@ public class DiagramTypes extends MetaModelChangeAdapter {
         }
         return family;
      }
+
+	/**
+	 * Gets diagram types belonging to a given diagram type family.
+	 * @param diagramTypeFamily of types to fetch.
+	 * @return Collection of diagram types in that factory. May be empty, never null.
+	 */
+	public Collection<DiagramType> getDiagramTypesOfFamily(DiagramTypeFamily diagramTypeFamily) throws Exception{
+    	Collection<DiagramTypeDto> dtos = persistence.getDiagramTypesOfFamily(diagramTypeFamily.getKey());
+    	List<DiagramType> types = new ArrayList<>(dtos.size());
+    	for(DiagramTypeDto dto : dtos) {
+	    	DiagramTypeFamily family = familyLookup.get(dto.getFamilyKey());
+	    	DiagramType type = family.newDiagramType(repository, dto);
+	    	types.add(type);
+    	}
+    	return types; 
+	}
+
+	/**
+	 * Deletes diagram types belonging to a given diagram type family.
+	 * @param diagramTypeFamily is the family of types to delete.
+	 */
+	public void deleteDiagramTypesOfFamily(DiagramTypeFamily diagramTypeFamily) throws Exception {
+		persistence.deleteDiagramTypesOfFamily(diagramTypeFamily.getKey());		
+	}
 
      
 }

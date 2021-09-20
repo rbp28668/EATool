@@ -12,7 +12,6 @@ import alvahouse.eatool.repository.base.NamedRepositoryItemFactory;
 import alvahouse.eatool.repository.exception.InputException;
 import alvahouse.eatool.repository.metamodel.MetaProperty;
 import alvahouse.eatool.repository.metamodel.MetaPropertyContainer;
-import alvahouse.eatool.repository.metamodel.impl.MetaPropertyImpl;
 import alvahouse.eatool.repository.metamodel.types.MetaPropertyType;
 import alvahouse.eatool.repository.metamodel.types.MetaPropertyTypes;
 import alvahouse.eatool.util.UUID;
@@ -29,11 +28,13 @@ public class MetaPropertyContainerFactory extends NamedRepositoryItemFactory{
     /** The MetaProperty currently being read in */
     private MetaProperty currentMetaProperty = null;
     
-    /** Possible types for the properties */
-    private MetaPropertyTypes types;
+    /** Possible types for the properties, create on demand. */
+    private MetaPropertyTypes types = null;
 
-     /**
-     * Default constructor
+    /**
+     * Constructor to create the meta property container factory.
+     * @param extensibleTypes provides the basis for the meta property type system and 
+     * is used to create the collection of MetaPropertyTypes when needed.
      */
     public MetaPropertyContainerFactory(MetaPropertyTypes types) {
         super();
@@ -52,7 +53,7 @@ public class MetaPropertyContainerFactory extends NamedRepositoryItemFactory{
      * @param attrs
      * @return true if it processes a meta property, false otherwise.
      */
-    protected boolean startMetaProperty(MetaPropertyContainer container, String uri, String local, Attributes attrs){
+    protected boolean startMetaProperty(MetaPropertyContainer container, String uri, String local, Attributes attrs) throws Exception{
         boolean isMetaProperty = false;
         if(local.equals("MetaProperty")) {
 	        if(container == null) 
@@ -65,17 +66,18 @@ public class MetaPropertyContainerFactory extends NamedRepositoryItemFactory{
 	        
 	        UUID uuid = getUUID(attrs);
 	        
-	        currentMetaProperty = container.getMetaProperty(uuid);
-	        if(currentMetaProperty == null){
-	            currentMetaProperty = new MetaPropertyImpl(uuid);
-	        }
+//	        currentMetaProperty = container.getMetaProperty(uuid);
+//	        if(currentMetaProperty == null){
+//	            currentMetaProperty = new MetaProperty(uuid);
+//	        }
+            currentMetaProperty = new MetaProperty(uuid);
 	        
 	        getCommonFields(currentMetaProperty, attrs);
 	        
 	        String attr = attrs.getValue("type");
 	        if(attr == null)
 	            throw new InputException("Missing type attribute for Meta Property");
-	        MetaPropertyType mpt = types.typeFromName(attr);
+	        MetaPropertyType mpt = getTypes().typeFromName(attr);
 	        currentMetaProperty.setMetaPropertyType(mpt);
 
 	        attr = attrs.getValue("default");
@@ -104,6 +106,14 @@ public class MetaPropertyContainerFactory extends NamedRepositoryItemFactory{
     }
     
     /**
+     * Gets the MetaPropertyTypes.
+	 * @return
+	 */
+	private MetaPropertyTypes getTypes() throws Exception{
+		return types;
+	}
+
+	/**
      * Optionally ends a meta property.
      * @param container
      * @param uri

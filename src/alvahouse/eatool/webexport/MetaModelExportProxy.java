@@ -6,16 +6,12 @@
  */
 package alvahouse.eatool.webexport;
 
-import java.io.IOException;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import alvahouse.eatool.repository.metamodel.MetaEntity;
-import alvahouse.eatool.repository.metamodel.MetaEntity;
 import alvahouse.eatool.repository.metamodel.MetaModel;
-import alvahouse.eatool.repository.metamodel.impl.MetaEntityImpl;
 import alvahouse.eatool.util.XMLWriter;
 
 /**
@@ -35,13 +31,12 @@ public class MetaModelExportProxy implements ExportProxy {
         this.meta = meta;
     }
 
-    public void export(XMLWriter out) throws IOException{
-        List metaList = new LinkedList();
+    public void export(XMLWriter out) throws Exception{
+        List<MetaEntity> metaList = new LinkedList<>();
         metaList.addAll(meta.getMetaEntities());
-        Collections.sort(metaList, new MetaEntityImpl.Compare());
+        Collections.sort(metaList, new MetaEntity.Compare());
         
-        for(Iterator iter = metaList.iterator(); iter.hasNext();){
-            MetaEntity me = (MetaEntity)iter.next();
+        for(MetaEntity me : metaList) {
             if(!me.isAbstract() && me.getDisplayHint() != null){
                 out.startEntity("MetaEntity");
                 out.textEntity("UUID",me.getKey().toString());

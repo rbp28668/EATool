@@ -54,7 +54,7 @@ public abstract class ConnectorStrategy {
 
     /**
      * Set handle creates a new handle with the given index.  Used for de-serialising - 
-     * an implementation may need to extend its store of handles.  Compare to moveHandle that
+     * an implementation may need to extend its store of handles.  CompareByName to moveHandle that
      * always moves an existing handle without the need to create others.  The default implementation
      * just calls moveHandle(int,float,float).
      * @param idx is the index of the handle.

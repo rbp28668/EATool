@@ -11,7 +11,11 @@ import java.io.IOException;
 import org.apache.commons.codec.binary.Base64;
 
 import alvahouse.eatool.repository.base.NamedRepositoryItem;
+import alvahouse.eatool.repository.dto.html.HTMLPageDto;
 import alvahouse.eatool.repository.scripting.EventMap;
+import alvahouse.eatool.repository.version.Version;
+import alvahouse.eatool.repository.version.VersionImpl;
+import alvahouse.eatool.repository.version.Versionable;
 import alvahouse.eatool.util.UUID;
 import alvahouse.eatool.util.XMLWriter;
 
@@ -20,11 +24,12 @@ import alvahouse.eatool.util.XMLWriter;
  * 
  * @author rbp28668
  */
-public class HTMLPage extends NamedRepositoryItem {
+public class HTMLPage extends NamedRepositoryItem implements Versionable {
 
     private String html;
     private boolean isDynamic;
-    private final EventMap eventMap;
+    private EventMap eventMap;
+    private final VersionImpl version = new VersionImpl();
     
     public final static String ON_DISPLAY_EVENT = "OnDisplay";
     public final static String ON_CLOSE_EVENT = "OnClose";
@@ -35,10 +40,31 @@ public class HTMLPage extends NamedRepositoryItem {
     public HTMLPage(UUID uuid) {
         super(uuid);
         eventMap = new EventMap();
-        eventMap.addEvent(ON_DISPLAY_EVENT);
-        eventMap.addEvent(ON_CLOSE_EVENT);
+        eventMap.ensureEvent(ON_DISPLAY_EVENT);
+        eventMap.ensureEvent(ON_CLOSE_EVENT);
     }
     
+	/**
+	 * @param dto
+	 */
+	public HTMLPage(HTMLPageDto dto) {
+		super(dto);
+		html = dto.getHtml();
+		isDynamic = dto.isDynamic();
+		eventMap = new EventMap(dto.getEventMap());
+        eventMap.ensureEvent(ON_DISPLAY_EVENT);
+        eventMap.ensureEvent(ON_CLOSE_EVENT);
+		version.fromDto(dto.getVersion());
+	}
+
+	/**
+	 * @return
+	 */
+	public HTMLPageDto toDto() {
+		HTMLPageDto dto = new HTMLPageDto();
+		copyTo(dto);
+		return dto;
+	}
 
     /**
      * Shows that the page is dynamic - dynamic pages are created
@@ -86,9 +112,10 @@ public class HTMLPage extends NamedRepositoryItem {
     public void writeXML(XMLWriter out) throws IOException {
         out.startEntity("Page");
         
-        writeAttributesXML(out);        
+        writeAttributesXML(out);
+        version.writeXML(out);
 
-        eventMap.writeXML(out, "PageEvents");
+        eventMap.writeXMLUnversioned(out, "PageEvents");
         
         if(!isDynamic()) {
 	        byte[] raw = html.getBytes();
@@ -107,5 +134,39 @@ public class HTMLPage extends NamedRepositoryItem {
 	}
 
 
+	/* (non-Javadoc)
+	 * @see alvahouse.eatool.repository.version.Versionable#getVersion()
+	 */
+	@Override
+	public Version getVersion() {
+		return version;
+	}
+
+	@Override
+	public Object clone() {
+		HTMLPage copy = new HTMLPage(getKey());
+		cloneTo(copy);
+		return copy;
+	}
+	
+	protected void cloneTo(HTMLPage copy) {
+		super.cloneTo(copy);
+		copy.eventMap = (EventMap)eventMap.clone();
+		copy.html = html;
+		copy.isDynamic = isDynamic;
+		version.cloneTo(copy.version);
+	}
+
+	/**
+	 * @return
+	 */
+	protected void copyTo(HTMLPageDto dto) {
+		super.copyTo(dto);
+		dto.setHtml(html);
+		dto.setDynamic(isDynamic);
+		dto.setEventMap(eventMap.toDto());
+		dto.setVersion(version.toDto());
+		
+	}
 
 }
