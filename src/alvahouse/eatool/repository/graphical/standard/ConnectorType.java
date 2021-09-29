@@ -212,7 +212,7 @@ public class ConnectorType extends NamedRepositoryItem{
 	
 	protected void copyTo(ConnectorTypeDto dto) {
 		super.copyTo(dto);
-		dto.setConnectorClass(getClass().getName());
+		dto.setConnectorClass(connectorClass.getName());
 		dto.setMetaRelationshipKey(represents.getKey());
 	}
 

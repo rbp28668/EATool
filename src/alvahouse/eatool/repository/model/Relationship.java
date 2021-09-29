@@ -226,6 +226,7 @@ public class Relationship extends PropertyContainer implements TooltipProvider, 
 					+ getMeta().start().getName() + ", got " + r.getMeta().getName());
 		}
 		ends[0] = r;
+		r.setRelationship(this);
 	}
 
 	/**
@@ -246,7 +247,7 @@ public class Relationship extends PropertyContainer implements TooltipProvider, 
 					+ getMeta().finish().getName() + ", got " + r.getMeta().getName());
 		}
 		ends[1] = r;
-
+		r.setRelationship(this);
 	}
 
 	/**

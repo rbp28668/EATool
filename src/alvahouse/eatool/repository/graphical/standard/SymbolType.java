@@ -374,7 +374,7 @@ public class SymbolType extends NamedRepositoryItem implements TextObjectSetting
 
 	protected void copyTo(SymbolTypeDto dto) {
 		super.copyTo(dto);
-		dto.setMetaEntityKey(getKey());
+		dto.setMetaEntityKey(represents.getKey());
 		dto.setSymbolClass(symbolClass.getName());
 		dto.setTextColour(textColour);
 		dto.setBackColour(backColour);
