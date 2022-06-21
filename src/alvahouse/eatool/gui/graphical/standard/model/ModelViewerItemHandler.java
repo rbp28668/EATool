@@ -74,6 +74,9 @@ public class ModelViewerItemHandler implements ItemHandler {
 		editor.setVisible(true);
         boolean edited = editor.wasEdited();
         editor.dispose();
+        if(edited) {
+        	repository.getModel().updateEntity(entity);
+        }
         return edited;
     }
 

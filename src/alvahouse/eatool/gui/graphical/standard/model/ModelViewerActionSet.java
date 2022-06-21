@@ -222,6 +222,7 @@ public class ModelViewerActionSet extends StandardDiagramViewerActionSet {
 	                EntityEditor editor;
 	                (editor = new EntityEditor(getViewer(), entity, repository)).setVisible(true);
 	                if(editor.wasEdited()){
+	                	repository.getModel().updateEntity(entity);
 	                    viewer.refresh();
 	                }
                }
